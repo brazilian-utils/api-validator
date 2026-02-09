@@ -1,0 +1,812 @@
+{
+  "library": "brazilian-utils-rust",
+  "domains": {
+    "addressfromcep": {
+      "functions": {
+        "get": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "&str"
+                },
+                {
+                  "name": "raise_exceptions",
+                  "type": "bool"
+                }
+              ],
+              "returns": "Result<Option<Address>,",
+              "implementationPath": "get_address_from_cep"
+            }
+          ]
+        }
+      }
+    },
+    "cep": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_cep"
+            }
+          ]
+        }
+      }
+    },
+    "cepinformationfromaddress": {
+      "functions": {
+        "get": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "federal_unit",
+                  "type": "&str"
+                },
+                {
+                  "name": "city",
+                  "type": "&str"
+                },
+                {
+                  "name": "street",
+                  "type": "&str"
+                },
+                {
+                  "name": "raise_exceptions",
+                  "type": "bool"
+                }
+              ],
+              "returns": "Result<Option<Vec<Address>>,",
+              "implementationPath": "get_cep_information_from_address"
+            }
+          ]
+        }
+      }
+    },
+    "cnh": {
+      "functions": {
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnh",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid_cnh"
+            }
+          ]
+        }
+      }
+    },
+    "cnpj": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_cnpj"
+            }
+          ]
+        }
+      }
+    },
+    "cpf": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_cpf"
+            }
+          ]
+        }
+      }
+    },
+    "currency": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "value",
+                  "type": "f64"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_currency"
+            }
+          ]
+        }
+      }
+    },
+    "description": {
+      "functions": {
+        "get": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<&'static",
+              "implementationPath": "get_description"
+            }
+          ]
+        }
+      }
+    },
+    "format": {
+      "functions": {
+        "get": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "get_format"
+            }
+          ]
+        }
+      }
+    },
+    "global": {
+      "functions": {
+        "calculateChecksum": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "base_renavam",
+                  "type": "&str"
+                }
+              ],
+              "returns": "u32",
+              "implementationPath": "calculate_checksum"
+            }
+          ]
+        },
+        "calculateVd1": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "sequential_number",
+                  "type": "&str"
+                },
+                {
+                  "name": "federative_union",
+                  "type": "&str"
+                }
+              ],
+              "returns": "u8",
+              "implementationPath": "calculate_vd1"
+            }
+          ]
+        },
+        "calculateVd2": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "federative_union",
+                  "type": "&str"
+                },
+                {
+                  "name": "vd1",
+                  "type": "u8"
+                }
+              ],
+              "returns": "u8",
+              "implementationPath": "calculate_vd2"
+            }
+          ]
+        },
+        "checksum": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "base_pis",
+                  "type": "&str"
+                }
+              ],
+              "returns": "u32",
+              "implementationPath": "checksum"
+            }
+          ]
+        },
+        "computeChecksum": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "basenum",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "compute_checksum"
+            },
+            {
+              "params": [
+                {
+                  "name": "basenum",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "compute_checksum"
+            }
+          ]
+        },
+        "convertDateToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "date",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "convert_date_to_text"
+            }
+          ]
+        },
+        "convertRealToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "value",
+                  "type": "f64"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "convert_real_to_text"
+            }
+          ]
+        },
+        "convertToMercosul": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "convert_to_mercosul"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "branch",
+                  "type": "Option<u32>"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "year",
+                  "type": "Option<i32>"
+                },
+                {
+                  "name": "orgao",
+                  "type": "Option<u32>"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "format",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "phone_type",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [],
+              "returns": "String",
+              "implementationPath": "generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "federative_union",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "generate"
+            }
+          ]
+        },
+        "hashdigit": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "&str"
+                },
+                {
+                  "name": "position",
+                  "type": "usize"
+                }
+              ],
+              "returns": "usize",
+              "implementationPath": "hashdigit"
+            },
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "&str"
+                },
+                {
+                  "name": "position",
+                  "type": "usize"
+                }
+              ],
+              "returns": "usize",
+              "implementationPath": "hashdigit"
+            }
+          ]
+        },
+        "isHoliday": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "target_date",
+                  "type": "NaiveDate"
+                },
+                {
+                  "name": "uf",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "Option<bool>",
+              "implementationPath": "is_holiday"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "digitable_line",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "email",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "legal_process_id",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "&str"
+                },
+                {
+                  "name": "format",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "&str"
+                },
+                {
+                  "name": "phone_type",
+                  "type": "Option<&str>"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "renavam",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            },
+            {
+              "params": [
+                {
+                  "name": "voter_id",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "is_valid"
+            }
+          ]
+        },
+        "listAll": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "HashMap<String,",
+              "implementationPath": "list_all"
+            }
+          ]
+        },
+        "numberToWords": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "n",
+                  "type": "i64"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "number_to_words"
+            }
+          ]
+        },
+        "removeInternationalDialingCode": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_international_dialing_code"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "legal_process",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            },
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "&str"
+                }
+              ],
+              "returns": "String",
+              "implementationPath": "remove_symbols"
+            }
+          ]
+        },
+        "validate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "digitable_line",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "validate"
+            },
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "validate"
+            },
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "&str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "validate"
+            }
+          ]
+        }
+      }
+    },
+    "legalprocess": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "legal_process_id",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_legal_process"
+            }
+          ]
+        }
+      }
+    },
+    "licenseplate": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_license_plate"
+            }
+          ]
+        }
+      }
+    },
+    "phone": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_phone"
+            }
+          ]
+        }
+      }
+    },
+    "pis": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_pis"
+            }
+          ]
+        }
+      }
+    },
+    "voterid": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "voter_id",
+                  "type": "&str"
+                }
+              ],
+              "returns": "Option<String>",
+              "implementationPath": "format_voter_id"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

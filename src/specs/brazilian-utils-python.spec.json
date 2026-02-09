@@ -1,0 +1,869 @@
+{
+  "library": "brazilian-utils-python",
+  "domains": {
+    "cep": {
+      "functions": {
+        "formatCep": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "cep.format_cep"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "str",
+              "implementationPath": "cep.generate"
+            }
+          ]
+        },
+        "getAddressFromCep": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "str"
+                },
+                {
+                  "name": "raise_exceptions",
+                  "type": "bool"
+                }
+              ],
+              "returns": "Address | None",
+              "implementationPath": "cep.get_address_from_cep"
+            }
+          ]
+        },
+        "getCepInformationFromAddress": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "federal_unit",
+                  "type": "str"
+                },
+                {
+                  "name": "city",
+                  "type": "str"
+                },
+                {
+                  "name": "street",
+                  "type": "str"
+                },
+                {
+                  "name": "raise_exceptions",
+                  "type": "bool"
+                }
+              ],
+              "returns": "list[Address] | None",
+              "implementationPath": "cep.get_cep_information_from_address"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cep.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cep.remove_symbols"
+            }
+          ]
+        }
+      }
+    },
+    "cnh": {
+      "functions": {
+        "isValidCnh": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnh",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cnh.is_valid_cnh"
+            }
+          ]
+        }
+      }
+    },
+    "cnpj": {
+      "functions": {
+        "display": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "cnpj.display"
+            }
+          ]
+        },
+        "formatCnpj": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "cnpj.format_cnpj"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "branch",
+                  "type": "int"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cnpj.generate"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cnpj.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cnpj.remove_symbols"
+            }
+          ]
+        },
+        "sieve": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cnpj.sieve"
+            }
+          ]
+        },
+        "validate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cnpj.validate"
+            }
+          ]
+        }
+      }
+    },
+    "cpf": {
+      "functions": {
+        "display": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cpf.display"
+            }
+          ]
+        },
+        "formatCpf": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cpf.format_cpf"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "str",
+              "implementationPath": "cpf.generate"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cpf.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cpf.remove_symbols"
+            }
+          ]
+        },
+        "sieve": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "dirty",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "cpf.sieve"
+            }
+          ]
+        },
+        "validate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "cpf.validate"
+            }
+          ]
+        }
+      }
+    },
+    "currency": {
+      "functions": {
+        "convertRealToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "amount",
+                  "type": "Decimal | float | int | str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "currency.convert_real_to_text"
+            }
+          ]
+        },
+        "formatCurrency": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "value",
+                  "type": "float | int | str | Decimal"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "currency.format_currency"
+            }
+          ]
+        }
+      }
+    },
+    "dateutils": {
+      "functions": {
+        "convertDateToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "date",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "date_utils.convert_date_to_text"
+            }
+          ]
+        },
+        "isHoliday": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "target_date",
+                  "type": "datetime"
+                },
+                {
+                  "name": "uf",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool | None",
+              "implementationPath": "date_utils.is_holiday"
+            }
+          ]
+        }
+      }
+    },
+    "email": {
+      "functions": {
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "email",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "email.is_valid"
+            }
+          ]
+        }
+      }
+    },
+    "legalnature": {
+      "functions": {
+        "getDescription": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "str"
+                }
+              ],
+              "returns": "Optional[str]",
+              "implementationPath": "legal_nature.get_description"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "legal_nature.is_valid"
+            }
+          ]
+        },
+        "listAll": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "Dict[str, str]",
+              "implementationPath": "legal_nature.list_all"
+            }
+          ]
+        }
+      }
+    },
+    "legalprocess": {
+      "functions": {
+        "formatLegalProcess": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "legal_process_id",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "legal_process.format_legal_process"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "legal_process_id",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "legal_process.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "legal_process",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "legal_process.remove_symbols"
+            }
+          ]
+        }
+      }
+    },
+    "licenseplate": {
+      "functions": {
+        "convertToMercosul": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "license_plate.convert_to_mercosul"
+            }
+          ]
+        },
+        "formatLicensePlate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "license_plate.format_license_plate"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "format",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "license_plate.generate"
+            }
+          ]
+        },
+        "getFormat": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "license_plate.get_format"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate",
+                  "type": "str"
+                },
+                {
+                  "name": "type",
+                  "type": "Literal[\"old_format\""
+                },
+                {
+                  "name": "\"mercosul\"]",
+                  "type": "| None"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "license_plate.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "license_plate_number",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "license_plate.remove_symbols"
+            }
+          ]
+        }
+      }
+    },
+    "municipality": {
+      "functions": {
+        "getCodeByMunicipalityName": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "municipality_name",
+                  "type": "str"
+                },
+                {
+                  "name": "uf",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "ibge.municipality.get_code_by_municipality_name"
+            }
+          ]
+        },
+        "getMunicipalityByCode": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "str"
+                }
+              ],
+              "returns": "tuple[str, str] | None",
+              "implementationPath": "ibge.municipality.get_municipality_by_code"
+            }
+          ]
+        }
+      }
+    },
+    "phone": {
+      "functions": {
+        "formatPhone": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "phone.format_phone"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "type",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "phone.generate"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "str"
+                },
+                {
+                  "name": "type",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "phone.is_valid"
+            }
+          ]
+        },
+        "removeInternationalDialingCode": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "phone.remove_international_dialing_code"
+            }
+          ]
+        },
+        "removeSymbolsPhone": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phone_number",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "phone.remove_symbols_phone"
+            }
+          ]
+        }
+      }
+    },
+    "pis": {
+      "functions": {
+        "formatPis": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "pis.format_pis"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "str",
+              "implementationPath": "pis.generate"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "pis.is_valid"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "str"
+                }
+              ],
+              "returns": "str",
+              "implementationPath": "pis.remove_symbols"
+            }
+          ]
+        }
+      }
+    },
+    "renavam": {
+      "functions": {
+        "isValidRenavam": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "renavam",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "renavam.is_valid_renavam"
+            }
+          ]
+        }
+      }
+    },
+    "uf": {
+      "functions": {
+        "convertCodeToUf": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "ibge.uf.convert_code_to_uf"
+            }
+          ]
+        },
+        "convertNameToUf": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "state_name",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "ibge.uf.convert_name_to_uf"
+            }
+          ]
+        },
+        "convertUfToName": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "uf",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "ibge.uf.convert_uf_to_name"
+            }
+          ]
+        }
+      }
+    },
+    "voterid": {
+      "functions": {
+        "formatVoterId": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "voter_id",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "voter_id.format_voter_id"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "federative_union",
+                  "type": "str"
+                }
+              ],
+              "returns": "str | None",
+              "implementationPath": "voter_id.generate"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "voter_id",
+                  "type": "str"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "voter_id.is_valid"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

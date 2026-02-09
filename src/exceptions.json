@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "brazilian-utils-python": {
+      "cpf.isValid": {
+        "allowNames": [
+          "cpf.is_valid"
+        ]
+      },
+      "cnpj.isValid": {
+        "allowNames": [
+          "cnpj.is_valid"
+        ]
+      }
+    }
+  },
+  "structureDifferences": {
+    "brazilian-utils-javascript": {
+      "allowGlobalFunctions": true
+    }
+  }
+}

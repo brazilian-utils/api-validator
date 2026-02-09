@@ -1,0 +1,46 @@
+{
+  "libs": [
+    {
+      "name": "brazilian-utils-javascript",
+      "repo": "https://github.com/brazilian-utils/javascript",
+      "language": "typescript",
+      "entry": "src/index.ts"
+    },
+    {
+      "name": "brazilian-utils-python",
+      "repo": "https://github.com/brazilian-utils/python",
+      "language": "python",
+      "entry": "brutils"
+    },
+    {
+      "name": "brazilian-utils-go",
+      "repo": "https://github.com/brazilian-utils/go",
+      "language": "go",
+      "entry": "."
+    },
+    {
+      "name": "brazilian-utils-rust",
+      "repo": "https://github.com/brazilian-utils/rust",
+      "language": "rust",
+      "entry": "src/lib.rs"
+    },
+    {
+      "name": "brazilian-utils-ruby",
+      "repo": "https://github.com/brazilian-utils/ruby",
+      "language": "ruby",
+      "entry": "lib"
+    },
+    {
+      "name": "brazilian-utils-erlang",
+      "repo": "https://github.com/brazilian-utils/erlang",
+      "language": "erlang",
+      "entry": "."
+    },
+    {
+      "name": "brazilian-utils-dotnet",
+      "repo": "https://github.com/brazilian-utils/dotnet",
+      "language": "dotnet",
+      "entry": "BrazilianUtils"
+    }
+  ]
+}

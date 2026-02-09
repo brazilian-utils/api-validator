@@ -1,0 +1,563 @@
+{
+  "library": "brazilian-utils-go",
+  "domains": {
+    "currency": {
+      "functions": {
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "value",
+                  "type": "float64"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "FormatCurrency"
+            }
+          ]
+        }
+      }
+    },
+    "global": {
+      "functions": {
+        "contains": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "h",
+                  "type": "[]string"
+                },
+                {
+                  "name": "n",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "Contains"
+            }
+          ]
+        },
+        "containsInt": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "sl",
+                  "type": "[]int"
+                },
+                {
+                  "name": "v",
+                  "type": "int"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "ContainsInt"
+            }
+          ]
+        },
+        "convertDateToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "date",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "ConvertDateToText"
+            }
+          ]
+        },
+        "convertRealToText": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "value",
+                  "type": "float64"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "ConvertRealToText"
+            }
+          ]
+        },
+        "convertToMercosul": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "plate",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "ConvertToMercosul"
+            }
+          ]
+        },
+        "format": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "legalProcessID",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "plate",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "phoneNumber",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            },
+            {
+              "params": [
+                {
+                  "name": "voterID",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Format"
+            }
+          ]
+        },
+        "generate": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "branch",
+                  "type": "int"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "year",
+                  "type": "int"
+                },
+                {
+                  "name": "orgao",
+                  "type": "int"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "format",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "phoneType",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [],
+              "returns": "string",
+              "implementationPath": "Generate"
+            },
+            {
+              "params": [
+                {
+                  "name": "federativeUnion",
+                  "type": "...string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Generate"
+            }
+          ]
+        },
+        "getAddressFromCEP": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "string"
+                }
+              ],
+              "returns": "(*Address, error)",
+              "implementationPath": "GetAddressFromCEP"
+            }
+          ]
+        },
+        "getCEPFromAddress": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "federalUnit"
+                },
+                {
+                  "name": "city"
+                },
+                {
+                  "name": "street",
+                  "type": "string"
+                }
+              ],
+              "returns": "([]Address, error)",
+              "implementationPath": "GetCEPFromAddress"
+            }
+          ]
+        },
+        "getDescription": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "GetDescription"
+            }
+          ]
+        },
+        "getFormat": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "plate",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "GetFormat"
+            }
+          ]
+        },
+        "isHoliday": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "date",
+                  "type": "time.Time"
+                },
+                {
+                  "name": "uf",
+                  "type": "string"
+                }
+              ],
+              "returns": "(bool, bool)",
+              "implementationPath": "IsHoliday"
+            }
+          ]
+        },
+        "isValid": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "digitableLine",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cep",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cnh",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cnpj",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "cpf",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "email",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "code",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "legalProcessID",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "plate",
+                  "type": "string"
+                },
+                {
+                  "name": "plateType",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "phoneNumber",
+                  "type": "string"
+                },
+                {
+                  "name": "phoneType",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "pis",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "renavam",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            },
+            {
+              "params": [
+                {
+                  "name": "voterID",
+                  "type": "string"
+                }
+              ],
+              "returns": "bool",
+              "implementationPath": "IsValid"
+            }
+          ]
+        },
+        "listAll": {
+          "variants": [
+            {
+              "params": [],
+              "returns": "map[string]string",
+              "implementationPath": "ListAll"
+            }
+          ]
+        },
+        "numberToPortuguese": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "n",
+                  "type": "int64"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "NumberToPortuguese"
+            }
+          ]
+        },
+        "onlyNumbers": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "numbers",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "OnlyNumbers"
+            }
+          ]
+        },
+        "removeInternationalDialingCode": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phoneNumber",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "RemoveInternationalDialingCode"
+            }
+          ]
+        },
+        "removeSymbols": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "phoneNumber",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "RemoveSymbols"
+            }
+          ]
+        },
+        "reverse": {
+          "variants": [
+            {
+              "params": [
+                {
+                  "name": "s",
+                  "type": "string"
+                }
+              ],
+              "returns": "string",
+              "implementationPath": "Reverse"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

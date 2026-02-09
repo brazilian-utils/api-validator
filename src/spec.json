@@ -1,0 +1,422 @@
+{
+  "domains": {
+    "addressinfobycep": {
+      "functions": {
+        "get": {
+          "params": [
+            {
+              "name": "cep",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "GetAddressInfoByCepOptions"
+            }
+          ],
+          "returns": "Promise<AddressInfo>"
+        }
+      }
+    },
+    "bankaccount": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "params",
+              "type": "IsValidBankAccountParams"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "boleto": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatBoletoOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "generate": {
+          "params": [],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "boletoinfo": {
+      "functions": {
+        "get": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "BoletoInfo | undefined"
+        }
+      }
+    },
+    "cep": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatCepOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "cep",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "cities": {
+      "functions": {
+        "get": {
+          "params": [
+            {
+              "name": "state",
+              "type": "StateCode"
+            }
+          ],
+          "returns": "string[]"
+        }
+      }
+    },
+    "cnpj": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatCnpjOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "generate": {
+          "params": [
+            {
+              "name": "version",
+              "type": "1 | 2"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "cnpj",
+              "type": "string"
+            },
+            {
+              "name": "options",
+              "type": "{ version?: 1 | 2 }"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "cpf": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatCpfOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "generate": {
+          "params": [
+            {
+              "name": "state",
+              "type": "StateCode"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "cpf",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "currency": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatCurrencyOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "parse": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "number"
+        }
+      }
+    },
+    "email": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "global": {
+      "functions": {
+        "capitalize": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            },
+            {
+              "name": "{\n\t\tlowerCaseWords = PREPOSITIONS,\n\t\tupperCaseWords = ACRONYMS,\n\t}",
+              "type": "CapitalizeOptions"
+            }
+          ],
+          "returns": "string"
+        }
+      }
+    },
+    "holidays": {
+      "functions": {
+        "get": {
+          "params": [
+            {
+              "name": "year",
+              "type": "number"
+            }
+          ],
+          "returns": "Holiday[]"
+        }
+      }
+    },
+    "ie": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "stateCode",
+              "type": "StateCode"
+            },
+            {
+              "name": "ie",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "landlinephone": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "licenseplate": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "mobilephone": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            },
+            {
+              "name": "options",
+              "type": "IsValidMobilePhoneOptions"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "phone": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatPhoneOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            },
+            {
+              "name": "options",
+              "type": "IsValidPhoneOptions"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "pis": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatPisOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "pis",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "processojuridico": {
+      "functions": {
+        "format": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string | number"
+            },
+            {
+              "name": "options",
+              "type": "FormatProcessoJuridicoOptions"
+            }
+          ],
+          "returns": "string"
+        },
+        "isValid": {
+          "params": [
+            {
+              "name": "value",
+              "type": "string"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "renavam": {
+      "functions": {
+        "isValid": {
+          "params": [
+            {
+              "name": "renavam",
+              "type": "string | number"
+            }
+          ],
+          "returns": "boolean"
+        }
+      }
+    },
+    "states": {
+      "functions": {
+        "get": {
+          "params": [],
+          "returns": "State[]"
+        }
+      }
+    }
+  }
+}
