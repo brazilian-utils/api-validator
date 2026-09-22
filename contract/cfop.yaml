@@ -6,15 +6,75 @@ functions:
       - name: value
         type: string | number
     returns: Cfop?
+    tests:
+      - args: ["5102"]
+        returns:
+          code: "5102"
+          description: "Venda de mercadoria adquirida ou recebida de terceiros, ou qualquer venda de mercadoria efetuada pelo MEI com exceção das
+            saídas classificadas nos códigos 5.501, 5.502, 5.504 e 5.505"
+      - name: masked
+        args: ["5.102"]
+        returns:
+          code: "5102"
+          description: "Venda de mercadoria adquirida ou recebida de terceiros, ou qualquer venda de mercadoria efetuada pelo MEI com exceção das
+            saídas classificadas nos códigos 5.501, 5.502, 5.504 e 5.505"
+      - name: group-heading
+        args: ["1100"]
+        returns: null
+      - name: too-short
+        args: ["510"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   isValid:
     summary: Validates if a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.
     params:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["5102"]
+        returns: true
+      - name: masked
+        args: ["5.102"]
+        returns: true
+      - args: ["7504"]
+        returns: true
+      - args: ["0000"]
+        returns: false
+      - name: group-heading
+        args: ["1100"]
+        returns: false
+      - name: too-short
+        args: ["510"]
+        returns: false
+      - name: letters
+        args: ["abcd"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["5.102"]
+        returns: "5102"
+      - name: unmasked
+        args: ["5102"]
+        returns: "5102"
+      - name: strips-non-digits
+        args: ["5?ABC.102abc"]
+        returns: "5102"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["5102999"]
+        returns: "5102"
+        note: reference truncates to the 4 characters of the document; asserted by the reference (JS) unit tests

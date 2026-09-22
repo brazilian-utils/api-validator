@@ -7,6 +7,42 @@ functions:
       - name: code
         type: string | number
     returns: Municipality?
+    tests:
+      - name: sao-paulo
+        args: ["3550308"]
+        returns:
+          code: "3550308"
+          name: "São Paulo"
+          stateCode: "SP"
+      - name: number
+        args: [3550308]
+        returns:
+          code: "3550308"
+          name: "São Paulo"
+          stateCode: "SP"
+      - name: boa-esperanca-do-norte
+        args: ["5101837"]
+        returns:
+          code: "5101837"
+          name: "Boa Esperança do Norte"
+          stateCode: "MT"
+      - name: masked
+        args: ["355-030-8"]
+        returns:
+          code: "3550308"
+          name: "São Paulo"
+          stateCode: "SP"
+      - args: ["0000000"]
+        returns: null
+      - name: too-short
+        args: ["123"]
+        returns: null
+      - name: too-long
+        args: ["12345678"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   list:
     summary: Returns Brazilian municipalities published by the IBGE, optionally filtered by state.
     flatName: getMunicipalities
@@ -15,3 +51,14 @@ functions:
         type: string
         optional: true
     returns: Municipality[]
+    tests:
+      - name: distrito-federal
+        args: ["DF"]
+        returns:
+          - code: "5300108"
+            name: "Brasília"
+            stateCode: "DF"
+        note: Brasília is the only municipality of the DF
+      - name: unknown-state
+        args: ["ZZ"]
+        returns: []

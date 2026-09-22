@@ -75,6 +75,19 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["1234 5678 01 24"]
+        returns: "123456780124"
+      - name: unmasked
+        args: ["123456780124"]
+        returns: "123456780124"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: 13-digit-sp-mg
+        args: ["1234 5678 8 01 91"]
+        returns: "1234567880191"
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     params:

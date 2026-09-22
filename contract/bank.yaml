@@ -8,6 +8,37 @@ functions:
       - name: code
         type: string | number
     returns: Bank?
+    tests:
+      - args: ["001"]
+        returns:
+          code: "001"
+          ispb: "00000000"
+          name: "Banco do Brasil S.A."
+      - name: unpadded
+        args: ["1"]
+        returns:
+          code: "001"
+          ispb: "00000000"
+          name: "Banco do Brasil S.A."
+      - name: number
+        args: [1]
+        returns:
+          code: "001"
+          ispb: "00000000"
+          name: "Banco do Brasil S.A."
+      - args: ["341"]
+        returns:
+          code: "341"
+          ispb: "60701190"
+          name: "ITAÚ UNIBANCO S.A."
+      - name: nonexistent
+        args: ["999"]
+        returns: null
+      - args: ["abc"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   getByIspb:
     summary: Looks up a Brazilian bank by its ISPB (Identificador do Sistema de Pagamentos Brasileiro), the 8 digit code that identifies every
       participant of the SPB, published by Banco Central do Brasil in the STR (Sistema de Transferência de Reservas) participants list.
@@ -18,6 +49,25 @@ functions:
       - name: value
         type: string | number
     returns: Bank?
+    tests:
+      - args: ["00000000"]
+        returns:
+          code: "001"
+          ispb: "00000000"
+          name: "Banco do Brasil S.A."
+      - args: ["60701190"]
+        returns:
+          code: "341"
+          ispb: "60701190"
+          name: "ITAÚ UNIBANCO S.A."
+      - name: nonexistent
+        args: ["99999999"]
+        returns: null
+      - args: ["abc"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   list:
     summary: Returns every Brazilian bank with a compensation code (COMPE), published by Banco Central do Brasil in the STR (Sistema de
       Transferência de Reservas) participants list.

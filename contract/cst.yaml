@@ -9,3 +9,19 @@ functions:
         type: IsValidCstOptions
         optional: true
     returns: boolean
+    tests:
+      - name: icms
+        args: ["110"]
+        returns: true
+      - name: ipi-only
+        args: ["00"]
+        returns: true
+      - name: pis-cofins-only
+        args: ["07"]
+        returns: true
+      - name: nonexistent
+        args: ["999"]
+        returns: false
+      - name: separator
+        args: ["0-0"]
+        returns: false

@@ -115,6 +115,23 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["01001-000"]
+        returns: "01001000"
+      - name: unmasked
+        args: ["01001000"]
+        returns: "01001000"
+      - name: strips-non-digits
+        args: ["a0.10cr01?00#ab0"]
+        returns: "01001000"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["01001000123"]
+        returns: "01001000"
+        note: reference truncates to the 8 characters of the document; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

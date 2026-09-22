@@ -10,6 +10,34 @@ functions:
       - name: value
         type: string
     returns: string
+    tests:
+      - name: old-format
+        args: ["ABC1234"]
+        returns: "ABC1C34"
+      - name: digit-0-to-A
+        args: ["ABC0000"]
+        returns: "ABC0A00"
+      - name: digit-9-to-J
+        args: ["ABC9999"]
+        returns: "ABC9J99"
+      - name: lowercase
+        args: ["abc1234"]
+        returns: "ABC1C34"
+      - name: hyphen-mask
+        args: ["ABC-1234"]
+        returns: "ABC1C34"
+      - name: already-mercosul
+        args: ["ABC1D23"]
+        returns: ""
+        note: no conversion possible; the reference returns an empty string (asserted by its tests), several libs return null/None instead
+      - name: invalid
+        args: ["invalid"]
+        returns: ""
+        note: the reference returns an empty string (asserted by its tests), several libs return null/None instead
+      - name: empty
+        args: [""]
+        returns: ""
+        note: the reference returns an empty string (asserted by its tests), several libs return null/None instead
   format:
     summary: Formats a Brazilian license plate (placa de carro ou moto).
     level: core
@@ -144,6 +172,20 @@ functions:
       - name: value
         type: string
     returns: string
+    tests:
+      - name: old-format-masked
+        args: ["abc-1234"]
+        returns: "ABC1234"
+      - name: mercosul-lowercase
+        args: ["abc1d23"]
+        returns: "ABC1D23"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["abc123456"]
+        returns: "ABC1234"
+        note: reference truncates to 7 characters; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

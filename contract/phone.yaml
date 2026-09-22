@@ -10,6 +10,23 @@ functions:
         type: FormatPhoneOptions
         optional: true
     returns: string
+    tests:
+      - name: subscriber-number
+        args: ["988887777"]
+        returns: "98888-7777"
+        note: default mask is the 9-digit subscriber number (no DDD); asserted by the reference (JS) unit tests
+      - name: partial
+        args: ["98888777"]
+        returns: "98888-777"
+      - name: empty
+        args: [""]
+        returns: ""
+        note: several libs return null/None for input they cannot format; the reference returns an empty string
+      - name: ddd-under-default-mask
+        args: ["1130000000"]
+        returns: "11300-0000"
+        note: "CONTENTIOUS: the reference's default mask ('sn') ignores the DDD and keeps only the first 9 digits (documented and asserted by its
+          tests); other libs format DDD + number, e.g. '(11)3000-0000'"
   generate:
     summary: Generates a random, structurally-valid Brazilian phone number (DDD + subscriber number, no formatting/mask applied, see
       `formatPhone` to format the result).
@@ -84,6 +101,23 @@ functions:
       - name: value
         type: string
     returns: boolean
+    tests:
+      - args: ["(11) 3000-0000"]
+        returns: true
+      - args: ["1130000000"]
+        returns: true
+      - name: country-code
+        args: ["+55 11 3000-0000"]
+        returns: true
+      - name: mobile
+        args: ["11987654321"]
+        returns: false
+      - name: 9-digits
+        args: ["113000000"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   isValidMobile:
     summary: Validates if a phone number is a valid Brazilian mobile phone.
     params:
@@ -93,18 +127,85 @@ functions:
         type: IsValidMobilePhoneOptions
         optional: true
     returns: boolean
+    tests:
+      - args: ["(11) 98765-4321"]
+        returns: true
+      - name: country-code
+        args: ["+55 11 98765-4321"]
+        returns: true
+      - args: ["5511987654321"]
+        returns: true
+      - name: landline
+        args: ["1130000000"]
+        returns: false
+      - name: 10-digits
+        args: ["1198765432"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   isValidService:
     summary: Validates if a phone number is a valid Brazilian service number.
     params:
       - name: value
         type: string
     returns: boolean
+    tests:
+      - args: ["08001234567"]
+        returns: true
+      - name: masked
+        args: ["0800 123 4567"]
+        returns: true
+      - name: abbreviated
+        args: ["40041234"]
+        returns: true
+      - name: mobile
+        args: ["11987654321"]
+        returns: false
+      - name: too-short
+        args: ["0800123456"]
+        returns: false
+      - name: not-a-brazilian-short-code
+        args: ["911"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes phone formatting characters, returns only digits, and caps the result to 11 digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked-mobile
+        args: ["(11) 98888-7777"]
+        returns: "11988887777"
+      - name: no-ddd
+        args: ["98888-7777"]
+        returns: "988887777"
+      - name: country-code
+        args: ["+55 11 98888-7777"]
+        returns: "11988887777"
+      - name: "0055"
+        args: ["005511988887777"]
+        returns: "11988887777"
+      - name: bare-55-landline
+        args: ["551130000000"]
+        returns: "1130000000"
+      - name: ddd-55
+        args: ["55988887777"]
+        returns: "55988887777"
+        note: "11 digits: 55 is read as the DDD, not a country code; asserted by the reference (JS) unit tests"
+      - name: service
+        args: ["0800 123 4567"]
+        returns: "08001234567"
+      - name: caps-length
+        args: ["11988887777123"]
+        returns: "11988887777"
+      - name: empty
+        args: [""]
+        returns: ""
   removeInternationalDialingCode:
     summary: Removes a leading +55 / 55.
     level: core

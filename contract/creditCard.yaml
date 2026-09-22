@@ -6,3 +6,29 @@ functions:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["4111111111111111"]
+        returns: true
+      - args: ["5555555555554444"]
+        returns: true
+      - name: 15-digits
+        args: ["378282246310005"]
+        returns: true
+      - name: masked
+        args: ["4111 1111 1111 1111"]
+        returns: true
+      - name: luhn-fail
+        args: ["4111111111111112"]
+        returns: false
+      - name: zeros
+        args: ["0000000000000000"]
+        returns: false
+      - name: too-short
+        args: ["60110000000"]
+        returns: false
+      - name: letters
+        args: ["abcdabcdabcd"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false

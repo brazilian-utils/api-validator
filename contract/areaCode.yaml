@@ -7,6 +7,56 @@ functions:
       - name: areaCode
         type: string | number
     returns: AreaCodeInfo?
+    tests:
+      - args: ["11"]
+        returns:
+          areaCode: 11
+          stateCode: "SP"
+          stateName: "São Paulo"
+          regionCode: "SE"
+          regionName: "Sudeste"
+          stateCodes:
+            - "SP"
+      - name: number
+        args: [11]
+        returns:
+          areaCode: 11
+          stateCode: "SP"
+          stateName: "São Paulo"
+          regionCode: "SE"
+          regionName: "Sudeste"
+          stateCodes:
+            - "SP"
+      - name: distrito-federal
+        args: ["61"]
+        returns:
+          areaCode: 61
+          stateCode: "DF"
+          stateName: "Distrito Federal"
+          regionCode: "CO"
+          regionName: "Centro-Oeste"
+          stateCodes:
+            - "DF"
+            - "GO"
+      - name: multi-state
+        args: [42]
+        returns:
+          areaCode: 42
+          stateCode: "PR"
+          stateName: "Paraná"
+          regionCode: "S"
+          regionName: "Sul"
+          stateCodes:
+            - "PR"
+            - "SC"
+      - args: ["00"]
+        returns: null
+      - name: unassigned
+        args: ["20"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   listByState:
     summary: Retrieves every DDD (area code) that serves a given Brazilian state, under the Plano Geral de Numeração.
     flatName: getAreaCodesByState
@@ -14,3 +64,46 @@ functions:
       - name: stateCode
         type: string
     returns: number[]
+    tests:
+      - args: ["SP"]
+        returns:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 17
+          - 18
+          - 19
+      - name: lowercase
+        args: ["sp"]
+        returns:
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 17
+          - 18
+          - 19
+      - args: ["AC"]
+        returns:
+          - 68
+      - args: ["PE"]
+        returns:
+          - 81
+          - 87
+      - name: shared-ddds
+        args: ["SC"]
+        returns:
+          - 42
+          - 47
+          - 48
+          - 49
+      - args: ["XX"]
+        returns: []
+      - name: empty
+        args: [""]
+        returns: []

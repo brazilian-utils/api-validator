@@ -85,6 +85,23 @@ functions:
         type: ParseCnpjOptions
         optional: true
     returns: string
+    tests:
+      - name: masked
+        args: ["46.843.485/0001-86"]
+        returns: "46843485000186"
+      - name: unmasked
+        args: ["46843485000186"]
+        returns: "46843485000186"
+      - name: strips-non-digits
+        args: ["46.?ABC843.485/0001-86abc"]
+        returns: "46843485000186"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["46843485000186123"]
+        returns: "46843485000186"
+        note: reference truncates to the 14 characters of the document; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

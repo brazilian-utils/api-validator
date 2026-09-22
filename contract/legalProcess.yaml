@@ -84,6 +84,23 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["0002080-25.2012.5.15.0049"]
+        returns: "00020802520125150049"
+      - name: unmasked
+        args: ["00020802520125150049"]
+        returns: "00020802520125150049"
+      - name: strips-non-digits
+        args: ["0002080@$25201%!@2515.%0049"]
+        returns: "00020802520125150049"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["00020802520125150049123"]
+        returns: "00020802520125150049"
+        note: reference truncates to the 20 characters of the document; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

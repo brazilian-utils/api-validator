@@ -27,6 +27,33 @@ functions:
         type: ConvertDateToWordsOptions
         optional: true
     returns: string
+    tests:
+      - name: first-of-month
+        args: ["01/01/2024"]
+        returns: "primeiro de janeiro de dois mil e vinte e quatro"
+      - args: ["02/01/2024"]
+        returns: "dois de janeiro de dois mil e vinte e quatro"
+      - args: ["25/12/2024"]
+        returns: "vinte e cinco de dezembro de dois mil e vinte e quatro"
+      - name: iso-string
+        args: ["2024-12-25"]
+        returns: "vinte e cinco de dezembro de dois mil e vinte e quatro"
+      - name: leap-day
+        args: ["29/02/2000"]
+        returns: "vinte e nove de fevereiro de dois mil"
+      - name: not-a-leap-year
+        args: ["29/02/2023"]
+        returns: ""
+        note: "invalid dates: the reference returns an empty string (asserted by its tests); some libs return null/None"
+      - name: day-out-of-range
+        args: ["31/04/2024"]
+        returns: ""
+      - name: garbage
+        args: ["not a date"]
+        returns: ""
+      - name: empty
+        args: [""]
+        returns: ""
   differenceInBusinessDays:
     summary: Counts the number of Brazilian business days (dias úteis) between two dates.
     flatName: differenceInBusinessDays

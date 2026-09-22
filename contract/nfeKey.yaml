@@ -11,6 +11,18 @@ functions:
         type: FormatNfeKeyOptions
         optional: true
     returns: string
+    tests:
+      - args: ["35170458716523000119550010000000121000123458"]
+        returns: "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"
+      - name: nfe-prefix
+        args: ["NFe35170458716523000119550010000000121000123458"]
+        returns: "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"
+      - name: partial
+        args: ["12345"]
+        returns: "1234 5"
+      - name: empty
+        args: [""]
+        returns: ""
   getInfo:
     summary: Parses a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into its fields.
     flatName: getNfeKeyInfo
@@ -18,15 +30,65 @@ functions:
       - name: value
         type: string
     returns: NfeKeyInfo?
+    tests:
+      - args: ["35170458716523000119550010000000121000123458"]
+        returns:
+          stateCode: "SP"
+          year: 2017
+          month: 4
+          taxId: "58716523000119"
+          model: "55"
+          series: 1
+          number: 12
+          emissionType: 1
+          code: "00012345"
+          checkDigit: 8
+      - name: wrong-check-digit
+        args: ["35170458716523000119550010000000121000123459"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   isValid:
     summary: Validates a DF-e (Documento Fiscal eletrônico) access key (chave de acesso).
     params:
       - name: value
         type: string
     returns: boolean
+    tests:
+      - args: ["35170458716523000119550010000000121000123458"]
+        returns: true
+      - name: masked
+        args: ["3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"]
+        returns: true
+      - name: nfe-prefix
+        args: ["NFe35170458716523000119550010000000121000123458"]
+        returns: true
+      - name: wrong
+        args: ["35170458716523000119550010000000001000123457"]
+        returns: false
+      - name: too-short
+        args: ["3517045871652300011955001000000012100012345"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes the formatting of a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"]
+        returns: "35170458716523000119550010000000121000123458"
+      - name: nfe-prefix
+        args: ["NFe35170458716523000119550010000000121000123458"]
+        returns: "35170458716523000119550010000000121000123458"
+      - name: partial
+        args: ["3517 0458"]
+        returns: "35170458"
+      - name: empty
+        args: [""]
+        returns: ""

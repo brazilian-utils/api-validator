@@ -79,6 +79,23 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["943.895.751-04"]
+        returns: "94389575104"
+      - name: unmasked
+        args: ["94389575104"]
+        returns: "94389575104"
+      - name: strips-non-digits
+        args: ["943.?ABC895.751-04abc"]
+        returns: "94389575104"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["94389575104123"]
+        returns: "94389575104"
+        note: reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

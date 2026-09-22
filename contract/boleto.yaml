@@ -9,6 +9,16 @@ functions:
         type: FormatBoletoOptions
         optional: true
     returns: string
+    tests:
+      - name: full
+        args: ["10491443385511900000200000000141325230000093423"]
+        returns: "10491.44338 55119.000002 00000.000141 3 25230000093423"
+      - name: partial
+        args: ["104914"]
+        returns: "10491.4"
+      - name: empty
+        args: [""]
+        returns: ""
   generate:
     summary: Generates a valid random Brazilian bank slip (boleto) number.
     params:
@@ -85,3 +95,13 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["10491.44338 55119.000002 00000.000141 3 25230000093423"]
+        returns: "10491443385511900000200000000141325230000093423"
+      - name: arrecadacao-masked
+        args: ["84610000000-5 24610029110-2 00546033900-4 69589506108-0"]
+        returns: "846100000005246100291102005460339004695895061080"
+      - name: empty
+        args: [""]
+        returns: ""

@@ -6,3 +6,27 @@ functions:
       - name: value
         type: string
     returns: boolean
+    tests:
+      - args: ["1HGCM82633A004352"]
+        returns: true
+      - name: check-digit-x
+        args: ["1M8GDM9AXKP042788"]
+        returns: true
+      - name: lowercase
+        args: ["1m8gdm9axkp042788"]
+        returns: true
+      - name: wrong-check-digit
+        args: ["1HGCM82633A004353"]
+        returns: false
+      - name: letter-i
+        args: ["1HGCM8263IA004352"]
+        returns: false
+      - name: too-short
+        args: ["1HGCM82633A00435"]
+        returns: false
+      - name: zeros
+        args: ["00000000000000000"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false

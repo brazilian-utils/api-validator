@@ -84,6 +84,23 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["123.45678.90-1"]
+        returns: "12345678901"
+      - name: unmasked
+        args: ["12345678901"]
+        returns: "12345678901"
+      - name: strips-non-digits
+        args: ["123#Error*&@#45678#Char!90-1"]
+        returns: "12345678901"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["12345678901123"]
+        returns: "12345678901"
+        note: reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     level: core

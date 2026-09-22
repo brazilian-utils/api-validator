@@ -11,3 +11,27 @@ functions:
         type: ConvertNumberToWordsOptions
         optional: true
     returns: string
+    tests:
+      - args: [0]
+        returns: "zero"
+      - args: [1]
+        returns: "um"
+      - args: [3]
+        returns: "três"
+      - args: [100]
+        returns: "cem"
+      - args: [101]
+        returns: "cento e um"
+      - args: [123]
+        returns: "cento e vinte e três"
+      - args: [1000]
+        returns: "mil"
+      - args: [1000000]
+        returns: "um milhão"
+      - name: negative
+        args: [-3]
+        returns: "menos três"
+      - name: truncates-fraction
+        args: [12.9]
+        returns: "doze"
+        note: the fractional part is dropped; asserted by the reference (JS) unit tests

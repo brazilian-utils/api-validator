@@ -6,3 +6,23 @@ functions:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["101"]
+        returns: true
+      - args: ["102"]
+        returns: true
+      - name: nonexistent
+        args: ["999"]
+        returns: false
+      - name: too-short
+        args: ["10"]
+        returns: false
+      - name: separator
+        args: ["1-01"]
+        returns: false
+      - name: letters
+        args: ["abc"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false

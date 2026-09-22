@@ -9,6 +9,18 @@ functions:
         type: FormatCnsOptions
         optional: true
     returns: string
+    tests:
+      - args: ["123456789010001"]
+        returns: "123 4567 8901 0001"
+      - name: already-formatted
+        args: ["898 0000 0004 3208"]
+        returns: "898 0000 0004 3208"
+      - name: partial
+        args: ["1234"]
+        returns: "123 4"
+      - name: empty
+        args: [""]
+        returns: ""
   isValid:
     summary: Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health
       professional or health facility.
@@ -16,9 +28,50 @@ functions:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["123456789010000"]
+        returns: true
+      - name: masked
+        args: ["123 4567 8901 0000"]
+        returns: true
+      - name: provisional
+        args: ["898000000043208"]
+        returns: true
+      - name: starts-with-7
+        args: ["700000000000005"]
+        returns: true
+      - name: wrong-check-digit
+        args: ["123456789010001"]
+        returns: false
+      - name: invalid-first-digit
+        args: ["312345678901234"]
+        returns: false
+      - name: too-short
+        args: ["12345678901"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes CNS (Cartão Nacional de Saúde) formatting characters and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["123 4567 8901 0000"]
+        returns: "123456789010000"
+      - name: unmasked
+        args: ["123456789010000"]
+        returns: "123456789010000"
+      - name: strips-non-digits
+        args: ["123.?ABC4567 8901-0000abc"]
+        returns: "123456789010000"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["123456789010000999"]
+        returns: "123456789010000"
+        note: reference truncates to the 15 characters of the document; asserted by the reference (JS) unit tests

@@ -12,6 +12,24 @@ functions:
         type: CapitalizeOptions
         optional: true
     returns: string
+    tests:
+      - args: ["esponja vegetal"]
+        returns: "Esponja Vegetal"
+      - name: uppercase-accents
+        args: ["JOAQUIM JOSÉ"]
+        returns: "Joaquim José"
+      - name: lowercase-preposition
+        args: ["fulano de tal"]
+        returns: "Fulano de Tal"
+      - name: collapses-spaces
+        args: ["esponja de    aço 60G"]
+        returns: "Esponja de Aço 60g"
+      - name: first-word-preposition
+        args: ["de"]
+        returns: "De"
+      - name: empty
+        args: [""]
+        returns: ""
   removeAccents:
     summary: Removes diacritical marks (accents, tildes, cedillas) from a string, decomposing every accented character into its base letter plus
       combining marks (Unicode NFD) and then dropping every combining mark (Unicode general category M, so accents from any script).
@@ -20,3 +38,19 @@ functions:
       - name: value
         type: string
     returns: string
+    tests:
+      - args: ["São Paulo"]
+        returns: "Sao Paulo"
+      - args: ["Açaí"]
+        returns: "Acai"
+      - args: ["Piauí"]
+        returns: "Piaui"
+      - name: no-accents
+        args: ["Brasil"]
+        returns: "Brasil"
+      - name: keeps-punctuation
+        args: ["São Paulo, SP - 2024!"]
+        returns: "Sao Paulo, SP - 2024!"
+      - name: empty
+        args: [""]
+        returns: ""

@@ -13,9 +13,69 @@ functions:
       - name: value
         type: string
     returns: PixPayloadInfo?
+    tests:
+      - name: bacen-static-example
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de
+              Tal6008BRASILIA62070503***63041D3D"
+          ]
+        returns:
+          key: "123e4567-e12b-12d1-a456-426655440000"
+          merchantName: "Fulano de Tal"
+          merchantCity: "BRASILIA"
+          pointOfInitiation: "static"
+      - name: with-amount-and-txid
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136bee05743-4291-4f3c-9259-595df1307ba1520400005303986540510.005802BR5914Alexandre
+              Lima6019Presidente Prudente62180514Um-Id-Qualquer6304D475"
+          ]
+        returns:
+          key: "bee05743-4291-4f3c-9259-595df1307ba1"
+          merchantName: "Alexandre Lima"
+          merchantCity: "Presidente Prudente"
+          amount: 10
+          txid: "Um-Id-Qualquer"
+          pointOfInitiation: "static"
+      - name: wrong-crc
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de
+              Tal6008BRASILIA62070503***63041D3E"
+          ]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   isValid:
     summary: Validates a Pix BR Code payload, the string behind a Pix QR Code and behind "Pix copia e cola".
     params:
       - name: value
         type: string
     returns: boolean
+    tests:
+      - name: bacen-static-example
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de
+              Tal6008BRASILIA62070503***63041D3D"
+          ]
+        returns: true
+      - name: with-amount-and-txid
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136bee05743-4291-4f3c-9259-595df1307ba1520400005303986540510.005802BR5914Alexandre
+              Lima6019Presidente Prudente62180514Um-Id-Qualquer6304D475"
+          ]
+        returns: true
+      - name: wrong-crc
+        args:
+          [
+            "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de
+              Tal6008BRASILIA62070503***63041D3E"
+          ]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false

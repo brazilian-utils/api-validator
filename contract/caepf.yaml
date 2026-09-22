@@ -9,15 +9,66 @@ functions:
         type: FormatCaepfOptions
         optional: true
     returns: string
+    tests:
+      - args: ["29311861000184"]
+        returns: "293.118.610/001-84"
+      - name: already-formatted
+        args: ["293.118.610/001-84"]
+        returns: "293.118.610/001-84"
+      - name: partial
+        args: ["2931"]
+        returns: "293.1"
+      - name: empty
+        args: [""]
+        returns: ""
   isValid:
     summary: Validates a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number.
     params:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["293.118.610/001-84"]
+        returns: true
+      - args: ["29311861000184"]
+        returns: true
+      - args: ["41142260000101"]
+        returns: true
+      - name: wrong-check-digit
+        args: ["29311861000185"]
+        returns: false
+      - name: zeros
+        args: ["00000000000000"]
+        returns: false
+      - name: too-short
+        args: ["1234567890"]
+        returns: false
+      - name: letters
+        args: ["abc.118.610/001-84"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes CAEPF (Cadastro de Atividade Econômica da Pessoa Física) formatting characters and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["293.118.610/001-84"]
+        returns: "29311861000184"
+      - name: unmasked
+        args: ["29311861000184"]
+        returns: "29311861000184"
+      - name: strips-non-digits
+        args: ["293.?ABC118.610/001-84abc"]
+        returns: "29311861000184"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["29311861000184999"]
+        returns: "29311861000184"
+        note: reference truncates to the 14 characters of the document; asserted by the reference (JS) unit tests

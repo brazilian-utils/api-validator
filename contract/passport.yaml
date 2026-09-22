@@ -6,6 +6,26 @@ functions:
       - name: passport
         type: string
     returns: string
+    tests:
+      - args: ["AB123456"]
+        returns: "AB123456"
+      - name: lowercase
+        args: ["acd12736"]
+        returns: "ACD12736"
+      - name: strips-symbols
+        args: ["AB-123.456"]
+        returns: "AB123456"
+      - name: partial
+        args: ["AB12"]
+        returns: "AB12"
+      - name: empty
+        args: [""]
+        returns: ""
+        note: some libs return null/None for input they cannot format; the reference returns an empty string (asserted by its tests)
+      - name: caps-length
+        args: ["AB123456789"]
+        returns: "AB123456"
+        note: reference truncates to 8 characters; asserted by the reference (JS) unit tests
   generate:
     summary: Generates a random valid Brazilian passport number.
     params: []
@@ -27,12 +47,50 @@ functions:
       - name: passport
         type: string | number
     returns: boolean
+    tests:
+      - args: ["AA111111"]
+        returns: true
+      - args: ["CL125167"]
+        returns: true
+      - name: lowercase
+        args: ["ab123456"]
+        returns: true
+        note: case-insensitive per the contract summary; asserted by the reference (JS) unit tests
+      - name: masked
+        args: ["AB-123456"]
+        returns: true
+      - name: dotted
+        args: ["AB.123.456"]
+        returns: true
+      - args: ["1"]
+        returns: false
+      - args: ["1112223334-"]
+        returns: false
+      - name: number
+        args: [1]
+        returns: false
+        note: a number is accepted but never valid (see summary)
   parse:
     summary: Removes non-alphanumeric characters from a passport number, uppercases it, and caps it to 8 characters.
     params:
       - name: passport
         type: string
     returns: string
+    tests:
+      - args: ["Ab123456"]
+        returns: "AB123456"
+      - name: spaces
+        args: [" AB 123 456 "]
+        returns: "AB123456"
+      - name: hyphens
+        args: ["-AB1-23-4-56-"]
+        returns: "AB123456"
+      - name: caps-length
+        args: ["AB123456789"]
+        returns: "AB123456"
+      - name: empty
+        args: [""]
+        returns: ""
   removeSymbols:
     summary: Removes the formatting symbols (keeps everything else).
     params:

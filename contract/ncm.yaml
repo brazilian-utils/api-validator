@@ -9,15 +9,65 @@ functions:
         type: FormatNcmOptions
         optional: true
     returns: string
+    tests:
+      - args: ["84713012"]
+        returns: "8471.30.12"
+      - name: already-formatted
+        args: ["8471.30.12"]
+        returns: "8471.30.12"
+      - name: partial
+        args: ["84713"]
+        returns: "8471.3"
+      - name: empty
+        args: [""]
+        returns: ""
   isValid:
     summary: Validates if a NCM (Nomenclatura Comum do Mercosul) code exists in the official table.
     params:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["22030000"]
+        returns: true
+      - name: masked
+        args: ["2203.00.00"]
+        returns: true
+      - name: leading-zero
+        args: ["01012100"]
+        returns: true
+      - name: nonexistent
+        args: ["12345678"]
+        returns: false
+      - name: too-short
+        args: ["2203000"]
+        returns: false
+      - name: letters
+        args: ["abcdefgh"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["8471.30.12"]
+        returns: "84713012"
+      - name: unmasked
+        args: ["84713012"]
+        returns: "84713012"
+      - name: strips-non-digits
+        args: ["84?ABC71.30.12abc"]
+        returns: "84713012"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["84713012999"]
+        returns: "84713012"
+        note: reference truncates to the 8 characters of the document; asserted by the reference (JS) unit tests

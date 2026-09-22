@@ -9,6 +9,18 @@ functions:
         type: FormatCnhOptions
         optional: true
     returns: string
+    tests:
+      - args: ["00000000119"]
+        returns: "000000001-19"
+      - name: remasks
+        args: ["000.000.001-19"]
+        returns: "000000001-19"
+      - name: partial
+        args: ["0000000011"]
+        returns: "000000001-1"
+      - name: empty
+        args: [""]
+        returns: ""
   generate:
     summary: Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).
     params: []
@@ -77,3 +89,20 @@ functions:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["000000001-19"]
+        returns: "00000000119"
+      - name: unmasked
+        args: ["00000000119"]
+        returns: "00000000119"
+      - name: strips-non-digits
+        args: ["000.abc000001-19"]
+        returns: "00000000119"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["00000000119123"]
+        returns: "00000000119"
+        note: reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests

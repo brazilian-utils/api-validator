@@ -9,6 +9,18 @@ functions:
         type: FormatCnaeOptions
         optional: true
     returns: string
+    tests:
+      - args: ["6201501"]
+        returns: "6201-5/01"
+      - name: already-formatted
+        args: ["6201-5/01"]
+        returns: "6201-5/01"
+      - name: partial
+        args: ["62015"]
+        returns: "6201-5"
+      - name: empty
+        args: [""]
+        returns: ""
   get:
     summary: Looks a CNAE (Classificação Nacional de Atividades Econômicas) subclass code up in the official CNAE-Subclasses 2.3 table, the
       current subclass revision of CNAE 2.0.
@@ -16,6 +28,29 @@ functions:
       - name: value
         type: string | number
     returns: Cnae?
+    tests:
+      - args: ["6201501"]
+        returns:
+          code: "6201501"
+          description: "DESENVOLVIMENTO DE PROGRAMAS DE COMPUTADOR SOB ENCOMENDA"
+      - name: masked
+        args: ["6201-5/01"]
+        returns:
+          code: "6201501"
+          description: "DESENVOLVIMENTO DE PROGRAMAS DE COMPUTADOR SOB ENCOMENDA"
+      - name: leading-zero
+        args: ["0111-3/01"]
+        returns:
+          code: "0111301"
+          description: "CULTIVO DE ARROZ"
+      - args: ["0000000"]
+        returns: null
+      - name: too-short
+        args: ["620150"]
+        returns: null
+      - name: empty
+        args: [""]
+        returns: null
   isValid:
     summary: Validates if a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3
       table, the current subclass revision of CNAE 2.0.
@@ -23,9 +58,50 @@ functions:
       - name: value
         type: string | number
     returns: boolean
+    tests:
+      - args: ["6201501"]
+        returns: true
+      - name: masked
+        args: ["6201-5/01"]
+        returns: true
+      - name: leading-zero
+        args: ["0111301"]
+        returns: true
+      - name: zeros
+        args: ["0000000"]
+        returns: false
+      - name: too-short
+        args: ["620150"]
+        returns: false
+      - name: too-long
+        args: ["62015011"]
+        returns: false
+      - name: letters
+        args: ["abcdefg"]
+        returns: false
+      - name: empty
+        args: [""]
+        returns: false
   parse:
     summary: Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.
     params:
       - name: value
         type: string | number
     returns: string
+    tests:
+      - name: masked
+        args: ["6201-5/01"]
+        returns: "6201501"
+      - name: unmasked
+        args: ["6201501"]
+        returns: "6201501"
+      - name: strips-non-digits
+        args: ["62?ABC01-5/01abc"]
+        returns: "6201501"
+      - name: empty
+        args: [""]
+        returns: ""
+      - name: caps-length
+        args: ["6201501999"]
+        returns: "6201501"
+        note: reference truncates to the 7 characters of the document; asserted by the reference (JS) unit tests
