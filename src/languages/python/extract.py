@@ -7,6 +7,7 @@ fallback. Deprecations come from the griffe-warnings-deprecated extension
 usage: python3 extract.py <repo_root> <package_dir>
 Prints "\\0JSON\\0" followed by {"symbols": [...], "warnings": [...]}.
 """
+import ast
 import json
 import os
 import sys
@@ -17,6 +18,49 @@ MARK = "\0JSON\0"
 KINDS = griffe.ParameterKind
 
 
+def literal(text):
+    try:
+        value = ast.literal_eval(text)
+    except (ValueError, SyntaxError):
+        return None
+    return value if isinstance(value, (str, int, float, bool)) else None
+
+
+def type_node(e, in_literal=False):
+    """griffe annotation expression -> the shared structured type tree (src/core/model.ts)."""
+    if e is None:
+        return None
+    if isinstance(e, str):  # griffe keeps some leaves as plain strings (None, constants)
+        text = e.strip()
+        value = literal(text)
+        if value is not None and (in_literal or not isinstance(value, str)):
+            return {"kind": "lit", "value": value}
+        if isinstance(value, str):  # a string annotation: forward reference to a type
+            return {"kind": "name", "name": value}
+        return {"kind": "name", "name": text}
+    if isinstance(e, griffe.ExprName):
+        return {"kind": "name", "name": e.name}
+    if isinstance(e, griffe.ExprAttribute):
+        return {"kind": "name", "name": str(e)}
+    if isinstance(e, griffe.ExprConstant):
+        return type_node(e.value, in_literal)
+    if isinstance(e, griffe.ExprBinOp) and str(e.operator).strip() == "|":
+        members = []
+        for side in (e.left, e.right):
+            node = type_node(side, in_literal)
+            members.extend(node["of"] if node["kind"] == "union" else [node])
+        return {"kind": "union", "of": members}
+    if isinstance(e, griffe.ExprSubscript):
+        left = type_node(e.left)
+        items = e.slice.elements if isinstance(e.slice, griffe.ExprTuple) else [e.slice]
+        is_literal = left.get("name", "").split(".")[-1] == "Literal"
+        left["args"] = [type_node(x, is_literal) for x in items]
+        return left
+    if isinstance(e, (griffe.ExprTuple, griffe.ExprList)):
+        return {"kind": "tuple", "of": [type_node(x, in_literal) for x in e.elements]}
+    return {"kind": "unknown", "text": str(e)}
+
+
 def params_of(fn):
     out = []
     for p in fn.parameters:
@@ -25,6 +69,7 @@ def params_of(fn):
         param = {"name": p.name}
         if p.annotation is not None:
             param["type"] = str(p.annotation)
+            param["typeNode"] = type_node(p.annotation)
         if p.default is not None or p.kind in (KINDS.var_positional, KINDS.var_keyword):
             param["optional"] = True
         if p.kind in (KINDS.var_positional, KINDS.var_keyword):
@@ -83,6 +128,7 @@ def main():
                 sym = {"name": prefix + name, "params": params_of(target)}
                 if target.returns is not None:
                     sym["returns"] = str(target.returns)
+                    sym["returnsNode"] = type_node(target.returns)
                 if getattr(target, "deprecated", None):
                     sym["deprecated"] = True
                 if member.is_alias:

@@ -31,6 +31,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup toolchain install nightly --profile minimal
       - run: npm ci
+      - name: Lint workflows and templates (actionlint)
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
+          ./actionlint .github/workflows/*.yml templates/lib-ci/*.yml
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test

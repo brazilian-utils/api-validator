@@ -10,7 +10,8 @@
  *   Name          named object type (opaque: only "is an object" is checked)
  *   (T)           grouping
  *
- * Language adapters translate native type strings into CType via `mapType`;
+ * Language adapters translate native types (structured, from each language's tooling) into
+ * CType via `mapType`;
  * anything they cannot translate becomes `unknown`, which is never reported as a mismatch
  * (it is reported as "unverified" instead). That keeps the checker honest: it only
  * complains about what it can actually prove.
@@ -213,6 +214,11 @@ export interface Compat {
   reason?: string;
 }
 
+function widen(a: CType): CType {
+  if (a.k !== "literal") return a;
+  return typeof a.value === "string" ? T.string : typeof a.value === "number" ? T.number : T.boolean;
+}
+
 const nonNull = (t: CType): CType => union(atoms(t).filter((a) => a.k !== "null"));
 
 /**
@@ -224,10 +230,20 @@ export function checkParam(contract: CType, native: CType): Compat {
   const n = nonNull(native);
   const cAtoms = atoms(c);
   const uncovered = cAtoms.filter((a) => !covers(n, a));
-  if (uncovered.length === cAtoms.length) {
+  // A lib taking only some values of a kind (`"SP" | "RJ"` where the contract says `string`)
+  // is narrower, not incompatible.
+  const widened = union(atoms(n).map(widen));
+  const incompatible = uncovered.filter((a) => !covers(widened, a));
+  if (incompatible.length === cAtoms.length) {
     return { level: "error", reason: `expects ${format(contract)}, lib takes ${format(native)}` };
   }
   if (uncovered.length > 0) {
+    const hard = uncovered.filter((a) => incompatible.includes(a));
+    if (hard.length === 0) {
+      const values = atoms(n).filter((a) => a.k === "literal").map(format);
+      const shown = values.length > 6 ? `${values.slice(0, 6).join(" | ")} | … (${values.length} values)` : values.join(" | ");
+      return { level: "warning", reason: `lib accepts only specific values: ${shown} (contract: ${format(contract)})` };
+    }
     return {
       level: "warning",
       reason: `lib does not accept ${uncovered.map(format).join(" | ")} (contract: ${format(contract)}, lib: ${format(native)})`

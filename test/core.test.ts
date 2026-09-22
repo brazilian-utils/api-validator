@@ -9,7 +9,7 @@ import { valuesEqual } from "../src/core/conformance.js";
 import { ContractError, loadContract } from "../src/core/contract.js";
 import { checkParam, checkReturn, format, parseCType, T } from "../src/core/ctype.js";
 import { SymbolIndex, resolve, score } from "../src/core/match.js";
-import type { ApiSurface, LibConfig, NativeSymbol, RunnerCall } from "../src/core/model.js";
+import type { ApiSurface, LibConfig, NativeSymbol, RunnerCall, TypeNode } from "../src/core/model.js";
 import { lookupKey, snake, words } from "../src/core/naming.js";
 import { getAdapter } from "../src/languages/registry.js";
 import type { LanguageAdapter } from "../src/languages/types.js";
@@ -46,6 +46,7 @@ describe("canonical types", () => {
     assert.equal(checkParam(parseCType("1 | 2"), T.integer).level, "ok");
     assert.equal(checkParam(parseCType("Options"), T.object("Other")).level, "ok"); // named objects are opaque
     assert.equal(checkParam(parseCType("string"), T.unknown).level, "unverified");
+    assert.equal(checkParam(parseCType("string"), T.union(T.literal("SP"), T.literal("RJ"))).level, "warning"); // narrower
   });
   it("return: everything the lib returns must be allowed", () => {
     assert.equal(checkReturn(parseCType("string"), T.nullable(T.string)).level, "warning");
@@ -71,20 +72,31 @@ describe("naming", () => {
   });
 });
 
+// Structured native types, as the extractors report them.
+const n = (name: string, ...args: TypeNode[]): TypeNode => (args.length ? { kind: "name", name, args } : { kind: "name", name });
+const tuple = (...of: TypeNode[]): TypeNode => ({ kind: "tuple", of });
+const un = (...of: TypeNode[]): TypeNode => ({ kind: "union", of });
+const ref = (of: TypeNode, op: "*" | "&" = "&"): TypeNode => ({ kind: "ref", op, of });
+
 describe("type mapping per language", () => {
-  const m = (lang: string, t: string, pos: "param" | "return" = "return") => format(getAdapter(lang).mapType(t, pos, { name: "x", params: [], meta: { module: "m" } }));
+  const m = (lang: string, t: TypeNode | undefined, pos: "param" | "return" = "return") =>
+    format(getAdapter(lang).mapType(t, pos, { name: "x", params: [], meta: { module: "m" } }));
   it("maps idiomatic types to canonical ones", () => {
-    assert.equal(m("python", "Optional[str]"), "string?");
-    assert.equal(m("python", "list[Address] | None"), "Address[]?");
-    assert.equal(m("go", "(*Address, error)"), "Address?");
-    assert.equal(m("go", "(string, bool)"), "string?");
-    assert.equal(m("rust", "Result<Option<String>, CepError>"), "string?");
-    assert.equal(m("rust", "&'static str"), "string");
-    assert.equal(m("erlang", "{ok, binary()} | {error, invalid}"), "string?");
-    assert.equal(m("erlang", "mobile | landline"), '"mobile" | "landline"');
-    assert.equal(m("typescript", "Promise<AddressInfo | undefined>"), "AddressInfo?");
-    assert.equal(m("ruby", "String, nil".split(", ").join(" | ")), "string?");
-    assert.equal(m("dotnet", "string option"), "string?");
+    assert.equal(m("python", n("Optional", n("str"))), "string?");
+    assert.equal(m("python", un(n("list", n("Address")), n("None"))), "Address[]?");
+    assert.equal(m("go", tuple(ref(n("Address", ), "*"), n("error"))), "Address?");
+    assert.equal(m("go", tuple(n("string"), n("bool"))), "string?");
+    assert.equal(m("go", undefined), "void");
+    assert.equal(m("rust", n("Result", n("Option", n("String")), n("CepError"))), "string?");
+    assert.equal(m("rust", ref(n("str"))), "string");
+    assert.equal(m("rust", n("impl", n("Into", n("String"))), "param"), "string");
+    const ok = (t: TypeNode) => tuple(n("ok"), t);
+    assert.equal(m("erlang", un(ok({ kind: "name", name: "binary", call: true }), tuple(n("error"), n("invalid")))), "string?");
+    assert.equal(m("erlang", un(n("mobile"), n("landline"))), '"mobile" | "landline"');
+    assert.equal(m("typescript", n("Promise", un(n("AddressInfo"), n("undefined")))), "AddressInfo?");
+    assert.equal(m("ruby", un(n("String"), n("nil"))), "string?");
+    assert.equal(m("dotnet", n("option", n("string"))), "string?");
+    assert.equal(m("dotnet", un(n("string"), n("null"))), "string?"); // C# string?
   });
 });
 
@@ -150,10 +162,20 @@ function fakeAdapter(impls: Record<string, (...a: unknown[]) => unknown>): Langu
   };
 }
 
+/** Python-like fake symbols: "cpf:str", "x?:int"; "str | None" returns become a union. */
+const pyNode = (t: string | undefined): TypeNode | undefined => {
+  if (!t) return undefined;
+  const parts = t.split("|").map((x) => n(x.trim()));
+  return parts.length === 1 ? parts[0] : un(...parts);
+};
 const sym = (name: string, params: string[], returns: string, extra: Partial<NativeSymbol> = {}): NativeSymbol => ({
   name,
-  params: params.map((p) => ({ name: p.replace("?", "").split(":")[0], type: p.split(":")[1], optional: p.includes("?") })),
+  params: params.map((p) => {
+    const type = p.split(":")[1];
+    return { name: p.replace("?", "").split(":")[0], type, typeNode: pyNode(type), optional: p.includes("?") };
+  }),
   returns,
+  returnsNode: pyNode(returns),
   ...extra
 });
 

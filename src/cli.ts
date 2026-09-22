@@ -63,7 +63,10 @@ function appendTests(file: string, ops: Record<string, Array<Record<string, unkn
 
 function writeSnapshot(surface: ApiSurface) {
   // Adapter metadata is runtime-only; the snapshot is for humans reviewing API changes in PRs.
-  const clean = { ...surface, symbols: surface.symbols.map(({ meta: _meta, ...s }) => s) };
+  const clean = {
+    ...surface,
+    symbols: surface.symbols.map(({ meta: _meta, returnsNode: _r, ...s }) => ({ ...s, params: s.params.map(({ typeNode: _t, ...p }) => p) }))
+  };
   writeFile(path.join(SNAPSHOTS_DIR, `${surface.library}.api.json`), JSON.stringify(clean, null, 2));
 }
 
@@ -117,6 +120,16 @@ program
   .option("--full", "full clone instead of shallow")
   .action((opts) => {
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) syncRepo(lib, { branch: opts.branch, shallow: !opts.full });
+  });
+
+program
+  .command("libs")
+  .description("List the configured libs as `<name> <owner/repo>` lines (for scripts)")
+  .action(() => {
+    for (const lib of loadLibConfigs(LIBS_DIR)) {
+      const slug = lib.repo ? new URL(lib.repo).pathname.replace(/^\/|\.git$/g, "") : "";
+      console.log(`${lib.name} ${slug}`);
+    }
   });
 
 program

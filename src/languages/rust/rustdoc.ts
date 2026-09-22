@@ -9,9 +9,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { NativeSymbol } from "../../core/model.js";
+import type { NativeSymbol, TypeNode } from "../../core/model.js";
 import { run } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
+import { crateInfo } from "./cargo.js";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Json = any;
@@ -21,15 +22,31 @@ export function nightlyToolchain(ctx: AdapterContext): string | undefined {
   return run("rustup", ["run", wanted, "rustc", "--version"]).status === 0 ? wanted : undefined;
 }
 
-function crateInfo(root: string): { pkg: string; lib: string } {
-  const toml = fs.readFileSync(path.join(root, "Cargo.toml"), "utf8");
-  const pkg = /\[package\][\s\S]*?\bname\s*=\s*"([^"]+)"/.exec(toml)?.[1];
-  if (!pkg) throw new Error("Cargo.toml: package name not found");
-  const libSection = /^\[lib\]\s*\n([^[]*)/m.exec(toml)?.[1] ?? "";
-  return { pkg, lib: /\bname\s*=\s*"([^"]+)"/.exec(libSection)?.[1] ?? pkg.replaceAll("-", "_") };
+/** rustdoc JSON type -> the shared structured type tree. */
+export function typeNode(t: Json): TypeNode {
+  if (!t || typeof t !== "object") return { kind: "unknown" };
+  if ("primitive" in t) return { kind: "name", name: t.primitive };
+  if ("generic" in t) return { kind: "unknown", text: t.generic };
+  if ("borrowed_ref" in t) return { kind: "ref", op: t.borrowed_ref.is_mutable ? "&mut" : "&", of: typeNode(t.borrowed_ref.type) };
+  if ("raw_pointer" in t) return { kind: "ref", op: "*", of: typeNode(t.raw_pointer.type) };
+  if ("slice" in t) return { kind: "list", of: typeNode(t.slice) };
+  if ("array" in t) return { kind: "list", of: typeNode(t.array.type) };
+  if ("tuple" in t) return t.tuple.length === 0 ? { kind: "name", name: "()" } : { kind: "tuple", of: t.tuple.map(typeNode) };
+  if ("resolved_path" in t) return pathNode(t.resolved_path);
+  if ("impl_trait" in t) {
+    const bounds = t.impl_trait.filter((b: Json) => b.trait_bound).map((b: Json) => pathNode(b.trait_bound.trait));
+    return { kind: "name", name: "impl", args: bounds };
+  }
+  if ("function_pointer" in t) return { kind: "function" };
+  return { kind: "unknown", text: typeText(t) };
 }
 
-/** Render a rustdoc JSON type back to Rust syntax (the adapter's type mapper reads that). */
+function pathNode(p: Json): TypeNode {
+  const args = (p.args?.angle_bracketed?.args ?? []).filter((a: Json) => "type" in a).map((a: Json) => typeNode(a.type));
+  return args.length ? { kind: "name", name: p.path, args } : { kind: "name", name: p.path };
+}
+
+/** Render a rustdoc JSON type as Rust source, for display and for the generated runner. */
 export function typeText(t: Json): string {
   if (!t || typeof t !== "object") return "_";
   if ("primitive" in t) return t.primitive;
@@ -88,17 +105,18 @@ export function extractWithRustdoc(ctx: AdapterContext, toolchain: string): Nati
   const visited = new Set<string>();
   const emit = (item: Json, publicPath: string[]) => {
     const f = item.inner.function;
-    const params = f.sig.inputs.map(([name, ty]: [string, Json]) => ({ name: /^\w+$/.test(name) ? name : "arg", type: typeText(ty) }));
+    const params = f.sig.inputs.map(([name, ty]: [string, Json]) => ({ name: /^\w+$/.test(name) ? name : "arg", type: typeText(ty), typeNode: typeNode(ty) }));
     const name = publicPath.join(".");
     const def = canonical(item.id);
     symbols.push({
       name,
       params,
       returns: f.sig.output ? typeText(f.sig.output) : undefined,
+      returnsNode: f.sig.output ? typeNode(f.sig.output) : undefined,
       deprecated: item.deprecation ? true : undefined,
       aliasOf: def && def !== name ? def : undefined,
       location: item.span ? { file: item.span.filename, line: item.span.begin[0] } : undefined,
-      meta: { rustPath: publicPath.join("::"), paramTypes: params.map((p: { type: string }) => p.type) }
+      meta: { rustPath: publicPath.join("::") }
     });
   };
   const walk = (moduleItem: Json, prefix: string[]) => {

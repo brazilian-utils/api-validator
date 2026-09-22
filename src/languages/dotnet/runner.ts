@@ -6,21 +6,28 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { NativeSymbol, RunnerCall, RunnerResult } from "../../core/model.js";
+import type { NativeSymbol, RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
 
 class Unsupported extends Error {}
 
-/** Render a JSON value as an F# literal, guided by the (possibly absent) declared type. */
-export function fsharpLiteral(type: string | undefined, value: unknown): string {
-  const t = (type ?? "").trim();
-  const opt = /^(.+?)\s+option$/.exec(t) ?? /^Option<(.+)>$/.exec(t);
-  if (opt) return value === null ? "None" : `(Some ${fsharpLiteral(opt[1], value)})`;
+/** Render a JSON value as an F# literal of type `t` (from the assembly's reflection). */
+export function fsharpLiteral(t: TypeNode | undefined, value: unknown): string {
+  if (t?.kind === "union") {
+    // C# nullable reference type: T | null
+    const inner = t.of.find((x) => !(x.kind === "name" && x.name === "null"));
+    return value === null ? "null" : fsharpLiteral(inner, value);
+  }
+  if (t?.kind === "name" && (t.name === "option" || t.name === "voption")) {
+    const some = t.name === "option" ? "Some" : "ValueSome";
+    return value === null ? (t.name === "option" ? "None" : "ValueNone") : `(${some} ${fsharpLiteral(t.args?.[0], value)})`;
+  }
   if (value === null) return "null";
+  const name = t?.kind === "name" ? t.name : undefined;
   if (typeof value === "string") {
-    if (t === "char") {
+    if (name === "char") {
       if ([...value].length !== 1) throw new Unsupported("expected a 1-char string");
       return `'${JSON.stringify(value).slice(1, -1).replace(/^'$/, "\\'")}'`;
     }
@@ -28,32 +35,32 @@ export function fsharpLiteral(type: string | undefined, value: unknown): string 
   }
   if (typeof value === "boolean") return String(value);
   if (typeof value === "number") {
-    if (/^(float|double|single)$/.test(t) || (!t && !Number.isInteger(value))) return Number.isInteger(value) ? `${value}.0` : String(value);
-    if (t === "decimal") return `${value}M`;
-    if (t === "int64" || t === "long") return `${value}L`;
-    if (!Number.isInteger(value)) throw new Unsupported(`non-integer for ${t}`);
+    if (name === "float" || name === "float32" || (!name && !Number.isInteger(value))) return Number.isInteger(value) ? `${value}.0` : String(value);
+    if (name === "decimal") return `${value}M`;
+    if (name === "int64") return `${value}L`;
+    if (!Number.isInteger(value)) throw new Unsupported(`non-integer for ${name}`);
     return String(value);
   }
   if (Array.isArray(value)) {
-    const el = /^(.+?)\s+(list|array|seq)$/.exec(t)?.[1];
+    const el = t?.kind === "list" ? t.of : t?.kind === "name" ? t.args?.[0] : undefined;
     const items = value.map((v) => fsharpLiteral(el, v)).join("; ");
-    return /array$|\[\]$/.test(t) ? `[| ${items} |]` : `[ ${items} ]`;
+    return t?.kind === "list" ? `[| ${items} |]` : `[ ${items} ]`;
   }
   throw new Unsupported("objects are not supported as .NET arguments");
 }
 
 function callExpr(call: RunnerCall): string {
-  const meta = call.symbol.meta as { qualified?: string; groups?: number[]; paramTypes?: string[] } | undefined;
+  const meta = call.symbol.meta as { qualified?: string; groups?: number[] } | undefined;
   if (!meta?.qualified) throw new Unsupported("symbol has no .NET metadata");
-  const groups = meta.groups ?? [call.symbol.params.length];
-  const types = meta.paramTypes ?? [];
+  const params = call.symbol.params;
+  const groups = meta.groups ?? [params.length];
   const arity = groups.reduce((a, b) => a + b, 0);
   if (call.args.length !== arity) throw new Unsupported(`${call.args.length} args for ${arity} params`);
   let k = 0;
   const parts = groups.map((n) => {
     if (n === 0) return "()";
     const lits = Array.from({ length: n }, () => {
-      const lit = fsharpLiteral(types[k], call.args[k]);
+      const lit = fsharpLiteral(params[k]?.typeNode, call.args[k]);
       k++;
       return lit;
     });
@@ -122,7 +129,10 @@ export async function runDotnet(ctx: AdapterContext, calls: RunnerCall[]): Promi
   const results = new Map<string, RunnerResult>();
   const project = findProject(path.join(ctx.root, ctx.lib.entry)) ?? findProject(ctx.root);
   if (!project) return calls.map((c) => ({ id: c.id, ok: false, error: "no .fsproj/.csproj found", unsupported: true }));
-  const tfm = /<TargetFramework>([^<]+)</.exec(fs.readFileSync(project, "utf8"))?.[1] ?? "net8.0";
+  // MSBuild's own evaluation of the project (handles imports, conditions, multi-targeting).
+  const props = run("dotnet", ["msbuild", project, "-getProperty:TargetFramework", "-getProperty:TargetFrameworks"], { cwd: ctx.workDir, env: ENV });
+  const evaluated = props.status === 0 ? (JSON.parse(props.stdout).Properties as { TargetFramework?: string; TargetFrameworks?: string }) : {};
+  const tfm = evaluated.TargetFramework || evaluated.TargetFrameworks?.split(";")[0] || "net8.0";
 
   let pending: Array<{ id: string; expr: string }> = [];
   for (const c of calls) {

@@ -1,4 +1,5 @@
 import { T } from "../../core/ctype.js";
+import { isStringTrait } from "./traits.js";
 import { snake } from "../../core/naming.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import type { LanguageAdapter } from "../types.js";
@@ -7,6 +8,7 @@ import { extractWithRustdoc, nightlyToolchain } from "./rustdoc.js";
 import { runRust } from "./runner.js";
 
 const int = T.integer;
+
 const mapRust = makeTypeMapper({
   names: {
     str: T.string,
@@ -29,6 +31,9 @@ const mapRust = makeTypeMapper({
     Arc: firstArg,
     Cow: (args, map) => (args.length ? map(args[args.length - 1]) : T.unknown),
     Result: firstArg, // the error channel is the idiomatic "throws"
+    "()": T.void,
+    // `impl Into<String>` / `impl AsRef<str>` / `impl ToString` parameters take strings.
+    impl: (args) => (args.some(isStringTrait) ? T.string : T.unknown),
     NaiveDate: T.date,
     NaiveDateTime: T.date,
     DateTime: T.date
@@ -52,9 +57,7 @@ export const rust: LanguageAdapter = {
     return { symbols: extractWithRustdoc(ctx, toolchain), warnings: [] };
   },
   mapType(native, position) {
-    if (position === "return" && !native) return T.void;
-    // `impl Into<String>` / `impl AsRef<str>` params accept strings.
-    if (native && /^impl\s+(Into<String>|AsRef<str>|ToString)/.test(native.trim())) return T.string;
+    if (!native) return position === "return" ? T.void : T.unknown;
     return mapRust(native);
   },
   runner: { requires: ["cargo"], run: runRust }

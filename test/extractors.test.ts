@@ -53,6 +53,10 @@ describe("rust extractor (rustdoc JSON)", { skip: !which("cargo") && "cargo not 
     assert.equal(s.get("root_fn")?.returns, "Result<Vec<String>, String>");
   });
   it("reads #[deprecated]", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
+  it("emits rustdoc types as structured nodes", () => {
+    assert.deepEqual(s.get("cpf.format_cpf")?.returnsNode, { kind: "name", name: "Option", args: [{ kind: "name", name: "String" }] });
+    assert.deepEqual(s.get("cpf.is_valid")?.params[0].typeNode, { kind: "ref", op: "&", of: { kind: "name", name: "str" } });
+  });
 });
 
 describe("erlang extractor (compiled modules via beam_lib)", { skip: !which("erlc") && "erlang not installed" }, async () => {
@@ -71,6 +75,9 @@ describe("erlang extractor (compiled modules via beam_lib)", { skip: !which("erl
   it("takes types from -spec and names from clause heads / annotations", () => {
     assert.deepEqual(params(s.get("demo.format")), ["cpf: binary()"]);
     assert.equal(s.get("demo.format")?.returns, "{ok, cpf()} | {error, invalid}");
+    const ret = s.get("demo.format")?.returnsNode;
+    assert.equal(ret?.kind, "union");
+    assert.deepEqual(ret?.kind === "union" && ret.of[0], { kind: "tuple", of: [{ kind: "name", name: "ok" }, { kind: "name", name: "cpf", call: true }] });
   });
 });
 
@@ -98,6 +105,7 @@ describe(".NET extractor: C# assembly (reflection + nullability)", { skip: !whic
   it("public static methods, nullable reference types, defaults, params arrays, [Obsolete]", () => {
     assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate"]);
     assert.equal(s.get("Cnpj.Format")?.returns, "string?");
+    assert.deepEqual(s.get("Cnpj.Format")?.returnsNode, { kind: "union", of: [{ kind: "name", name: "string" }, { kind: "name", name: "null" }] });
     assert.deepEqual(params(s.get("Cnpj.Format")), ["cnpj: string", "pad?: bool"]);
     assert.equal(s.get("Cnpj.Generate")?.params[0].rest, true);
     assert.equal(s.get("Cnpj.Validate")?.deprecated, true);
@@ -109,9 +117,11 @@ describe("typescript extractor (type checker)", async () => {
   it("follows re-exports, skips types/classes/constants", () => {
     assert.deepEqual(names(s), ["formatCpf", "generateCpf", "isValidCPF", "isValidCpf"]);
   });
-  it("expands aliases of primitive unions and infers missing return types", () => {
-    assert.deepEqual(params(s.get("generateCpf")), ["state?: string"]);
-    assert.equal(s.get("generateCpf")?.returns, "string");
+  it("expands aliases of literal unions structurally and infers missing return types", () => {
+    const state = s.get("generateCpf")!.params[0];
+    assert.equal(state.type, "StateCode"); // as written
+    assert.deepEqual(state.typeNode, { kind: "union", of: [{ kind: "lit", value: "SP" }, { kind: "lit", value: "RJ" }] });
+    assert.deepEqual(s.get("generateCpf")?.returnsNode, { kind: "name", name: "string" }); // inferred
   });
   it("marks @deprecated aliases", () => {
     assert.equal(s.get("isValidCPF")?.deprecated, true);
@@ -130,6 +140,11 @@ describe("go extractor (go/parser)", { skip: !which("go") && "go not installed" 
     assert.equal(s.get("cpf.Validate")?.deprecated, true);
     assert.equal(s.get("cpf.Format")?.meta?.importPath, "example.com/fixture/cpf");
   });
+  it("emits go/types as structured nodes", () => {
+    assert.deepEqual(s.get("cpf.Format")?.returnsNode, { kind: "tuple", of: [{ kind: "name", name: "string" }, { kind: "name", name: "error" }] });
+    assert.deepEqual(s.get("cpf.Lookup")?.returnsNode, { kind: "tuple", of: [{ kind: "ref", op: "*", of: { kind: "name", name: "string" } }, { kind: "name", name: "bool" }] });
+    assert.equal(s.get("cpf.Join")?.params[1].typeNode?.kind, "name"); // ...string: each argument is a string
+  });
 });
 
 describe("ruby extractor (reflection)", { skip: !which("ruby") && "ruby not installed" }, async () => {
@@ -141,5 +156,6 @@ describe("ruby extractor (reflection)", { skip: !which("ruby") && "ruby not inst
     assert.deepEqual(params(s.get("CPFUtils.format_cpf")), ["cpf: String", "pad?(kw)"]);
     assert.equal(s.get("CPFUtils.format_cpf")?.returns, "String | nil");
     assert.equal(s.get("CPFUtils.validate")?.deprecated, true);
+    assert.deepEqual(s.get("CPFUtils.format_cpf")?.returnsNode, { kind: "union", of: [{ kind: "name", name: "String" }, { kind: "name", name: "nil" }] });
   });
 });

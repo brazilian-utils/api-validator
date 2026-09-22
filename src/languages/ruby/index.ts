@@ -46,6 +46,7 @@ const mapRuby = makeTypeMapper({
     NilClass: T.null,
     Object: T.any,
     Array: listOf,
+    Set: listOf,
     Hash: T.object(),
     Date: T.date,
     DateTime: T.date,

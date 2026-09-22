@@ -4,7 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { NativeSymbol, RunnerCall, RunnerResult } from "../../core/model.js";
+import type { NativeSymbol, RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
@@ -51,7 +51,7 @@ export function compileErlang(ctx: AdapterContext): { ebin: string } | { error: 
 
 export interface BeamModule {
   module: string;
-  types: Record<string, string>;
+  types: Record<string, TypeNode>;
   symbols: NativeSymbol[];
 }
 

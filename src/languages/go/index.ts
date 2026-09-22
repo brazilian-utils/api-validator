@@ -5,12 +5,12 @@ import { flat, pascal } from "../../core/naming.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, runOrThrow } from "../../core/shell.js";
 import { makeTypeMapper } from "../shared/typemap.js";
-import type { TypeNode } from "../shared/typeparse.js";
+import type { TypeNode } from "../../core/model.js";
 import type { Extraction, LanguageAdapter } from "../types.js";
 import { runGo } from "./runner.js";
 
 const int = T.integer;
-const isError = (n: TypeNode) => n.kind === "name" && n.name === "error";
+const isError = (n: TypeNode) => n.kind === "name" && n.name === "error" && !n.pkg;
 const isBool = (n: TypeNode) => n.kind === "name" && n.name === "bool";
 
 const mapGo = makeTypeMapper({
@@ -60,9 +60,9 @@ export const go: LanguageAdapter = {
     return parseJsonOutput<Extraction>(out, "go extractor");
   },
   mapType(native, position) {
-    const t = mapGo(native);
     // A Go func with no results returns nothing.
-    if (position === "return" && !native) return T.void;
+    if (!native) return position === "return" ? T.void : T.unknown;
+    const t = mapGo(native);
     return t.k === "union" ? union(t.of.filter((x) => x.k !== "void")) : t;
   },
   runner: { requires: ["go"], run: runGo }

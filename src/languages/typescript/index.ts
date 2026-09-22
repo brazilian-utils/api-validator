@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { Node, Project, type ParameterDeclaration, type Signature, type Type } from "ts-morph";
 import { T } from "../../core/ctype.js";
-import type { NativeParam, NativeSymbol } from "../../core/model.js";
+import type { NativeParam, NativeSymbol, TypeNode } from "../../core/model.js";
 import { LANGUAGES_DIR, PACKAGE_ROOT } from "../../core/paths.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import { runJsonProcess } from "../shared/process-runner.js";
@@ -17,37 +17,60 @@ function isDeprecatedNode(node: Node): boolean {
   );
 }
 
-/**
- * Aliases of primitive/literal unions (`type StateCode = "AC" | ...`) are expanded to their
- * primitive kinds so they compare as `string` instead of an opaque named object.
- */
-function primitiveText(type: Type): string | undefined {
-  const members = type.isUnion() ? type.getUnionTypes() : [type];
-  const kinds = new Set<string>();
-  for (const m of members) {
-    if (m.isString() || m.isStringLiteral() || m.isTemplateLiteral()) kinds.add("string");
-    else if (m.isNumber() || m.isNumberLiteral()) kinds.add("number");
-    else if (m.isBoolean() || m.isBooleanLiteral()) kinds.add("boolean");
-    else if (m.isUndefined() || m.isNull()) kinds.add("null");
-    else return undefined;
+/** A checker type -> the shared structured type tree. */
+export function tsNode(type: Type, depth = 0): TypeNode {
+  if (depth > 8) return { kind: "unknown", text: type.getText() };
+  if (type.isUnion()) {
+    const members = type.getUnionTypes();
+    // The checker models `boolean` as `true | false`.
+    const bools = members.filter((m) => m.isBooleanLiteral());
+    const both = bools.length === 2;
+    const nodes = members.filter((m) => !(both && m.isBooleanLiteral())).map((m) => tsNode(m, depth + 1));
+    if (both) nodes.push({ kind: "name", name: "boolean" });
+    return nodes.length === 1 ? nodes[0] : { kind: "union", of: nodes };
   }
-  return [...kinds].join(" | ");
+  if (type.isStringLiteral() || type.isNumberLiteral()) return { kind: "lit", value: type.getLiteralValue() as string | number };
+  if (type.isBooleanLiteral()) return { kind: "lit", value: type.getText() === "true" };
+  if (type.isString() || type.isTemplateLiteral()) return { kind: "name", name: "string" };
+  if (type.isNumber()) return { kind: "name", name: "number" };
+  if (type.isBoolean()) return { kind: "name", name: "boolean" };
+  if (type.isNull()) return { kind: "name", name: "null" };
+  if (type.isUndefined()) return { kind: "name", name: "undefined" };
+  if (type.isAny()) return { kind: "name", name: "any" };
+  if (type.isUnknown()) return { kind: "name", name: "unknown" };
+  const text = type.getText();
+  if (text === "void" || text === "never" || text === "bigint") return { kind: "name", name: text };
+  if (type.isArray()) return { kind: "list", of: tsNode(type.getArrayElementTypeOrThrow(), depth + 1) };
+  if (type.isTuple()) return { kind: "tuple", of: type.getTupleElements().map((t) => tsNode(t, depth + 1)) };
+  if (type.getCallSignatures().length > 0) return { kind: "function" };
+  if (type.isObject() || type.isInterface() || type.isIntersection()) {
+    const symbol = type.getAliasSymbol() ?? type.getSymbol();
+    const name = symbol?.getName();
+    if (!name || name.startsWith("__")) return { kind: "object" }; // anonymous `{ ... }`
+    const args = (type.getAliasSymbol() ? type.getAliasTypeArguments() : type.getTypeArguments()).map((t) => tsNode(t, depth + 1));
+    return args.length ? { kind: "name", name, args } : { kind: "name", name };
+  }
+  return { kind: "unknown", text };
 }
 
-function typeText(node: Node | undefined, type: Type, context: Node): string {
-  const written = node?.getText();
-  // Any named type in the text may hide a primitive union (`StateCode | null`).
-  if (written && /\b[A-Z]\w*\b/.test(written)) return primitiveText(type) ?? written;
-  return written ?? type.getText(context, 1 /* NoTruncation */);
+function withoutUndefined(type: Type): Type[] {
+  return type.isUnion() ? type.getUnionTypes().filter((t) => !t.isUndefined()) : [type];
 }
 
 function paramFrom(p: ParameterDeclaration, i: number): NativeParam {
   const nameNode = p.getNameNode();
   const name = Node.isIdentifier(nameNode) ? nameNode.getText() : `arg${i}`;
+  const optional = p.hasQuestionToken() || p.hasInitializer() || p.isRestParameter();
+  // `x?: T` is `T | undefined` to the checker: the optionality is recorded separately.
+  const members = optional ? withoutUndefined(p.getType()) : [p.getType()];
+  const nodes = members.map((t) => tsNode(t));
+  let typeNode: TypeNode = nodes.length === 1 ? nodes[0] : { kind: "union", of: nodes };
+  if (p.isRestParameter() && typeNode.kind === "list") typeNode = typeNode.of;
   return {
     name,
-    type: typeText(p.getTypeNode(), p.getType().getNonNullableType(), p),
-    optional: p.hasQuestionToken() || p.hasInitializer() || p.isRestParameter(),
+    type: p.getTypeNode()?.getText() ?? p.getType().getText(p, 1 /* NoTruncation */),
+    typeNode,
+    optional,
     rest: p.isRestParameter() || undefined
   };
 }
@@ -65,7 +88,8 @@ function symbolsFromSignatures(name: string, decl: Node, signatures: Signature[]
     return {
       name,
       params,
-      returns: typeText(returnNode, sig.getReturnType(), sigDecl),
+      returns: returnNode?.getText() ?? sig.getReturnType().getText(sigDecl, 1 /* NoTruncation */),
+      returnsNode: tsNode(sig.getReturnType()),
       doc: summary || undefined,
       deprecated: deprecated || undefined,
       location: { file, line: decl.getStartLineNumber() }

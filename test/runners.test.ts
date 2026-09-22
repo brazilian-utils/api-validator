@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import type { LibConfig, RunnerResult } from "../src/core/model.js";
+import type { LibConfig, RunnerResult, TypeNode } from "../src/core/model.js";
 import { which } from "../src/core/shell.js";
 import { goLiteral } from "../src/languages/go/runner.js";
 import { getAdapter } from "../src/languages/registry.js";
@@ -29,23 +29,29 @@ async function run(language: string, entry: string, cases: Array<[string, unknow
   return results.map((r: RunnerResult) => (r.ok ? r.value : r.unsupported ? "<unsupported>" : "<error>"));
 }
 
-describe("literal builders", () => {
+const n = (name: string, ...args: TypeNode[]): TypeNode => (args.length ? { kind: "name", name, args } : { kind: "name", name });
+
+describe("literal builders (from structured types)", () => {
   it("go", () => {
-    assert.equal(goLiteral("string", 'a"b', "p0"), '"a\\"b"');
-    assert.equal(goLiteral("*int", 3, "p0"), "ptr(int(3))");
-    assert.equal(goLiteral("[]string", ["a"], "p0"), '[]string{"a"}');
-    assert.equal(goLiteral("UF", "SP", "p0"), 'p0.UF("SP")');
-    assert.equal(goLiteral("*string", null, "p0"), "nil");
-    assert.throws(() => goLiteral("int", "x", "p0"));
+    const self = "example.com/x/cpf";
+    assert.equal(goLiteral(n("string"), 'a"b', "p0", self), '"a\\"b"');
+    assert.equal(goLiteral({ kind: "ref", op: "*", of: n("int") }, 3, "p0", self), "ptr(int(3))");
+    assert.equal(goLiteral({ kind: "list", of: n("string") }, ["a"], "p0", self), '[]string{"a"}');
+    assert.equal(goLiteral({ kind: "name", name: "UF", pkg: self }, "SP", "p0", self), 'p0.UF("SP")');
+    assert.equal(goLiteral({ kind: "ref", op: "*", of: n("string") }, null, "p0", self), "nil");
+    assert.throws(() => goLiteral(n("int"), "x", "p0", self));
+    assert.throws(() => goLiteral({ kind: "name", name: "time.Time", pkg: "time" }, "x", "p0", self));
   });
   it("rust", () => {
-    assert.equal(rustLiteral("&str", "a"), '"a"');
-    assert.equal(rustLiteral("Option<u8>", null), "None");
-    assert.equal(rustLiteral("Option<u8>", 2), "Some((2u8))");
-    assert.equal(rustLiteral("&[String]", ["a"]), '&[String::from("a")]');
-    assert.throws(() => rustLiteral("u8", -1));
-    assert.equal(rustLiteral("&str", "a\bb\u0001"), '"a\\u{8}b\\u{1}"');
-    assert.equal(rustLiteral("char", "'"), "'\\''");
+    const str: TypeNode = { kind: "ref", op: "&", of: n("str") };
+    assert.equal(rustLiteral(str, "a"), '"a"');
+    assert.equal(rustLiteral(n("Option", n("u8")), null), "None");
+    assert.equal(rustLiteral(n("Option", n("u8")), 2), "Some((2u8))");
+    assert.equal(rustLiteral({ kind: "ref", op: "&", of: { kind: "list", of: n("String") } }, ["a"]), '&[String::from("a")]');
+    assert.equal(rustLiteral(n("impl", n("Into", n("String"))), "a"), 'String::from("a")');
+    assert.throws(() => rustLiteral(n("u8"), -1));
+    assert.equal(rustLiteral(str, "a\bb\u0001"), '"a\\u{8}b\\u{1}"');
+    assert.equal(rustLiteral(n("char"), "'"), "'\\''");
   });
   it("erlang", () => {
     assert.equal(erlangTerm("a\"b"), '<<"a\\"b"/utf8>>');
@@ -55,10 +61,11 @@ describe("literal builders", () => {
     assert.equal(erlangTerm(1e-7), "1.0e-7");
   });
   it("f#", () => {
-    assert.equal(fsharpLiteral("string option", null), "None");
-    assert.equal(fsharpLiteral("string option", "a"), '(Some "a")');
-    assert.equal(fsharpLiteral("float", 2), "2.0");
+    assert.equal(fsharpLiteral(n("option", n("string")), null), "None");
+    assert.equal(fsharpLiteral(n("option", n("string")), "a"), '(Some "a")');
+    assert.equal(fsharpLiteral(n("float"), 2), "2.0");
     assert.equal(fsharpLiteral(undefined, "x"), '"x"');
+    assert.equal(fsharpLiteral({ kind: "union", of: [n("string"), n("null")] }, null), "null");
   });
 });
 

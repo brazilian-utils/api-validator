@@ -7,7 +7,9 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { RunnerCall, RunnerResult } from "../../core/model.js";
+import type { RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
+import { crateInfo } from "./cargo.js";
+import { isStringTrait } from "./traits.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import type { AdapterContext } from "../types.js";
@@ -32,57 +34,52 @@ function rustStr(s: string): string {
 
 const INTS = ["i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize"];
 
-function generic(t: string, name: string): string | undefined {
-  const m = new RegExp(`^(?:[\\w:]*::)?${name}\\s*<([\\s\\S]*)>$`).exec(t);
-  return m?.[1];
-}
+const last = (name: string) => name.split("::").pop()!;
 
-/** Render a JSON value as a Rust expression of type `type`. */
-export function rustLiteral(type: string, value: unknown): string {
-  const t = type.trim().replace(/'\w+\s*/g, "");
-  if (t.startsWith("&")) {
-    const inner = t.replace(/^&\s*(mut\s+)?/, "");
-    if (inner === "str") {
+/** Render a JSON value as a Rust expression of type `t`. */
+export function rustLiteral(t: TypeNode, value: unknown): string {
+  if (t.kind === "ref") {
+    const inner = t.of;
+    if (inner.kind === "name" && inner.name === "str") {
       if (typeof value !== "string") throw new Unsupported(`expected string, got ${JSON.stringify(value)}`);
       return rustStr(value);
     }
-    if (inner.startsWith("[")) {
-      const el = inner.slice(1, -1);
+    if (inner.kind === "list") {
       if (!Array.isArray(value)) throw new Unsupported("expected array");
-      return `&[${value.map((v) => rustLiteral(el, v)).join(", ")}]`;
+      return `&[${value.map((v) => rustLiteral(inner.of, v)).join(", ")}]`;
     }
     return `&${rustLiteral(inner, value)}`;
   }
-  const opt = generic(t, "Option");
-  if (opt !== undefined) return value === null ? "None" : `Some(${rustLiteral(opt, value)})`;
-  if (value === null) throw new Unsupported(`null for ${t}`);
-  const vec = generic(t, "Vec");
-  if (vec !== undefined) {
+  if (t.kind !== "name") throw new Unsupported(`cannot build a ${t.kind} argument`);
+  const name = last(t.name);
+  if (name === "Option") return value === null ? "None" : `Some(${rustLiteral(t.args![0], value)})`;
+  if (value === null) throw new Unsupported(`null for ${t.name}`);
+  if (name === "Vec") {
     if (!Array.isArray(value)) throw new Unsupported("expected array");
-    return `vec![${value.map((v) => rustLiteral(vec, v)).join(", ")}]`;
+    return `vec![${value.map((v) => rustLiteral(t.args![0], v)).join(", ")}]`;
   }
-  if (t === "String" || /^impl\s+(Into<String>|AsRef<str>|ToString)$/.test(t)) {
+  if (name === "String" || (name === "impl" && (t.args ?? []).some(isStringTrait))) {
     if (typeof value !== "string") throw new Unsupported(`expected string, got ${JSON.stringify(value)}`);
     return `String::from(${rustStr(value)})`;
   }
-  if (t === "char") {
+  if (name === "char") {
     if (typeof value !== "string" || [...value].length !== 1) throw new Unsupported("expected 1-char string");
     return `'${rustStr(value).slice(1, -1).replace(/^'$/, "\\'")}'`;
   }
-  if (t === "bool") {
+  if (name === "bool") {
     if (typeof value !== "boolean") throw new Unsupported("expected boolean");
     return String(value);
   }
-  if (INTS.includes(t)) {
-    if (typeof value !== "number" || !Number.isInteger(value)) throw new Unsupported(`expected integer for ${t}`);
-    if (value < 0 && t.startsWith("u")) throw new Unsupported(`negative value for ${t}`);
-    return `(${value}${t})`;
+  if (INTS.includes(name)) {
+    if (typeof value !== "number" || !Number.isInteger(value)) throw new Unsupported(`expected integer for ${name}`);
+    if (value < 0 && name.startsWith("u")) throw new Unsupported(`negative value for ${name}`);
+    return `(${value}${name})`;
   }
-  if (t === "f32" || t === "f64") {
+  if (name === "f32" || name === "f64") {
     if (typeof value !== "number") throw new Unsupported("expected number");
-    return `(${Number.isInteger(value) ? `${value}.0` : value}${t})`;
+    return `(${Number.isInteger(value) ? `${value}.0` : value}${name})`;
   }
-  throw new Unsupported(`cannot build a ${t} argument`);
+  throw new Unsupported(`cannot build a ${t.name} argument`);
 }
 
 const EMIT_FILE = path.join(LANGUAGES_DIR, "rust", "emit.rs");
@@ -93,23 +90,17 @@ interface Prepared {
   isResult: boolean;
 }
 
-function crateInfo(root: string): { pkg: string; lib: string } {
-  const toml = fs.readFileSync(path.join(root, "Cargo.toml"), "utf8");
-  const pkg = /\[package\][\s\S]*?\bname\s*=\s*"([^"]+)"/.exec(toml)?.[1];
-  if (!pkg) throw new Error("Cargo.toml: package name not found");
-  const libSection = /^\[lib\]\s*\n([^[]*)/m.exec(toml)?.[1] ?? "";
-  const lib = /\bname\s*=\s*"([^"]+)"/.exec(libSection)?.[1] ?? pkg.replaceAll("-", "_");
-  return { pkg, lib };
-}
-
 function prepare(call: RunnerCall, crate: string): Prepared {
-  const meta = call.symbol.meta as { rustPath?: string; paramTypes?: string[] } | undefined;
+  const meta = call.symbol.meta as { rustPath?: string } | undefined;
   if (!meta?.rustPath) throw new Unsupported("symbol has no Rust metadata");
-  const types = meta.paramTypes ?? [];
-  if (call.args.length !== types.length) throw new Unsupported(`${call.args.length} args for ${types.length} params (Rust has no optional parameters)`);
-  const args = types.map((t, i) => rustLiteral(t, call.args[i]));
-  const ret = (call.symbol.returns ?? "").trim();
-  const isResult = /^(?:[\w:]*::)?Result\s*</.test(ret) || /^io::Result|^anyhow::Result/.test(ret);
+  const params = call.symbol.params;
+  if (call.args.length !== params.length) throw new Unsupported(`${call.args.length} args for ${params.length} params (Rust has no optional parameters)`);
+  const args = params.map((p, i) => {
+    if (!p.typeNode) throw new Unsupported(`no type for parameter ${p.name}`);
+    return rustLiteral(p.typeNode, call.args[i]);
+  });
+  const ret = call.symbol.returnsNode;
+  const isResult = ret?.kind === "name" && last(ret.name) === "Result";
   return { id: call.id, expr: `${crate}::${meta.rustPath}(${args.join(", ")})`, isResult };
 }
 
@@ -154,7 +145,7 @@ export async function runRust(ctx: AdapterContext, calls: RunnerCall[]): Promise
   for (let attempt = 0; attempt < 10 && pending.length > 0; attempt++) {
     const { code, lines } = program(pending);
     fs.writeFileSync(path.join(dir, "src", "main.rs"), code);
-    const build = run("cargo", ["build", "--quiet", "--message-format=short"], { cwd: dir, env, timeoutMs: 20 * 60 * 1000 });
+    const build = run("cargo", ["build", "--quiet", "--message-format=json"], { cwd: dir, env, timeoutMs: 20 * 60 * 1000 });
     if (build.status === 0) {
       const exe = run(path.join(dir, "target", "debug", "apivalidator_runner"), [], { cwd: ctx.root, timeoutMs: 5 * 60 * 1000 });
       if (!exe.stdout.includes("\u0000JSON\u0000")) {
@@ -164,13 +155,22 @@ export async function runRust(ctx: AdapterContext, calls: RunnerCall[]): Promise
       pending = [];
       break;
     }
+    // Structured compiler diagnostics (one JSON message per line): map error spans to calls.
     const failing = new Map<string, string>();
-    for (const m of build.stderr.matchAll(/src[\\/]main\.rs:(\d+):\d+: (?:error(?:\[\w+\])?: )?(.*)/g)) {
-      const id = lines.get(Number(m[1]));
-      if (id && !failing.has(id)) failing.set(id, m[2]);
+    const diagnostics: string[] = [];
+    for (const line of build.stdout.split("\n")) {
+      if (!line.startsWith("{")) continue;
+      const msg = JSON.parse(line);
+      if (msg.reason !== "compiler-message" || msg.message?.level !== "error") continue;
+      diagnostics.push(msg.message.rendered ?? msg.message.message);
+      for (const span of msg.message.spans ?? []) {
+        if (!span.is_primary || !/main\.rs$/.test(span.file_name)) continue;
+        const id = lines.get(span.line_start);
+        if (id && !failing.has(id)) failing.set(id, msg.message.message);
+      }
     }
     if (failing.size === 0) {
-      const error = `cargo build failed: ${build.stderr.trim().split("\n").slice(0, 12).join("\n")}`;
+      const error = `cargo build failed: ${(diagnostics.join("\n") || build.stderr).trim().split("\n").slice(0, 12).join("\n")}`;
       for (const p of pending) results.set(p.id, { id: p.id, ok: false, error, unsupported: true });
       pending = [];
       break;

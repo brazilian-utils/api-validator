@@ -113,6 +113,13 @@ check fails with the install instruction instead of guessing.
 | Erlang | compiled `.beam`: `module_info(exports)` + `beam_lib` abstract code (specs, types) | `-spec` | ✅ `erlc` + escript |
 | .NET (F#, C#) | reflection on the compiled assembly, `NullabilityInfoContext`, portable PDB for lines | real types, incl. F#-inferred and C# `?` | ✅ generated F# project |
 
+Types travel structured end to end: each extractor converts the type objects its tool
+already has (rustdoc JSON, `go/types`, the TypeScript checker, griffe expressions, YARD's type
+parser, Erlang abstract forms, `System.Type`) into one shared tree, which the adapters map to
+canonical types and the runners use to build typed arguments. No type text is parsed.
+Build metadata comes from the tools too (`cargo metadata`, `go mod edit -json`,
+`dotnet msbuild -getProperty`, `cargo build --message-format=json`).
+
 Tools the adapters need beyond the language itself (griffe, YARD, x/tools) are pinned and
 installed into the work dir, never into the lib's environment.
 

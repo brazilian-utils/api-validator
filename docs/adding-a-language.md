@@ -60,12 +60,19 @@ Get visibility exactly right: private/internal modules, test files, `pub(crate)`
 unexported names must not appear. Deprecated symbols must be flagged: they are matched
 only when nothing else implements the function.
 
-## 3. `mapType(native, position, symbol)` — types
+## 3. Types: structured, then `mapType`
 
-Build it with `makeTypeMapper` (`src/languages/shared/typemap.ts`), which already parses
-generics, unions, pointers, tuples, lists and literals of most syntaxes: you only provide a
-name table (`String: T.string`, `Option: nullableOf`, `Vec: listOf`, `Result: firstArg`...)
-and, if needed, rules for tuples (Go `(T, error)`, Erlang `{ok, T}`) and pointers.
+Report every type twice: `type` (text, for humans) and `typeNode` / `returnsNode`, the
+structured tree from `src/core/model.ts` (`name` with `args`, `list`, `ref`, `union`,
+`tuple`, `lit`, `object`, `function`, `unknown`), converted from what the tool already gives
+you structured — rustdoc JSON types, `go/types`, the TypeScript checker's `Type`, griffe
+expressions, YARD's type parser, Erlang abstract type forms, `System.Type`. Never parse
+type text.
+
+`mapType(node, position, symbol)` turns that tree into a canonical type. Build it with
+`makeTypeMapper` (`src/languages/shared/typemap.ts`): a name table (`String: T.string`,
+`Option: nullableOf`, `Vec: listOf`, `Result: firstArg`...) and, if needed, rules for tuples
+(Go `(T, error)`, Erlang `{ok, T}`) and references.
 
 For returns, produce the *success* type: the error channel (exceptions, `error`, `Err`,
 `{error, _}`) is an idiom, not part of the contract. Return `T.unknown` whenever unsure:
@@ -83,7 +90,7 @@ for tuples, objects for records/structs, ISO strings for dates.
   calls it — see `python/runner.py`, `ruby/runner.rb`, `typescript/runner.mjs`, using
   `runJsonProcess` (`shared/process-runner.ts`) for the wire protocol.
 - **Static languages:** generate a program with one function per call, turning JSON args
-  into typed literals from the extracted parameter types; build it next to the lib without
+  into typed literals from the parameters' `typeNode`s; build it next to the lib without
   modifying it (Go: a `go.work`; Rust: a crate with a path dependency); map compile errors
   back to the calls and drop those as unsupported, then rebuild — see `go/runner.ts`,
   `rust/runner.ts`.

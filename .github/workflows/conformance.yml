@@ -63,9 +63,9 @@ jobs:
       - name: Sync issues in the lib repositories
         if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
         run: |
-          for cfg in libs/*.yaml; do
-            lib=$(basename "$cfg" .yaml)
-            repo=$(sed -n 's#^repo: https://github.com/##p' "$cfg")
+          mapfile -t libs < <(npx tsx src/cli.ts libs)
+          for entry in "${libs[@]}"; do
+            read -r lib repo <<< "$entry"
             [ -n "$repo" ] || continue
             npx tsx src/cli.ts issue --lib "$lib" --tests > /dev/null || continue
             gh label create api-contract -R "$repo" --color 0E8A16 --description "Shared API contract work" --force

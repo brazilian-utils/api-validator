@@ -8,15 +8,15 @@
 import { T, type CType } from "../../core/ctype.js";
 import { snake } from "../../core/naming.js";
 import { makeTypeMapper } from "../shared/typemap.js";
-import type { TypeNode } from "../shared/typeparse.js";
+import type { TypeNode } from "../../core/model.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
 import { extractFromBeams, runErlang } from "./runner.js";
 import { which } from "../../core/shell.js";
 
 const CLEAN = { line: ["%"], strings: ['"'], chars: false };
 
-/** Module name -> type name -> definition text. Filled by extract, read by mapType. */
-const typeDefs = new Map<string, Map<string, string>>();
+/** Module name -> type name -> definition. Filled by extract, read by mapType. */
+const typeDefs = new Map<string, Map<string, TypeNode>>();
 
 async function extract(ctx: AdapterContext): Promise<Extraction> {
   if (!which("erlc") || !which("escript")) throw new Error("the Erlang adapter needs erlc and escript (Erlang/OTP) on PATH to compile the lib");
@@ -27,7 +27,7 @@ async function extract(ctx: AdapterContext): Promise<Extraction> {
 
 const isAtom = (n: TypeNode, atom: string) => n.kind === "name" && n.name === atom && !n.call;
 
-function mapErlang(native: string | undefined, module: string): CType {
+function mapErlang(native: TypeNode | undefined, module: string): CType {
   const depth = { n: 0 };
   const mapper = makeTypeMapper({
     names: {
@@ -95,11 +95,7 @@ export const erlang: LanguageAdapter = {
   },
   extract,
   mapType(native, _position, symbol) {
-    const module = (symbol.meta?.module as string | undefined) ?? "";
-    if (!native) return T.unknown;
-    // `Name :: type()` annotations
-    const annotated = /^[A-Z]\w*\s*::\s*([\s\S]+)$/.exec(native.trim());
-    return mapErlang(annotated ? annotated[1] : native, module);
+    return mapErlang(native, (symbol.meta?.module as string | undefined) ?? "");
   },
   runner: { requires: ["erlc", "escript"], run: runErlang }
 };

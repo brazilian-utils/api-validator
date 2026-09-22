@@ -26,6 +26,30 @@ def yard_type(types)
   types && !types.empty? ? types.join(" | ") : nil
 end
 
+# YARD type -> the shared structured type tree (src/core/model.ts), via YARD's own parser.
+def type_node(t)
+  case t
+  when YARD::Tags::TypesExplainer::HashCollectionType
+    { kind: "name", name: t.name, args: [union_node(t.key_types), union_node(t.value_types)] }
+  when YARD::Tags::TypesExplainer::CollectionType # includes FixedCollectionType
+    { kind: "name", name: t.name, args: t.types.map { |x| type_node(x) } }
+  else
+    { kind: "name", name: t.name }
+  end
+end
+
+def union_node(types)
+  nodes = types.map { |t| type_node(t) }
+  nodes.size == 1 ? nodes.first : { kind: "union", of: nodes }
+end
+
+def yard_node(types)
+  return nil if types.nil? || types.empty?
+  union_node(types.flat_map { |t| YARD::Tags::TypesExplainer::Parser.parse(t) })
+rescue SyntaxError, StandardError
+  { kind: "unknown", text: types.join(", ") }
+end
+
 MODULE_NAME = Module.instance_method(:name)
 def mod_name(m) = MODULE_NAME.bind_call(m)
 
@@ -50,12 +74,14 @@ walk = lambda do |mod, prefix|
         {
           name: n,
           type: yard_type(params[n]),
+          typeNode: yard_node(params[n]),
           optional: %i[opt rest key keyrest].include?(kind) || nil,
           rest: %i[rest keyrest].include?(kind) || nil,
           keyword: %i[key keyreq keyrest].include?(kind) || nil
         }.compact
       },
       returns: yard_type(ret),
+      returnsNode: yard_node(ret),
       deprecated: deprecated || nil,
       location: { file: file.sub(%r{^#{Regexp.escape(File.expand_path(root))}/}, ""), line: line }
     }.compact

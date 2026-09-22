@@ -1,5 +1,5 @@
 import type { CType } from "../core/ctype.js";
-import type { ContractFunction, LibConfig, NativeSymbol, RunnerCall, RunnerResult } from "../core/model.js";
+import type { ContractFunction, LibConfig, NativeSymbol, RunnerCall, RunnerResult, TypeNode } from "../core/model.js";
 
 export interface AdapterContext {
   lib: LibConfig;
@@ -53,11 +53,12 @@ export interface LanguageAdapter {
   extract(ctx: AdapterContext): Promise<Extraction>;
 
   /**
-   * Translate a native type string into a canonical type. Return `T.unknown` when unsure:
-   * unknown types are reported as unverified, never as mismatches.
-   * For returns, the success type must be produced (strip `error`, `Result`, `{ok, T}`...).
+   * Translate a native type (structured, as `extract` reported it) into a canonical type.
+   * Return `T.unknown` when unsure: unknown types are reported as unverified, never as
+   * mismatches. For returns, produce the success type (strip `error`, `Result`, `{ok, T}`...).
+   * `native` is undefined when the language/tool reports no type.
    */
-  mapType(native: string | undefined, position: "param" | "return", symbol: NativeSymbol): CType;
+  mapType(native: TypeNode | undefined, position: "param" | "return", symbol: NativeSymbol): CType;
 
   /** Optional: runs contract tests against the lib. */
   runner?: ConformanceRunner;

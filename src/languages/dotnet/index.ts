@@ -27,7 +27,7 @@ const mapDotnet = makeTypeMapper({
     unit: T.void, void: T.void,
     obj: T.any, object: T.any,
     DateTime: T.date, DateOnly: T.date, DateTimeOffset: T.date,
-    option: nullableOf, Option: nullableOf, Nullable: nullableOf,
+    option: nullableOf, voption: nullableOf, Option: nullableOf, Nullable: nullableOf, null: T.null,
     list: listOf, List: listOf, IList: listOf, IEnumerable: listOf, IReadOnlyList: listOf, seq: listOf, array: listOf, ICollection: listOf,
     Task: firstArg, Async: firstArg, Result: firstArg
   }
@@ -44,10 +44,7 @@ export const dotnet: LanguageAdapter = {
   },
   extract,
   mapType(native, position) {
-    if (!native) return T.unknown;
-    // F# postfix generics: `string option`, `int list`
-    const post = /^(.+?)\s+(option|list|seq|array)$/.exec(native.trim());
-    if (post) return mapDotnet(`${post[2]}<${post[1]}>`);
+    if (!native) return position === "return" ? T.void : T.unknown;
     const t = mapDotnet(native);
     return position === "return" && t.k === "void" ? T.void : t;
   },

@@ -10,13 +10,12 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { RunnerCall, RunnerResult } from "../../core/model.js";
-import { parseJsonOutput, run } from "../../core/shell.js";
+import type { NativeSymbol, RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
+import { parseJsonOutput, run, runOrThrow } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
 
 const INTS = new Set(["int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "byte", "uintptr"]);
 const FLOATS = new Set(["float32", "float64"]);
-const BUILTIN = new Set([...INTS, ...FLOATS, "string", "bool", "rune", "error", "any"]);
 
 class Unsupported extends Error {}
 
@@ -24,81 +23,90 @@ interface Meta {
   importPath: string;
   package: string;
   func: string;
-  paramTypes: string[];
-  results: string[];
 }
 
-/** Render a JSON value as a Go literal of type `type` (as written inside package `alias`). */
-export function goLiteral(type: string, value: unknown, alias: string): string {
-  const t = type.trim();
+/** Go source for a type of the lib's package `self` (imported as `alias`). */
+export function goType(t: TypeNode, alias: string, self: string): string {
+  switch (t.kind) {
+    case "ref":
+      return `*${goType(t.of, alias, self)}`;
+    case "list":
+      return `[]${goType(t.of, alias, self)}`;
+    case "name":
+      if (t.name === "map" && t.args?.length === 2) return `map[${goType(t.args[0], alias, self)}]${goType(t.args[1], alias, self)}`;
+      if (!t.pkg) return t.name; // predeclared: string, int, error, any...
+      if (t.pkg === self) return `${alias}.${t.name}`;
+      throw new Unsupported(`type ${t.name} from another package`);
+    default:
+      throw new Unsupported(`cannot write a ${t.kind} type`);
+  }
+}
+
+/** Render a JSON value as a Go expression of type `t` (types of package `self` via `alias`). */
+export function goLiteral(t: TypeNode, value: unknown, alias: string, self: string): string {
   if (value === null) {
-    if (t.startsWith("*") || t.startsWith("[]") || t.startsWith("map[") || t === "any" || t === "interface{}" || t === "error") return "nil";
-    throw new Unsupported(`null for non-nillable ${t}`);
+    if (t.kind === "ref" || t.kind === "list" || (t.kind === "name" && ["map", "any", "error"].includes(t.name) && !t.pkg)) return "nil";
+    throw new Unsupported(`null for non-nillable ${t.kind === "name" ? t.name : t.kind}`);
   }
-  if (t.startsWith("*")) return `ptr(${goLiteral(t.slice(1), value, alias)})`;
-  if (t.startsWith("[]")) {
-    if (!Array.isArray(value)) throw new Unsupported(`expected array for ${t}`);
-    return `${qualify(t, alias)}{${value.map((v) => goLiteral(t.slice(2), v, alias)).join(", ")}}`;
+  if (t.kind === "ref") return `ptr(${goLiteral(t.of, value, alias, self)})`;
+  if (t.kind === "list") {
+    if (!Array.isArray(value)) throw new Unsupported("expected an array");
+    return `${goType(t, alias, self)}{${value.map((v) => goLiteral(t.of, v, alias, self)).join(", ")}}`;
   }
-  if (t === "string") {
-    if (typeof value !== "string") throw new Unsupported(`expected string for ${t}, got ${JSON.stringify(value)}`);
-    return JSON.stringify(value);
+  if (t.kind !== "name") throw new Unsupported(`cannot build a ${t.kind} argument`);
+  if (!t.pkg) {
+    if (t.name === "string") {
+      if (typeof value !== "string") throw new Unsupported(`expected string, got ${JSON.stringify(value)}`);
+      return JSON.stringify(value);
+    }
+    if (t.name === "bool") {
+      if (typeof value !== "boolean") throw new Unsupported(`expected bool, got ${JSON.stringify(value)}`);
+      return String(value);
+    }
+    if (INTS.has(t.name)) {
+      if (typeof value !== "number" || !Number.isInteger(value)) throw new Unsupported(`expected integer for ${t.name}`);
+      return `${t.name}(${value})`;
+    }
+    if (FLOATS.has(t.name)) {
+      if (typeof value !== "number") throw new Unsupported(`expected number for ${t.name}`);
+      return `${t.name}(${value})`;
+    }
+    if (t.name === "any" && ["string", "number", "boolean"].includes(typeof value)) return JSON.stringify(value);
+    throw new Unsupported(`cannot build a ${t.name} argument`);
   }
-  if (t === "bool") {
-    if (typeof value !== "boolean") throw new Unsupported(`expected bool, got ${JSON.stringify(value)}`);
-    return String(value);
-  }
-  if (INTS.has(t)) {
-    if (typeof value !== "number" || !Number.isInteger(value)) throw new Unsupported(`expected integer for ${t}`);
-    return `${t}(${value})`;
-  }
-  if (FLOATS.has(t)) {
-    if (typeof value !== "number") throw new Unsupported(`expected number for ${t}`);
-    return `${t}(${value})`;
-  }
-  if (t === "any" || t === "interface{}") {
-    if (["string", "number", "boolean"].includes(typeof value)) return JSON.stringify(value);
-    throw new Unsupported(`cannot build ${JSON.stringify(value)} as ${t}`);
-  }
-  // Named type of the same package with a primitive underlying type: Go conversion.
-  if (/^[A-Z]\w*$/.test(t) && ["string", "number", "boolean"].includes(typeof value)) {
-    return `${alias}.${t}(${JSON.stringify(value)})`;
-  }
-  throw new Unsupported(`cannot build a ${t} argument`);
+  // A named type of the lib's own package with a primitive underlying type: Go conversion
+  // (if the underlying type does not fit, the call fails to compile and is skipped).
+  if (t.pkg === self && ["string", "number", "boolean"].includes(typeof value)) return `${alias}.${t.name}(${JSON.stringify(value)})`;
+  throw new Unsupported(`cannot build a ${t.name} argument`);
 }
 
-/** Qualify package-local named types: `[]Address` in package cep -> `[]p0.Address`. */
-function qualify(type: string, alias: string): string {
-  return type.replace(/\b([A-Z]\w*)\b/g, (m, name: string, offset: number) =>
-    type[offset - 1] === "." || BUILTIN.has(name) ? m : `${alias}.${name}`
-  );
-}
-
-function callBody(meta: Meta, args: unknown[], alias: string): string {
-  const params = meta.paramTypes;
+function callBody(symbol: NativeSymbol, meta: Meta, args: unknown[], alias: string): string {
+  const params = symbol.params;
   const rendered: string[] = [];
-  params.forEach((pt, i) => {
-    if (pt.startsWith("...")) {
-      for (const v of args.slice(i)) rendered.push(goLiteral(pt.slice(3), v, alias));
+  params.forEach((p, i) => {
+    if (!p.typeNode) throw new Unsupported(`no type for parameter ${p.name}`);
+    if (p.rest) {
+      for (const v of args.slice(i)) rendered.push(goLiteral(p.typeNode, v, alias, meta.importPath));
     } else {
       if (i >= args.length) throw new Unsupported(`missing argument ${i + 1} (Go has no optional parameters)`);
-      rendered.push(goLiteral(pt, args[i], alias));
+      rendered.push(goLiteral(p.typeNode, args[i], alias, meta.importPath));
     }
   });
-  if (!params.some((p) => p.startsWith("...")) && args.length > params.length) {
-    throw new Unsupported(`${args.length} args for ${params.length} params`);
-  }
+  if (!params.some((p) => p.rest) && args.length > params.length) throw new Unsupported(`${args.length} args for ${params.length} params`);
   const call = `${alias}.${meta.func}(${rendered.join(", ")})`;
-  const rs = meta.results;
-  const errIdx = rs.length > 0 && rs[rs.length - 1] === "error" ? rs.length - 1 : -1;
+  const r = symbol.returnsNode;
+  const rs: TypeNode[] = !r ? [] : r.kind === "tuple" ? r.of : [r];
+  const isErr = (n: TypeNode) => n.kind === "name" && n.name === "error" && !n.pkg;
+  const errIdx = rs.length > 0 && isErr(rs[rs.length - 1]) ? rs.length - 1 : -1;
   const values = rs.filter((_, i) => i !== errIdx);
   const vars = rs.map((_, i) => (i === errIdx ? "err" : `v${i}`));
   if (rs.length === 0) return `${call}\n\treturn nil, nil`;
   const assign = `${vars.join(", ")} := ${call}`;
   const errCheck = errIdx >= 0 ? `\n\tif err != nil { return nil, err }` : "";
+  const isBool = (n: TypeNode) => n.kind === "name" && n.name === "bool" && !n.pkg;
   if (values.length === 0) return `${assign}${errCheck}\n\treturn nil, nil`;
   if (values.length === 1) return `${assign}${errCheck}\n\treturn v0, nil`;
-  if (values.length === 2 && rs[1] === "bool") return `${assign}${errCheck}\n\tif !v1 { return nil, nil }\n\treturn v0, nil`;
+  if (values.length === 2 && isBool(rs[1])) return `${assign}${errCheck}\n\tif !v1 { return nil, nil }\n\treturn v0, nil`;
   return `${assign}${errCheck}\n\treturn []any{${vars.filter((v) => v !== "err").join(", ")}}, nil`;
 }
 
@@ -148,8 +156,9 @@ function program(calls: Array<{ id: string; meta: Meta; body: string }>): { code
 }
 
 function goVersion(root: string): string {
-  const mod = fs.readFileSync(path.join(root, "go.mod"), "utf8");
-  return /^go\s+(\S+)/m.exec(mod)?.[1] ?? "1.21";
+  // `go mod edit -json`: the go command's own reading of go.mod.
+  const mod = parseJsonOutput<{ Go?: string }>(runOrThrow("go", ["mod", "edit", "-json"], { cwd: root }), "go mod edit");
+  return mod.Go ?? "1.21";
 }
 
 export async function runGo(ctx: AdapterContext, calls: RunnerCall[]): Promise<RunnerResult[]> {
@@ -162,7 +171,7 @@ export async function runGo(ctx: AdapterContext, calls: RunnerCall[]): Promise<R
       continue;
     }
     try {
-      pending.push({ id: c.id, meta, body: callBody(meta, c.args, "__ALIAS__") });
+      pending.push({ id: c.id, meta, body: callBody(c.symbol, meta, c.args, "__ALIAS__") });
     } catch (e) {
       if (!(e instanceof Unsupported)) throw e;
       results.set(c.id, { id: c.id, ok: false, error: `unsupported by Go runner: ${e.message}`, unsupported: true });

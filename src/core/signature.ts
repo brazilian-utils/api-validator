@@ -56,14 +56,14 @@ export function checkSignature(fn: ContractFunction, symbol: NativeSymbol, adapt
         message: `parameter "${np.name}" (contract "${cp.name}") is required, contract makes it optional`
       });
     }
-    const result = checkParam(parseCType(cp.type), adapter.mapType(np.type, "param", symbol));
+    const result = checkParam(parseCType(cp.type), adapter.mapType(np.typeNode, "param", symbol));
     if (result.level === "unverified") unverified++;
     else if (result.level !== "ok") {
       issues.push({ severity: result.level, code: "param-type", message: `parameter "${cp.name}": ${result.reason}` });
     }
   });
 
-  const ret = checkReturn(parseCType(fn.returns), adapter.mapType(symbol.returns, "return", symbol));
+  const ret = checkReturn(parseCType(fn.returns), adapter.mapType(symbol.returnsNode, "return", symbol));
   if (ret.level === "unverified") unverified++;
   else if (ret.level !== "ok") issues.push({ severity: ret.level, code: "return-type", message: `return: ${ret.reason}` });
 

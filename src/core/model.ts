@@ -99,10 +99,39 @@ export interface LibConfig {
 // Extracted API surface
 // ---------------------------------------------------------------------------
 
+/**
+ * A native type as the language's own tooling reports it, structured (no text parsing):
+ * rustdoc JSON, go/types, the TypeScript checker, griffe expressions, YARD's type parser,
+ * Erlang abstract type forms, .NET reflection. Adapters map these to canonical types.
+ */
+export type TypeNode =
+  /** A named type, possibly generic: `String`, `Option<T>`, `time.Time`, `binary()`. */
+  | {
+      kind: "name";
+      name: string;
+      args?: TypeNode[];
+      /** Package/module that defines it, when the tool reports one (Go import path, ...). */
+      pkg?: string;
+      /** Erlang: a type call (`binary()`) rather than a bare atom (`ok`). */
+      call?: boolean;
+    }
+  | { kind: "list"; of: TypeNode }
+  | { kind: "ref"; of: TypeNode; op: "*" | "&" | "&mut" }
+  | { kind: "union"; of: TypeNode[] }
+  | { kind: "tuple"; of: TypeNode[] }
+  | { kind: "lit"; value: string | number | boolean }
+  /** Anonymous structural object type. */
+  | { kind: "object" }
+  | { kind: "function" }
+  /** A type parameter (`T`) or anything the tool reports that has no canonical meaning. */
+  | { kind: "unknown"; text?: string };
+
 export interface NativeParam {
   name: string;
-  /** Type exactly as written in the source (may be absent for untyped languages). */
+  /** Type as the language writes it, for display (may be absent for untyped languages). */
   type?: string;
+  /** The same type, structured. */
+  typeNode?: TypeNode;
   optional?: boolean;
   /** Variadic / rest / keyword-rest parameter. */
   rest?: boolean;
@@ -117,7 +146,10 @@ export interface NativeSymbol {
    */
   name: string;
   params: NativeParam[];
+  /** Return type for display. */
   returns?: string;
+  /** Return type, structured. Absent means the function returns nothing (or it is unknown). */
+  returnsNode?: TypeNode;
   deprecated?: boolean;
   /** First paragraph of the doc comment, when the adapter extracts it. */
   doc?: string;

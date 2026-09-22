@@ -37,7 +37,7 @@ extract(Beam) ->
     Specs = maps:from_list(lists:flatmap(fun spec/1, Forms)),
     Deprecated = lists:flatmap(fun deprecated/1, Forms),
     Clauses = maps:from_list([{{F, A}, {line(L), Cs}} || {function, L, F, A, Cs} <- Forms]),
-    Types = [{atom_to_binary(N), bin(type_text(Def))} || {attribute, _, T, {N, Def, _}} <- Forms, T =:= type orelse T =:= opaque],
+    Types = [{atom_to_binary(N), type_node(Def)} || {attribute, _, T, {N, Def, _}} <- Forms, T =:= type orelse T =:= opaque],
     Symbols = [symbol(Mod, File, F, A, Specs, Deprecated, Clauses) || {F, A} <- lists:sort(Exports)],
     obj([{<<"module">>, json(Mod)},
          {<<"types">>, obj([{K, json(V)} || {K, V} <- Types])},
@@ -48,23 +48,27 @@ symbol(Mod, File, F, A, Specs, Deprecated, Clauses) ->
         {ok, {L, [{clause, _, Pats, _, _} | _]}} -> {L, [var_name(P) || P <- Pats]};
         _ -> {0, lists:duplicate(A, undefined)}
     end,
-    {ArgTypes, Ret} = maps:get({F, A}, Specs, {lists:duplicate(A, undefined), undefined}),
+    {ArgTypes, Ret, RetNode} = maps:get({F, A}, Specs, {lists:duplicate(A, undefined), undefined, undefined}),
     Params = [param(I, N, T) || {I, N, T} <- lists:zip3(lists:seq(1, A), Names, ArgTypes)],
     IsDeprecated = lists:member({F, A}, Deprecated) orelse lists:member({F, '_'}, Deprecated),
     obj([{<<"name">>, json(iolist_to_binary([atom_to_binary(Mod), ".", atom_to_binary(F)]))},
          {<<"params">>, json_array(Params)}]
         ++ [{<<"returns">>, json(Ret)} || Ret =/= undefined]
+        ++ [{<<"returnsNode">>, json(RetNode)} || RetNode =/= undefined]
         ++ [{<<"deprecated">>, <<"true">>} || IsDeprecated]
         ++ [{<<"location">>, obj([{<<"file">>, json(bin(File))}, {<<"line">>, json(Line)}])},
             {<<"meta">>, obj([{<<"module">>, json(Mod)}, {<<"arity">>, json(A)}])}]).
 
 param(I, Name, Type) ->
-    {N, T} = case Type of
-        {ann, AnnName, AnnType} -> {AnnName, AnnType};
-        _ -> {Name, Type}
+    {N, T, Node} = case Type of
+        {ann, AnnName, AnnType, AnnNode} -> {AnnName, AnnType, AnnNode};
+        {Text, TypeNode} -> {Name, Text, TypeNode};
+        undefined -> {Name, undefined, undefined}
     end,
     PName = case N of undefined -> iolist_to_binary(io_lib:format("arg~b", [I])); _ -> N end,
-    obj([{<<"name">>, json(PName)}] ++ [{<<"type">>, json(T)} || T =/= undefined]).
+    obj([{<<"name">>, json(PName)}]
+        ++ [{<<"type">>, json(T)} || T =/= undefined]
+        ++ [{<<"typeNode">>, json(Node)} || Node =/= undefined]).
 
 spec({attribute, _, spec, {{F, A}, [FunType | _]}}) -> [{{F, A}, fun_type(FunType)}];
 spec({attribute, _, spec, {{_M, F, A}, [FunType | _]}}) -> [{{F, A}, fun_type(FunType)}];
@@ -72,10 +76,36 @@ spec(_) -> [].
 
 fun_type({type, _, bounded_fun, [Fun, _Constraints]}) -> fun_type(Fun);
 fun_type({type, _, 'fun', [{type, _, product, Args}, Ret]}) ->
-    {[arg_type(T) || T <- Args], bin(type_text(Ret))}.
+    {[arg_type(T) || T <- Args], bin(type_text(Ret)), type_node(Ret)}.
 
-arg_type({ann_type, _, [{var, _, Name}, T]}) -> {ann, snake(Name), bin(type_text(T))};
-arg_type(T) -> bin(type_text(T)).
+arg_type({ann_type, _, [{var, _, Name}, T]}) -> {ann, snake(Name), bin(type_text(T)), type_node(T)};
+arg_type(T) -> {bin(type_text(T)), type_node(T)}.
+
+%% Abstract type form (erl_parse) -> the shared structured type tree (src/core/model.ts).
+type_node({ann_type, _, [_Var, T]}) -> type_node(T);
+type_node({paren_type, _, [T]}) -> type_node(T);
+type_node({type, _, union, Ts}) -> #{kind => <<"union">>, 'of' => [type_node(T) || T <- Ts]};
+type_node({type, _, tuple, any}) -> #{kind => <<"name">>, name => <<"tuple">>, call => true};
+type_node({type, _, tuple, Es}) -> #{kind => <<"tuple">>, 'of' => [type_node(E) || E <- Es]};
+type_node({type, _, nil, []}) -> #{kind => <<"list">>, 'of' => #{kind => <<"unknown">>}};
+type_node({type, _, binary, _}) -> #{kind => <<"name">>, name => <<"binary">>, call => true};
+type_node({type, _, range, _}) -> #{kind => <<"name">>, name => <<"integer">>, call => true};
+type_node({type, _, 'fun', _}) -> #{kind => <<"function">>};
+type_node({type, _, bounded_fun, _}) -> #{kind => <<"function">>};
+type_node({type, _, map, _}) -> #{kind => <<"name">>, name => <<"map">>, call => true};
+type_node({type, _, Name, Args}) when is_list(Args) -> call_node(atom_to_binary(Name), Args);
+type_node({type, _, Name, _}) -> call_node(atom_to_binary(Name), []);
+type_node({user_type, _, Name, Args}) -> call_node(atom_to_binary(Name), Args);
+type_node({remote_type, _, [{atom, _, M}, {atom, _, N}, Args]}) ->
+    call_node(iolist_to_binary([atom_to_binary(M), ":", atom_to_binary(N)]), Args);
+type_node({atom, _, true}) -> #{kind => <<"lit">>, value => true};
+type_node({atom, _, false}) -> #{kind => <<"lit">>, value => false};
+type_node({atom, _, A}) -> #{kind => <<"name">>, name => atom_to_binary(A)};
+type_node({integer, _, I}) -> #{kind => <<"lit">>, value => I};
+type_node(Other) -> #{kind => <<"unknown">>, text => bin(type_text(Other))}.
+
+call_node(Name, []) -> #{kind => <<"name">>, name => Name, call => true};
+call_node(Name, Args) -> #{kind => <<"name">>, name => Name, call => true, args => [type_node(A) || A <- Args]}.
 
 %% Print a type through erl_pp as the right-hand side of a dummy -type attribute.
 type_text(T) ->

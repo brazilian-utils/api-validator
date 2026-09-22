@@ -56,6 +56,31 @@ let rec typeName (t: Type) : string =
         | "System.Void" | "Microsoft.FSharp.Core.Unit" -> "unit"
         | _ -> t.Name
 
+/// System.Type -> the shared structured type tree (src/core/model.ts), with F# names.
+let rec typeNode (t: Type) : obj =
+    let named (name: string) (args: obj[]) : obj =
+        let d = Dictionary<string, obj>()
+        d.["kind"] <- "name"
+        d.["name"] <- name
+        if args.Length > 0 then d.["args"] <- args
+        box d
+    let node (kind: string) (field: string) (value: obj) : obj =
+        let d = Dictionary<string, obj>()
+        d.["kind"] <- kind
+        d.[field] <- value
+        box d
+    if t.IsArray then node "list" "of" (typeNode (t.GetElementType()))
+    elif t.IsGenericType then
+        let def = t.GetGenericTypeDefinition()
+        let args = t.GetGenericArguments() |> Array.map typeNode
+        if def = typedefof<option<_>> then named "option" args
+        elif def = typedefof<voption<_>> then named "voption" args
+        elif def = typedefof<list<_>> then named "list" args
+        elif def = typedefof<seq<_>> then named "seq" args
+        elif t.FullName <> null && t.FullName.StartsWith "System.Tuple" then node "tuple" "of" args
+        else named (t.Name.Substring(0, t.Name.IndexOf '`')) args
+    else named (typeName t) [||]
+
 let isModule (t: Type) =
     t.GetCustomAttributes(typeof<CompilationMappingAttribute>, false)
     |> Array.exists (fun a -> (a :?> CompilationMappingAttribute).SourceConstructFlags = SourceConstructFlags.Module)
@@ -76,8 +101,18 @@ let attr<'T> (p: ICustomAttributeProvider) : 'T option =
 
 // Nullable reference types (C# `string?`) are only visible through compiler metadata.
 let nullability = NullabilityInfoContext()
-let withNullability (name: string) (info: NullabilityInfo) =
-    if info.ReadState = NullabilityState.Nullable && not info.Type.IsValueType then name + "?" else name
+let isNullableRef (info: NullabilityInfo) = info.ReadState = NullabilityState.Nullable && not info.Type.IsValueType
+let withNullability (name: string) (info: NullabilityInfo) = if isNullableRef info then name + "?" else name
+let nodeWithNullability (node: obj) (info: NullabilityInfo) : obj =
+    if isNullableRef info then
+        let n = Dictionary<string, obj>()
+        n.["kind"] <- "name"
+        n.["name"] <- "null"
+        let u = Dictionary<string, obj>()
+        u.["kind"] <- "union"
+        u.["of"] <- [| node; box n |]
+        box u
+    else node
 
 let symbols = List<obj>()
 for t in asm.GetExportedTypes() do
@@ -99,7 +134,9 @@ for t in asm.GetExportedTypes() do
                 let param (p: ParameterInfo) : obj =
                     let d = Dictionary<string, obj>()
                     d.["name"] <- (if String.IsNullOrEmpty p.Name then sprintf "arg%d" p.Position else p.Name)
-                    d.["type"] <- withNullability (typeName p.ParameterType) (nullability.Create p)
+                    let info = nullability.Create p
+                    d.["type"] <- withNullability (typeName p.ParameterType) info
+                    d.["typeNode"] <- nodeWithNullability (typeNode p.ParameterType) info
                     if p.IsOptional || p.HasDefaultValue then d.["optional"] <- true
                     if (attr<ParamArrayAttribute> p).IsSome then
                         d.["optional"] <- true
@@ -108,7 +145,9 @@ for t in asm.GetExportedTypes() do
                 let s = Dictionary<string, obj>()
                 s.["name"] <- sourceName t + "." + name
                 s.["params"] <- (ps |> Array.map param)
-                s.["returns"] <- withNullability (typeName m.ReturnType) (nullability.Create m.ReturnParameter)
+                let retInfo = nullability.Create m.ReturnParameter
+                s.["returns"] <- withNullability (typeName m.ReturnType) retInfo
+                if m.ReturnType <> typeof<Void> then s.["returnsNode"] <- nodeWithNullability (typeNode m.ReturnType) retInfo
                 if (attr<ObsoleteAttribute> m).IsSome then s.["deprecated"] <- true
                 match location m with
                 | Some(file, line) ->
@@ -120,7 +159,6 @@ for t in asm.GetExportedTypes() do
                 let meta = Dictionary<string, obj>()
                 meta.["qualified"] <- qualified t + "." + name
                 meta.["groups"] <- groups
-                meta.["paramTypes"] <- (ps |> Array.map (fun p -> typeName p.ParameterType))
                 meta.["fsharp"] <- fsharp
                 s.["meta"] <- meta
                 symbols.Add(box s)

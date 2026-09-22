@@ -1,5 +1,5 @@
 import { T, union, type CType } from "../../core/ctype.js";
-import { parseNativeType, type TypeNode } from "./typeparse.js";
+import type { TypeNode } from "../../core/model.js";
 
 type Rule = CType | ((args: TypeNode[], map: (n: TypeNode) => CType) => CType);
 
@@ -19,7 +19,7 @@ export interface TypeTable {
 export function makeTypeMapper(table: TypeTable) {
   const map = (node: TypeNode): CType => {
     switch (node.kind) {
-      case "raw":
+      case "unknown":
         return T.unknown;
       case "function":
         return T.unknown;
@@ -42,11 +42,11 @@ export function makeTypeMapper(table: TypeTable) {
           if (table.fallback) return table.fallback(node);
           return /^[A-Z]/.test(short) ? T.object(short) : T.unknown;
         }
-        return typeof rule === "function" ? rule(node.args, map) : rule;
+        return typeof rule === "function" ? rule(node.args ?? [], map) : rule;
       }
     }
   };
-  return (text: string | undefined): CType => (text ? map(parseNativeType(text)) : T.unknown);
+  return (node: TypeNode | undefined): CType => (node ? map(node) : T.unknown);
 }
 
 /** Builder for generic containers whose first argument is the element: `Vec<T>` -> T[]. */

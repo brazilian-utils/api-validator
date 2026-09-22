@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { T } from "../../core/ctype.js";
-import type { NativeSymbol } from "../../core/model.js";
 import { snake } from "../../core/naming.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, runOrThrow } from "../../core/shell.js";
@@ -77,7 +76,7 @@ export const python: LanguageAdapter = {
     const out = runOrThrow(py, [path.join(LANGUAGES_DIR, "python", "extract.py"), ctx.root, ctx.lib.entry], { env });
     return parseJsonOutput<Extraction>(out, "python extractor");
   },
-  mapType: (native: string | undefined, _pos, _s: NativeSymbol) => mapPy(native),
+  mapType: (native) => mapPy(native),
   runner: {
     requires: ["python3"],
     async run(ctx, calls) {
