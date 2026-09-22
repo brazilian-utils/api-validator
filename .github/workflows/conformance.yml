@@ -42,6 +42,8 @@ jobs:
         with:
           dotnet-version: "8.0.x"
       - uses: dtolnay/rust-toolchain@stable
+      # nightly is only used for rustdoc's JSON output (the precise API extraction)
+      - run: rustup toolchain install nightly --profile minimal
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: .cache/brazilian-utils-rust/rust-runner

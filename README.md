@@ -99,15 +99,19 @@ libs/*.yaml ──────┤         ▲
 lib checkout ─► adapter.extract (native parser / reflection / scanner)
 ```
 
-| Language | API extraction | Types from | Shared tests |
+Each language is read with its own tooling — the compiler's or runtime's view of the
+public API, never a guess from names. A source scanner exists only as a fallback when the
+toolchain is missing, and says so in the report.
+
+| Language | API extraction (source of truth) | Types from | Shared tests |
 |---|---|---|---|
-| TypeScript | TypeScript type checker (ts-morph) | declarations, inferred | ✅ Node (tsx) |
-| Python | `ast` (no import needed) | annotations | ✅ |
-| Go | `go/parser` | signatures | ✅ generated program in a `go.work` |
-| Rust | module-tree scanner (`mod`, `pub use`, `#[cfg(test)]`, `pub(crate)`) | signatures | ✅ generated crate |
-| Ruby | runtime reflection | YARD tags | ✅ |
-| Erlang | `-export` / `-spec` / `-type` parser | specs | ✅ `erlc` + escript |
-| .NET (F#, C#) | module/indentation scanner | annotations | ✅ generated F# project |
+| TypeScript | TypeScript compiler / type checker (ts-morph) | declarations, inferred | ✅ Node (tsx) |
+| Python | stdlib `ast` + runtime cross-check when importable | annotations | ✅ |
+| Go | `go/parser` (Go signatures are fully explicit) | signatures | ✅ generated program in a `go.work` |
+| Rust | rustdoc JSON (nightly): macros, `cfg`, re-exports, visibility resolved by the compiler | signatures | ✅ generated crate |
+| Ruby | runtime reflection (what is actually callable) | YARD tags | ✅ |
+| Erlang | compiled `.beam` via `beam_lib` (exports, `-spec`, `-type`) | specs | ✅ `erlc` + escript |
+| .NET (F#, C#) | reflection on the compiled assembly | real types, incl. F#-inferred | ✅ generated F# project |
 
 Adding a language is one adapter file: [docs/adding-a-language.md](docs/adding-a-language.md).
 Contract and lib config format: [docs/contract.md](docs/contract.md).

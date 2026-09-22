@@ -110,6 +110,8 @@ def main():
     warnings = []
     defs = {}  # qualified name -> symbol
     reexports = []  # (qualified alias name, target qualified name, file, line)
+    star_imports = []  # (importing module prefix, source module, file, line, importer __all__)
+    module_all = {}  # module -> __all__ (or None)
 
     for dirpath, dirnames, filenames in os.walk(pkg_dir):
         dirnames[:] = sorted(d for d in dirnames if not d.startswith((".", "__pycache__")))
@@ -127,6 +129,7 @@ def main():
                 warnings.append(f"{path}: syntax error: {e}")
                 continue
             exported = dunder_all(tree)
+            module_all[mod] = exported
             prefix = f"{mod}." if mod else ""
             rel_file = os.path.relpath(path, root)
             for node in tree.body:
@@ -150,6 +153,10 @@ def main():
                     elif node.level == 0:
                         continue  # third-party import
                     for alias in node.names:
+                        if alias.name == "*":
+                            if exported is not None or mod == "":
+                                star_imports.append((prefix, src, rel_file, node.lineno, exported))
+                            continue
                         public_name = alias.asname or alias.name
                         if public_name.startswith("_") or (exported is not None and public_name not in exported):
                             continue
@@ -158,6 +165,17 @@ def main():
                             continue
                         target = f"{src}.{alias.name}" if src else alias.name
                         reexports.append((prefix + public_name, target, rel_file, node.lineno))
+
+    # `from x import *`: every public function of x (its __all__ if it has one).
+    for prefix, src, rel_file, line, importer_all in star_imports:
+        src_all = module_all.get(src)
+        for qname in list(defs):
+            mod_part, _, fname = qname.rpartition(".")
+            if mod_part != src or fname.startswith("_") or (src_all is not None and fname not in src_all):
+                continue
+            if importer_all is not None and fname not in importer_all:
+                continue
+            reexports.append((prefix + fname, qname, rel_file, line))
 
     symbols = list(defs.values())
     for name, target, rel_file, line in reexports:
@@ -170,6 +188,20 @@ def main():
         src = defs[target]
         sym = {**src, "name": name, "aliasOf": target, "location": {"file": rel_file, "line": line}}
         symbols.append(sym)
+
+    # Cross-check with the runtime when the package imports: names it exports that the
+    # static view cannot see (defined dynamically) are reported instead of silently missed.
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.normpath(pkg_dir)))
+        import importlib
+
+        runtime = importlib.import_module(pkg_name)
+        static = {s["name"] for s in symbols}
+        for name in getattr(runtime, "__all__", []):
+            if callable(getattr(runtime, name, None)) and name not in static:
+                warnings.append(f"{pkg_name}.{name} is exported at runtime but not visible to static analysis (dynamic definition?)")
+    except Exception:  # noqa: BLE001 - dependencies not installed: static view only
+        pass
 
     sys.stdout.write(MARK + json.dumps({"symbols": symbols, "warnings": warnings}))
 

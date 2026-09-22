@@ -6,7 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { RunnerCall, RunnerResult } from "../../core/model.js";
+import type { NativeSymbol, RunnerCall, RunnerResult } from "../../core/model.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
@@ -89,6 +89,33 @@ function findProject(dir: string): string | undefined {
   return undefined;
 }
 
+const ENV = { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1" };
+
+/** Build the lib into the work dir and return its assembly (the checkout stays clean). */
+export function buildDotnetLib(ctx: AdapterContext): { dll: string } | { error: string } {
+  const project = findProject(path.join(ctx.root, ctx.lib.entry)) ?? findProject(ctx.root);
+  if (!project) return { error: "no .fsproj/.csproj found" };
+  const artifacts = path.join(ctx.workDir, "lib-artifacts");
+  const build = run("dotnet", ["build", project, "-nologo", "-v", "q", "--artifacts-path", artifacts, "-p:GeneratePackageOnBuild=false"], {
+    cwd: ctx.workDir,
+    env: ENV,
+    timeoutMs: 15 * 60 * 1000
+  });
+  if (build.status !== 0) return { error: `dotnet build failed: ${(build.stdout + build.stderr).trim().split("\n").filter((l) => /error/.test(l)).slice(0, 8).join("\n")}` };
+  const name = path.basename(project).replace(/\.(fs|cs)proj$/, "");
+  const dll = findFile(path.join(artifacts, "bin"), `${name}.dll`);
+  return dll ? { dll } : { error: `${name}.dll not found after build` };
+}
+
+/** Public API from the compiled assembly by reflection (extract.fsx). */
+export function extractFromAssembly(ctx: AdapterContext): NativeSymbol[] {
+  const built = buildDotnetLib(ctx);
+  if ("error" in built) throw new Error(built.error);
+  const r = run("dotnet", ["fsi", "--quiet", path.join(LANGUAGES_DIR, "dotnet", "extract.fsx"), built.dll], { cwd: ctx.workDir, env: ENV });
+  if (!r.stdout.includes("\u0000JSON\u0000")) throw new Error(`.NET extractor failed: ${(r.stderr || r.stdout).trim().split("\n").slice(-10).join("\n")}`);
+  return parseJsonOutput<NativeSymbol[]>(r.stdout, ".NET extractor");
+}
+
 export async function runDotnet(ctx: AdapterContext, calls: RunnerCall[]): Promise<RunnerResult[]> {
   const results = new Map<string, RunnerResult>();
   const project = findProject(path.join(ctx.root, ctx.lib.entry)) ?? findProject(ctx.root);
@@ -118,7 +145,7 @@ export async function runDotnet(ctx: AdapterContext, calls: RunnerCall[]): Promi
 `
   );
   const artifacts = path.join(dir, "artifacts");
-  const env = { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1" };
+  const env = ENV;
   const HEAD = 4;
 
   for (let attempt = 0; attempt < 8 && pending.length > 0; attempt++) {

@@ -336,7 +336,7 @@ program
       else {
         const symbol = bestOverload(fn, res.overloads, ws.adapter).symbol;
         const [r] = await ws.adapter.runner.run(ctx, [{ id: "probe", symbol, args }]);
-        line = r.ok ? JSON.stringify(r.value) : `${r.unsupported ? "unsupported" : "error"}: ${r.error}`;
+        line = r.ok ? JSON.stringify(r.value) : r.absent ? `null ${c.dim(`(${r.error})`)}` : `${r.unsupported ? "unsupported" : "error"}: ${r.error}`;
         line = `${line}  ${c.dim(nativeSig(symbol))}`;
       }
       const key = line.split("  ")[0];

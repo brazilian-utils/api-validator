@@ -1,5 +1,7 @@
 /**
- * .NET adapter (F# and C#), source-based.
+ * .NET adapter (F# and C#). The lib is built into the work dir and its public API read from
+ * the compiled assembly by reflection (extract.fsx): exactly what consumers see, with the
+ * types F# infers. Without a .NET SDK, a source scanner is the fallback:
  *
  * F#: public `let` bindings that take parameters, directly inside a module (top-level
  *     `module A.B` file or nested `module X =`, tracked by indentation). `private`/`internal`
@@ -14,7 +16,8 @@ import { pascal } from "../../core/naming.js";
 import { clean, readSource, lineAt, matchBracket, splitTopLevel } from "../shared/scanner.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { runDotnet } from "./runner.js";
+import { extractFromAssembly, runDotnet } from "./runner.js";
+import { which } from "../../core/shell.js";
 
 function walk(dir: string, exts: string[]): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -190,13 +193,24 @@ function extractCSharp(file: string, root: string): NativeSymbol[] {
   return symbols;
 }
 
-async function extract(ctx: AdapterContext): Promise<Extraction> {
+/** Fallback without a .NET SDK: read the source text. */
+export function extractFromSource(ctx: AdapterContext): NativeSymbol[] {
   const dir = path.join(ctx.root, ctx.lib.entry);
-  const symbols = [
-    ...walk(dir, [".fs"]).flatMap((f) => extractFSharp(f, ctx.root)),
-    ...walk(dir, [".cs"]).flatMap((f) => extractCSharp(f, ctx.root))
-  ];
-  return { symbols, warnings: symbols.length ? [] : [`no public functions found under ${ctx.lib.entry}`] };
+  return [...walk(dir, [".fs"]).flatMap((f) => extractFSharp(f, ctx.root)), ...walk(dir, [".cs"]).flatMap((f) => extractCSharp(f, ctx.root))];
+}
+
+async function extract(ctx: AdapterContext): Promise<Extraction> {
+  const fromSource = extractFromSource(ctx);
+  if (!which("dotnet")) {
+    return {
+      symbols: fromSource,
+      warnings: ["dotnet not found: API read from source text (less precise than the compiled assembly; F# inferred types unknown)"]
+    };
+  }
+  // The compiled assembly is the truth; the source scan only contributes line numbers.
+  const lines = new Map(fromSource.map((s) => [s.name, s.location]));
+  const symbols = extractFromAssembly(ctx).map((s) => ({ ...s, location: lines.get(s.name) }));
+  return { symbols, warnings: symbols.length ? [] : [`no public functions found in the ${ctx.lib.entry} assembly`] };
 }
 
 const int = T.integer;

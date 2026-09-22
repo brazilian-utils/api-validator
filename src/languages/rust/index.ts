@@ -2,7 +2,9 @@ import { T } from "../../core/ctype.js";
 import { snake } from "../../core/naming.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import type { LanguageAdapter } from "../types.js";
+import { which } from "../../core/shell.js";
 import { extractRust } from "./extract.js";
+import { extractWithRustdoc, nightlyToolchain } from "./rustdoc.js";
 import { runRust } from "./runner.js";
 
 const int = T.integer;
@@ -46,7 +48,12 @@ export const rust: LanguageAdapter = {
     snake(fn.flatName) // crate root re-export
   ],
   async extract(ctx) {
-    return extractRust(ctx.root, ctx.lib.entry);
+    const toolchain = which("rustup") ? nightlyToolchain(ctx) : undefined;
+    if (!toolchain) {
+      const r = extractRust(ctx.root, ctx.lib.entry);
+      return { ...r, warnings: ["no nightly toolchain: API read by the source scanner (rustdoc JSON is more precise: `rustup toolchain install nightly`)", ...r.warnings] };
+    }
+    return { symbols: extractWithRustdoc(ctx, toolchain), warnings: [] };
   },
   mapType(native, position) {
     if (position === "return" && !native) return T.void;

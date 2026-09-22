@@ -1,7 +1,9 @@
 /**
- * Erlang adapter. The public API of a module is exactly its `-export` list (or everything
- * with `-compile(export_all)`); types come from `-spec`, with local (`cpf()`) and remote
- * (`brutils_cpf:cpf()`) `-type` aliases resolved. `{ok, T} | {error, _}` maps to `T?`:
+ * Erlang adapter. The lib is compiled with `erlc +debug_info` into the work dir and the API is
+ * read from the compiled modules (tool.escript): exports as the runtime reports them, `-spec`
+ * types, `-type` aliases (local `cpf()` and remote `brutils_cpf:cpf()` resolved) and
+ * deprecations from the abstract code. Without an Erlang toolchain a source scanner is used
+ * as a fallback, with a warning. `{ok, T} | {error, _}` maps to `T?`:
  * the error tuple is the idiomatic "no result", like Python's None or Rust's None.
  */
 import fs from "node:fs";
@@ -13,7 +15,8 @@ import { clean, readSource, lineAt, matchBracket, splitTopLevel } from "../share
 import { makeTypeMapper } from "../shared/typemap.js";
 import type { TypeNode } from "../shared/typeparse.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { runErlang } from "./runner.js";
+import { extractFromBeams, runErlang } from "./runner.js";
+import { which } from "../../core/shell.js";
 
 const CLEAN = { line: ["%"], strings: ['"'], chars: false };
 
@@ -123,17 +126,25 @@ function parseModule(file: string, root: string): { module: string; symbols: Nat
   return { module: moduleName, symbols };
 }
 
-async function extract(ctx: AdapterContext): Promise<Extraction> {
+/** Fallback when no Erlang toolchain is installed: parse the source text. */
+export function extractFromSource(ctx: AdapterContext): Extraction {
   const dir = path.join(ctx.root, ctx.lib.entry === "." ? "src" : ctx.lib.entry);
   const files = walk(fs.existsSync(dir) ? dir : ctx.root);
   const symbols: NativeSymbol[] = [];
-  const warnings: string[] = [];
+  const warnings: string[] = ["erlc not found: API read from source text (less precise than the compiled modules)"];
   for (const f of files) {
     const parsed = parseModule(f, ctx.root);
     if (!parsed) warnings.push(`${path.relative(ctx.root, f)}: no -module attribute`);
     else symbols.push(...parsed.symbols);
   }
   return { symbols, warnings };
+}
+
+async function extract(ctx: AdapterContext): Promise<Extraction> {
+  if (!which("erlc") || !which("escript")) return extractFromSource(ctx);
+  const modules = extractFromBeams(ctx);
+  for (const m of modules) typeDefs.set(m.module, new Map(Object.entries(m.types)));
+  return { symbols: modules.flatMap((m) => m.symbols), warnings: [] };
 }
 
 const isAtom = (n: TypeNode, atom: string) => n.kind === "name" && n.name === atom && !n.call;

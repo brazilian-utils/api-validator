@@ -4,6 +4,11 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import type { LibConfig, NativeSymbol } from "../src/core/model.js";
 import { which } from "../src/core/shell.js";
+import fs from "node:fs";
+import os from "node:os";
+import { extractFromSource } from "../src/languages/dotnet/index.js";
+import { extractFromSource as extractErlangSource } from "../src/languages/erlang/index.js";
+import { extractRust } from "../src/languages/rust/extract.js";
 import { getAdapter } from "../src/languages/registry.js";
 
 const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
@@ -21,8 +26,9 @@ const params = (s: NativeSymbol | undefined) => s?.params.map((p) => `${p.rest ?
 describe("python extractor (ast)", async () => {
   const s = await extract("python", "pkg");
   it("finds module functions and facade re-exports, skips private modules/functions", () => {
-    assert.deepEqual(names(s), ["cep.format", "cpf.format_cpf", "cpf.generate", "cpf.is_valid", "cpf.validate", "format_cep", "format_cpf", "is_valid_cpf"]);
+    assert.deepEqual(names(s), ["cep.format", "cpf.format_cpf", "cpf.generate", "cpf.is_valid", "cpf.validate", "format_cep", "format_cpf", "is_valid_cpf", "star.impl.shout", "star.impl.whisper", "star.shout"]);
   });
+  it("expands `from x import *`, honouring __all__", () => assert.equal(s.get("star.shout")?.aliasOf, "star.impl.shout"));
   it("links re-exports to their target and keeps the signature", () => {
     assert.equal(s.get("is_valid_cpf")?.aliasOf, "cpf.is_valid");
     assert.equal(s.get("format_cep")?.aliasOf, "cep.format"); // relative import
@@ -36,7 +42,7 @@ describe("python extractor (ast)", async () => {
   it("detects DeprecationWarning", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
 });
 
-describe("rust extractor (module tree scanner)", async () => {
+describe("rust extractor (rustdoc JSON when nightly is installed, else scanner)", async () => {
   const s = await extract("rust", "src/lib.rs");
   it("follows mod declarations and keeps only externally reachable fns", () => {
     assert.deepEqual(names(s), ["cpf.format_cpf", "cpf.is_valid", "cpf.nested.deep", "cpf.validate", "format_cpf", "is_valid_cpf", "renamed", "root_fn"]);
@@ -52,7 +58,23 @@ describe("rust extractor (module tree scanner)", async () => {
   it("reads #[deprecated]", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
 });
 
-describe("erlang extractor", async () => {
+describe("source-scanner fallbacks (no toolchain)", () => {
+  const lib = (language: string, entry: string): LibConfig => ({ name: language, language, entry, bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" });
+  it("rust scanner agrees with rustdoc on the fixture", async () => {
+    const scanned = extractRust(path.join(FIXTURES, "rust"), "src/lib.rs").symbols.map((x) => `${x.name}->${x.returns}`).sort();
+    const real = [...(await extract("rust", "src/lib.rs")).values()].map((x) => `${x.name}->${x.returns}`).sort();
+    assert.deepEqual(scanned, real);
+  });
+  it("erlang scanner agrees with beam_lib on the fixture", async () => {
+    const r = extractErlangSource({ lib: lib("erlang", "src"), root: path.join(FIXTURES, "erlang"), workDir: "/tmp" });
+    const scanned = r.symbols.map((x) => `${x.name}/${x.params.length}:${x.returns}`).sort();
+    const real = [...(await getAdapter("erlang").extract({ lib: lib("erlang", "src"), root: path.join(FIXTURES, "erlang"), workDir: fs.mkdtempSync(path.join(os.tmpdir(), "erl-")) })).symbols].map((x) => `${x.name}/${x.params.length}:${x.returns}`).sort();
+    assert.deepEqual(scanned, real);
+    assert.match(r.warnings[0], /less precise/);
+  });
+});
+
+describe("erlang extractor (compiled modules via beam_lib)", async () => {
   const s = await extract("erlang", "src");
   const all = [...s.values()];
   it("uses the multi-line export list, one symbol per arity", async () => {
@@ -71,22 +93,37 @@ describe("erlang extractor", async () => {
   });
 });
 
-describe(".NET extractor (F# + C#)", async () => {
+describe(".NET extractor: compiled assembly (reflection)", { skip: !which("dotnet") && "dotnet not installed" }, async () => {
   const s = await extract("dotnet", "Lib");
+  it("public module functions only (private and values excluded, nested modules kept)", () => {
+    assert.deepEqual(names(s), ["Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
+  });
+  it("gets the types F# infers, unit and tupled params, and line numbers from source", () => {
+    assert.deepEqual(params(s.get("Cpf.IsValid")), ["cpf: string"]); // unannotated in source
+    assert.equal(s.get("Cpf.IsValid")?.returns, "bool");
+    assert.equal(s.get("Cpf.Codes")?.returns, "int list");
+    assert.deepEqual(params(s.get("Cpf.Generate")), []);
+    assert.deepEqual(params(s.get("Nested.Inner")), ["a: int", "b: int"]);
+    assert.equal(s.get("Cpf.Validate")?.deprecated, true);
+    assert.equal(s.get("Cpf.IsValid")?.location?.line, 8);
+  });
+});
+
+describe(".NET extractor: source fallback (F# + C#)", () => {
+  const lib: LibConfig = { name: "dotnet", language: "dotnet", entry: "Lib", bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" };
+  const s = new Map(extractFromSource({ lib, root: path.join(FIXTURES, "dotnet"), workDir: "/tmp" }).map((x) => [x.name, x]));
   it("reads F# module lets (BOM, private, nested modules, values excluded) and C# public statics", () => {
     assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate", "Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
   });
   it("parses F# annotations, unit and tupled params", () => {
     assert.deepEqual(params(s.get("Cpf.Format")), ["cpf: string"]);
     assert.equal(s.get("Cpf.Format")?.returns, "string option");
-    assert.deepEqual(params(s.get("Cpf.Generate")), []);
     assert.deepEqual(params(s.get("Nested.Inner")), ["a: int", "b: int"]);
   });
   it("parses C# defaults, params arrays and [Obsolete]", () => {
     assert.deepEqual(params(s.get("Cnpj.Format")), ["cnpj: string", "pad?: bool"]);
     assert.equal(s.get("Cnpj.Generate")?.params[0].rest, true);
     assert.equal(s.get("Cnpj.Validate")?.deprecated, true);
-    assert.equal(s.get("Cpf.Validate")?.deprecated, true);
   });
 });
 

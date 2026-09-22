@@ -41,12 +41,15 @@ Irregular names are handled per lib with `bindings`, not here.
 Return every symbol a *user of the lib* can call, and nothing else. Reliability matters
 more than speed, in this order of preference:
 
-1. **The language's own parser/reflection** run as a helper process (Python `ast`,
-   `go/parser`, Ruby reflection, the TypeScript type checker). Print `"\0JSON\0"` then
-   `{ "symbols": [...], "warnings": [...] }` and parse with `parseJsonOutput`.
-2. **A scanner** on source text when no toolchain can be assumed (Rust, Erlang, F#):
-   use `clean()` from `src/languages/shared/scanner.ts` first, so comments and strings
-   cannot fool brace matching, and `readSource()` (strips BOMs).
+1. **What the compiler or runtime exposes**: compile the lib into `ctx.workDir` and read the
+   result (rustdoc JSON, `.beam` abstract code, .NET assembly reflection), load it and
+   reflect (Ruby), or use the language's official parser/type checker (TypeScript,
+   Python `ast`, `go/parser`). Run helpers as a process printing `"\0JSON\0"` then
+   `{ "symbols": [...], "warnings": [...] }`; parse with `parseJsonOutput`.
+2. **A source scanner only as a fallback** when the toolchain is absent, returning a warning
+   that says so. Use `clean()` from `src/languages/shared/scanner.ts` first (comments and
+   strings cannot fool brace matching) and `readSource()` (strips BOMs). Add a test that
+   the scanner agrees with the precise extractor on the fixture.
 
 Each symbol: `name` (dotted path relative to the lib root, as users write it), `params`
 (`name`, `type` as written, `optional`, `rest`, `keyword`), `returns`, `deprecated`,
