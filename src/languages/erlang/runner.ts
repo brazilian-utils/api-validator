@@ -49,6 +49,10 @@ export function compileErlang(ctx: AdapterContext): { ebin: string } | { error: 
   return { ebin };
 }
 
+/** Module name -> type name -> definition (`-type`/`-opaque`). Filled by extraction, read by
+ * the adapter's mapType and the test generator. */
+export const typeDefs = new Map<string, Map<string, TypeNode>>();
+
 export interface BeamModule {
   module: string;
   types: Record<string, TypeNode>;
@@ -66,12 +70,17 @@ export function extractFromBeams(ctx: AdapterContext): BeamModule[] {
   return modules;
 }
 
+/** `[module, function]` a symbol is called as. */
+export function callTarget(symbol: NativeSymbol): [string, string] {
+  return [(symbol.meta?.module as string) ?? symbol.name.split(".")[0], symbol.name.split(".").pop()!];
+}
+
 export async function runErlang(ctx: AdapterContext, calls: RunnerCall[]): Promise<RunnerResult[]> {
   const built = compileErlang(ctx);
   if ("error" in built) return calls.map((c) => ({ id: c.id, ok: false, error: built.error, unsupported: true }));
   const ebin = built.ebin;
   const terms = calls.map((c) => {
-    const [mod, fun] = [(c.symbol.meta?.module as string) ?? c.symbol.name.split(".")[0], c.symbol.name.split(".").pop()!];
+    const [mod, fun] = callTarget(c.symbol);
     return `{${erlangTerm(c.id)}, '${mod}', '${fun}', ${erlangTerm(c.args)}}.`;
   });
   const file = path.join(ctx.workDir, "calls.terms");

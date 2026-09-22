@@ -8,6 +8,7 @@ import type {
   Contract,
   ContractTest,
   FunctionReport,
+  LibConfig,
   LibReport,
   LibSummary,
   NativeSymbol
@@ -40,9 +41,17 @@ export interface AnalyzeOptions {
   network?: boolean;
 }
 
-export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
-  const { contract, adapter, ctx, surface } = opts;
-  const lib = ctx.lib;
+export interface Binding {
+  index: SymbolIndex;
+  functions: FunctionReport[];
+  mappedTargets: Set<string>;
+  /** Contract functions with a compatible implementation (status ok), with the symbol to call. */
+  bound: Bound[];
+  boundById: Map<string, NativeSymbol>;
+}
+
+/** Match every contract function to the lib's symbols and check signatures (no tests). */
+export function bindLib(contract: Contract, adapter: LanguageAdapter, lib: LibConfig, surface: ApiSurface): Binding {
   const index = new SymbolIndex(surface.symbols);
   const functions: FunctionReport[] = [];
   const mappedTargets = new Set<string>();
@@ -82,6 +91,13 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
       boundById.set(fn.id, best.symbol);
     }
   }
+  return { index, functions, mappedTargets, bound, boundById };
+}
+
+export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
+  const { contract, adapter, ctx, surface } = opts;
+  const lib = ctx.lib;
+  const { index, functions, mappedTargets, bound, boundById } = bindLib(contract, adapter, lib, surface);
 
   // Tests: only for functions whose signature is compatible (calling the others is meaningless).
   let testsRan = false;

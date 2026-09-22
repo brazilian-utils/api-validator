@@ -125,7 +125,7 @@ def main():
                 walk(member, f"{prefix}{name}.")
             elif kind is griffe.Kind.FUNCTION:
                 target = member.final_target if member.is_alias else member
-                sym = {"name": prefix + name, "params": params_of(target)}
+                sym = {"name": prefix + name, "params": params_of(target), "meta": {"module": module.path, "attr": name}}
                 if target.returns is not None:
                     sym["returns"] = str(target.returns)
                     sym["returnsNode"] = type_node(target.returns)

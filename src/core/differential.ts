@@ -191,3 +191,48 @@ export function proposal(
     : `majority: ${top.libs.map(short).join(", ")}; differs: ${others.map((o) => o.replaceAll("brazilian-utils-", "")).join(" | ")}`;
   return top.answer === "<error>" ? { args: row.args, throws: true, note } : { args: row.args, returns: top.value ?? null, note };
 }
+
+/**
+ * How libs split on a divergent input, independent of the input and of the answers:
+ * `"go,rust | javascript,python,ruby"`. The same bug shows the same split on every input
+ * that triggers it, so the split (not the input, which may be randomly generated) is what
+ * the divergence baseline records.
+ */
+export function partition(row: DiffRow): string {
+  const short = (l: string) => l.replace("brazilian-utils-", "");
+  return row.answers
+    .map((a) => a.libs.map(short).sort().join(","))
+    .sort()
+    .join(" | ");
+}
+
+/** Known splits per function: `diff --fail-on-new` fails only on a split not listed here. */
+export type DivergenceBaseline = Record<string, string[]>;
+
+export function divergenceBaseline(rows: DiffRow[]): DivergenceBaseline {
+  const out: DivergenceBaseline = {};
+  for (const r of rows) if (!r.agree) out[r.fn] = [...new Set([...(out[r.fn] ?? []), partition(r)])].sort();
+  return Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+export interface DivergenceDiff {
+  /** Divergent rows whose split is not in the baseline for their function. */
+  fresh: Array<{ row: DiffRow; split: string }>;
+  /** Baseline splits not seen in this run (fixed, or not triggered by this run's inputs). */
+  gone: Array<{ fn: string; split: string }>;
+}
+
+export function diffDivergences(rows: DiffRow[], baseline: DivergenceBaseline, fns: string[]): DivergenceDiff {
+  const now = divergenceBaseline(rows);
+  const fresh: DivergenceDiff["fresh"] = [];
+  const reported = new Set<string>();
+  for (const r of rows) {
+    if (r.agree) continue;
+    const split = partition(r);
+    if ((baseline[r.fn] ?? []).includes(split) || reported.has(`${r.fn}|${split}`)) continue;
+    reported.add(`${r.fn}|${split}`);
+    fresh.push({ row: r, split });
+  }
+  const gone = fns.flatMap((fn) => (baseline[fn] ?? []).filter((s) => !(now[fn] ?? []).includes(s)).map((split) => ({ fn, split })));
+  return { fresh, gone };
+}

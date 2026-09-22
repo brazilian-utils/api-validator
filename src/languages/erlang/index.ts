@@ -10,13 +10,11 @@ import { snake } from "../../core/naming.js";
 import { makeTypeMapper } from "../shared/typemap.js";
 import type { TypeNode } from "../../core/model.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { extractFromBeams, runErlang } from "./runner.js";
+import { extractFromBeams, runErlang, typeDefs } from "./runner.js";
+import { erlangTestgen } from "./testgen.js";
 import { which } from "../../core/shell.js";
 
 const CLEAN = { line: ["%"], strings: ['"'], chars: false };
-
-/** Module name -> type name -> definition. Filled by extract, read by mapType. */
-const typeDefs = new Map<string, Map<string, TypeNode>>();
 
 async function extract(ctx: AdapterContext): Promise<Extraction> {
   if (!which("erlc") || !which("escript")) throw new Error("the Erlang adapter needs erlc and escript (Erlang/OTP) on PATH to compile the lib");
@@ -97,6 +95,18 @@ export const erlang: LanguageAdapter = {
   mapType(native, _position, symbol) {
     return mapErlang(native, (symbol.meta?.module as string | undefined) ?? "");
   },
+  tools: [
+    {
+      bin: "erl",
+      version: ["-noshell", "-eval", 'io:format("OTP ~s~n", [erlang:system_info(otp_release)]), halt().'],
+      purpose: "runtime",
+      install: "https://www.erlang.org/downloads (or erlef/setup-beam in CI)"
+    },
+    { bin: "erlc", version: null, purpose: "extraction (beam_lib) and shared tests", install: "ships with Erlang/OTP" },
+    { bin: "escript", version: null, purpose: "extraction and shared tests", install: "ships with Erlang/OTP" },
+    { bin: "rebar3", version: ["version"], purpose: "running exported EUnit tests", install: "https://rebar3.org", optional: true }
+  ],
+  testgen: erlangTestgen,
   runner: { requires: ["erlc", "escript"], run: runErlang }
 };
 

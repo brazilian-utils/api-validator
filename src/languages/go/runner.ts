@@ -17,9 +17,10 @@ import type { AdapterContext } from "../types.js";
 const INTS = new Set(["int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64", "byte", "uintptr"]);
 const FLOATS = new Set(["float32", "float64"]);
 
-class Unsupported extends Error {}
+/** A value or call the Go literal builders cannot write. */
+export class Unsupported extends Error {}
 
-interface Meta {
+export interface Meta {
   importPath: string;
   package: string;
   func: string;
@@ -80,16 +81,27 @@ export function goLiteral(t: TypeNode, value: unknown, alias: string, self: stri
   throw new Unsupported(`cannot build a ${t.name} argument`);
 }
 
-function callBody(symbol: NativeSymbol, meta: Meta, args: unknown[], alias: string): string {
+/**
+ * Body of a `func() (any, error)` calling `symbol` with `args` (JSON values), mapping its
+ * results like the api-validator does: `(T, error)` err -> error, `(T, bool)` false -> nil.
+ * `literal` renders one argument (default: the typed Go literal of the JSON value).
+ */
+export function callBody(
+  symbol: NativeSymbol,
+  meta: Meta,
+  args: unknown[],
+  alias: string,
+  literal: (t: TypeNode, value: unknown) => string = (t, v) => goLiteral(t, v, alias, meta.importPath)
+): string {
   const params = symbol.params;
   const rendered: string[] = [];
   params.forEach((p, i) => {
     if (!p.typeNode) throw new Unsupported(`no type for parameter ${p.name}`);
     if (p.rest) {
-      for (const v of args.slice(i)) rendered.push(goLiteral(p.typeNode, v, alias, meta.importPath));
+      for (const v of args.slice(i)) rendered.push(literal(p.typeNode, v));
     } else {
       if (i >= args.length) throw new Unsupported(`missing argument ${i + 1} (Go has no optional parameters)`);
-      rendered.push(goLiteral(p.typeNode, args[i], alias, meta.importPath));
+      rendered.push(literal(p.typeNode, args[i]));
     }
   });
   if (!params.some((p) => p.rest) && args.length > params.length) throw new Unsupported(`${args.length} args for ${params.length} params`);

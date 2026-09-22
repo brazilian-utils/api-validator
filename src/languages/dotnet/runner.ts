@@ -11,7 +11,8 @@ import { LANGUAGES_DIR } from "../../core/paths.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import type { AdapterContext } from "../types.js";
 
-class Unsupported extends Error {}
+/** A value or call the F# literal builders cannot express (the call is reported as unsupported). */
+export class Unsupported extends Error {}
 
 /** Render a JSON value as an F# literal of type `t` (from the assembly's reflection). */
 export function fsharpLiteral(t: TypeNode | undefined, value: unknown): string {
@@ -49,21 +50,23 @@ export function fsharpLiteral(t: TypeNode | undefined, value: unknown): string {
   throw new Unsupported("objects are not supported as .NET arguments");
 }
 
-function callExpr(call: RunnerCall): string {
-  const meta = call.symbol.meta as { qualified?: string; groups?: number[] } | undefined;
-  if (!meta?.qualified) throw new Unsupported("symbol has no .NET metadata");
+/** F# call of `call.symbol` with its JSON args (curried or tupled as the function declares). */
+export function callExpr(call: Pick<RunnerCall, "symbol" | "args">): string {
   const params = call.symbol.params;
-  const groups = meta.groups ?? [params.length];
+  return applyExpr(call.symbol, call.args.map((a, k) => () => fsharpLiteral(params[k]?.typeNode, a)));
+}
+
+/** F# application of `symbol` to already rendered argument expressions (thunks, rendered in order). */
+export function applyExpr(symbol: NativeSymbol, args: Array<() => string>): string {
+  const meta = symbol.meta as { qualified?: string; groups?: number[] } | undefined;
+  if (!meta?.qualified) throw new Unsupported("symbol has no .NET metadata");
+  const groups = meta.groups ?? [symbol.params.length];
   const arity = groups.reduce((a, b) => a + b, 0);
-  if (call.args.length !== arity) throw new Unsupported(`${call.args.length} args for ${arity} params`);
+  if (args.length !== arity) throw new Unsupported(`${args.length} args for ${arity} params`);
   let k = 0;
   const parts = groups.map((n) => {
     if (n === 0) return "()";
-    const lits = Array.from({ length: n }, () => {
-      const lit = fsharpLiteral(params[k]?.typeNode, call.args[k]);
-      k++;
-      return lit;
-    });
+    const lits = Array.from({ length: n }, () => args[k++]());
     return `(${lits.join(", ")})`;
   });
   return `${meta.qualified} ${parts.join(" ")}`;

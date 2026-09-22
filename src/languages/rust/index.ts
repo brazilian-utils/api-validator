@@ -6,6 +6,7 @@ import type { LanguageAdapter } from "../types.js";
 import { which } from "../../core/shell.js";
 import { extractWithRustdoc, nightlyToolchain } from "./rustdoc.js";
 import { runRust } from "./runner.js";
+import { rustTestgen } from "./testgen.js";
 
 const int = T.integer;
 
@@ -60,5 +61,16 @@ export const rust: LanguageAdapter = {
     if (!native) return position === "return" ? T.void : T.unknown;
     return mapRust(native);
   },
+  tools: [
+    { bin: "cargo", purpose: "shared tests, exported tests", install: "https://rustup.rs" },
+    {
+      bin: "rustup",
+      version: ["run", "nightly", "rustc", "--version"],
+      purpose: "extraction (rustdoc JSON needs a nightly toolchain: rustup toolchain install nightly)",
+      install: "https://rustup.rs, then rustup toolchain install nightly --profile minimal"
+    },
+    { bin: "rustfmt", purpose: "formatting exported tests", install: "rustup component add rustfmt", optional: true }
+  ],
+  testgen: rustTestgen,
   runner: { requires: ["cargo"], run: runRust }
 };

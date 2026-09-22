@@ -8,6 +8,7 @@ import { makeTypeMapper } from "../shared/typemap.js";
 import type { TypeNode } from "../../core/model.js";
 import type { Extraction, LanguageAdapter } from "../types.js";
 import { runGo } from "./runner.js";
+import { goTestgen } from "./testgen.js";
 
 const int = T.integer;
 const isError = (n: TypeNode) => n.kind === "name" && n.name === "error" && !n.pkg;
@@ -65,5 +66,10 @@ export const go: LanguageAdapter = {
     const t = mapGo(native);
     return t.k === "union" ? union(t.of.filter((x) => x.k !== "void")) : t;
   },
+  tools: [
+    { bin: "go", version: ["version"], purpose: "extraction (go/packages), shared tests, exported tests", install: "https://go.dev/dl/" },
+    { bin: "gofmt", version: null, purpose: "formatting exported tests", install: "ships with Go", optional: true }
+  ],
+  testgen: goTestgen,
   runner: { requires: ["go"], run: runGo }
 };

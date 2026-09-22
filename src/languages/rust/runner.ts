@@ -7,14 +7,15 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
+import type { NativeSymbol, RunnerCall, RunnerResult, TypeNode } from "../../core/model.js";
 import { crateInfo } from "./cargo.js";
 import { isStringTrait } from "./traits.js";
 import { parseJsonOutput, run } from "../../core/shell.js";
 import { LANGUAGES_DIR } from "../../core/paths.js";
 import type { AdapterContext } from "../types.js";
 
-class Unsupported extends Error {}
+/** A value or call the literal builders cannot express in Rust. */
+export class Unsupported extends Error {}
 
 /** Rust string literal (JSON escapes like \b or \u0001 are not valid Rust). */
 function rustStr(s: string): string {
@@ -34,7 +35,8 @@ function rustStr(s: string): string {
 
 const INTS = ["i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize"];
 
-const last = (name: string) => name.split("::").pop()!;
+/** Last path segment of a type name (`std::string::String` -> `String`). */
+export const last = (name: string) => name.split("::").pop()!;
 
 /** Render a JSON value as a Rust expression of type `t`. */
 export function rustLiteral(t: TypeNode, value: unknown): string {
@@ -90,18 +92,30 @@ interface Prepared {
   isResult: boolean;
 }
 
-function prepare(call: RunnerCall, crate: string): Prepared {
-  const meta = call.symbol.meta as { rustPath?: string } | undefined;
+/** Path of the symbol inside its crate (`cpf::is_valid`). */
+export function rustPathOf(symbol: NativeSymbol): string {
+  const meta = symbol.meta as { rustPath?: string } | undefined;
   if (!meta?.rustPath) throw new Unsupported("symbol has no Rust metadata");
-  const params = call.symbol.params;
-  if (call.args.length !== params.length) throw new Unsupported(`${call.args.length} args for ${params.length} params (Rust has no optional parameters)`);
-  const args = params.map((p, i) => {
+  return meta.rustPath;
+}
+
+/** Typed argument literals of a call (Rust has no optional parameters: counts must match). */
+export function rustArgs(symbol: NativeSymbol, values: unknown[]): string[] {
+  const params = symbol.params;
+  if (values.length !== params.length) throw new Unsupported(`${values.length} args for ${params.length} params (Rust has no optional parameters)`);
+  return params.map((p, i) => {
     if (!p.typeNode) throw new Unsupported(`no type for parameter ${p.name}`);
-    return rustLiteral(p.typeNode, call.args[i]);
+    return rustLiteral(p.typeNode, values[i]);
   });
-  const ret = call.symbol.returnsNode;
-  const isResult = ret?.kind === "name" && last(ret.name) === "Result";
-  return { id: call.id, expr: `${crate}::${meta.rustPath}(${args.join(", ")})`, isResult };
+}
+
+/** `Result<T, E>`: an Err is the idiomatic "throws". */
+export const isResultType = (t: TypeNode | undefined): t is Extract<TypeNode, { kind: "name" }> => t?.kind === "name" && last(t.name) === "Result";
+
+function prepare(call: RunnerCall, crate: string): Prepared {
+  const rustPath = rustPathOf(call.symbol);
+  const args = rustArgs(call.symbol, call.args);
+  return { id: call.id, expr: `${crate}::${rustPath}(${args.join(", ")})`, isResult: isResultType(call.symbol.returnsNode) };
 }
 
 function program(items: Prepared[]): { code: string; lines: Map<number, string> } {

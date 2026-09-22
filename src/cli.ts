@@ -4,17 +4,22 @@ import os from "node:os";
 import path from "node:path";
 import { Command, Option } from "commander";
 import YAML from "yaml";
-import { analyzeLib, extractSurface } from "./core/analyze.js";
+import { analyzeLib, bindLib, extractSurface } from "./core/analyze.js";
+import { exportCases, headerLines } from "./core/testgen.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
+import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { loadContract } from "./core/contract.js";
 import { formatContractDir } from "./core/format-contract.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
-import { differential, proposal, type DiffLib } from "./core/differential.js";
+import { differential, diffDivergences, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
-import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
+import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, REPOS_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
+import { run, which } from "./core/shell.js";
+import { getAdapter } from "./languages/registry.js";
+import type { Tool } from "./languages/types.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
 import { writeDashboard } from "./reporters/html.js";
@@ -59,6 +64,28 @@ function appendTests(file: string, ops: Record<string, Array<Record<string, unkn
   }
   fs.writeFileSync(file, doc.toString({ lineWidth: 140 }));
   return added;
+}
+
+/** Run the lib's formatters over generated content (scratch copy next to the target file). */
+function formatGenerated(root: string, rel: string, content: string, commands: string[][]): string {
+  if (commands.length === 0) return content;
+  const ext = path.extname(rel);
+  const scratch = path.join(root, path.dirname(rel), `api_contract_scratch_${process.pid}${ext}`);
+  fs.mkdirSync(path.dirname(scratch), { recursive: true });
+  fs.writeFileSync(scratch, content);
+  try {
+    for (const [bin, ...args] of commands) {
+      if (!which(bin)) {
+        console.error(c.yellow(`warning: ${bin} not found, generated file left unformatted (${[bin, ...args].join(" ")})`));
+        continue;
+      }
+      const r = run(bin, args.map((a) => a.replaceAll("{file}", scratch)), { cwd: root });
+      if (r.status !== 0) console.error(c.yellow(`warning: ${bin} exited ${r.status}: ${(r.stderr || r.stdout).trim().split("\n").slice(0, 5).join("\n")}`));
+    }
+    return fs.readFileSync(scratch, "utf8");
+  } finally {
+    fs.rmSync(scratch, { force: true });
+  }
 }
 
 function writeSnapshot(surface: ApiSurface) {
@@ -133,9 +160,45 @@ program
   });
 
 program
+  .command("doctor")
+  .description("Check the toolchains every configured lib needs (extraction, shared tests, exported tests)")
+  .option("-l, --lib <names...>", "only these libs")
+  .action((opts) => {
+    const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
+    const adapters = [...new Map(libs.map((l) => [getAdapter(l.language).id, getAdapter(l.language)])).values()];
+    let missing = 0;
+    for (const adapter of adapters) {
+      const users = libs.filter((l) => getAdapter(l.language).id === adapter.id).map((l) => l.name);
+      console.log(`\n${c.bold(adapter.displayName)} ${c.dim(`(${users.join(", ")})`)}`);
+      const tools: Tool[] = adapter.tools ?? (adapter.runner?.requires ?? []).map((bin) => ({ bin, purpose: "shared tests", install: "see docs/adding-a-language.md" }));
+      for (const t of tools) {
+        const found = which(t.bin);
+        // Presence decides; the version line is informational (not every tool has a flag for it).
+        const v = found && t.version !== null ? run(t.bin, t.version ?? ["--version"], { timeoutMs: 60_000 }) : undefined;
+        const ok = found;
+        const version = v?.status === 0 ? (v.stdout || v.stderr).trim().split("\n")[0] : "installed";
+        if (!ok && !t.optional) missing++;
+        const mark = ok ? c.green("✓") : t.optional ? c.yellow("○") : c.red("✗");
+        console.log(`  ${mark} ${t.bin.padEnd(8)} ${ok ? c.dim(version) : c.yellow(`missing — ${t.install}`)}  ${c.dim(`[${t.purpose}]`)}`);
+      }
+      for (const name of users) {
+        const lib = libs.find((l) => l.name === name)!;
+        const checkout = fs.existsSync(path.join(REPOS_DIR, lib.name));
+        const base = loadBaseline(BASELINES_DIR, name);
+        console.log(
+          `  ${checkout ? c.green("✓") : c.yellow("○")} ${name}: ${checkout ? "checked out" : "not checked out (run sync)"}, ${base ? `baseline with ${base.tests.length} tests` : "no baseline"}${adapter.testgen ? `, exports ${adapter.testgen.framework} tests` : ", no test export"}`
+        );
+      }
+    }
+    console.log(missing ? c.red(`\n${missing} required tools missing`) : c.green("\nall required tools present"));
+    if (missing) process.exitCode = 1;
+  });
+
+program
   .command("lint")
   .description("Validate the contract and every lib config (fast, no checkout needed)")
-  .action(() => {
+  .option("--strict", "also fail on functions without test vectors")
+  .action((opts) => {
     const contract = loadContract(CONTRACT_DIR);
     const libs = loadLibConfigs(LIBS_DIR);
     let errors = 0;
@@ -145,9 +208,13 @@ program
         if (i.severity === "error") errors++;
       }
     }
+    // A function without vectors can only be checked for its name and signature: every lib
+    // may implement it differently and nothing would notice.
+    const untested = [...contract.functions.values()].filter((f) => f.tests.length === 0 && !f.network);
+    for (const f of untested) console.log(`${opts.strict ? "error" : "warning"}: ${f.id} has no test vectors (${f.source})`);
     const tests = [...contract.functions.values()].reduce((n, f) => n + f.tests.length, 0);
-    console.log(`contract: ${contract.domains.size} domains, ${contract.functions.size} functions, ${tests} tests; ${libs.length} libs`);
-    if (errors) process.exitCode = 1;
+    console.log(`contract: ${contract.domains.size} domains, ${contract.functions.size} functions (${untested.length} without tests), ${tests} tests; ${libs.length} libs`);
+    if (errors || (opts.strict && untested.length)) process.exitCode = 1;
   });
 
 program
@@ -216,6 +283,76 @@ program
     } else console.log(c.dim(`\nReport: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, `${results[0].report.library}.md`))}`));
     if (opts.summary) fs.appendFileSync(opts.summary, `${markdown.join("\n\n")}\n`);
     if (failed) process.exitCode = 1;
+  });
+
+program
+  .command("export-tests")
+  .description("Write the contract tests as a native test file of each lib (run by the lib's own test command)")
+  .option("-l, --lib <names...>", "only these libs")
+  .option("-p, --path <dir>", "lib checkout to write into (default: .repos/<lib>)")
+  .option("--check", "only verify the file is up to date (for the lib's CI); exit 1 if stale")
+  .option("--stdout", "print the file instead of writing it")
+  .action(async (opts) => {
+    const contract = loadContract(CONTRACT_DIR);
+    const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
+    if (opts.path && libs.length !== 1) throw new Error("--path needs exactly one --lib");
+    let stale = 0;
+    for (const lib of libs) {
+      const ws = workspaceFor(lib, opts.path);
+      const gen = ws.adapter.testgen;
+      if (!gen) {
+        console.log(`${lib.name}: no test generator for ${ws.adapter.displayName} yet`);
+        continue;
+      }
+      const ctx = { lib, root: ws.root, workDir: ws.workDir };
+      const surface = await extractSurface(ws.adapter, ctx);
+      const { bound, boundById } = bindLib(contract, ws.adapter, lib, surface);
+      const groups = exportCases(bound, boundById, lib, loadBaseline(BASELINES_DIR, lib.name));
+      const rel = typeof lib.options.testFile === "string" ? lib.options.testFile : gen.path(ctx);
+      const file = path.join(ws.root, rel);
+      const rendered = gen.render(ctx, groups, headerLines(lib, groups, gen.command(ctx)));
+      const formatters = Array.isArray(lib.options.testFormat) ? (lib.options.testFormat as string[][]) : (gen.format?.(ctx) ?? []);
+      const content = formatGenerated(ws.root, rel, rendered.content.endsWith("\n") ? rendered.content : `${rendered.content}\n`, formatters);
+      if (opts.stdout) {
+        process.stdout.write(content);
+        continue;
+      }
+      const wires = gen.wire?.(ctx, rel) ?? [];
+      const changes = [{ path: file, content }, ...wires.map((w) => ({ path: path.join(ws.root, w.path), content: w.content }))].filter(
+        (ch) => !fs.existsSync(ch.path) || fs.readFileSync(ch.path, "utf8") !== ch.content
+      );
+      const cases = groups.flatMap((g) => g.cases);
+      const skipped = cases.filter((x) => x.skip).length;
+      const summary = `${cases.length} tests of ${groups.length} functions (${skipped} skipped, ${rendered.unexpressible.length} not expressible in ${ws.adapter.displayName})`;
+      if (opts.check) {
+        if (changes.length) {
+          stale++;
+          for (const ch of changes) console.log(`${lib.name}: ${path.relative(ws.root, ch.path)} is out of date with the contract`);
+          console.log(`  regenerate: npx tsx <api-validator>/src/cli.ts export-tests --lib ${lib.name} --path .`);
+        } else console.log(`${lib.name}: ${rel} up to date — ${summary}`);
+        continue;
+      }
+      for (const ch of changes) {
+        fs.mkdirSync(path.dirname(ch.path), { recursive: true });
+        fs.writeFileSync(ch.path, ch.content); // exactly as rendered: --check compares bytes
+      }
+      console.log(`${lib.name}: ${changes.length ? "wrote" : "unchanged"} ${rel} — ${summary}; run with: ${gen.command(ctx)}`);
+      for (const u of rendered.unexpressible) console.log(c.dim(`  not expressible: ${u.id}: ${u.reason}`));
+    }
+    if (stale) process.exitCode = 1;
+  });
+
+program
+  .command("changelog")
+  .description("What changed in the contract between two git refs (functions, signatures, test vectors), as markdown")
+  .option("--from <ref>", "base ref", "HEAD")
+  .option("--to <ref>", "target ref (WORKTREE = files on disk)", "WORKTREE")
+  .option("-o, --out <file>", "also write the markdown to this file (e.g. $GITHUB_STEP_SUMMARY)")
+  .action((opts) => {
+    const repo = path.dirname(CONTRACT_DIR);
+    const md = changelogMarkdown(changelog(contractAt(repo, CONTRACT_DIR, opts.from), contractAt(repo, CONTRACT_DIR, opts.to)), opts.from, opts.to);
+    process.stdout.write(md);
+    if (opts.out) fs.appendFileSync(opts.out, md);
   });
 
 program
@@ -372,9 +509,12 @@ program
   .option("--apply", "with --propose: append the proposals straight into contract/<domain>.yaml")
   .option("--show-agreement", "also list inputs where every lib agrees")
   .option("--network", "include functions that call remote services")
+  .option("--baseline", "record how libs split today as known divergences (baselines/_divergences.json)")
+  .option("--fail-on-new", "exit 1 when libs split in a way the divergence baseline does not know (new bug or regression)")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
     const fns = [...contract.functions.values()].filter((f) => (!opts.fn || globMatch(opts.fn, f.id)) && (opts.network || !f.network));
+    if ((opts.baseline || opts.failOnNew) && opts.lib) throw new Error("--baseline/--fail-on-new compare splits across all libs: do not pass --lib");
     const libs: DiffLib[] = [];
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
       const ws = workspaceFor(lib);
@@ -414,7 +554,22 @@ program
         }
       }
     }
+    const divFile = path.join(BASELINES_DIR, "_divergences.json");
+    const known: DivergenceBaseline = fs.existsSync(divFile) ? JSON.parse(fs.readFileSync(divFile, "utf8")) : {};
+    const dd = diffDivergences(rows, known, fns.map((f) => f.id));
+    if (dd.fresh.length || dd.gone.length) md.push("", "## Compared with the divergence baseline", "");
+    for (const { row, split } of dd.fresh) md.push(`- 🆕 \`${row.fn}\` splits **${split}** (e.g. \`${JSON.stringify(row.args)}\`)`);
+    for (const g of dd.gone) md.push(`- ✅ \`${g.fn}\` no longer splits ${g.split} on this run's inputs`);
     writeFile(path.join(OUTPUT_DIR, "diff.md"), md.join("\n"));
+    if (opts.baseline) {
+      const merged = { ...Object.fromEntries(Object.entries(known).filter(([fn]) => !fns.some((f) => f.id === fn))), ...divergenceBaseline(rows) };
+      writeFile(divFile, JSON.stringify(Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b))), null, 2));
+      console.log(c.cyan(`divergence baseline: ${Object.values(merged).flat().length} known splits in ${path.relative(process.cwd(), divFile)}`));
+    } else {
+      for (const { row, split } of dd.fresh) console.log(c.red(`new divergence: ${row.fn} splits ${split} (e.g. ${JSON.stringify(row.args)})`));
+      for (const g of dd.gone) console.log(c.green(`gone: ${g.fn} no longer splits ${g.split} — run \`diff --baseline\` to lock it in`));
+      if (opts.failOnNew && dd.fresh.length) process.exitCode = 1;
+    }
     console.log(`\n${divergent ? c.yellow(`${divergent} divergent inputs`) : c.green("no divergence")} across ${rows.length} compared calls. Report: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, "diff.md"))}`);
     if (opts.apply) {
       for (const [domain, ops] of proposals) {

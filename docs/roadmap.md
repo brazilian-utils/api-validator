@@ -11,11 +11,14 @@ progress is a number, not an opinion.
 |---|---|---|
 | Merge this repository's PR | maintainers | CI runs typecheck, tests with all 7 toolchains, contract lint |
 | Publish the dashboard | org admin | enable GitHub Pages (source: GitHub Actions), set repository variable `PUBLISH_DASHBOARD=true` |
-| Turn on issue sync | org admin | a fine-grained token (or GitHub App) with `issues: write` on the 7 lib repos, saved as secret `LIBS_TOKEN` |
+| Turn on issue + test sync | org admin | a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 lib repos, saved as secret `LIBS_TOKEN` |
 | Add the Action to every lib | one PR per lib | copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`; add the badge to the README |
+| Commit the exported tests in every lib | one PR per lib (or the first nightly bot PR) | `api-validator export-tests --lib <lib> --path .` writes the native test file; the lib's own test command runs it |
+| Record the divergence baseline | maintainers | `api-validator diff --baseline` once; from then on the nightly fails only on *new* ways libs disagree |
 | Optional: agent ports | org admin | secret `ANTHROPIC_API_KEY` in lib repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
-**Done when** all 7 lib repos show the API contract check on their PRs and an `api-contract` issue.
+**Done when** all 7 lib repos show the API contract check on their PRs, an `api-contract` issue,
+and an exported contract test file that their own test command runs.
 
 ## Phase 1 — agree on the contract (1–2 weeks)
 
@@ -30,7 +33,9 @@ needs one human pass, and the open behaviour questions need answers.
 2. Review names: `legalProcess` vs `processoJuridico`, `removeSymbols` vs JS `parse*`
    (different semantics: keep both, or pick one), options objects vs positional parameters
    (the contract can declare the positional form and let JS keep options as an extra).
-3. Review `level`: `core` is currently "≥4 libs had it". Promote what every lib must have,
+3. Give every function test vectors: `api-validator lint` lists the functions without any
+   (only the name and signature of those are checked today). Then turn on `lint --strict`.
+4. Review `level`: `core` is currently "≥4 libs had it". Promote what every lib must have,
    leave the rest `extended`; libs `waive` what they deliberately skip.
 
 **Done when** `docs/findings.md` sections 1–2 are empty (everything is a vector) and the
@@ -51,7 +56,9 @@ the badge is green everywhere.
   check). New features start as contract PRs; bug fixes start as vectors.
 - **Nightly** Conformance run: sync, `check --tests`, `diff`, dashboard, issues. New
   divergences found by `diff` become decisions, then vectors.
-- **Releases:** tag the contract (`contract-v1.0`, ...) when a set of functions is stable.
+- **Releases:** tag the contract (`contract-v1.0`, ...) when a set of functions is stable;
+  `api-validator changelog --from contract-v1.0 --to contract-v1.1` writes the release notes
+  (new functions, signature changes, new and changed vectors).
   Libs note in their changelog which contract version they conform to, and the Action can
   be pinned to a tag in libs that want to adopt contract changes deliberately.
 
@@ -69,5 +76,6 @@ existing reference implementations.
 
 - core coverage per lib → 100%
 - failing vectors → 0; skipped vectors (runner can't express the call) → shrinking
-- divergent inputs in `diff` for core functions → 0
+- divergent inputs in `diff` for core functions → 0; known splits in `baselines/_divergences.json` → shrinking
+- functions without vectors (`lint`) → 0
 - public symbols outside the contract → 0 (all bound, proposed, or ignored)

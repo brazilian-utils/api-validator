@@ -3,6 +3,7 @@ description: >
   Checks a brazilian-utils implementation against the shared cross-language contract:
   missing functions, signature mismatches and the shared conformance tests.
   Fails only on regressions by default, and writes an actionable TODO list to the job summary.
+  Also checks that the lib's exported contract tests (its native test file) are up to date.
 branding:
   icon: check-square
   color: green
@@ -20,6 +21,12 @@ inputs:
   fail-on:
     description: "regression (default): only what used to conform and no longer does; error: any signature/test failure or missing core function; never"
     default: regression
+  exported-tests:
+    description: >
+      The lib's exported contract test file (export-tests), which runs in the lib's own test job:
+      "warn" (default) annotates the run when it is out of date with the contract (the nightly
+      api-validator run opens a PR regenerating it), "check" fails instead, "skip" ignores it.
+    default: warn
 
 outputs:
   report:
@@ -49,3 +56,18 @@ runs:
         if [ "$INPUT_TESTS" = "true" ]; then args+=(--tests); fi
         echo "report=$API_VALIDATOR_OUTPUT_DIR/${{ inputs.library }}.report.json" >> "$GITHUB_OUTPUT"
         node --import "$GITHUB_ACTION_PATH/node_modules/tsx/dist/esm/index.mjs" "$GITHUB_ACTION_PATH/src/cli.ts" "${args[@]}"
+
+    - name: Check exported contract tests are up to date
+      if: inputs.exported-tests != 'skip'
+      shell: bash
+      env:
+        API_VALIDATOR_CACHE_DIR: ${{ runner.temp }}/api-validator-cache
+        MODE: ${{ inputs.exported-tests }}
+      run: |
+        if node --import "$GITHUB_ACTION_PATH/node_modules/tsx/dist/esm/index.mjs" "$GITHUB_ACTION_PATH/src/cli.ts" \
+          export-tests --lib "${{ inputs.library }}" --path "${{ inputs.path }}" --check; then
+          exit 0
+        fi
+        msg="Exported contract tests are out of date: regenerate with api-validator export-tests (or merge the api-contract bot PR)"
+        if [ "$MODE" = "check" ]; then echo "::error::$msg"; exit 1; fi
+        echo "::warning::$msg"
