@@ -12,7 +12,9 @@ export const kotlin: LanguageAdapter = {
   candidates(fn) { ... },        // idiomatic names for a contract function
   async extract(ctx) { ... },    // public API of the lib
   mapType(native, position) { ... }, // native type -> canonical type
-  runner: { requires: ["java"], run(ctx, calls) { ... } } // optional: shared tests
+  tools: [{ bin: "java", purpose: "extraction and shared tests", install: "https://adoptium.net" }], // for `doctor`
+  runner: { requires: ["java"], run(ctx, calls) { ... } }, // optional: shared tests
+  testgen: { framework: "JUnit", path, command, render, format, wire } // optional: export-tests
 };
 ```
 
@@ -97,11 +99,29 @@ for tuples, objects for records/structs, ISO strings for dates.
 
 Always work in `ctx.workDir`, never in the lib checkout.
 
+## 5. `testgen` — the contract tests as a native test file (optional)
+
+`export-tests` hands the generator the bound contract tests (`ExportGroup[]`, one per
+function, each case with its native symbol, args, expectation, `repeat`, `skip` reason and
+the `satisfies` target) and writes whatever `render` returns into the lib. Rules:
+
+- **Same semantics as the runner.** Reuse its literal builders and call code (the Go, Rust,
+  .NET and Erlang generators import them from their `runner.ts`), so a test passes natively
+  exactly when `check --tests` passes it. Verify this on the real lib, test by test.
+- **The lib's framework and layout**, idiomatic and readable: one test per case, named from
+  `case.slug`, with `case.id` and `case.note` as comments; native skip with the reason.
+- Cases the language cannot express go to `unexpressible` (and a comment), never broken code.
+- **Deterministic output**, and clean under the lib's formatter/linter: emit compliant code
+  or declare `format` (commands run over a scratch copy, e.g. `gofmt -w {file}`).
+- `wire` returns other files to update when the framework needs registration (an `.fsproj`).
+
 ## Checklist
 
 - [ ] fixture under `test/fixtures/<id>/` exercising visibility, re-exports, deprecation and
       optional/rest params
 - [ ] extractor + type mapping tests in `test/extractors.test.ts` / `test/core.test.ts`
 - [ ] runner test in `test/runners.test.ts` (skipped when the toolchain is absent)
+- [ ] `tools` listed (so `api-validator doctor` checks them)
+- [ ] test generator + `test/testgen-<id>.test.ts` (render + a native run on the fixture)
 - [ ] toolchain added to `.github/workflows/ci.yml` and `conformance.yml`
 - [ ] `libs/<name>.yaml` + `api-validator baseline -l <name> --tests`

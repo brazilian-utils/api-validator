@@ -9,11 +9,12 @@ languages.
   in that language's idiom (`cpf.isValid` → `isValidCpf` · `cpf.is_valid` · `cpf.IsValid` ·
   `CPFUtils.valid?` · `brutils:is_valid_cpf/1` · `Cpf.IsValid`).
 - **Same behaviour**: the contract carries shared test vectors that run, unchanged, against
-  every lib; differential testing feeds the same mined inputs to all libs and reports every
-  disagreement.
+  every lib — here through a thin runner per language, and inside each lib as a generated
+  native test file its own test command runs (`export-tests`). Differential testing feeds the
+  same mined inputs to all libs and fails on any new disagreement.
 - **In sync**: CI in each lib fails on regressions and on public API added outside the
   contract; every lib repo gets an auto-maintained issue with a porting brief for each
-  missing or failing function.
+  missing or failing function, and a bot PR whenever its exported tests change.
 
 See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
 **[docs/findings.md](docs/findings.md)** for what the first run found and
@@ -23,6 +24,7 @@ See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
 
 ```bash
 npm ci
+npx tsx src/cli.ts doctor          # which toolchains are installed / missing
 npx tsx src/cli.ts sync            # clone/update every lib into .repos/
 npx tsx src/cli.ts check --tests   # contract + shared tests for all libs
 open output/index.html             # dashboard; output/<lib>.md = TODO list per lib
@@ -43,12 +45,15 @@ toolchain is missing are still checked for API.
 | `todo -l <lib>` | Markdown TODO list of a lib, most important first |
 | `brief <fn> -l <lib>` | Porting brief: idiomatic name, signature, acceptance tests, reference source, links to every implementation |
 | `issue -l <lib>` | Body of the lib's sync issue (TODO + briefs) |
-| `diff [--fn 'cpf.*']` | Differential testing across libs; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
+| `export-tests -l <lib> [--path .] [--check]` | Write the contract tests as a native test file of the lib (unittest, vitest, `go test`, `cargo test`, RSpec, EUnit, xUnit); `--check` fails when it is stale |
+| `diff [--fn 'cpf.*']` | Differential testing across libs; `--baseline` records today's splits, `--fail-on-new` fails only on new ones; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
+| `changelog [--from ref] [--to ref]` | Contract changes between git refs (new functions, signature changes, new/changed vectors) as markdown |
+| `doctor` | Toolchains every configured lib needs, and what is missing |
 | `probe <fn> <args...>` | Call one function with the same args in every lib, side by side |
 | `baseline [--tests]` | Record what conforms now; CI then fails only when it stops conforming |
 | `extract` | Write `snapshots/<lib>.api.json` (public API as extracted) |
 | `suggest -l <lib>` | YAML bindings for symbols that look like contract functions under other names |
-| `lint` / `fmt [--check]` | Validate / canonically format the contract and lib configs |
+| `lint [--strict]` / `fmt [--check]` | Validate / canonically format the contract and lib configs; lists functions without test vectors (`--strict` fails on them) |
 
 ```console
 $ npx tsx src/cli.ts probe cpf.format 123
@@ -76,6 +81,29 @@ up the language and call this repository's Action:
 
 The job summary shows the lib's TODO list. It fails when something in the lib's baseline
 stops conforming, or when a new public function appears that the contract does not know.
+It also warns (`exported-tests: check` to fail) when the lib's exported contract test file
+is out of date.
+
+### The contract tests inside the lib
+
+```bash
+npx tsx /path/to/api-validator/src/cli.ts export-tests --lib brazilian-utils-python --path .
+python -m unittest tests/test_api_contract.py
+```
+
+| Lib | File | Run with |
+|---|---|---|
+| JavaScript | `src/api-contract.test.ts` | `npm test -- src/api-contract.test.ts` |
+| Python | `tests/test_api_contract.py` | `python -m unittest tests/test_api_contract.py` |
+| Go | `apicontract/api_contract_test.go` | `go test ./apicontract` |
+| Rust | `tests/api_contract.rs` | `cargo test --test api_contract` |
+| Ruby | `spec/api_contract_spec.rb` | `bundle exec rspec spec/api_contract_spec.rb` |
+| Erlang | `test/brutils_api_contract_tests.erl` | `rebar3 eunit --module=brutils_api_contract_tests` |
+| .NET | `BrazilianUtils.Tests/ApiContractTests.fs` (+ `<Compile Include>`) | `dotnet test BrazilianUtils.Tests/…fsproj --filter …ApiContractTests` |
+
+Generated, never edited (fix expectations in `contract/`, behaviour in the lib). Tests the lib
+does not pass yet are skipped with the reason and un-skip on regeneration once fixed. Why
+both here and in the lib: [docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libs-too).
 
 Locally, from a lib checkout: `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
@@ -131,7 +159,7 @@ Contract and lib config format: [docs/contract.md](docs/contract.md).
 ```
 contract/        the shared contract, one YAML per domain (+ tests)
 libs/            one YAML per implementation: repo, language, bindings, ignores, waivers
-baselines/       what conforms today, per lib (CI fails on regressions)
+baselines/       what conforms today, per lib (CI fails on regressions); _divergences.json = known splits
 snapshots/       extracted public API per lib (API changes show up in PR diffs)
 src/core/        contract, types, matching, signatures, conformance, diff, baselines
 src/languages/   one adapter per language (+ helper scripts in the language itself)

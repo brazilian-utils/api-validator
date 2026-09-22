@@ -19,7 +19,10 @@ The contract is the single source of truth for names, inputs, outputs and behavi
   a name several libs share can become a contract `aliases` entry instead.
 
 Then `npx tsx src/cli.ts fmt && npm run lint`, and open the PR. The Conformance job on the PR
-shows which libs are affected; nothing fails for functions libs have not implemented yet.
+shows which libs are affected and the contract changelog; nothing fails for functions libs
+have not implemented yet. Every function needs vectors: `lint` lists the ones without.
+After merge, the nightly updates every lib's `api-contract` issue and opens a PR with its
+regenerated exported tests.
 
 ## Changing a lib config
 
@@ -34,9 +37,11 @@ After libs improve, lock the gains in so they cannot regress:
 ```bash
 npx tsx src/cli.ts sync
 npx tsx src/cli.ts baseline --tests
+npx tsx src/cli.ts diff --baseline   # known splits between libs; the nightly fails only on new ones
 ```
 
 ## Changing the tooling
 
+`npx tsx src/cli.ts doctor` shows which toolchains are missing. Then
 `npm run typecheck && npm test && npm run lint`. Tests skip languages whose toolchain is not
 installed; CI installs all seven. Adding a language: [docs/adding-a-language.md](docs/adding-a-language.md).
