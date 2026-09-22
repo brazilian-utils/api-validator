@@ -1,0 +1,6 @@
+name: brazilian-utils-go
+language: go
+repo: https://github.com/brazilian-utils/go
+entry: .
+ignore:
+  - helpers.* # internal helpers exported for cross-package use

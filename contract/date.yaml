@@ -1,0 +1,79 @@
+domain: date
+aliases:
+  - dateUtils
+functions:
+  addBusinessDays:
+    summary: Adds a number of Brazilian business days (dias úteis) to a date.
+    flatName: addBusinessDays
+    params:
+      - name: date
+        type: date
+      - name: amount
+        type: number
+      - name: options
+        type: BusinessDayOptions
+        optional: true
+    returns: date?
+  convertToWords:
+    summary: Formats a date as its Brazilian Portuguese "por extenso" textual representation, e.g. `"01/01/2024"` becomes `"primeiro de janeiro
+      de dois mil e vinte e quatro"`.
+    flatName: convertDateToWords
+    aliases:
+      - date.convertDateToText
+    params:
+      - name: value
+        type: date | string
+      - name: options
+        type: ConvertDateToWordsOptions
+        optional: true
+    returns: string
+  differenceInBusinessDays:
+    summary: Counts the number of Brazilian business days (dias úteis) between two dates.
+    flatName: differenceInBusinessDays
+    params:
+      - name: laterDate
+        type: date
+      - name: earlierDate
+        type: date
+      - name: options
+        type: BusinessDayOptions
+        optional: true
+    returns: number?
+  getHolidays:
+    summary: Retrieves all Brazilian holidays for a given year.
+    flatName: getHolidays
+    params:
+      - name: year
+        type: number
+    returns: Holiday[]
+  isBusinessDay:
+    summary: Checks whether a given date is a Brazilian business day (dia útil).
+    flatName: isBusinessDay
+    params:
+      - name: value
+        type: date
+      - name: options
+        type: BusinessDayOptions
+        optional: true
+    returns: boolean
+  isHoliday:
+    summary: Checks whether a given date is a Brazilian holiday.
+    flatName: isHoliday
+    level: core
+    params:
+      - name: options
+        type: IsHolidayParams
+        optional: true
+    returns: boolean
+  subBusinessDays:
+    summary: Subtracts a number of Brazilian business days (dias úteis) from a date.
+    flatName: subBusinessDays
+    params:
+      - name: date
+        type: date
+      - name: amount
+        type: number
+      - name: options
+        type: BusinessDayOptions
+        optional: true
+    returns: date?

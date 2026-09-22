@@ -1,0 +1,18 @@
+domain: pixKey
+functions:
+  getInfo:
+    summary: Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code.
+    flatName: getPixKeyInfo
+    params:
+      - name: value
+        type: string
+    returns: PixKeyInfo?
+  isValid:
+    summary: Validates a Pix key (chave Pix) against the DICT key formats.
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: IsValidPixKeyOptions
+        optional: true
+    returns: boolean

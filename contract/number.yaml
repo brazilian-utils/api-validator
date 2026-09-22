@@ -1,0 +1,13 @@
+domain: number
+functions:
+  convertToWords:
+    summary: Formats an integer as its Brazilian Portuguese cardinal number words ("por extenso"), e.g. `1235` becomes `"mil duzentos e trinta e
+      cinco"`.
+    flatName: convertNumberToWords
+    params:
+      - name: value
+        type: number
+      - name: options
+        type: ConvertNumberToWordsOptions
+        optional: true
+    returns: string

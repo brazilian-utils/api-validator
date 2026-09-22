@@ -1,0 +1,20 @@
+domain: cbo
+functions:
+  get:
+    summary: Looks a CBO (Classificação Brasileira de Ocupações) code up in the official CBO 2002 table.
+    params:
+      - name: value
+        type: string | number
+    returns: Cbo?
+  isValid:
+    summary: Validates if a CBO (Classificação Brasileira de Ocupações) code exists in the official CBO 2002 table.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CBO (Classificação Brasileira de Ocupações) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

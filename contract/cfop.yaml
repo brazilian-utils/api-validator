@@ -1,0 +1,20 @@
+domain: cfop
+functions:
+  get:
+    summary: Looks a CFOP (Código Fiscal de Operações e Prestações) code up in the official table.
+    params:
+      - name: value
+        type: string | number
+    returns: Cfop?
+  isValid:
+    summary: Validates if a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

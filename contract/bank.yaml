@@ -1,0 +1,26 @@
+domain: bank
+functions:
+  getByCode:
+    summary: Looks up a Brazilian bank by its compensation code (COMPE), published by Banco Central do Brasil in the STR (Sistema de
+      Transferência de Reservas) participants list.
+    flatName: getBankByCode
+    params:
+      - name: code
+        type: string | number
+    returns: Bank?
+  getByIspb:
+    summary: Looks up a Brazilian bank by its ISPB (Identificador do Sistema de Pagamentos Brasileiro), the 8 digit code that identifies every
+      participant of the SPB, published by Banco Central do Brasil in the STR (Sistema de Transferência de Reservas) participants list.
+      Every SPB participant has an ISPB, but this dataset only carries the institutions that also have a COMPE code, so an ISPB whose
+      institution has no COMPE code of its own returns `null`.
+    flatName: getBankByIspb
+    params:
+      - name: value
+        type: string | number
+    returns: Bank?
+  list:
+    summary: Returns every Brazilian bank with a compensation code (COMPE), published by Banco Central do Brasil in the STR (Sistema de
+      Transferência de Reservas) participants list.
+    flatName: getBanks
+    params: []
+    returns: Bank[]

@@ -1,0 +1,90 @@
+# Full cross-library run: every lib at its latest default branch, contract + shared tests +
+# differential testing. Fails on regressions against baselines/. The reports are uploaded as
+# an artifact (open output/index.html) and, when vars.PUBLISH_DASHBOARD == 'true', published
+# to GitHub Pages.
+name: Conformance
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["contract/**", "libs/**"]
+  pull_request:
+    paths: ["contract/**", "libs/**", "baselines/**", "src/**"]
+
+jobs:
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: .cache/brazilian-utils-rust/rust-runner
+      - run: npm ci
+      - run: npx tsx src/cli.ts sync
+      - name: Install lib dependencies (needed to run the shared tests)
+        run: |
+          pip install ./.repos/brazilian-utils-python
+          (cd .repos/brazilian-utils-ruby && bundle install --quiet) || true
+      - name: Contract + shared tests (fails on regressions)
+        run: npx tsx src/cli.ts check --tests --summary "$GITHUB_STEP_SUMMARY"
+      - name: Differential testing (report only)
+        if: always()
+        run: npx tsx src/cli.ts diff && cat output/diff.md >> "$GITHUB_STEP_SUMMARY"
+      # Keep one "api-contract" issue per lib repo in sync with what that lib still has to do.
+      # Needs a token with issues:write on the lib repos (secret LIBS_TOKEN); skipped otherwise.
+      - name: Sync issues in the lib repositories
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
+        run: |
+          for cfg in libs/*.yaml; do
+            lib=$(basename "$cfg" .yaml)
+            repo=$(sed -n 's#^repo: https://github.com/##p' "$cfg")
+            [ -n "$repo" ] || continue
+            npx tsx src/cli.ts issue --lib "$lib" --tests > /dev/null || continue
+            gh label create api-contract -R "$repo" --color 0E8A16 --description "Shared API contract work" --force
+            number=$(gh issue list -R "$repo" --label api-contract --state open --json number -q '.[0].number')
+            if [ -n "$number" ]; then
+              gh issue edit "$number" -R "$repo" --body-file "output/$lib.issue.md"
+            else
+              gh issue create -R "$repo" --label api-contract --title "API contract: pending work" --body-file "output/$lib.issue.md"
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: conformance-report
+          path: output/
+      - uses: actions/upload-pages-artifact@v3
+        if: always() && vars.PUBLISH_DASHBOARD == 'true' && github.ref == 'refs/heads/main'
+        with:
+          path: output/
+
+  publish:
+    needs: conformance
+    if: always() && vars.PUBLISH_DASHBOARD == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/deploy-pages@v4

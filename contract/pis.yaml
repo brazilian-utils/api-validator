@@ -1,0 +1,133 @@
+domain: pis
+functions:
+  format:
+    summary: Formats a PIS (Programa de Integração Social) number according to the specified pattern.
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatPisOptions
+        optional: true
+    returns: string
+    tests:
+      - args: ["55984775363"]
+        returns: "559.84775.36-3"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: "000.00000.00-0"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["36365790380"]
+        returns: "363.65790.38-0"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["73532010294"]
+        returns: "735.32010.29-4"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a valid random Brazilian PIS (Programa de Integração Social) number.
+    level: core
+    params: []
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: pis.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates a Brazilian PIS (Programa de Integração Social) number. Accepts the usual mask characters (`.`, `-`, `/`, `(`, `)`, `,`,
+      `*`) and whitespace.
+    level: core
+    params:
+      - name: pis
+        type: string
+    returns: boolean
+    tests:
+      - args: ["55984775363"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55984775364"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["36365790380"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["36365790381"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["73532010294"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["73532010295"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - name: repeated-digits
+        args: ["00000000000"]
+        returns: false
+        note: a PIS made of one repeated digit is never valid (same rule as cpf/cnpj, where all libs agree)
+      - name: repeated-digits-9
+        args: ["99999999999"]
+        returns: false
+        note: same rule as above
+  parse:
+    summary: Removes PIS formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["55984775363"]
+        returns: "55984775363"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["55984775364"]
+        returns: "55984775364"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["00000000000"]
+        returns: "00000000000"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["36365790380"]
+        returns: "36365790380"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["36365790381"]
+        returns: "36365790381"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["73532010294"]
+        returns: "73532010294"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["73532010295"]
+        returns: "73532010295"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["559.84775.36-3"]
+        returns: "55984775363"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["363.65790.38-0"]
+        returns: "36365790380"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["735.32010.29-4"]
+        returns: "73532010294"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

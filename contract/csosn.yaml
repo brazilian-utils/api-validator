@@ -1,0 +1,8 @@
+domain: csosn
+functions:
+  isValid:
+    summary: Validates if a CSOSN (Código de Situação da Operação no Simples Nacional) code is valid.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean

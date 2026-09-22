@@ -1,0 +1,87 @@
+domain: boleto
+functions:
+  format:
+    summary: Formats a given value as a Brazilian boleto.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatBoletoOptions
+        optional: true
+    returns: string
+  generate:
+    summary: Generates a valid random Brazilian bank slip (boleto) number.
+    params:
+      - name: params
+        type: GenerateBoletoParams
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: boleto.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  getInfo:
+    summary: Extracts information from a Brazilian bank slip (boleto).
+    flatName: getBoletoInfo
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: GetBoletoInfoOptions
+        optional: true
+    returns: BoletoInfo?
+  isValid:
+    summary: Validates if a Brazilian bank slip (boleto) number is valid.
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: boolean
+    tests:
+      - args: ["60757135008571297205909229083648919190488862573"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["60757135008571297205909229083648919190488862574"]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["00000000000000000000000000000000000000000000000"]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["52410567606343146479903680440595729289409535291"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["52410567606343146479903680440595729289409535292"]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["74348924801607065591119728853342723148482264669"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["74348924801607065591119728853342723148482264660"]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["60757.13500 85712.972059 09229.083648 9 19190488862573"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["52410.56760 63431.464799 03680.440595 7 29289409535291"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["74348.92480 16070.655911 19728.853342 7 23148482264669"]
+        returns: true
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 4 libs (go, javascript, ruby, rust)
+  parse:
+    summary: Removes boleto formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

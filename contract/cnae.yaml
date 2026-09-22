@@ -1,0 +1,31 @@
+domain: cnae
+functions:
+  format:
+    summary: Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCnaeOptions
+        optional: true
+    returns: string
+  get:
+    summary: Looks a CNAE (Classificação Nacional de Atividades Econômicas) subclass code up in the official CNAE-Subclasses 2.3 table, the
+      current subclass revision of CNAE 2.0.
+    params:
+      - name: value
+        type: string | number
+    returns: Cnae?
+  isValid:
+    summary: Validates if a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3
+      table, the current subclass revision of CNAE 2.0.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

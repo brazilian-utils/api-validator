@@ -1,0 +1,38 @@
+{
+  "library": "brazilian-utils-dotnet",
+  "ok": [
+    "boleto.isValid",
+    "cep.format",
+    "cep.isValid",
+    "cnh.isValid",
+    "cnpj.format",
+    "cnpj.generate",
+    "cnpj.isValid",
+    "cpf.format",
+    "cpf.generate",
+    "cpf.isValid",
+    "currency.convertToWords",
+    "currency.format",
+    "legalProcess.format",
+    "legalProcess.isValid",
+    "legalProcess.removeSymbols",
+    "licensePlate.convertToMercosul",
+    "licensePlate.format",
+    "licensePlate.generate",
+    "licensePlate.getFormat",
+    "licensePlate.removeSymbols",
+    "phone.isValid",
+    "pis.format",
+    "pis.generate",
+    "pis.isValid",
+    "pis.removeSymbols",
+    "renavam.isValid",
+    "voterId.format",
+    "voterId.generate",
+    "voterId.isValid"
+  ],
+  "tests": [],
+  "unmapped": [
+    "Cnpj.GenerateAlphanumeric"
+  ]
+}

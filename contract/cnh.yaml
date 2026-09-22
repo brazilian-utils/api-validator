@@ -1,0 +1,79 @@
+domain: cnh
+functions:
+  format:
+    summary: Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCnhOptions
+        optional: true
+    returns: string
+  generate:
+    summary: Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).
+    params: []
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: cnh.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates if a CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number) is valid.
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: boolean
+    tests:
+      - args: ["73918433737"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["73918433738"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55677801844"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55677801845"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["02578228759"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["02578228750"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["739184337-37"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["556778018-44"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["025782287-59"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - name: valid-sample
+        args: ["75206264506"]
+        returns: true
+        note: "valid CNH for go, javascript, ruby and rust; python implements the 2022 CNH algorithm and rejects it: confirm which rule the contract
+          follows (docs/findings.md)"
+  parse:
+    summary: Removes CNH (Carteira Nacional de Habilitação) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

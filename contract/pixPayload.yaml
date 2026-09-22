@@ -1,0 +1,21 @@
+domain: pixPayload
+functions:
+  generate:
+    summary: Generates the payload of a Pix BR Code, the string behind a Pix QR Code and behind "Pix copia e cola".
+    params:
+      - name: params
+        type: GeneratePixPayloadParams
+    returns: string?
+  getInfo:
+    summary: Parses a Pix BR Code payload, the string behind a Pix QR Code and behind "Pix copia e cola".
+    flatName: getPixPayloadInfo
+    params:
+      - name: value
+        type: string
+    returns: PixPayloadInfo?
+  isValid:
+    summary: Validates a Pix BR Code payload, the string behind a Pix QR Code and behind "Pix copia e cola".
+    params:
+      - name: value
+        type: string
+    returns: boolean

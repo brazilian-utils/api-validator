@@ -1,0 +1,190 @@
+domain: licensePlate
+functions:
+  convertToMercosul:
+    summary: 'Converts an old format Brazilian license plate ("LLLNNNN") to the Mercosul format ("LLLNLNN"), following the official conversion
+      table: the digit in the 5th position (the 2nd digit of the 4 digit number) becomes a letter, `0` through `9` mapping to `A` through
+      `J`, and every other character is kept as is.'
+    flatName: convertLicensePlateToMercosul
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+  format:
+    summary: Formats a Brazilian license plate (placa de carro ou moto).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["WDG1S21"]
+        returns: "WDG1S21"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["WDG1S22"]
+        returns: "WDG1S22"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["wdg1s21"]
+        returns: "WDG1S21"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["GJG8U81"]
+        returns: "GJG8U81"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["GJG8U82"]
+        returns: "GJG8U82"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["gjg8u81"]
+        returns: "GJG8U81"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["KDS4W15"]
+        returns: "KDS4W15"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["KDS4W16"]
+        returns: "KDS4W16"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["kds4w15"]
+        returns: "KDS4W15"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a valid random Brazilian license plate (placa de carro ou moto).
+    level: core
+    params:
+      - name: format
+        type: string
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: licensePlate.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  getFormat:
+    summary: Identifies the format of a Brazilian license plate (placa de carro ou moto).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string?
+    tests:
+      - args: ["WDG1S21"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["WDG1S22"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["wdg1s21"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["GJG8U81"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["GJG8U82"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["gjg8u81"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["KDS4W15"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["KDS4W16"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["kds4w15"]
+        returns: "LLLNLNN"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  isValid:
+    summary: Validates if a Brazilian license plate (placa de carro ou moto) is valid.
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: boolean
+    tests:
+      - args: ["WDG1S21"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["WDG1S22"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["wdg1s21"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["GJG8U81"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["GJG8U82"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["gjg8u81"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["KDS4W15"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["KDS4W16"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["kds4w15"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: [""]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["   "]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+  parse:
+    summary: Removes license plate formatting characters and returns only uppercase alphanumerics.
+    params:
+      - name: value
+        type: string
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["WDG1S21"]
+        returns: "WDG1S21"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["WDG1S22"]
+        returns: "WDG1S22"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["wdg1s21"]
+        returns: "wdg1s21"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["GJG8U81"]
+        returns: "GJG8U81"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["GJG8U82"]
+        returns: "GJG8U82"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["gjg8u81"]
+        returns: "gjg8u81"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["KDS4W15"]
+        returns: "KDS4W15"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["KDS4W16"]
+        returns: "KDS4W16"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["kds4w15"]
+        returns: "kds4w15"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

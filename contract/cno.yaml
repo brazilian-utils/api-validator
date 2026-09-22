@@ -1,0 +1,23 @@
+domain: cno
+functions:
+  format:
+    summary: Formats a CNO (Cadastro Nacional de Obras) number according to the official mask.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCnoOptions
+        optional: true
+    returns: string
+  isValid:
+    summary: Validates a CNO (Cadastro Nacional de Obras) number, the registration of a construction work with the Receita Federal.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CNO (Cadastro Nacional de Obras) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

@@ -1,0 +1,17 @@
+domain: municipality
+functions:
+  getByCode:
+    summary: Looks up a Brazilian municipality by its 7 digit IBGE code, published by the IBGE.
+    flatName: getMunicipalityByCode
+    params:
+      - name: code
+        type: string | number
+    returns: Municipality?
+  list:
+    summary: Returns Brazilian municipalities published by the IBGE, optionally filtered by state.
+    flatName: getMunicipalities
+    params:
+      - name: stateCode
+        type: string
+        optional: true
+    returns: Municipality[]

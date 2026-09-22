@@ -1,0 +1,23 @@
+domain: ncm
+functions:
+  format:
+    summary: Formats a NCM (Nomenclatura Comum do Mercosul) code.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatNcmOptions
+        optional: true
+    returns: string
+  isValid:
+    summary: Validates if a NCM (Nomenclatura Comum do Mercosul) code exists in the official table.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

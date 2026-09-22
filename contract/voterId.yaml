@@ -1,0 +1,83 @@
+domain: voterId
+functions:
+  format:
+    summary: Formats a Brazilian voter id (título de eleitor) for display.
+    level: core
+    params:
+      - name: value
+        type: string | number
+    returns: string
+    tests:
+      - args: ["652688902801"]
+        returns: "6526 8890 28 01"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["051401322801"]
+        returns: "0514 0132 28 01"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["859962902836"]
+        returns: "8599 6290 28 36"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a valid random Brazilian voter id (título de eleitor).
+    level: core
+    params:
+      - name: state
+        type: string
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: voterId.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates if a Brazilian voter id (título de eleitor) is valid.
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: boolean
+    tests:
+      - args: ["652688902801"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["652688902802"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["000000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["051401322801"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["051401322802"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["859962902836"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["859962902837"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  parse:
+    summary: Removes voter id (título de eleitor) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    params:
+      - name: value
+        type: string
+    returns: string

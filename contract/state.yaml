@@ -1,0 +1,36 @@
+domain: state
+functions:
+  getByIbgeCode:
+    summary: Retrieves the Brazilian state whose 2-digit IBGE code ("cUF", the Código da Unidade da Federação) matches the given value.
+    flatName: getStateByIbgeCode
+    params:
+      - name: code
+        type: string | number
+    returns: State?
+  getCodeByName:
+    summary: Retrieves the two-letter code (sigla) of a Brazilian state given its full name.
+    flatName: getStateCodeByName
+    params:
+      - name: name
+        type: string
+    returns: string?
+  getNameByCode:
+    summary: Retrieves the full name of a Brazilian state given its two-letter code (sigla).
+    flatName: getStateNameByCode
+    params:
+      - name: code
+        type: string
+    returns: string?
+  getTimezone:
+    summary: Retrieves the IANA time zone database name (tzdata zone) for a Brazilian state, chosen as the zone of the state capital. The match
+      is case-insensitive and ignores leading/trailing whitespace.
+    flatName: getTimezoneByState
+    params:
+      - name: stateCode
+        type: string
+    returns: string?
+  list:
+    summary: Retrieves a list of all Brazilian states with their codes and names.
+    flatName: getStates
+    params: []
+    returns: State[]

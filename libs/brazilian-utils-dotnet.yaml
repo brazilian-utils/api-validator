@@ -1,0 +1,6 @@
+name: brazilian-utils-dotnet
+language: dotnet
+repo: https://github.com/brazilian-utils/dotnet
+entry: BrazilianUtils
+ignore:
+  - Helpers.*

@@ -1,0 +1,8 @@
+domain: creditCard
+functions:
+  isValid:
+    summary: Validates a payment card number (crédito ou débito) using the Luhn algorithm.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean

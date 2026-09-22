@@ -1,0 +1,871 @@
+{
+  "library": "brazilian-utils-rust",
+  "language": "rust",
+  "revision": "a60585f7ae517adfb7389d3398da74916dd123f3",
+  "symbols": [
+    {
+      "name": "boleto.is_valid",
+      "params": [
+        {
+          "name": "digitable_line",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/boleto.rs",
+        "line": 255
+      }
+    },
+    {
+      "name": "boleto.validate",
+      "params": [
+        {
+          "name": "digitable_line",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/boleto.rs",
+        "line": 287
+      }
+    },
+    {
+      "name": "cep.format_cep",
+      "params": [
+        {
+          "name": "cep",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 102
+      }
+    },
+    {
+      "name": "cep.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 159
+      }
+    },
+    {
+      "name": "cep.get_address_from_cep",
+      "params": [
+        {
+          "name": "cep",
+          "type": "&str"
+        },
+        {
+          "name": "raise_exceptions",
+          "type": "bool"
+        }
+      ],
+      "returns": "Result<Option<Address>, Box<dyn Error>>",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 199
+      }
+    },
+    {
+      "name": "cep.get_cep_information_from_address",
+      "params": [
+        {
+          "name": "federal_unit",
+          "type": "&str"
+        },
+        {
+          "name": "city",
+          "type": "&str"
+        },
+        {
+          "name": "street",
+          "type": "&str"
+        },
+        {
+          "name": "raise_exceptions",
+          "type": "bool"
+        }
+      ],
+      "returns": "Result<Option<Vec<Address>>, Box<dyn Error>>",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 284
+      }
+    },
+    {
+      "name": "cep.is_valid",
+      "params": [
+        {
+          "name": "cep",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 140
+      }
+    },
+    {
+      "name": "cep.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cep.rs",
+        "line": 77
+      }
+    },
+    {
+      "name": "cnh.is_valid_cnh",
+      "params": [
+        {
+          "name": "cnh",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cnh.rs",
+        "line": 26
+      }
+    },
+    {
+      "name": "cnpj.compute_checksum",
+      "params": [
+        {
+          "name": "basenum",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 246
+      }
+    },
+    {
+      "name": "cnpj.format_cnpj",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 57
+      }
+    },
+    {
+      "name": "cnpj.generate",
+      "params": [
+        {
+          "name": "branch",
+          "type": "Option<u32>"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 165
+      }
+    },
+    {
+      "name": "cnpj.hashdigit",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "&str"
+        },
+        {
+          "name": "position",
+          "type": "usize"
+        }
+      ],
+      "returns": "usize",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 203
+      }
+    },
+    {
+      "name": "cnpj.is_valid",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 138
+      }
+    },
+    {
+      "name": "cnpj.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 29
+      }
+    },
+    {
+      "name": "cnpj.validate",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cnpj.rs",
+        "line": 98
+      }
+    },
+    {
+      "name": "cpf.compute_checksum",
+      "params": [
+        {
+          "name": "basenum",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 234
+      }
+    },
+    {
+      "name": "cpf.format_cpf",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 70
+      }
+    },
+    {
+      "name": "cpf.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 163
+      }
+    },
+    {
+      "name": "cpf.hashdigit",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "&str"
+        },
+        {
+          "name": "position",
+          "type": "usize"
+        }
+      ],
+      "returns": "usize",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 193
+      }
+    },
+    {
+      "name": "cpf.is_valid",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 144
+      }
+    },
+    {
+      "name": "cpf.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 44
+      }
+    },
+    {
+      "name": "cpf.validate",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/cpf.rs",
+        "line": 109
+      }
+    },
+    {
+      "name": "currency.convert_real_to_text",
+      "params": [
+        {
+          "name": "value",
+          "type": "f64"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/currency.rs",
+        "line": 371
+      }
+    },
+    {
+      "name": "currency.format_currency",
+      "params": [
+        {
+          "name": "value",
+          "type": "f64"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/currency.rs",
+        "line": 296
+      }
+    },
+    {
+      "name": "currency.number_to_words",
+      "params": [
+        {
+          "name": "n",
+          "type": "i64"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/currency.rs",
+        "line": 63
+      }
+    },
+    {
+      "name": "date_utils.convert_date_to_text",
+      "params": [
+        {
+          "name": "date",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/date_utils.rs",
+        "line": 61
+      }
+    },
+    {
+      "name": "date_utils.is_holiday",
+      "params": [
+        {
+          "name": "target_date",
+          "type": "NaiveDate"
+        },
+        {
+          "name": "uf",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "Option<bool>",
+      "location": {
+        "file": "src/date_utils.rs",
+        "line": 158
+      }
+    },
+    {
+      "name": "email.is_valid",
+      "params": [
+        {
+          "name": "email",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/email.rs",
+        "line": 44
+      }
+    },
+    {
+      "name": "legal_nature.get_description",
+      "params": [
+        {
+          "name": "code",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<&'static str>",
+      "location": {
+        "file": "src/legal_nature.rs",
+        "line": 237
+      }
+    },
+    {
+      "name": "legal_nature.is_valid",
+      "params": [
+        {
+          "name": "code",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/legal_nature.rs",
+        "line": 207
+      }
+    },
+    {
+      "name": "legal_nature.list_all",
+      "params": [],
+      "returns": "HashMap<String, String>",
+      "location": {
+        "file": "src/legal_nature.rs",
+        "line": 263
+      }
+    },
+    {
+      "name": "legal_process.format_legal_process",
+      "params": [
+        {
+          "name": "legal_process_id",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/legal_process.rs",
+        "line": 73
+      }
+    },
+    {
+      "name": "legal_process.generate",
+      "params": [
+        {
+          "name": "year",
+          "type": "Option<i32>"
+        },
+        {
+          "name": "orgao",
+          "type": "Option<u32>"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/legal_process.rs",
+        "line": 215
+      }
+    },
+    {
+      "name": "legal_process.is_valid",
+      "params": [
+        {
+          "name": "legal_process_id",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/legal_process.rs",
+        "line": 132
+      }
+    },
+    {
+      "name": "legal_process.remove_symbols",
+      "params": [
+        {
+          "name": "legal_process",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/legal_process.rs",
+        "line": 41
+      }
+    },
+    {
+      "name": "license_plate.convert_to_mercosul",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 226
+      }
+    },
+    {
+      "name": "license_plate.format_license_plate",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 56
+      }
+    },
+    {
+      "name": "license_plate.generate",
+      "params": [
+        {
+          "name": "format",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 273
+      }
+    },
+    {
+      "name": "license_plate.get_format",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 191
+      }
+    },
+    {
+      "name": "license_plate.is_valid",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "&str"
+        },
+        {
+          "name": "format",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 163
+      }
+    },
+    {
+      "name": "license_plate.remove_symbols",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/license_plate.rs",
+        "line": 25
+      }
+    },
+    {
+      "name": "phone.format_phone",
+      "params": [
+        {
+          "name": "phone",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/phone.rs",
+        "line": 214
+      }
+    },
+    {
+      "name": "phone.generate",
+      "params": [
+        {
+          "name": "phone_type",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/phone.rs",
+        "line": 296
+      }
+    },
+    {
+      "name": "phone.is_valid",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "&str"
+        },
+        {
+          "name": "phone_type",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/phone.rs",
+        "line": 182
+      }
+    },
+    {
+      "name": "phone.remove_international_dialing_code",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/phone.rs",
+        "line": 330
+      }
+    },
+    {
+      "name": "phone.remove_symbols",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/phone.rs",
+        "line": 60
+      }
+    },
+    {
+      "name": "pis.checksum",
+      "params": [
+        {
+          "name": "base_pis",
+          "type": "&str"
+        }
+      ],
+      "returns": "u32",
+      "location": {
+        "file": "src/pis.rs",
+        "line": 42
+      }
+    },
+    {
+      "name": "pis.format_pis",
+      "params": [
+        {
+          "name": "pis",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/pis.rs",
+        "line": 122
+      }
+    },
+    {
+      "name": "pis.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "src/pis.rs",
+        "line": 155
+      }
+    },
+    {
+      "name": "pis.is_valid",
+      "params": [
+        {
+          "name": "pis",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/pis.rs",
+        "line": 81
+      }
+    },
+    {
+      "name": "pis.remove_symbols",
+      "params": [
+        {
+          "name": "pis",
+          "type": "&str"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "src/pis.rs",
+        "line": 29
+      }
+    },
+    {
+      "name": "renavam.calculate_checksum",
+      "params": [
+        {
+          "name": "base_renavam",
+          "type": "&str"
+        }
+      ],
+      "returns": "u32",
+      "location": {
+        "file": "src/renavam.rs",
+        "line": 30
+      }
+    },
+    {
+      "name": "renavam.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "src/renavam.rs",
+        "line": 128
+      }
+    },
+    {
+      "name": "renavam.is_valid",
+      "params": [
+        {
+          "name": "renavam",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/renavam.rs",
+        "line": 85
+      }
+    },
+    {
+      "name": "voter_id.calculate_vd1",
+      "params": [
+        {
+          "name": "sequential_number",
+          "type": "&str"
+        },
+        {
+          "name": "federative_union",
+          "type": "&str"
+        }
+      ],
+      "returns": "u8",
+      "location": {
+        "file": "src/voter_id.rs",
+        "line": 206
+      }
+    },
+    {
+      "name": "voter_id.calculate_vd2",
+      "params": [
+        {
+          "name": "federative_union",
+          "type": "&str"
+        },
+        {
+          "name": "vd1",
+          "type": "u8"
+        }
+      ],
+      "returns": "u8",
+      "location": {
+        "file": "src/voter_id.rs",
+        "line": 243
+      }
+    },
+    {
+      "name": "voter_id.format_voter_id",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "&str"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/voter_id.rs",
+        "line": 100
+      }
+    },
+    {
+      "name": "voter_id.generate",
+      "params": [
+        {
+          "name": "federative_union",
+          "type": "Option<&str>"
+        }
+      ],
+      "returns": "Option<String>",
+      "location": {
+        "file": "src/voter_id.rs",
+        "line": 136
+      }
+    },
+    {
+      "name": "voter_id.is_valid",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "&str"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "src/voter_id.rs",
+        "line": 34
+      }
+    }
+  ],
+  "warnings": []
+}

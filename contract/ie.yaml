@@ -1,0 +1,8 @@
+domain: ie
+functions:
+  isValid:
+    summary: Validates a Brazilian state tax registration number (IE).
+    params:
+      - name: params
+        type: IsValidIeParams
+    returns: boolean

@@ -1,0 +1,8 @@
+domain: vin
+functions:
+  isValid:
+    summary: Validates a VIN (Vehicle Identification Number / chassi).
+    params:
+      - name: value
+        type: string
+    returns: boolean

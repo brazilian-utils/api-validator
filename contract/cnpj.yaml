@@ -1,0 +1,134 @@
+domain: cnpj
+functions:
+  format:
+    summary: Formats a given CNPJ (Cadastro Nacional da Pessoa Jurídica) value according to the specified options.
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCnpjOptions
+        optional: true
+    returns: string
+    tests:
+      - args: ["10799163989271"]
+        returns: "10.799.163/9892-71"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["64977017647333"]
+        returns: "64.977.017/6473-33"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["62932200808587"]
+        returns: "62.932.200/8085-87"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a valid random CNPJ (Cadastro Nacional da Pessoa Jurídica).
+    level: core
+    params:
+      - name: versionOrParams
+        type: 1 | 2 | GenerateCnpjParams
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: cnpj.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates if a CNPJ (Cadastro Nacional da Pessoa Jurídica) is valid. Supports both numeric (version 1) and alphanumeric (version 2)
+      CNPJ formats. Accepts the usual mask characters (`.`, `-`, `/`) and whitespace around and between groups.
+    level: core
+    params:
+      - name: cnpj
+        type: string
+      - name: options
+        type: IsValidCnpjOptions
+        optional: true
+    returns: boolean
+    tests:
+      - args: ["10799163989271"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["10799163989272"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["64977017647333"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["64977017647334"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["62932200808587"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["62932200808588"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  parse:
+    summary: Removes CNPJ formatting characters and returns a normalized value.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: ParseCnpjOptions
+        optional: true
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["10799163989271"]
+        returns: "10799163989271"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["10799163989272"]
+        returns: "10799163989272"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["00000000000000"]
+        returns: "00000000000000"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["64977017647333"]
+        returns: "64977017647333"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["64977017647334"]
+        returns: "64977017647334"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["62932200808587"]
+        returns: "62932200808587"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["62932200808588"]
+        returns: "62932200808588"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["10.799.163/9892-71"]
+        returns: "10799163989271"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["64.977.017/6473-33"]
+        returns: "64977017647333"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["62.932.200/8085-87"]
+        returns: "62932200808587"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

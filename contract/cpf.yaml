@@ -1,0 +1,128 @@
+domain: cpf
+functions:
+  format:
+    summary: Formats a given CPF (Cadastro de Pessoas Físicas) value according to the Brazilian standard.
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCpfOptions
+        optional: true
+    returns: string
+    tests:
+      - args: ["83159562131"]
+        returns: "831.595.621-31"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["02746891972"]
+        returns: "027.468.919-72"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["52708175602"]
+        returns: "527.081.756-02"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a valid random CPF (Cadastro de Pessoas Físicas).
+    level: core
+    params:
+      - name: state
+        type: string
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: cpf.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates if a CPF (Cadastro de Pessoas Físicas) is valid. Accepts the usual mask characters (`.`, `-`) and whitespace around and
+      between groups.
+    level: core
+    params:
+      - name: cpf
+        type: string
+    returns: boolean
+    tests:
+      - args: ["83159562131"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["83159562132"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["02746891972"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["02746891973"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["52708175602"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["52708175603"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  parse:
+    summary: Removes CPF formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["83159562131"]
+        returns: "83159562131"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["83159562132"]
+        returns: "83159562132"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["00000000000"]
+        returns: "00000000000"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["02746891972"]
+        returns: "02746891972"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["02746891973"]
+        returns: "02746891973"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["52708175602"]
+        returns: "52708175602"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["52708175603"]
+        returns: "52708175603"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["831.595.621-31"]
+        returns: "83159562131"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["027.468.919-72"]
+        returns: "02746891972"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["527.081.756-02"]
+        returns: "52708175602"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

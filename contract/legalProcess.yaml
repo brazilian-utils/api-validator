@@ -1,0 +1,133 @@
+domain: legalProcess
+aliases:
+  - processoJuridico
+functions:
+  format:
+    summary: Formats a legal process number (processo jurídico) according to a specific pattern.
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatProcessoJuridicoOptions
+        optional: true
+    returns: string
+    tests:
+      - args: ["16669239820269264931"]
+        returns: "1666923-98.2026.9.26.4931"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["16669239820269264932"]
+        returns: "1666923-98.2026.9.26.4932"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000000000000"]
+        returns: "0000000-00.0000.0.00.0000"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55079546820269134836"]
+        returns: "5507954-68.2026.9.13.4836"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55079546820269134837"]
+        returns: "5507954-68.2026.9.13.4837"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["47097579520263005802"]
+        returns: "4709757-95.2026.3.00.5802"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["47097579520263005803"]
+        returns: "4709757-95.2026.3.00.5803"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a random valid Brazilian Processo Jurídico (court case) number, following the `NNNNNNNDDAAAAJTROOOO` layout of Resolução
+      CNJ nº 65/2008.
+    level: core
+    params:
+      - name: options
+        type: GenerateProcessoJuridicoParams
+        optional: true
+    returns: string?
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: legalProcess.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates a Brazilian Processo Jurídico (court case) number.
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: boolean
+    tests:
+      - args: ["16669239820269264932"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["55079546820269134837"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["47097579520263005803"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  parse:
+    summary: Removes legal process formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["16669239820269264931"]
+        returns: "16669239820269264931"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["16669239820269264932"]
+        returns: "16669239820269264932"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["00000000000000000000"]
+        returns: "00000000000000000000"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["55079546820269134836"]
+        returns: "55079546820269134836"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["55079546820269134837"]
+        returns: "55079546820269134837"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["47097579520263005802"]
+        returns: "47097579520263005802"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["47097579520263005803"]
+        returns: "47097579520263005803"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["1666923-98.2026.9.26.4931"]
+        returns: "16669239820269264931"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["5507954-68.2026.9.13.4836"]
+        returns: "55079546820269134836"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["4709757-95.2026.3.00.5802"]
+        returns: "47097579520263005802"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

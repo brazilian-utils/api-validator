@@ -1,0 +1,205 @@
+domain: phone
+functions:
+  format:
+    summary: Formats a phone number according to Brazilian phone number patterns.
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatPhoneOptions
+        optional: true
+    returns: string
+  generate:
+    summary: Generates a random, structurally-valid Brazilian phone number (DDD + subscriber number, no formatting/mask applied, see
+      `formatPhone` to format the result).
+    level: core
+    params:
+      - name: type
+        type: string
+        optional: true
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: phone.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates a Brazilian phone number.
+    level: core
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: IsValidPhoneOptions
+        optional: true
+    returns: boolean
+    tests:
+      - args: ["48976579784"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["48976579785"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["00000000000"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["3147981464"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["3147981465"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["0000000000"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["38942432195"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["38942432196"]
+        returns: true
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["48976-5797"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["31479-8146"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["38942-4321"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: [""]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["   "]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 3 libs (javascript, python, ruby)
+  isValidLandline:
+    summary: Validates if a phone number is a valid Brazilian landline phone.
+    params:
+      - name: value
+        type: string
+    returns: boolean
+  isValidMobile:
+    summary: Validates if a phone number is a valid Brazilian mobile phone.
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: IsValidMobilePhoneOptions
+        optional: true
+    returns: boolean
+  isValidService:
+    summary: Validates if a phone number is a valid Brazilian service number.
+    params:
+      - name: value
+        type: string
+    returns: boolean
+  parse:
+    summary: Removes phone formatting characters, returns only digits, and caps the result to 11 digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeInternationalDialingCode:
+    summary: Removes a leading +55 / 55.
+    level: core
+    params: &a1
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["48976579784"]
+        returns: "48976579784"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["48976579785"]
+        returns: "48976579785"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: "00000000000"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["3147981464"]
+        returns: "3147981464"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["3147981465"]
+        returns: "3147981465"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["0000000000"]
+        returns: "0000000000"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942432195"]
+        returns: "38942432195"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942432196"]
+        returns: "38942432196"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["48976-5797"]
+        returns: "48976-5797"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["31479-8146"]
+        returns: "31479-8146"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942-4321"]
+        returns: "38942-4321"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 4 libs (go, python, ruby, rust)
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params: *a1
+    returns: string
+    tests:
+      - args: ["48976579784"]
+        returns: "48976579784"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["48976579785"]
+        returns: "48976579785"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: "00000000000"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["3147981464"]
+        returns: "3147981464"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["3147981465"]
+        returns: "3147981465"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["0000000000"]
+        returns: "0000000000"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942432195"]
+        returns: "38942432195"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942432196"]
+        returns: "38942432196"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["48976-5797"]
+        returns: "489765797"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["31479-8146"]
+        returns: "314798146"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["38942-4321"]
+        returns: "389424321"
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["   "]
+        returns: ""
+        note: consensus of 4 libs (go, python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 4 libs (go, python, ruby, rust)

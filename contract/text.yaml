@@ -1,0 +1,22 @@
+domain: text
+functions:
+  capitalize:
+    summary: 'Capitalizes a given string according to the way a Brazilian name, company name or address is written, with no configuration
+      needed: `"jose da silva"` becomes `"Jose da Silva"`, `"empresa ltda"` becomes `"Empresa LTDA"` and `"santana/rs"` becomes
+      `"Santana/RS"`.'
+    flatName: capitalize
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: CapitalizeOptions
+        optional: true
+    returns: string
+  removeAccents:
+    summary: Removes diacritical marks (accents, tildes, cedillas) from a string, decomposing every accented character into its base letter plus
+      combining marks (Unicode NFD) and then dropping every combining mark (Unicode general category M, so accents from any script).
+    flatName: removeAccents
+    params:
+      - name: value
+        type: string
+    returns: string

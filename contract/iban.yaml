@@ -1,0 +1,27 @@
+domain: iban
+functions:
+  format:
+    summary: Formats an IBAN in the ISO 13616 print grouping, blocks of 4 characters, the presentation used on statements and bank forms.
+    params:
+      - name: value
+        type: string
+    returns: string
+  getInfo:
+    summary: Parses a Brazilian IBAN (International Bank Account Number) into its fields.
+    flatName: getIbanInfo
+    params:
+      - name: value
+        type: string
+    returns: IbanInfo?
+  isValid:
+    summary: Validates a Brazilian IBAN (International Bank Account Number).
+    params:
+      - name: value
+        type: string
+    returns: boolean
+  parse:
+    summary: Removes IBAN formatting characters, uppercases the result and returns the compact IBAN.
+    params:
+      - name: value
+        type: string | number
+    returns: string

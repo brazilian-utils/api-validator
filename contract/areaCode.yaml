@@ -1,0 +1,16 @@
+domain: areaCode
+functions:
+  getInfo:
+    summary: Retrieves the state (and its region) a Brazilian DDD (area code) belongs to.
+    flatName: getAreaCodeInfo
+    params:
+      - name: areaCode
+        type: string | number
+    returns: AreaCodeInfo?
+  listByState:
+    summary: Retrieves every DDD (area code) that serves a given Brazilian state, under the Plano Geral de Numeração.
+    flatName: getAreaCodesByState
+    params:
+      - name: stateCode
+        type: string
+    returns: number[]

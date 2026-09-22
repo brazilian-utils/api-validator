@@ -1,0 +1,24 @@
+domain: cns
+functions:
+  format:
+    summary: Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCnsOptions
+        optional: true
+    returns: string
+  isValid:
+    summary: Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health
+      professional or health facility.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CNS (Cartão Nacional de Saúde) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

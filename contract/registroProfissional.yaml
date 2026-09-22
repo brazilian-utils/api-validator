@@ -1,0 +1,8 @@
+domain: registroProfissional
+functions:
+  isValid:
+    summary: Checks the structure of a professional council registration number (registro/inscrição profissional).
+    params:
+      - name: params
+        type: IsValidRegistroProfissionalParams
+    returns: boolean

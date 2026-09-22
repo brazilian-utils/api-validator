@@ -1,0 +1,50 @@
+domain: renavam
+functions:
+  generate:
+    summary: Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.
+    params: []
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: renavam.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  isValid:
+    summary: Validates if a RENAVAM (Registro Nacional de Veículos Automotores) is valid.
+    level: core
+    params:
+      - name: renavam
+        type: string | number
+    returns: boolean
+    tests:
+      - args: ["72028649661"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["72028649662"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000000"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["88380465616"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["88380465617"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["03894104700"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["03894104701"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)

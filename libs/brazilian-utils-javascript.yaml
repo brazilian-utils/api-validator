@@ -1,0 +1,7 @@
+# Reference implementation.
+name: brazilian-utils-javascript
+language: typescript
+repo: https://github.com/brazilian-utils/javascript
+entry: src/index.ts
+ignore:
+  - toStandardSchema # JS-only integration with the Standard Schema spec

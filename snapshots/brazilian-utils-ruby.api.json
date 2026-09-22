@@ -1,0 +1,1118 @@
+{
+  "library": "brazilian-utils-ruby",
+  "language": "ruby",
+  "revision": "a54d4089ec5c5b68ce74eba0b4f6cf5239a4159a",
+  "symbols": [
+    {
+      "name": "BoletoUtils.is_valid",
+      "params": [
+        {
+          "name": "digitable_line",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/boleto-utils.rb",
+        "line": 42
+      }
+    },
+    {
+      "name": "BoletoUtils.valid?",
+      "params": [
+        {
+          "name": "digitable_line",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/boleto-utils.rb",
+        "line": 42
+      }
+    },
+    {
+      "name": "CEPUtils.format_cep",
+      "params": [
+        {
+          "name": "cep",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 106
+      }
+    },
+    {
+      "name": "CEPUtils.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 143
+      }
+    },
+    {
+      "name": "CEPUtils.get_address_from_cep",
+      "params": [
+        {
+          "name": "cep",
+          "type": "String"
+        },
+        {
+          "name": "raise_exceptions",
+          "type": "Boolean",
+          "optional": true,
+          "keyword": true
+        }
+      ],
+      "returns": "Address | nil",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 175
+      }
+    },
+    {
+      "name": "CEPUtils.get_cep_information_from_address",
+      "params": [
+        {
+          "name": "federal_unit",
+          "type": "String"
+        },
+        {
+          "name": "city",
+          "type": "String"
+        },
+        {
+          "name": "street",
+          "type": "String"
+        },
+        {
+          "name": "raise_exceptions",
+          "type": "Boolean",
+          "optional": true,
+          "keyword": true
+        }
+      ],
+      "returns": "Array<Address> | nil",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 254
+      }
+    },
+    {
+      "name": "CEPUtils.normalize_string",
+      "params": [
+        {
+          "name": "str"
+        }
+      ],
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 327
+      }
+    },
+    {
+      "name": "CEPUtils.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 88
+      }
+    },
+    {
+      "name": "CEPUtils.valid?",
+      "params": [
+        {
+          "name": "cep",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 131
+      }
+    },
+    {
+      "name": "CNHUtils.valid?",
+      "params": [
+        {
+          "name": "cnh",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/cnh-utils.rb",
+        "line": 18
+      }
+    },
+    {
+      "name": "CNPJUtils.display",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "CNPJUtils.format_cnpj",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 78
+      }
+    },
+    {
+      "name": "CNPJUtils.generate",
+      "params": [
+        {
+          "name": "branch",
+          "type": "Integer",
+          "optional": true,
+          "keyword": true
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 142
+      }
+    },
+    {
+      "name": "CNPJUtils.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 35
+      }
+    },
+    {
+      "name": "CNPJUtils.sieve",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 20
+      }
+    },
+    {
+      "name": "CNPJUtils.valid?",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 128
+      }
+    },
+    {
+      "name": "CNPJUtils.validate",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cnpj-utils.rb",
+        "line": 107
+      }
+    },
+    {
+      "name": "CPFUtils.display",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "CPFUtils.format_cpf",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 77
+      }
+    },
+    {
+      "name": "CPFUtils.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 140
+      }
+    },
+    {
+      "name": "CPFUtils.remove_symbols",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 35
+      }
+    },
+    {
+      "name": "CPFUtils.sieve",
+      "params": [
+        {
+          "name": "dirty",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 20
+      }
+    },
+    {
+      "name": "CPFUtils.valid?",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 127
+      }
+    },
+    {
+      "name": "CPFUtils.validate",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "deprecated": true,
+      "location": {
+        "file": "lib/brazilian-utils/cpf-utils.rb",
+        "line": 104
+      }
+    },
+    {
+      "name": "CurrencyUtils.convert_real_to_text",
+      "params": [
+        {
+          "name": "amount",
+          "type": "BigDecimal | Float | Integer | String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/currency-utils.rb",
+        "line": 55
+      }
+    },
+    {
+      "name": "CurrencyUtils.format_currency",
+      "params": [
+        {
+          "name": "value",
+          "type": "Float | Integer | String | BigDecimal"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/currency-utils.rb",
+        "line": 15
+      }
+    },
+    {
+      "name": "DateUtils.convert_date_to_text",
+      "params": [
+        {
+          "name": "date",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/date-utils.rb",
+        "line": 151
+      }
+    },
+    {
+      "name": "DateUtils.is_holiday",
+      "params": [
+        {
+          "name": "target_date",
+          "type": "Date | DateTime | Time"
+        },
+        {
+          "name": "uf",
+          "type": "String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "Boolean | nil",
+      "location": {
+        "file": "lib/brazilian-utils/date-utils.rb",
+        "line": 106
+      }
+    },
+    {
+      "name": "EmailUtils.is_valid",
+      "params": [
+        {
+          "name": "email",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/email-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "EmailUtils.valid?",
+      "params": [
+        {
+          "name": "email",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/email-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "LegalNatureUtils.get_category",
+      "params": [
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ],
+      "returns": "Integer | nil",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 228
+      }
+    },
+    {
+      "name": "LegalNatureUtils.get_description",
+      "params": [
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 163
+      }
+    },
+    {
+      "name": "LegalNatureUtils.is_valid",
+      "params": [
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 129
+      }
+    },
+    {
+      "name": "LegalNatureUtils.list_all",
+      "params": [],
+      "returns": "Hash<String | String>",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 181
+      }
+    },
+    {
+      "name": "LegalNatureUtils.list_by_category",
+      "params": [
+        {
+          "name": "category",
+          "type": "Integer | String"
+        }
+      ],
+      "returns": "Hash<String | String>",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 206
+      }
+    },
+    {
+      "name": "LegalNatureUtils.valid?",
+      "params": [
+        {
+          "name": "code",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/legal-nature-utils.rb",
+        "line": 129
+      }
+    },
+    {
+      "name": "LegalProcessUtils.format_legal_process",
+      "params": [
+        {
+          "name": "legal_process_id",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/legal-process-utils.rb",
+        "line": 65
+      }
+    },
+    {
+      "name": "LegalProcessUtils.generate",
+      "params": [
+        {
+          "name": "year",
+          "type": "Integer",
+          "optional": true
+        },
+        {
+          "name": "orgao",
+          "type": "Integer",
+          "optional": true
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/legal-process-utils.rb",
+        "line": 151
+      }
+    },
+    {
+      "name": "LegalProcessUtils.is_valid",
+      "params": [
+        {
+          "name": "legal_process_id",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/legal-process-utils.rb",
+        "line": 104
+      }
+    },
+    {
+      "name": "LegalProcessUtils.remove_symbols",
+      "params": [
+        {
+          "name": "legal_process",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/legal-process-utils.rb",
+        "line": 42
+      }
+    },
+    {
+      "name": "LegalProcessUtils.valid?",
+      "params": [
+        {
+          "name": "legal_process_id",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/legal-process-utils.rb",
+        "line": 104
+      }
+    },
+    {
+      "name": "LicensePlateUtils.convert_to_mercosul",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 38
+      }
+    },
+    {
+      "name": "LicensePlateUtils.format",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 76
+      }
+    },
+    {
+      "name": "LicensePlateUtils.format_license_plate",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 76
+      }
+    },
+    {
+      "name": "LicensePlateUtils.generate",
+      "params": [
+        {
+          "name": "format",
+          "type": "String",
+          "optional": true
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 227
+      }
+    },
+    {
+      "name": "LicensePlateUtils.get_format",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 191
+      }
+    },
+    {
+      "name": "LicensePlateUtils.is_valid",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "Symbol | String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 128
+      }
+    },
+    {
+      "name": "LicensePlateUtils.remove_symbols",
+      "params": [
+        {
+          "name": "license_plate_number",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 165
+      }
+    },
+    {
+      "name": "LicensePlateUtils.valid?",
+      "params": [
+        {
+          "name": "license_plate",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "Symbol | String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/license-plate-utils.rb",
+        "line": 128
+      }
+    },
+    {
+      "name": "Months.name",
+      "params": [
+        {
+          "name": "month_number"
+        }
+      ],
+      "location": {
+        "file": "lib/brazilian-utils/date-utils.rb",
+        "line": 21
+      }
+    },
+    {
+      "name": "PhoneUtils.format",
+      "params": [
+        {
+          "name": "phone",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 38
+      }
+    },
+    {
+      "name": "PhoneUtils.format_phone",
+      "params": [
+        {
+          "name": "phone",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 38
+      }
+    },
+    {
+      "name": "PhoneUtils.generate",
+      "params": [
+        {
+          "name": "type",
+          "type": "Symbol | String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 148
+      }
+    },
+    {
+      "name": "PhoneUtils.is_valid",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "Symbol | String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 80
+      }
+    },
+    {
+      "name": "PhoneUtils.remove_international_dialing_code",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 181
+      }
+    },
+    {
+      "name": "PhoneUtils.remove_symbols",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 117
+      }
+    },
+    {
+      "name": "PhoneUtils.remove_symbols_phone",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 117
+      }
+    },
+    {
+      "name": "PhoneUtils.sieve",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 117
+      }
+    },
+    {
+      "name": "PhoneUtils.valid?",
+      "params": [
+        {
+          "name": "phone_number",
+          "type": "String"
+        },
+        {
+          "name": "type",
+          "type": "Symbol | String | nil",
+          "optional": true
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/phone-utils.rb",
+        "line": 80
+      }
+    },
+    {
+      "name": "PISUtils.format",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 61
+      }
+    },
+    {
+      "name": "PISUtils.format_pis",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 61
+      }
+    },
+    {
+      "name": "PISUtils.generate",
+      "params": [],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 123
+      }
+    },
+    {
+      "name": "PISUtils.is_valid",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 96
+      }
+    },
+    {
+      "name": "PISUtils.remove_symbols",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 30
+      }
+    },
+    {
+      "name": "PISUtils.sieve",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "String",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 30
+      }
+    },
+    {
+      "name": "PISUtils.valid?",
+      "params": [
+        {
+          "name": "pis",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/pis-utils.rb",
+        "line": 96
+      }
+    },
+    {
+      "name": "RENAVAMUtils.is_valid",
+      "params": [
+        {
+          "name": "renavam",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/renavam-utils.rb",
+        "line": 41
+      }
+    },
+    {
+      "name": "RENAVAMUtils.is_valid_renavam",
+      "params": [
+        {
+          "name": "renavam",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/renavam-utils.rb",
+        "line": 41
+      }
+    },
+    {
+      "name": "RENAVAMUtils.valid?",
+      "params": [
+        {
+          "name": "renavam",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/renavam-utils.rb",
+        "line": 41
+      }
+    },
+    {
+      "name": "UF.code_from_name",
+      "params": [
+        {
+          "name": "name"
+        }
+      ],
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 50
+      }
+    },
+    {
+      "name": "UF.name_from_code",
+      "params": [
+        {
+          "name": "code"
+        }
+      ],
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 46
+      }
+    },
+    {
+      "name": "UF.valid?",
+      "params": [
+        {
+          "name": "uf"
+        }
+      ],
+      "location": {
+        "file": "lib/brazilian-utils/cep-utils.rb",
+        "line": 42
+      }
+    },
+    {
+      "name": "VoterIdUtils.format",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/voter-id-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "VoterIdUtils.format_voter_id",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "String"
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/voter-id-utils.rb",
+        "line": 54
+      }
+    },
+    {
+      "name": "VoterIdUtils.generate",
+      "params": [
+        {
+          "name": "federative_union",
+          "type": "String",
+          "optional": true
+        }
+      ],
+      "returns": "String | nil",
+      "location": {
+        "file": "lib/brazilian-utils/voter-id-utils.rb",
+        "line": 75
+      }
+    },
+    {
+      "name": "VoterIdUtils.is_valid_voter_id",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/voter-id-utils.rb",
+        "line": 20
+      }
+    },
+    {
+      "name": "VoterIdUtils.valid_voter_id?",
+      "params": [
+        {
+          "name": "voter_id",
+          "type": "String"
+        }
+      ],
+      "returns": "Boolean",
+      "location": {
+        "file": "lib/brazilian-utils/voter-id-utils.rb",
+        "line": 20
+      }
+    }
+  ],
+  "warnings": []
+}

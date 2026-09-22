@@ -1,0 +1,51 @@
+name: brazilian-utils API validator
+description: >
+  Checks a brazilian-utils implementation against the shared cross-language contract:
+  missing functions, signature mismatches and the shared conformance tests.
+  Fails only on regressions by default, and writes an actionable TODO list to the job summary.
+branding:
+  icon: check-square
+  color: green
+
+inputs:
+  library:
+    description: Lib name as in libs/<name>.yaml, e.g. brazilian-utils-python
+    required: true
+  path:
+    description: Path of the lib checkout
+    default: "."
+  tests:
+    description: Run the shared conformance tests ("true"/"false"). The lib's toolchain and dependencies must be installed.
+    default: "true"
+  fail-on:
+    description: "regression (default): only what used to conform and no longer does; error: any signature/test failure or missing core function; never"
+    default: regression
+
+outputs:
+  report:
+    description: Path of the JSON report
+    value: ${{ steps.check.outputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Install api-validator
+      shell: bash
+      run: npm ci --prefix "$GITHUB_ACTION_PATH" --no-audit --no-fund --loglevel=error
+
+    - name: Check API contract
+      id: check
+      shell: bash
+      env:
+        API_VALIDATOR_OUTPUT_DIR: ${{ runner.temp }}/api-validator
+        API_VALIDATOR_CACHE_DIR: ${{ runner.temp }}/api-validator-cache
+        INPUT_TESTS: ${{ inputs.tests }}
+      run: |
+        args=(check --lib "${{ inputs.library }}" --path "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}" --no-snapshot --summary "$GITHUB_STEP_SUMMARY")
+        if [ "$INPUT_TESTS" = "true" ]; then args+=(--tests); fi
+        echo "report=$API_VALIDATOR_OUTPUT_DIR/${{ inputs.library }}.report.json" >> "$GITHUB_OUTPUT"
+        node --import "$GITHUB_ACTION_PATH/node_modules/tsx/dist/esm/index.mjs" "$GITHUB_ACTION_PATH/src/cli.ts" "${args[@]}"

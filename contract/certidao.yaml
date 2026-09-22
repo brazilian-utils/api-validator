@@ -1,0 +1,35 @@
+domain: certidao
+functions:
+  format:
+    summary: Formats the matrícula of a certidão de registro civil into the printed mask of the norm, the 32 digits grouped as 6 2 2 4 1 5 3 7 2
+      and separated by spaces.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCertidaoOptions
+        optional: true
+    returns: string
+  getInfo:
+    summary: Parses the matrícula of a certidão de registro civil into its fields.
+    flatName: getCertidaoInfo
+    params:
+      - name: value
+        type: string
+    returns: CertidaoInfo?
+  isValid:
+    summary: Validates the matrícula of a certidão de registro civil (nascimento, casamento, óbito and the other acts kept by a serventia de
+      registro civil das pessoas naturais).
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: IsValidCertidaoOptions
+        optional: true
+    returns: boolean
+  parse:
+    summary: Removes the formatting of the matrícula of a certidão de registro civil and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

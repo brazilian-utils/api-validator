@@ -1,0 +1,11 @@
+name: brazilian-utils-rust
+language: rust
+repo: https://github.com/brazilian-utils/rust
+entry: src/lib.rs
+ignore:
+  - "*.validate"          # legacy alias of is_valid
+  - "*.hashdigit"         # check-digit internals
+  - "*.compute_checksum"
+  - "*.checksum"
+  - "*.calculate_checksum"
+  - "voter_id.calculate_vd*"

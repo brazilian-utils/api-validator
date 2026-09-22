@@ -1,0 +1,11 @@
+domain: cst
+functions:
+  isValid:
+    summary: Validates if a CST (Código de Situação Tributária) code is valid for a given tax.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: IsValidCstOptions
+        optional: true
+    returns: boolean

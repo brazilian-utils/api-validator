@@ -1,0 +1,11 @@
+name: brazilian-utils-ruby
+language: ruby
+repo: https://github.com/brazilian-utils/ruby
+entry: lib
+options:
+  namespace: BrazilianUtils
+ignore:
+  - "*.sieve"
+  - "*.display"
+  - "*.validate"
+  - "Months.*"

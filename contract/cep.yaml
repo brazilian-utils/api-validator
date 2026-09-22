@@ -1,0 +1,164 @@
+domain: cep
+functions:
+  format:
+    summary: Formats a given value as a Brazilian postal code (CEP).
+    level: core
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCepOptions
+        optional: true
+    returns: string
+    tests:
+      - args: ["91906292"]
+        returns: "91906-292"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["91906293"]
+        returns: "91906-293"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000"]
+        returns: "00000-000"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["21749676"]
+        returns: "21749-676"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["21749677"]
+        returns: "21749-677"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["41790070"]
+        returns: "41790-070"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["41790071"]
+        returns: "41790-071"
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  generate:
+    summary: Generates a random Brazilian CEP (postal code).
+    level: core
+    params: []
+    returns: string
+    tests:
+      - name: generated-is-valid
+        args: []
+        satisfies: cep.isValid
+        repeat: 5
+        note: every generated value must pass the lib's own validator
+  getAddressInfo:
+    summary: Fetches address information for a given CEP using multiple providers simultaneously. Returns the result from the first provider
+      that responds successfully.
+    flatName: getAddressInfoByCep
+    aliases:
+      - cep.getAddressFromCep
+      - cep.getAddress
+    level: core
+    network: true
+    params:
+      - name: cep
+        type: string | number
+      - name: options
+        type: GetAddressInfoByCepOptions
+        optional: true
+    returns: AddressInfo
+  getInfoByAddress:
+    summary: Looks every CEP of a Brazilian street up on the ViaCEP API.
+    flatName: getCepInfoByAddress
+    aliases:
+      - cep.getCepInformationFromAddress
+      - cep.getCepFromAddress
+    level: core
+    network: true
+    params:
+      - name: params
+        type: GetCepInfoByAddressParams
+    returns: CepAddressInfo[]
+  isValid:
+    summary: Validates if a CEP (Brazilian postal code) is valid.
+    level: core
+    params:
+      - name: cep
+        type: string | number
+    returns: boolean
+    tests:
+      - args: ["91906292"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["91906293"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["00000000"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["21749676"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["21749677"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["41790070"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["41790071"]
+        returns: true
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: [""]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["   "]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+      - args: ["abc"]
+        returns: false
+        note: consensus of 5 libs (go, javascript, python, ruby, rust)
+  parse:
+    summary: Removes CEP formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string
+  removeSymbols:
+    summary: Removes the formatting symbols (keeps everything else).
+    level: core
+    params:
+      - name: value
+        type: string
+    returns: string
+    tests:
+      - args: ["91906292"]
+        returns: "91906292"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["91906293"]
+        returns: "91906293"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["00000000"]
+        returns: "00000000"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["21749676"]
+        returns: "21749676"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["21749677"]
+        returns: "21749677"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["41790070"]
+        returns: "41790070"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["41790071"]
+        returns: "41790071"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["91906-292"]
+        returns: "91906292"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["21749-676"]
+        returns: "21749676"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["41790-070"]
+        returns: "41790070"
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: [""]
+        returns: ""
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["   "]
+        returns: "   "
+        note: consensus of 3 libs (python, ruby, rust)
+      - args: ["abc"]
+        returns: "abc"
+        note: consensus of 3 libs (python, ruby, rust)

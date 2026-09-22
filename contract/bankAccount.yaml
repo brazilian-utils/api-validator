@@ -1,0 +1,9 @@
+domain: bankAccount
+functions:
+  isValid:
+    summary: Validates a Brazilian bank account. The bank code must belong to the Banco Central do Brasil STR participants list, otherwise the
+      account is rejected.
+    params:
+      - name: params
+        type: IsValidBankAccountParams
+    returns: boolean

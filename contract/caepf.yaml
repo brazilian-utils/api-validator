@@ -1,0 +1,23 @@
+domain: caepf
+functions:
+  format:
+    summary: Formats a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number according to the official mask.
+    params:
+      - name: value
+        type: string | number
+      - name: options
+        type: FormatCaepfOptions
+        optional: true
+    returns: string
+  isValid:
+    summary: Validates a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number.
+    params:
+      - name: value
+        type: string | number
+    returns: boolean
+  parse:
+    summary: Removes CAEPF (Cadastro de Atividade Econômica da Pessoa Física) formatting characters and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

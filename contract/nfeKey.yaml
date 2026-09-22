@@ -1,0 +1,32 @@
+domain: nfeKey
+functions:
+  format:
+    summary: "Formats a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into groups of 4 digits separated by spaces, the form
+      every auxiliary document prints it in: the DANFE of the NF-e and the NFC-e, the DACTE of the CT-e, the CT-e OS and the GTV-e, the
+      DAMDFE of the MDF-e, the DABPE of the BP-e, the DANF3E of the NF3e and the DANFE-COM of the NFCom."
+    params:
+      - name: value
+        type: string
+      - name: options
+        type: FormatNfeKeyOptions
+        optional: true
+    returns: string
+  getInfo:
+    summary: Parses a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into its fields.
+    flatName: getNfeKeyInfo
+    params:
+      - name: value
+        type: string
+    returns: NfeKeyInfo?
+  isValid:
+    summary: Validates a DF-e (Documento Fiscal eletrônico) access key (chave de acesso).
+    params:
+      - name: value
+        type: string
+    returns: boolean
+  parse:
+    summary: Removes the formatting of a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) and returns only digits.
+    params:
+      - name: value
+        type: string | number
+    returns: string

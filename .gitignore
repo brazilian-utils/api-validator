@@ -19,5 +19,7 @@ pnpm-debug.log*
 .idea/
 
 # Validation workspace
-src/repos/
+.repos/
+.cache/
 output/
+contract/_proposals/
