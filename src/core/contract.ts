@@ -140,8 +140,17 @@ export function loadContract(dir: string): Contract {
       if (clash) problems.push(`${where}: flatName "${flatName}" already used by ${clash}`);
       flatNames.set(flatName, id);
 
-      const tests: ContractTest[] = fn.tests.map((t, index) => ({
-        id: `${id}#${t.name ?? index}`,
+      // Test ids must survive vectors being added or removed around them (baselines and
+      // knownFailures refer to them): a name if given, else the arguments themselves.
+      const ids = new Map<string, number>();
+      const tests: ContractTest[] = fn.tests.map((t) => {
+        let key = t.name ?? JSON.stringify(t.args);
+        const seen = ids.get(key) ?? 0;
+        ids.set(key, seen + 1);
+        if (seen > 0) key = `${key}~${seen + 1}`;
+        return { ...t, key };
+      }).map((t) => ({
+        id: `${id}#${t.key}`,
         name: t.name,
         args: t.args,
         expect: toExpectation(t),
@@ -164,7 +173,9 @@ export function loadContract(dir: string): Contract {
           }
         }
       }
-      if (new Set(tests.map((t) => t.id)).size !== tests.length) problems.push(`${where}: duplicate test names`);
+      if (new Set(fn.tests.filter((t) => t.name).map((t) => t.name)).size !== fn.tests.filter((t) => t.name).length) {
+        problems.push(`${where}: duplicate test names`);
+      }
 
       const spellings = [{ domain: doc.domain, operation, flatName }];
       for (const d of doc.aliases) spellings.push({ domain: d, operation, flatName: defaultFlatName(d, operation) });

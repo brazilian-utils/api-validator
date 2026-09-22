@@ -44,11 +44,15 @@ describe("literal builders", () => {
     assert.equal(rustLiteral("Option<u8>", 2), "Some((2u8))");
     assert.equal(rustLiteral("&[String]", ["a"]), '&[String::from("a")]');
     assert.throws(() => rustLiteral("u8", -1));
+    assert.equal(rustLiteral("&str", "a\bb\u0001"), '"a\\u{8}b\\u{1}"');
+    assert.equal(rustLiteral("char", "'"), "'\\''");
   });
   it("erlang", () => {
     assert.equal(erlangTerm("a\"b"), '<<"a\\"b"/utf8>>');
     assert.equal(erlangTerm(null), "undefined");
     assert.equal(erlangTerm([1, true]), "[1, true]");
+    assert.equal(erlangTerm(0.5), "0.5");
+    assert.equal(erlangTerm(1e-7), "1.0e-7");
   });
   it("f#", () => {
     assert.equal(fsharpLiteral("string option", null), "None");
@@ -76,14 +80,14 @@ describe("runners (same protocol, every language)", () => {
   });
   it("erlang (erlc + escript)", { skip: !which("erlc") && "no erlang" }, async () => {
     assert.deepEqual(
-      await run("erlang", "src", [["demo.is_valid", ["12345678901"]], ["demo.is_valid", ["1"]], ["demo.format", ["x"]], ["demo.generate", []], ["demo.is_valid", ["a", "b"]]]),
-      [true, false, "x", "00000000000", "<unsupported>"]
+      await run("erlang", "src", [["demo.is_valid", ["12345678901"]], ["demo.is_valid", ["1"]], ["demo.format", ["x"]], ["demo.generate", []], ["demo.is_valid", ["a", "b"]], ["demo.codes", []], ["demo.is_valid", [0.5]]]),
+      [true, false, "x", "00000000000", "<unsupported>", [61, 62], false]
     );
   });
   it(".NET (generated F# project)", { skip: !which("dotnet") && "no dotnet", timeout: 300_000 }, async () => {
     assert.deepEqual(
-      await run("dotnet", "Lib", [["Cpf.IsValid", ["x"]], ["Cpf.Format", ["1"]], ["Cpf.Generate", []], ["Nested.Inner", [1, 2]], ["Cpf.IsValid", [1]]]),
-      [true, "1", "00000000000", 3, "<unsupported>"]
+      await run("dotnet", "Lib", [["Cpf.IsValid", ["x"]], ["Cpf.Format", ["1"]], ["Cpf.Generate", []], ["Nested.Inner", [1, 2]], ["Cpf.IsValid", [1]], ["Cpf.Codes", []]]),
+      [true, "1", "00000000000", 3, "<unsupported>", [1, 2]]
     );
   });
   it("rust (generated crate)", { skip: !which("cargo") && "no cargo", timeout: 240_000 }, async () => {

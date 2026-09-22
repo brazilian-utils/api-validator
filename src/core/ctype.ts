@@ -180,7 +180,8 @@ export function isUnknown(t: CType): boolean {
 /** Does `wide` accept every value of `narrow`? (null excluded — handled separately). */
 function covers(wide: CType, narrow: CType): boolean {
   if (wide.k === "any" || wide.k === "unknown" || narrow.k === "unknown") return true;
-  if (narrow.k === "union") return narrow.of.every((n) => n.k === "null" || covers(wide, n));
+  // Top-level nulls are handled by the callers; a null nested in a list must be covered.
+  if (narrow.k === "union") return narrow.of.every((n) => covers(wide, n));
   if (wide.k === "union") return wide.of.some((w) => covers(w, narrow));
   switch (wide.k) {
     case "number":
@@ -242,7 +243,8 @@ export function checkParam(contract: CType, native: CType): Compat {
  * Return check: every value the lib may return must be allowed by the contract.
  */
 export function checkReturn(contract: CType, native: CType): Compat {
-  if (isUnknown(native) || isUnknown(contract)) return { level: "unverified" };
+  // A lib declaring `any`/`object`/`term()` makes no claim we could check.
+  if (isUnknown(native) || isUnknown(contract) || native.k === "any") return { level: "unverified" };
   const c = nonNull(contract);
   const n = nonNull(native);
   const nAtoms = atoms(n);

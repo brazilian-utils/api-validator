@@ -20,7 +20,10 @@ export function fsharpLiteral(type: string | undefined, value: unknown): string 
   if (opt) return value === null ? "None" : `(Some ${fsharpLiteral(opt[1], value)})`;
   if (value === null) return "null";
   if (typeof value === "string") {
-    if (t === "char") return `'${value}'`;
+    if (t === "char") {
+      if ([...value].length !== 1) throw new Unsupported("expected a 1-char string");
+      return `'${JSON.stringify(value).slice(1, -1).replace(/^'$/, "\\'")}'`;
+    }
     return JSON.stringify(value);
   }
   if (typeof value === "boolean") return String(value);

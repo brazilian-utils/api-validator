@@ -2,7 +2,7 @@
 -module(demo).
 -export([is_valid/1,
          format/1,
-         generate/0, generate/1]).
+         generate/0, generate/1, codes/0]).
 -deprecated([{generate, 1}]).
 
 -type cpf() :: <<_:88>>.
@@ -21,5 +21,8 @@ generate() -> <<"00000000000">>.
 
 -spec generate(kind()) -> cpf().
 generate(_Kind) -> <<"00000000000">>.
+
+-spec codes() -> [integer()].
+codes() -> [61, 62].
 
 not_exported(X) -> X.

@@ -149,7 +149,18 @@ export interface RunnerCall {
 
 export type RunnerResult =
   | { id: string; ok: true; value: unknown }
-  | { id: string; ok: false; error: string; unsupported?: boolean };
+  | {
+      id: string;
+      ok: false;
+      error: string;
+      /** The call could not be expressed or run (skipped, not failed). */
+      unsupported?: boolean;
+      /**
+       * The language's idiomatic "no result" encoded as an error value (Erlang `{error, _}`):
+       * satisfies both `returns: null` and `throws`.
+       */
+      absent?: boolean;
+    };
 
 // ---------------------------------------------------------------------------
 // Analysis results

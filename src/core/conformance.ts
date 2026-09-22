@@ -7,6 +7,8 @@
  *   returns   deep equality (object keys compared case/separator-insensitively, so
  *             `{zipCode}` == `{zip_code}`; numbers with 1e-9 tolerance)
  *   throws    the call fails (exception, error value, Err(...), {error, _})
+ *   (an Erlang-style `{error, _}` is reported as `absent`: it passes both `returns: null`
+ *   and `throws`, since it is how those libs say "no result")
  *   matches   result is a string matching the regex
  *   satisfies result, fed to another contract function of the same lib, returns true
  *             (e.g. every generated CPF must pass the lib's own cpf.isValid)
@@ -131,6 +133,7 @@ function evaluate(
         if (r.ok) return { ...base, status: "fail", message: `expected an error, got ${show(r.value)}`, actual: r.value };
         break;
       case "returns":
+        if (!r.ok && r.absent && (e.value === null || e.value === undefined)) break;
         if (!r.ok) return { ...base, status: "fail", message: `expected ${show(e.value)}, threw: ${r.error}`, expected: e.value };
         if (!valuesEqual(e.value, r.value)) {
           return { ...base, status: "fail", message: `expected ${show(e.value)}, got ${show(r.value)}`, expected: e.value, actual: r.value };

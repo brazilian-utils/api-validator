@@ -52,6 +52,8 @@ describe("canonical types", () => {
     assert.equal(checkReturn(parseCType("string?"), T.string).level, "warning");
     assert.equal(checkReturn(parseCType("number"), T.integer).level, "ok");
     assert.equal(checkReturn(parseCType("boolean"), T.string).level, "error");
+    assert.equal(checkReturn(parseCType("string"), T.any).level, "unverified"); // `Any` claims nothing
+    assert.notEqual(checkReturn(parseCType("string[]"), T.list(T.nullable(T.string))).level, "ok"); // nested null
   });
 });
 
@@ -108,6 +110,13 @@ describe("contract loader", () => {
         e.problems.some((p) => p.includes("param cpf")) &&
         e.problems.some((p) => p.includes('satisfies unknown function "cpf.nope"'))
     );
+  });
+  it("test ids are stable when vectors are added around them", () => {
+    const mk = (tests: string) => loadContract(tmpContract({ "cpf.yaml": `domain: cpf\nfunctions:\n  isValid:\n    params: [{ name: c, type: string }]\n    returns: boolean\n    tests:\n${tests}` }));
+    const a = mk("      - { args: ['1'], returns: false }\n");
+    const b = mk("      - { args: ['0'], returns: false }\n      - { args: ['1'], returns: false }\n      - { name: named, args: ['2'], returns: false }\n");
+    assert.equal(a.functions.get("cpf.isValid")!.tests[0].id, 'cpf.isValid#["1"]');
+    assert.deepEqual(b.functions.get("cpf.isValid")!.tests.map((t) => t.id), ['cpf.isValid#["0"]', 'cpf.isValid#["1"]', "cpf.isValid#named"]);
   });
   it("derives flat names and alias spellings", () => {
     const dir = tmpContract({
@@ -238,7 +247,7 @@ describe("analysis + conformance (fake lib)", () => {
     const report = await analyzeLib({
       contract,
       adapter: fakeAdapter(impls),
-      ctx: { lib: lib({ knownFailures: { "cpf.format#1": "returns '' by design" } }), root: "/", workDir: "/tmp" },
+      ctx: { lib: lib({ knownFailures: { 'cpf.format#["x"]': "returns '' by design" } }), root: "/", workDir: "/tmp" },
       surface,
       runTests: true
     });
@@ -251,7 +260,20 @@ describe("analysis + conformance (fake lib)", () => {
     assert.deepEqual(diffBaseline(good, baseline).regressions, []);
     const broken = { ...impls, "cpf.is_valid": () => true };
     const bad = await analyzeLib({ contract, adapter: fakeAdapter(broken), ctx: { lib: lib(), root: "/", workDir: "/tmp" }, surface, runTests: true });
-    assert.deepEqual(diffBaseline(bad, baseline).regressions.map((r) => r.id), ["cpf.isValid#0"]);
+    assert.deepEqual(diffBaseline(bad, baseline).regressions.map((r) => r.id), ['cpf.isValid#["11111111111"]']);
+  });
+
+  it("baseline: a runner crash (tests skipped) or a vanished function is a regression", async () => {
+    const good = await analyzeLib({ contract, adapter: fakeAdapter(impls), ctx: { lib: lib(), root: "/", workDir: "/tmp" }, surface, runTests: true });
+    const baseline = baselineFrom(good);
+    const crashing = fakeAdapter(impls);
+    crashing.runner = { requires: [], run: async (_c, calls) => calls.map((c) => ({ id: c.id, ok: false as const, error: "runner crashed", unsupported: true })) };
+    const crashed = await analyzeLib({ contract, adapter: crashing, ctx: { lib: lib(), root: "/", workDir: "/tmp" }, surface, runTests: true });
+    assert.ok(diffBaseline(crashed, baseline).regressions.length >= 4);
+    // cpf.format fails one vector (so it is not in baseline.ok) but its passing vector is baselined.
+    const gone = { ...surface, symbols: surface.symbols.filter((s) => s.name !== "cpf.format_cpf") };
+    const now = await analyzeLib({ contract, adapter: fakeAdapter(impls), ctx: { lib: lib(), root: "/", workDir: "/tmp" }, surface: gone, runTests: true });
+    assert.deepEqual(diffBaseline(now, baseline).regressions.map((r) => r.id), ['cpf.format#["52998224725"]']);
   });
 
   it("baseline: new public API outside the contract is a regression (contract-first)", async () => {

@@ -21,6 +21,12 @@ let rec toJson (o: obj) : string =
     | :? float32 as f -> f.ToString("R", CultureInfo.InvariantCulture)
     | :? DateTime as d -> str (d.ToString("o"))
     | :? DateOnly as d -> str (d.ToString("yyyy-MM-dd"))
+    | :? IDictionary as d ->
+        let items = [ for k in d.Keys -> str (string k) + ":" + toJson d.[k] ]
+        "{" + String.Join(",", items) + "}"
+    | :? IEnumerable as e when not (FSharpType.IsUnion(o.GetType(), true)) || o.GetType().IsGenericType && o.GetType().GetGenericTypeDefinition() = typedefof<list<_>> ->
+        // F# lists are unions too: encode every sequence (lists, arrays, seqs) as a JSON array.
+        "[" + String.Join(",", [ for x in e -> toJson x ]) + "]"
     | _ ->
         let t = o.GetType()
         if FSharpType.IsUnion(t, true) then
@@ -34,12 +40,6 @@ let rec toJson (o: obj) : string =
             "{" + String.Join(",", fields |> Array.map (fun f -> str f.Name + ":" + toJson (f.GetValue o))) + "}"
         elif FSharpType.IsTuple t then
             "[" + String.Join(",", FSharpValue.GetTupleFields o |> Array.map toJson) + "]"
-        elif (o :? IDictionary) then
-            let d = o :?> IDictionary
-            let items = [ for k in d.Keys -> str (string k) + ":" + toJson d.[k] ]
-            "{" + String.Join(",", items) + "}"
-        elif (o :? IEnumerable) then
-            "[" + String.Join(",", [ for x in (o :?> IEnumerable) -> toJson x ]) + "]"
         else str (o.ToString())
 
 let private isError (o: obj) =

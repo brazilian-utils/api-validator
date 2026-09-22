@@ -15,7 +15,12 @@ export function erlangTerm(value: unknown): string {
   if (typeof value === "string") {
     return `<<"${[...value].map((c) => (c === "\\" ? "\\\\" : c === '"' ? '\\"' : c.charCodeAt(0) < 32 ? `\\x{${c.charCodeAt(0).toString(16)}}` : c)).join("")}"/utf8>>`;
   }
-  if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toExponential();
+  if (typeof value === "number") {
+    if (Number.isInteger(value)) return Number.isSafeInteger(value) ? String(value) : BigInt(value).toString();
+    // Erlang floats need digits on both sides of the dot: 0.5, 1.0e-7 (never 5e-1).
+    const [mantissa, exp] = String(value).split("e");
+    return `${mantissa.includes(".") ? mantissa : `${mantissa}.0`}${exp ? `e${exp}` : ""}`;
+  }
   if (typeof value === "boolean") return String(value);
   if (Array.isArray(value)) return `[${value.map(erlangTerm).join(", ")}]`;
   return `#{${Object.entries(value as object).map(([k, v]) => `${erlangTerm(k)} => ${erlangTerm(v)}`).join(", ")}}`;

@@ -17,6 +17,8 @@ let Validate cpf = IsValid cpf
 let Generate () =
     "00000000000"
 
+let Codes () = [ 1; 2 ]
+
 let constantValue = 42
 
 module Nested =

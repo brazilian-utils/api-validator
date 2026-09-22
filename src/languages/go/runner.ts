@@ -98,7 +98,7 @@ function callBody(meta: Meta, args: unknown[], alias: string): string {
   const errCheck = errIdx >= 0 ? `\n\tif err != nil { return nil, err }` : "";
   if (values.length === 0) return `${assign}${errCheck}\n\treturn nil, nil`;
   if (values.length === 1) return `${assign}${errCheck}\n\treturn v0, nil`;
-  if (values.length === 2 && rs[1] === "bool") return `${assign}\n\tif !v1 { return nil, nil }\n\treturn v0, nil`;
+  if (values.length === 2 && rs[1] === "bool") return `${assign}${errCheck}\n\tif !v1 { return nil, nil }\n\treturn v0, nil`;
   return `${assign}${errCheck}\n\treturn []any{${vars.filter((v) => v !== "err").join(", ")}}, nil`;
 }
 

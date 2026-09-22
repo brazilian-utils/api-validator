@@ -61,7 +61,7 @@ describe("erlang extractor", async () => {
       root: path.join(FIXTURES, "erlang"),
       workDir: "/tmp"
     });
-    assert.deepEqual(r.symbols.map((x) => `${x.name}/${x.params.length}`).sort(), ["demo.format/1", "demo.generate/0", "demo.generate/1", "demo.is_valid/1"]);
+    assert.deepEqual(r.symbols.map((x) => `${x.name}/${x.params.length}`).sort(), ["demo.codes/0", "demo.format/1", "demo.generate/0", "demo.generate/1", "demo.is_valid/1"]);
     assert.equal(r.symbols.find((x) => x.name === "demo.generate" && x.params.length === 1)?.deprecated, true);
     assert.ok(all.length > 0);
   });
@@ -74,7 +74,7 @@ describe("erlang extractor", async () => {
 describe(".NET extractor (F# + C#)", async () => {
   const s = await extract("dotnet", "Lib");
   it("reads F# module lets (BOM, private, nested modules, values excluded) and C# public statics", () => {
-    assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
+    assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate", "Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
   });
   it("parses F# annotations, unit and tupled params", () => {
     assert.deepEqual(params(s.get("Cpf.Format")), ["cpf: string"]);

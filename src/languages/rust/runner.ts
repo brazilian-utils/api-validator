@@ -14,6 +14,22 @@ import type { AdapterContext } from "../types.js";
 
 class Unsupported extends Error {}
 
+/** Rust string literal (JSON escapes like \b or \u0001 are not valid Rust). */
+function rustStr(s: string): string {
+  const body = [...s]
+    .map((c) => {
+      if (c === "\\") return "\\\\";
+      if (c === '"') return '\\"';
+      if (c === "\n") return "\\n";
+      if (c === "\r") return "\\r";
+      if (c === "\t") return "\\t";
+      const code = c.codePointAt(0)!;
+      return code < 0x20 || code === 0x7f ? `\\u{${code.toString(16)}}` : c;
+    })
+    .join("");
+  return `"${body}"`;
+}
+
 const INTS = ["i8", "i16", "i32", "i64", "i128", "isize", "u8", "u16", "u32", "u64", "u128", "usize"];
 
 function generic(t: string, name: string): string | undefined {
@@ -28,7 +44,7 @@ export function rustLiteral(type: string, value: unknown): string {
     const inner = t.replace(/^&\s*(mut\s+)?/, "");
     if (inner === "str") {
       if (typeof value !== "string") throw new Unsupported(`expected string, got ${JSON.stringify(value)}`);
-      return JSON.stringify(value);
+      return rustStr(value);
     }
     if (inner.startsWith("[")) {
       const el = inner.slice(1, -1);
@@ -47,11 +63,11 @@ export function rustLiteral(type: string, value: unknown): string {
   }
   if (t === "String" || /^impl\s+(Into<String>|AsRef<str>|ToString)$/.test(t)) {
     if (typeof value !== "string") throw new Unsupported(`expected string, got ${JSON.stringify(value)}`);
-    return `String::from(${JSON.stringify(value)})`;
+    return `String::from(${rustStr(value)})`;
   }
   if (t === "char") {
     if (typeof value !== "string" || [...value].length !== 1) throw new Unsupported("expected 1-char string");
-    return `'${value === "'" ? "\\'" : value === "\\" ? "\\\\" : value}'`;
+    return `'${rustStr(value).slice(1, -1).replace(/^'$/, "\\'")}'`;
   }
   if (t === "bool") {
     if (typeof value !== "boolean") throw new Unsupported("expected boolean");
@@ -81,7 +97,8 @@ function crateInfo(root: string): { pkg: string; lib: string } {
   const toml = fs.readFileSync(path.join(root, "Cargo.toml"), "utf8");
   const pkg = /\[package\][\s\S]*?\bname\s*=\s*"([^"]+)"/.exec(toml)?.[1];
   if (!pkg) throw new Error("Cargo.toml: package name not found");
-  const lib = /\[lib\][\s\S]*?\bname\s*=\s*"([^"]+)"/.exec(toml)?.[1] ?? pkg.replaceAll("-", "_");
+  const libSection = /^\[lib\]\s*\n([^[]*)/m.exec(toml)?.[1] ?? "";
+  const lib = /\bname\s*=\s*"([^"]+)"/.exec(libSection)?.[1] ?? pkg.replaceAll("-", "_");
   return { pkg, lib };
 }
 

@@ -20,7 +20,7 @@ run({Id, M, F, Args}) ->
                  {<<"error">>, json(iolist_to_binary(io_lib:format("~s:~s/~b is not exported", [M, F, length(Args)])))}]);
         true ->
             try apply(M, F, Args) of
-                {error, _} -> ok(Id, null);          % idiomatic "no result"
+                {error, R} -> absent(Id, R);         % idiomatic "no result"
                 {ok, V} -> ok(Id, V);
                 V -> ok(Id, V)
             catch
@@ -29,6 +29,12 @@ run({Id, M, F, Args}) ->
                          {<<"error">>, json(iolist_to_binary(io_lib:format("~p:~0p", [Class, Reason])))}])
             end
     end.
+
+%% `{error, _}` is Erlang's idiomatic "no result": it satisfies both `returns: null` and
+%% `throws` in the contract (see src/core/conformance.ts).
+absent(Id, R) ->
+    obj([{<<"id">>, json(Id)}, {<<"ok">>, <<"false">>}, {<<"absent">>, <<"true">>},
+         {<<"error">>, json(iolist_to_binary(io_lib:format("{error, ~0p}", [R])))}]).
 
 ok(Id, V) -> obj([{<<"id">>, json(Id)}, {<<"ok">>, <<"true">>}, {<<"value">>, json(V)}]).
 
@@ -50,11 +56,9 @@ json(B) when is_binary(B) ->
     end;
 json(T) when is_tuple(T) -> json(tuple_to_list(T));
 json(M) when is_map(M) -> obj([{json_key(K), json(V)} || {K, V} <- maps:to_list(M)]);
-json(L) when is_list(L) ->
-    case io_lib:printable_unicode_list(L) andalso L =/= [] of
-        true -> json(unicode:characters_to_binary(L));
-        false -> json_array([json(X) || X <- L])
-    end;
+%% Lists are always arrays: strings are binaries in these libs, and a list of integers such
+%% as [61] must not turn into "=".
+json(L) when is_list(L) -> json_array([json(X) || X <- L]);
 json(Other) -> json(iolist_to_binary(io_lib:format("~0p", [Other]))).
 
 json_key(K) when is_binary(K) -> K;

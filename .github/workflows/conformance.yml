@@ -17,6 +17,9 @@ on:
 jobs:
   conformance:
     runs-on: ubuntu-latest
+    env:
+      # Token with issues:write on the lib repos, used by the issue sync step (skipped when unset).
+      GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,8 +60,6 @@ jobs:
       # Needs a token with issues:write on the lib repos (secret LIBS_TOKEN); skipped otherwise.
       - name: Sync issues in the lib repositories
         if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
-        env:
-          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
         run: |
           for cfg in libs/*.yaml; do
             lib=$(basename "$cfg" .yaml)

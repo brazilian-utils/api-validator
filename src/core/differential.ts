@@ -63,7 +63,7 @@ function bind(lib: DiffLib, fn: ContractFunction): NativeSymbol | undefined {
   return res.overloads.length ? bestOverload(fn, res.overloads, lib.adapter).symbol : undefined;
 }
 
-type Outcome = { ok: boolean; value?: unknown; error?: string };
+type Outcome = { ok: boolean; value?: unknown; error?: string };  // absent results arrive as { ok: true, value: null }
 
 /** Run many (symbol, args) calls against one lib in a single runner invocation. */
 async function runBatch(lib: DiffLib, items: Array<{ symbol: NativeSymbol; args: unknown[] }>): Promise<Outcome[]> {
@@ -73,6 +73,7 @@ async function runBatch(lib: DiffLib, items: Array<{ symbol: NativeSymbol; args:
   return calls.map((c) => {
     const r = byId.get(c.id);
     if (!r) return { ok: false, error: "unsupported:no result" };
+    if (!r.ok && r.absent) return { ok: true, value: null };
     return r.ok ? { ok: true, value: r.value } : { ok: false, error: r.unsupported ? `unsupported:${r.error}` : r.error };
   });
 }

@@ -88,9 +88,19 @@ export function diffBaseline(report: LibReport, baseline: Baseline | undefined):
   if (report.testsRan) {
     const outcomes = new Map(report.functions.flatMap((f) => f.tests.map((t) => [t.id, t] as const)));
     const passedBefore = new Set(baseline.tests);
+    const reportedFns = new Set(regressions.filter((r) => r.kind === "function").map((r) => r.id));
     for (const id of passedBefore) {
+      const fnId = id.slice(0, id.indexOf("#"));
+      const f = byId.get(fnId);
+      if (!f || f.status === "waived" || reportedFns.has(fnId)) continue; // gone from the contract / already reported
       const t = outcomes.get(id);
-      if (t && t.status === "fail") regressions.push({ id, kind: "test", now: "fail", detail: t.message });
+      if (t) {
+        // A crash, build failure or load error turns calls into "skip": that is a regression too.
+        if (t.status === "fail" || t.status === "skip") regressions.push({ id, kind: "test", now: t.status, detail: t.message });
+      } else if (f.status === "missing" || f.status === "signature") {
+        regressions.push({ id, kind: "test", now: `not run (function is now ${f.status})` });
+      }
+      // No outcome while the function is still bound: filtered out (--only, network): nothing to judge.
     }
     for (const [id, t] of outcomes) if (t.status === "pass" && !passedBefore.has(id)) improvements.push(id);
   }
