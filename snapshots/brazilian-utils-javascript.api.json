@@ -736,7 +736,7 @@
       "params": [
         {
           "name": "state",
-          "type": "string",
+          "type": "StateCode",
           "optional": true
         }
       ],
@@ -752,7 +752,7 @@
       "params": [
         {
           "name": "state",
-          "type": "string",
+          "type": "StateCode",
           "optional": true
         }
       ],
@@ -780,7 +780,7 @@
       "params": [
         {
           "name": "format",
-          "type": "string",
+          "type": "GenerateLicensePlateFormat",
           "optional": true
         }
       ],
@@ -806,7 +806,7 @@
       "params": [
         {
           "name": "type",
-          "type": "string",
+          "type": "GeneratePhoneType",
           "optional": true
         }
       ],
@@ -874,7 +874,7 @@
       "params": [
         {
           "name": "state",
-          "type": "string",
+          "type": "StateCode | \"ZZ\"",
           "optional": true
         }
       ],
@@ -1070,7 +1070,7 @@
       "params": [
         {
           "name": "state",
-          "type": "string",
+          "type": "StateCode",
           "optional": true
         }
       ],
@@ -1107,7 +1107,7 @@
           "optional": false
         }
       ],
-      "returns": "null | string",
+      "returns": "LicensePlateFormat | null",
       "doc": "Identifies the format of a Brazilian license plate (placa de carro ou moto).",
       "location": {
         "file": "src/get-format-license-plate/get-format-license-plate.ts",
@@ -1220,7 +1220,7 @@
       "params": [
         {
           "name": "stateCode",
-          "type": "string",
+          "type": "StateCode",
           "optional": true
         }
       ],
@@ -1371,7 +1371,7 @@
           "optional": false
         }
       ],
-      "returns": "null | string",
+      "returns": "StateCode | null",
       "doc": "Retrieves the two-letter code (sigla) of a Brazilian state given its full name.",
       "location": {
         "file": "src/get-state-code-by-name/get-state-code-by-name.ts",
@@ -1387,7 +1387,7 @@
           "optional": false
         }
       ],
-      "returns": "null | string",
+      "returns": "StateName | null",
       "doc": "Retrieves the full name of a Brazilian state given its two-letter code (sigla).",
       "location": {
         "file": "src/get-state-name-by-code/get-state-name-by-code.ts",
@@ -1856,7 +1856,7 @@
       "params": [
         {
           "name": "stateCode",
-          "type": "string",
+          "type": "StateCode",
           "optional": false
         },
         {
@@ -1895,7 +1895,7 @@
       "params": [
         {
           "name": "stateCode",
-          "type": "string",
+          "type": "StateCode",
           "optional": false
         },
         {

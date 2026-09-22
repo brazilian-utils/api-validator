@@ -16,6 +16,22 @@ every lib is checked for both API and behaviour.
 | `cnh.isValid("75206264506")` | `true` | Python, Erlang | **Confirm.** Go, JS, Ruby and Rust accept it; Python implements the 2022 CNH algorithm (`brutils/cnh.py`) and Erlang looks ported from it. Decide which rule the contract follows. |
 | `licensePlate.getFormat("ABC1D23")` | `"LLLNLNN"` | Erlang returns `mercosul` / `old_format` | Everyone else returns the pattern: Erlang API choice to align (or the contract adopts named formats). |
 
+## 1b. Found by the 506 vectors added from the JS reference tests
+
+Vectors taken from the reference lib's own assertions (88 functions that had none). Where
+several libs agree against JS, the vector may be what should change — each is a decision.
+
+| Function | Libs that fail | What they do instead |
+|---|---|---|
+| `currency.convertToWords` (12 vectors) | .NET, Go, Python, Ruby | capitalised ("Um real"); .NET/Go/Python also add a comma ("Mil, quinhentos e…") |
+| `currency.convertToWords(1000230)`, `(1.999)` | Rust | "um milhão duzentos e trinta **de** reais"; rounds 1.999 to "um real e cem centavos" (bug) |
+| `currency.format` | .NET, Go, Python, Ruby, Rust | prefix "R$ " (JS: no symbol by default) — decision; Python/Ruby also reject string input |
+| `legalNature.list` | Go, Python, Ruby | 60 entries from an older table instead of 92 (40 current codes missing, 8 retired present); Rust matches JS |
+| `licensePlate.convertToMercosul("ABC-1234")` | .NET, Erlang, Python, Rust (`null`), Go (`""`) | JS accepts the hyphen mask → `"ABC1C34"` |
+| `phone.format` of a subscriber number / landline | Erlang, Go, Python, Ruby, Rust | the default-mask decision (#4 below) |
+| `passport.isValid` / `format` (lowercase, masked) | Erlang, Python | strict uppercase only; the contract summary says case-insensitive |
+| `date.convertToWords` | Go, Ruby | capitalised; ISO strings (`"2024-12-25"`) not parsed |
+
 ## 2. Decisions needed (not encoded yet — pick one answer, add the vector)
 
 Each row is a behaviour where the libs split into camps. Once decided, add the vector to
@@ -40,20 +56,28 @@ parameter "options"`), `generate` taking a required argument in Go/Rust
 positional arguments elsewhere, and `format` returning `string?` in Python/Ruby/Rust vs
 `string` in the contract (a consequence of decision 2).
 
-## 3. Coverage snapshot
+## 3. Coverage snapshot (after the 506 new vectors)
 
-| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Missing core |
+| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Exported native tests (pass / skipped) |
 |---|---|---|---|---|
-| javascript | 92.5% | 80.4% | 191 / 0 / 0 | the `removeSymbols` family (JS has `parse*`, which keeps digits only — different semantics), `phone.removeInternationalDialingCode`, `legalNature.getDescription` |
-| ruby | 28.6% | 89.1% | 276 / 1 / 1 | — |
-| rust | 27.2% | 84.8% | 262 / 1 / 4 | — |
-| python | 29.9% | 82.6% | 263 / 2 / 1 | `boleto.isValid` |
-| go | 23.8% | 73.9% | 185 / 1 / 3 | the `removeSymbols` family |
-| erlang | 22.4% | 63% | 228 / 11 / 0 | boleto, CEP lookups, currency, `date.isHoliday`, email, legal nature, legal process |
-| dotnet | 19% | 60.9% | 194 / 1 / 2 | `cep.generate`, CEP lookups, cpf/cnpj/cep `removeSymbols`, `date.isHoliday`, email, legal nature, most of phone |
+| javascript | 92.5% | 80.4% | 697 / 0 / 0 | 697 / 0 (vitest) |
+| python | 25.2% | 71.7% | 288 / 38 / 1 | 288 / 38 (unittest) |
+| ruby | 24.5% | 78.3% | 281 / 38 / 1 | 281 / 38 (RSpec) |
+| rust | 24.5% | 76.1% | 276 / 16 / 8 | 276 / 16 (cargo test) |
+| go | 19.7% | 63% | 197 / 28 / 6 | 197 / 28 (go test) |
+| erlang | 19.7% | 58.7% | 239 / 26 / 0 | 239 / 26 (EUnit) |
+| dotnet | 17% | 54.3% | 198 / 22 / 5 | 198 / 22 (xUnit) |
+
+Core coverage went *down* because core functions now have vectors that several libs fail
+(currency, phone, license plate, legal nature): those were untested before, not correct.
+Every exported test passes natively exactly when the validator passes it; the skipped ones
+are the failures above, skipped with their reason until each lib is fixed.
+
+`diff` now compares 1138 calls; 390 divergent inputs fall into 59 known splits, recorded in
+`baselines/_divergences.json` — the nightly fails only on a split that is not there.
 
 "Core" = implemented by at least 4 of the 7 libs when the contract was bootstrapped (46
-functions). The contract has 147 functions in 42 domains, bootstrapped from the JS lib
-(the most complete) plus functions shared by the other libs. Skipped tests are calls a
-runner cannot express (e.g. Go/Rust functions that require an argument the contract makes
-optional).
+functions). The contract has 147 functions in 42 domains and 804 vectors; 14 functions still
+have none (object or date parameters, date-valued results, no reference implementation).
+Skipped tests are calls a runner cannot express (e.g. Go/Rust functions that require an
+argument the contract makes optional).
