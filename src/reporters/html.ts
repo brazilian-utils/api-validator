@@ -53,7 +53,7 @@ const TEMPLATE = `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>API Conformance</title>
+<title>brazilian-utils Conformance</title>
 <style>
   :root {
     --bg: #f7f7f5; --panel: #ffffff; --ink: #1c1d21; --muted: #6a6d75; --line: #e3e3de;
