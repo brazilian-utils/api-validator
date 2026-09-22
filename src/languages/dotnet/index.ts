@@ -14,6 +14,7 @@ import { pascal } from "../../core/naming.js";
 import { clean, readSource, lineAt, matchBracket, splitTopLevel } from "../shared/scanner.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
+import { runDotnet } from "./runner.js";
 
 function walk(dir: string, exts: string[]): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -28,8 +29,10 @@ function walk(dir: string, exts: string[]): string[] {
 // F#
 // ---------------------------------------------------------------------------
 
-function fsharpParams(raw: string): NativeParam[] {
+/** Params plus their grouping: `a b` = [1, 1] (curried), `(a, b)` = [2] (tupled), `()` = [0]. */
+function fsharpParams(raw: string): { params: NativeParam[]; groups: number[] } {
   const params: NativeParam[] = [];
+  const groups: number[] = [];
   let i = 0;
   const s = raw.trim();
   while (i < s.length) {
@@ -39,8 +42,13 @@ function fsharpParams(raw: string): NativeParam[] {
       const end = matchBracket(s, i);
       const inner = s.slice(i + 1, end - 1).trim();
       i = end;
-      if (!inner) continue; // unit
-      for (const part of splitTopLevel(inner)) {
+      if (!inner) {
+        groups.push(0); // unit
+        continue;
+      }
+      const parts = splitTopLevel(inner);
+      groups.push(parts.length);
+      for (const part of parts) {
         const [name, ...type] = part.split(":");
         params.push({ name: name.trim(), type: type.join(":").trim() || undefined });
       }
@@ -48,10 +56,11 @@ function fsharpParams(raw: string): NativeParam[] {
       const m = /^[A-Za-z_][\w']*/.exec(s.slice(i));
       if (!m) break;
       params.push({ name: m[0] });
+      groups.push(1);
       i += m[0].length;
     }
   }
-  return params;
+  return { params, groups };
 }
 
 function extractFSharp(file: string, root: string): NativeSymbol[] {
@@ -61,7 +70,7 @@ function extractFSharp(file: string, root: string): NativeSymbol[] {
   const symbols: NativeSymbol[] = [];
   // Open modules: declaration indent (-1 = file-level module, never closed by indentation)
   // and body indent (-1 until the first body line is seen).
-  const stack: Array<{ name: string; indent: number; body: number }> = [];
+  const stack: Array<{ name: string; qualified: string; indent: number; body: number }> = [];
   let pendingAttrs = "";
   for (let n = 0; n < lines.length; n++) {
     const line = lines[n];
@@ -75,12 +84,13 @@ function extractFSharp(file: string, root: string): NativeSymbol[] {
     const fileModule = /^module\s+(?:(?:public|internal|private)\s+)?(?:rec\s+)?([\w.]+)\s*$/.exec(trimmed);
     if (fileModule && indent === 0) {
       stack.length = 0;
-      stack.push({ name: fileModule[1].split(".").pop()!, indent: -1, body: 0 });
+      stack.push({ name: fileModule[1].split(".").pop()!, qualified: fileModule[1], indent: -1, body: 0 });
       continue;
     }
     const nested = /^module\s+(private\s+|internal\s+)?([\w]+)\s*=\s*$/.exec(trimmed);
     if (nested) {
-      stack.push({ name: nested[1] ? "" : nested[2], indent, body: -1 });
+      const parent = stack[stack.length - 1];
+      stack.push({ name: nested[1] ? "" : nested[2], qualified: parent ? `${parent.qualified}.${nested[2]}` : nested[2], indent, body: -1 });
       continue;
     }
     if (/^\[<.*>\]\s*$/.test(trimmed)) {
@@ -126,12 +136,14 @@ function extractFSharp(file: string, root: string): NativeSymbol[] {
     const returns = colon >= 0 ? beforeEq.slice(colon + 1).trim() : undefined;
     const isFunction = paramText.trim().length > 0 || /^fun\b/.test(afterEq);
     if (!isFunction) continue;
+    const { params, groups } = fsharpParams(paramText);
     symbols.push({
       name: `${current.name}.${m[2]}`,
-      params: fsharpParams(paramText),
+      params,
       returns: returns || undefined,
       deprecated: /Obsolete/.test(attrs) || undefined,
-      location: { file: path.relative(root, file), line: n + 1 }
+      location: { file: path.relative(root, file), line: n + 1 },
+      meta: { qualified: `${current.qualified}.${m[2]}`, groups, paramTypes: params.map((p) => p.type ?? "") }
     });
   }
   return symbols;
@@ -156,6 +168,7 @@ function extractCSharp(file: string, root: string): NativeSymbol[] {
   const text = readSource(file);
   const cleaned = clean(text, { line: ["//"], block: [["/*", "*/"]], strings: ['"'], chars: true, verbatim: true });
   const symbols: NativeSymbol[] = [];
+  const ns = /\bnamespace\s+([\w.]+)/.exec(cleaned)?.[1];
   for (const cls of cleaned.matchAll(/\bpublic\s+(?:static\s+|sealed\s+|partial\s+|abstract\s+)*class\s+(\w+)[^{]*\{/g)) {
     const open = cls.index! + cls[0].length - 1;
     const close = matchBracket(cleaned, open);
@@ -163,9 +176,11 @@ function extractCSharp(file: string, root: string): NativeSymbol[] {
     for (const m of body.matchAll(/((?:\[[^\]]*\]\s*)*)public\s+static\s+(?:async\s+)?([\w<>,.?\[\]\s]+?)\s+(\w+)\s*(<[^>]*>)?\s*\(/g)) {
       const pOpen = m.index! + m[0].length - 1;
       const pClose = matchBracket(body, pOpen);
+      const params = csharpParams(text.slice(open + pOpen + 1, open + pClose - 1));
       symbols.push({
         name: `${cls[1]}.${m[3]}`,
-        params: csharpParams(text.slice(open + pOpen + 1, open + pClose - 1)),
+        params,
+        meta: { qualified: `${ns ? `${ns}.` : ""}${cls[1]}.${m[3]}`, groups: [params.length], paramTypes: params.map((p) => p.type ?? "") },
         returns: m[2].trim(),
         deprecated: /Obsolete/.test(m[1]) || undefined,
         location: { file: path.relative(root, file), line: lineAt(text, open + m.index!) }
@@ -217,5 +232,6 @@ export const dotnet: LanguageAdapter = {
     if (post) return mapDotnet(`${post[2]}<${post[1]}>`);
     const t = mapDotnet(native);
     return position === "return" && t.k === "void" ? T.void : t;
-  }
+  },
+  runner: { requires: ["dotnet"], run: runDotnet }
 };

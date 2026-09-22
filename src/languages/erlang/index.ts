@@ -13,6 +13,7 @@ import { clean, readSource, lineAt, matchBracket, splitTopLevel } from "../share
 import { makeTypeMapper } from "../shared/typemap.js";
 import type { TypeNode } from "../shared/typeparse.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
+import { runErlang } from "./runner.js";
 
 const CLEAN = { line: ["%"], strings: ['"'], chars: false };
 
@@ -210,6 +211,7 @@ export const erlang: LanguageAdapter = {
     // `Name :: type()` annotations
     const annotated = /^[A-Z]\w*\s*::\s*([\s\S]+)$/.exec(native.trim());
     return mapErlang(annotated ? annotated[1] : native, module);
-  }
+  },
+  runner: { requires: ["erlc", "escript"], run: runErlang }
 };
 

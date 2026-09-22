@@ -15,8 +15,9 @@ languages.
   contract; every lib repo gets an auto-maintained issue with a porting brief for each
   missing or failing function.
 
-See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow and
-**[docs/findings.md](docs/findings.md)** for what the first run found.
+See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
+**[docs/findings.md](docs/findings.md)** for what the first run found and
+**[docs/roadmap.md](docs/roadmap.md)** for the plan.
 
 ## Quick start
 
@@ -62,18 +63,10 @@ brazilian-utils-rust         null   cpf.format_cpf(cpf: &str) -> Option<String>
 
 ## Using it in a lib's CI
 
-Add a job to the lib repository (after installing its toolchain and dependencies):
+Ready-to-copy workflows for each lib are in [`templates/lib-ci/`](templates/lib-ci): they set
+up the language and call this repository's Action:
 
 ```yaml
-# .github/workflows/api-contract.yml
-name: API contract
-on: [push, pull_request]
-jobs:
-  contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      # ... set up the language and install dependencies, as for the lib's own tests ...
       - uses: brazilian-utils/api-validator@main
         with:
           library: brazilian-utils-python   # name in libs/
@@ -86,6 +79,16 @@ stops conforming, or when a new public function appears that the contract does n
 
 Locally, from a lib checkout: `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
+
+[`templates/lib-ci/port-with-claude.yml`](templates/lib-ci/port-with-claude.yml) is an optional
+workflow that hands the porting brief of the chosen functions to a coding agent, which
+implements them, iterates until the shared tests pass and opens a PR for review.
+
+With the dashboard published (`vars.PUBLISH_DASHBOARD`), each lib can show a badge:
+
+```markdown
+![API contract](https://img.shields.io/endpoint?url=https://brazilian-utils.github.io/api-validator/badges/python.json)
+```
 
 ## How it works
 
@@ -103,8 +106,8 @@ lib checkout ─► adapter.extract (native parser / reflection / scanner)
 | Go | `go/parser` | signatures | ✅ generated program in a `go.work` |
 | Rust | module-tree scanner (`mod`, `pub use`, `#[cfg(test)]`, `pub(crate)`) | signatures | ✅ generated crate |
 | Ruby | runtime reflection | YARD tags | ✅ |
-| Erlang | `-export` / `-spec` / `-type` parser | specs | — (contributions welcome) |
-| .NET (F#, C#) | module/indentation scanner | annotations | — (contributions welcome) |
+| Erlang | `-export` / `-spec` / `-type` parser | specs | ✅ `erlc` + escript |
+| .NET (F#, C#) | module/indentation scanner | annotations | ✅ generated F# project |
 
 Adding a language is one adapter file: [docs/adding-a-language.md](docs/adding-a-language.md).
 Contract and lib config format: [docs/contract.md](docs/contract.md).
@@ -121,6 +124,7 @@ src/languages/   one adapter per language (+ helper scripts in the language itse
 src/reporters/   console, markdown, brief, HTML dashboard
 test/            unit + integration tests, fixtures per language
 action.yml       GitHub Action for the libs' CI
+templates/       workflows to copy into each lib repo
 ```
 
 ## Development

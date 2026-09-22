@@ -8,6 +8,8 @@ import type { LibConfig, RunnerResult } from "../src/core/model.js";
 import { which } from "../src/core/shell.js";
 import { goLiteral } from "../src/languages/go/runner.js";
 import { getAdapter } from "../src/languages/registry.js";
+import { fsharpLiteral } from "../src/languages/dotnet/runner.js";
+import { erlangTerm } from "../src/languages/erlang/runner.js";
 import { rustLiteral } from "../src/languages/rust/runner.js";
 
 const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
@@ -43,6 +45,17 @@ describe("literal builders", () => {
     assert.equal(rustLiteral("&[String]", ["a"]), '&[String::from("a")]');
     assert.throws(() => rustLiteral("u8", -1));
   });
+  it("erlang", () => {
+    assert.equal(erlangTerm("a\"b"), '<<"a\\"b"/utf8>>');
+    assert.equal(erlangTerm(null), "undefined");
+    assert.equal(erlangTerm([1, true]), "[1, true]");
+  });
+  it("f#", () => {
+    assert.equal(fsharpLiteral("string option", null), "None");
+    assert.equal(fsharpLiteral("string option", "a"), '(Some "a")');
+    assert.equal(fsharpLiteral("float", 2), "2.0");
+    assert.equal(fsharpLiteral(undefined, "x"), '"x"');
+  });
 });
 
 describe("runners (same protocol, every language)", () => {
@@ -59,6 +72,18 @@ describe("runners (same protocol, every language)", () => {
     assert.deepEqual(
       await run("go", ".", [["cpf.IsValid", ["12345678901"]], ["cpf.Format", ["1"]], ["cpf.Lookup", [1]], ["cpf.Join", ["-", "a", "b"]], ["cpf.IsValid", [1]]]),
       [true, "<error>", null, "-", "<unsupported>"]
+    );
+  });
+  it("erlang (erlc + escript)", { skip: !which("erlc") && "no erlang" }, async () => {
+    assert.deepEqual(
+      await run("erlang", "src", [["demo.is_valid", ["12345678901"]], ["demo.is_valid", ["1"]], ["demo.format", ["x"]], ["demo.generate", []], ["demo.is_valid", ["a", "b"]]]),
+      [true, false, "x", "00000000000", "<unsupported>"]
+    );
+  });
+  it(".NET (generated F# project)", { skip: !which("dotnet") && "no dotnet", timeout: 300_000 }, async () => {
+    assert.deepEqual(
+      await run("dotnet", "Lib", [["Cpf.IsValid", ["x"]], ["Cpf.Format", ["1"]], ["Cpf.Generate", []], ["Nested.Inner", [1, 2]], ["Cpf.IsValid", [1]]]),
+      [true, "1", "00000000000", 3, "<unsupported>"]
     );
   });
   it("rust (generated crate)", { skip: !which("cargo") && "no cargo", timeout: 240_000 }, async () => {

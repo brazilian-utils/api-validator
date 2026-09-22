@@ -1,0 +1,72 @@
+# Optional. Copy to .github/workflows/api-contract-port.yml in a lib repo and set the
+# LIB/toolchain lines below. Lets a coding agent do the port: it gets the porting brief
+# (idiomatic name, signature, shared tests, reference source, links to the other six
+# implementations), implements it, and iterates until the shared tests pass, then opens a PR.
+# Humans review the PR as usual; the shared tests are the acceptance criterion.
+#
+# Needs the ANTHROPIC_API_KEY secret. Run it from the Actions tab ("Run workflow") with the
+# contract functions to port, e.g. `cpf.removeSymbols` or `pis.*`.
+name: API contract port
+
+on:
+  workflow_dispatch:
+    inputs:
+      functions:
+        description: Contract functions to implement or fix (id or glob, e.g. "pis.*")
+        required: true
+
+env:
+  LIB: brazilian-utils-python # <- this lib's name in api-validator/libs/
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # <- set up this lib's toolchain and dependencies, as in api-contract.yml
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install api-validator and the other implementations (for references)
+        run: |
+          git clone --depth 1 https://github.com/brazilian-utils/api-validator "$RUNNER_TEMP/api-validator"
+          npm ci --prefix "$RUNNER_TEMP/api-validator" --no-audit --no-fund --loglevel=error
+          cd "$RUNNER_TEMP/api-validator" && npx tsx src/cli.ts sync
+      - name: Write the porting brief
+        run: |
+          cd "$RUNNER_TEMP/api-validator"
+          npx tsx src/cli.ts brief "${{ inputs.functions }}" --lib "$LIB" --path "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/brief.md"
+          cat "$RUNNER_TEMP/brief.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: --max-turns 80
+          prompt: |
+            You are porting functions of the brazilian-utils shared API contract into this repository.
+            The porting brief is in ${{ runner.temp }}/brief.md: read it first. For each function in it:
+
+            1. Implement it (or fix it) here, idiomatically for this language and consistent with how
+               this repository already names, documents and organizes things. Use the name the brief
+               gives as idiomatic for this language. Take the behaviour from the shared acceptance
+               tests and the reference source; do not copy the reference's style.
+            2. Add the brief's acceptance tests to this repository's own test suite.
+            3. Run this repository's tests, then verify against the contract until every listed
+               function reports ok:
+                 cd ${{ runner.temp }}/api-validator && npx tsx src/cli.ts check --lib ${{ env.LIB }} --path "$GITHUB_WORKSPACE" --tests --only '${{ inputs.functions }}' --fail-on never -v
+            4. Open a pull request titled "API contract: ${{ inputs.functions }}" whose description lists
+               each function, its status before/after, and anything you could not make pass and why.
+
+            Do not change the contract, do not weaken or skip tests, and do not touch unrelated code.

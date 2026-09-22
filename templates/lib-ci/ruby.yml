@@ -1,0 +1,22 @@
+# Copy to .github/workflows/api-contract.yml in brazilian-utils/ruby.
+# Checks this lib against the shared contract (API + shared tests). Fails only on regressions
+# and on public API that is not in the contract; the job summary lists what is still missing.
+name: API contract
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - uses: brazilian-utils/api-validator@main
+        with:
+          library: brazilian-utils-ruby

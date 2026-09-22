@@ -18,6 +18,7 @@ import { bestOverload, nativeSig } from "./core/signature.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
 import { writeDashboard } from "./reporters/html.js";
+import { badge } from "./reporters/badge.js";
 import { briefMarkdown, type ImplRef } from "./reporters/brief.js";
 import { libMarkdown, overviewMarkdown } from "./reporters/markdown.js";
 
@@ -191,6 +192,7 @@ program
       writeFile(path.join(OUTPUT_DIR, `${report.library}.report.json`), JSON.stringify({ ...report, baseline: diff }, null, 2));
       const md = libMarkdown(report, contract, diff);
       writeFile(path.join(OUTPUT_DIR, `${report.library}.md`), md);
+      writeFile(path.join(OUTPUT_DIR, "badges", `${report.library.replace("brazilian-utils-", "")}.json`), JSON.stringify(badge(report)));
       markdown.push(md);
       if (shouldFail(opts.failOn as FailOn, report, diff)) failed = true;
     }
