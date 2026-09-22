@@ -6,26 +6,24 @@ root, entry, namespace = ARGV
 roots, warnings = ApiValidatorLoader.load(root, entry, namespace)
 strip_root = roots.size == 1
 
-def yard_for(file, line)
-  return [{}, nil, false] unless file && File.exist?(file)
-  lines = File.readlines(file)
-  i = line - 2
-  comment = []
-  while i >= 0 && lines[i] =~ /^\s*#/
-    comment.unshift(lines[i].sub(/^\s*#\s?/, ""))
-    i -= 1
-  end
-  text = comment.join
-  params = {}
-  text.scan(/@param\s+\[?(\w+)\]?\s+\[([^\]]+)\]/) { |n, t| params[n] = t }
-  text.scan(/@param\s+\[([^\]]+)\]\s+(\w+)/) { |t, n| params[n] ||= t }
-  ret = text[/@return\s+\[([^\]]+)\]/, 1]
-  deprecated = text.include?("@deprecated") || text =~ /@note.*(backward compatibility|should not be used)/m ? true : false
-  [params, ret, deprecated]
+# Types and deprecations come from YARD (https://yardoc.org), parsed by YARD itself.
+yard_lib = Dir[File.join(ENV.fetch("API_VALIDATOR_YARD", ""), "gems", "yard-*", "lib")].first
+$LOAD_PATH.unshift(yard_lib) if yard_lib
+require "yard"
+YARD::Registry.clear
+lib_dir = File.expand_path(entry, root)
+YARD.parse(File.directory?(lib_dir) ? Dir[File.join(lib_dir, "**", "*.rb")] : [lib_dir], [], YARD::Logger::ERROR)
+
+def yard_for(owner_name, meth)
+  obj = YARD::Registry.at("#{owner_name}.#{meth}") || YARD::Registry.at("#{owner_name}##{meth}")
+  return [{}, nil, false] unless obj
+  params = obj.tags(:param).to_h { |t| [t.name.to_s, t.types] }
+  ret = obj.tag(:return)&.types
+  [params, ret, obj.has_tag?(:deprecated)]
 end
 
-def yard_type(t)
-  t&.split(/\s*,\s*/)&.join(" | ")
+def yard_type(types)
+  types && !types.empty? ? types.join(" | ") : nil
 end
 
 MODULE_NAME = Module.instance_method(:name)
@@ -44,7 +42,7 @@ walk = lambda do |mod, prefix|
     meth = mod.method(m)
     file, line = meth.source_location
     next unless file # C methods
-    params, ret, deprecated = yard_for(file, line)
+    params, ret, deprecated = yard_for(mod_name(mod), m)
     symbols << {
       name: [prefix, m.to_s].reject(&:empty?).join("."),
       params: meth.parameters.reject { |kind, _| kind == :block }.each_with_index.map { |(kind, name), i|

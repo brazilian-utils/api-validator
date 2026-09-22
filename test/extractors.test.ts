@@ -6,9 +6,6 @@ import type { LibConfig, NativeSymbol } from "../src/core/model.js";
 import { which } from "../src/core/shell.js";
 import fs from "node:fs";
 import os from "node:os";
-import { extractFromSource } from "../src/languages/dotnet/index.js";
-import { extractFromSource as extractErlangSource } from "../src/languages/erlang/index.js";
-import { extractRust } from "../src/languages/rust/extract.js";
 import { getAdapter } from "../src/languages/registry.js";
 
 const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
@@ -26,7 +23,7 @@ const params = (s: NativeSymbol | undefined) => s?.params.map((p) => `${p.rest ?
 describe("python extractor (ast)", async () => {
   const s = await extract("python", "pkg");
   it("finds module functions and facade re-exports, skips private modules/functions", () => {
-    assert.deepEqual(names(s), ["cep.format", "cpf.format_cpf", "cpf.generate", "cpf.is_valid", "cpf.validate", "format_cep", "format_cpf", "is_valid_cpf", "star.impl.shout", "star.impl.whisper", "star.shout"]);
+    assert.deepEqual(names(s), ["cep.format", "cpf.format_cpf", "cpf.generate", "cpf.is_valid", "format_cep", "format_cpf", "is_valid_cpf", "legacy.validate", "star.impl.shout", "star.impl.whisper", "star.shout"]);
   });
   it("expands `from x import *`, honouring __all__", () => assert.equal(s.get("star.shout")?.aliasOf, "star.impl.shout"));
   it("links re-exports to their target and keeps the signature", () => {
@@ -39,10 +36,10 @@ describe("python extractor (ast)", async () => {
     assert.deepEqual(params(s.get("cpf.generate")), ["count?: int", "...more?: str"]);
     assert.equal(s.get("cpf.format_cpf")?.returns, "Optional[str]");
   });
-  it("detects DeprecationWarning", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
+  it("detects PEP 702 @deprecated", () => assert.equal(s.get("legacy.validate")?.deprecated, true));
 });
 
-describe("rust extractor (rustdoc JSON when nightly is installed, else scanner)", async () => {
+describe("rust extractor (rustdoc JSON)", { skip: !which("cargo") && "cargo not installed" }, async () => {
   const s = await extract("rust", "src/lib.rs");
   it("follows mod declarations and keeps only externally reachable fns", () => {
     assert.deepEqual(names(s), ["cpf.format_cpf", "cpf.is_valid", "cpf.nested.deep", "cpf.validate", "format_cpf", "is_valid_cpf", "renamed", "root_fn"]);
@@ -58,23 +55,7 @@ describe("rust extractor (rustdoc JSON when nightly is installed, else scanner)"
   it("reads #[deprecated]", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
 });
 
-describe("source-scanner fallbacks (no toolchain)", () => {
-  const lib = (language: string, entry: string): LibConfig => ({ name: language, language, entry, bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" });
-  it("rust scanner agrees with rustdoc on the fixture", async () => {
-    const scanned = extractRust(path.join(FIXTURES, "rust"), "src/lib.rs").symbols.map((x) => `${x.name}->${x.returns}`).sort();
-    const real = [...(await extract("rust", "src/lib.rs")).values()].map((x) => `${x.name}->${x.returns}`).sort();
-    assert.deepEqual(scanned, real);
-  });
-  it("erlang scanner agrees with beam_lib on the fixture", async () => {
-    const r = extractErlangSource({ lib: lib("erlang", "src"), root: path.join(FIXTURES, "erlang"), workDir: "/tmp" });
-    const scanned = r.symbols.map((x) => `${x.name}/${x.params.length}:${x.returns}`).sort();
-    const real = [...(await getAdapter("erlang").extract({ lib: lib("erlang", "src"), root: path.join(FIXTURES, "erlang"), workDir: fs.mkdtempSync(path.join(os.tmpdir(), "erl-")) })).symbols].map((x) => `${x.name}/${x.params.length}:${x.returns}`).sort();
-    assert.deepEqual(scanned, real);
-    assert.match(r.warnings[0], /less precise/);
-  });
-});
-
-describe("erlang extractor (compiled modules via beam_lib)", async () => {
+describe("erlang extractor (compiled modules via beam_lib)", { skip: !which("erlc") && "erlang not installed" }, async () => {
   const s = await extract("erlang", "src");
   const all = [...s.values()];
   it("uses the multi-line export list, one symbol per arity", async () => {
@@ -98,29 +79,25 @@ describe(".NET extractor: compiled assembly (reflection)", { skip: !which("dotne
   it("public module functions only (private and values excluded, nested modules kept)", () => {
     assert.deepEqual(names(s), ["Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
   });
-  it("gets the types F# infers, unit and tupled params, and line numbers from source", () => {
+  it("gets the types F# infers, unit and tupled params, and line numbers from the PDB", () => {
     assert.deepEqual(params(s.get("Cpf.IsValid")), ["cpf: string"]); // unannotated in source
     assert.equal(s.get("Cpf.IsValid")?.returns, "bool");
     assert.equal(s.get("Cpf.Codes")?.returns, "int list");
     assert.deepEqual(params(s.get("Cpf.Generate")), []);
     assert.deepEqual(params(s.get("Nested.Inner")), ["a: int", "b: int"]);
     assert.equal(s.get("Cpf.Validate")?.deprecated, true);
-    assert.equal(s.get("Cpf.IsValid")?.location?.line, 8);
+    // PDB sequence point: first executable line of the function (declared on line 8).
+    assert.deepEqual([s.get("Cpf.IsValid")?.location?.file, s.get("Cpf.IsValid")?.location?.line], ["Lib/Cpf.fs", 9]);
   });
 });
 
-describe(".NET extractor: source fallback (F# + C#)", () => {
-  const lib: LibConfig = { name: "dotnet", language: "dotnet", entry: "Lib", bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" };
-  const s = new Map(extractFromSource({ lib, root: path.join(FIXTURES, "dotnet"), workDir: "/tmp" }).map((x) => [x.name, x]));
-  it("reads F# module lets (BOM, private, nested modules, values excluded) and C# public statics", () => {
-    assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate", "Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
-  });
-  it("parses F# annotations, unit and tupled params", () => {
-    assert.deepEqual(params(s.get("Cpf.Format")), ["cpf: string"]);
-    assert.equal(s.get("Cpf.Format")?.returns, "string option");
-    assert.deepEqual(params(s.get("Nested.Inner")), ["a: int", "b: int"]);
-  });
-  it("parses C# defaults, params arrays and [Obsolete]", () => {
+describe(".NET extractor: C# assembly (reflection + nullability)", { skip: !which("dotnet") && "dotnet not installed" }, async () => {
+  const lib: LibConfig = { name: "cs", language: "dotnet", entry: "Lib", bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" };
+  const { symbols } = await getAdapter("dotnet").extract({ lib, root: path.join(FIXTURES, "dotnet-cs"), workDir: fs.mkdtempSync(path.join(os.tmpdir(), "cs-")) });
+  const s = new Map(symbols.map((x) => [x.name, x]));
+  it("public static methods, nullable reference types, defaults, params arrays, [Obsolete]", () => {
+    assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate"]);
+    assert.equal(s.get("Cnpj.Format")?.returns, "string?");
     assert.deepEqual(params(s.get("Cnpj.Format")), ["cnpj: string", "pad?: bool"]);
     assert.equal(s.get("Cnpj.Generate")?.params[0].rest, true);
     assert.equal(s.get("Cnpj.Validate")?.deprecated, true);

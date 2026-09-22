@@ -3,7 +3,6 @@ import { snake } from "../../core/naming.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import type { LanguageAdapter } from "../types.js";
 import { which } from "../../core/shell.js";
-import { extractRust } from "./extract.js";
 import { extractWithRustdoc, nightlyToolchain } from "./rustdoc.js";
 import { runRust } from "./runner.js";
 
@@ -49,10 +48,7 @@ export const rust: LanguageAdapter = {
   ],
   async extract(ctx) {
     const toolchain = which("rustup") ? nightlyToolchain(ctx) : undefined;
-    if (!toolchain) {
-      const r = extractRust(ctx.root, ctx.lib.entry);
-      return { ...r, warnings: ["no nightly toolchain: API read by the source scanner (rustdoc JSON is more precise: `rustup toolchain install nightly`)", ...r.warnings] };
-    }
+    if (!toolchain) throw new Error("the Rust adapter reads rustdoc JSON, which needs a nightly toolchain: rustup toolchain install nightly --profile minimal");
     return { symbols: extractWithRustdoc(ctx, toolchain), warnings: [] };
   },
   mapType(native, position) {

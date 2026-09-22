@@ -14,7 +14,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Boleto.fs",
-        "line": 82
+        "line": 83
       }
     },
     {
@@ -28,7 +28,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cep.fs",
-        "line": 13
+        "line": 14
       }
     },
     {
@@ -42,7 +42,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Cep.fs",
-        "line": 9
+        "line": 10
       }
     },
     {
@@ -56,7 +56,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Cnh.fs",
-        "line": 48
+        "line": 51
       }
     },
     {
@@ -70,7 +70,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cnpj.fs",
-        "line": 68
+        "line": 69
       }
     },
     {
@@ -79,7 +79,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cnpj.fs",
-        "line": 77
+        "line": 78
       }
     },
     {
@@ -88,7 +88,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cnpj.fs",
-        "line": 85
+        "line": 86
       }
     },
     {
@@ -102,7 +102,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Cnpj.fs",
-        "line": 63
+        "line": 64
       }
     },
     {
@@ -116,7 +116,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cpf.fs",
-        "line": 43
+        "line": 44
       }
     },
     {
@@ -125,7 +125,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Cpf.fs",
-        "line": 51
+        "line": 52
       }
     },
     {
@@ -139,7 +139,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Cpf.fs",
-        "line": 38
+        "line": 39
       }
     },
     {
@@ -153,7 +153,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/Currency.fs",
-        "line": 121
+        "line": 122
       }
     },
     {
@@ -167,7 +167,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/Currency.fs",
-        "line": 7
+        "line": 8
       }
     },
     {
@@ -181,7 +181,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Helpers.fs",
-        "line": 29
+        "line": 30
       }
     },
     {
@@ -195,7 +195,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LegalProcess.fs",
-        "line": 202
+        "line": 203
       }
     },
     {
@@ -213,7 +213,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LegalProcess.fs",
-        "line": 276
+        "line": 277
       }
     },
     {
@@ -227,7 +227,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/LegalProcess.fs",
-        "line": 236
+        "line": 237
       }
     },
     {
@@ -241,7 +241,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/LegalProcess.fs",
-        "line": 193
+        "line": 194
       }
     },
     {
@@ -255,7 +255,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 37
+        "line": 38
       }
     },
     {
@@ -269,7 +269,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 54
+        "line": 55
       }
     },
     {
@@ -283,7 +283,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 117
+        "line": 118
       }
     },
     {
@@ -297,7 +297,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 83
+        "line": 84
       }
     },
     {
@@ -315,7 +315,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 98
+        "line": 99
       }
     },
     {
@@ -329,7 +329,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/LicensePlate.fs",
-        "line": 73
+        "line": 74
       }
     },
     {
@@ -343,7 +343,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Phone.fs",
-        "line": 102
+        "line": 103
       }
     },
     {
@@ -357,7 +357,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/Pis.fs",
-        "line": 67
+        "line": 68
       }
     },
     {
@@ -366,7 +366,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Pis.fs",
-        "line": 86
+        "line": 87
       }
     },
     {
@@ -380,7 +380,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Pis.fs",
-        "line": 46
+        "line": 47
       }
     },
     {
@@ -394,7 +394,7 @@
       "returns": "string",
       "location": {
         "file": "BrazilianUtils/Pis.fs",
-        "line": 34
+        "line": 35
       }
     },
     {
@@ -408,7 +408,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/Renavam.fs",
-        "line": 59
+        "line": 60
       }
     },
     {
@@ -422,7 +422,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/VoterId.fs",
-        "line": 164
+        "line": 165
       }
     },
     {
@@ -436,7 +436,7 @@
       "returns": "string option",
       "location": {
         "file": "BrazilianUtils/VoterId.fs",
-        "line": 94
+        "line": 95
       }
     },
     {
@@ -450,7 +450,7 @@
       "returns": "bool",
       "location": {
         "file": "BrazilianUtils/VoterId.fs",
-        "line": 15
+        "line": 67
       }
     }
   ],

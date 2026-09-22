@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { T } from "../../core/ctype.js";
 import type { ContractFunction, LibConfig } from "../../core/model.js";
@@ -9,6 +10,18 @@ import { listOf, makeTypeMapper } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
 
 const env = { ...process.env, LANG: "C.UTF-8", LC_ALL: "C.UTF-8" };
+
+/** Pinned YARD, installed into the tool cache (never into the lib's bundle). */
+const YARD_VERSION = "0.9.37";
+
+function yardDir(ctx: AdapterContext): string {
+  const dir = path.join(ctx.workDir, "..", ".ruby-tools", `yard-${YARD_VERSION}`);
+  if (!fs.existsSync(path.join(dir, "gems"))) {
+    fs.mkdirSync(dir, { recursive: true });
+    runOrThrow("gem", ["install", "yard", "-v", YARD_VERSION, "--install-dir", dir, "--no-document", "--quiet"], { env });
+  }
+  return dir;
+}
 
 function args(ctx: AdapterContext): string[] {
   const ns = ctx.lib.options.namespace;
@@ -56,7 +69,10 @@ export const ruby: LanguageAdapter = {
   displayName: "Ruby",
   candidates,
   async extract(ctx): Promise<Extraction> {
-    const out = runOrThrow("ruby", [path.join(LANGUAGES_DIR, "ruby", "extract.rb"), ...args(ctx)], { cwd: ctx.root, env });
+    const out = runOrThrow("ruby", [path.join(LANGUAGES_DIR, "ruby", "extract.rb"), ...args(ctx)], {
+      cwd: ctx.root,
+      env: { ...env, API_VALIDATOR_YARD: yardDir(ctx) }
+    });
     return parseJsonOutput<Extraction>(out, "ruby extractor");
   },
   mapType: (native) => mapRuby(native),

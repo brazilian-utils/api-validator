@@ -99,19 +99,22 @@ libs/*.yaml ──────┤         ▲
 lib checkout ─► adapter.extract (native parser / reflection / scanner)
 ```
 
-Each language is read with its own tooling — the compiler's or runtime's view of the
-public API, never a guess from names. A source scanner exists only as a fallback when the
-toolchain is missing, and says so in the report.
+Each language is read with its own ecosystem's standard tooling — the compiler's or
+runtime's view of the public API, never a parser written here. Without the toolchain the
+check fails with the install instruction instead of guessing.
 
 | Language | API extraction (source of truth) | Types from | Shared tests |
 |---|---|---|---|
-| TypeScript | TypeScript compiler / type checker (ts-morph) | declarations, inferred | ✅ Node (tsx) |
-| Python | stdlib `ast` + runtime cross-check when importable | annotations | ✅ |
-| Go | `go/parser` (Go signatures are fully explicit) | signatures | ✅ generated program in a `go.work` |
-| Rust | rustdoc JSON (nightly): macros, `cfg`, re-exports, visibility resolved by the compiler | signatures | ✅ generated crate |
-| Ruby | runtime reflection (what is actually callable) | YARD tags | ✅ |
-| Erlang | compiled `.beam` via `beam_lib` (exports, `-spec`, `-type`) | specs | ✅ `erlc` + escript |
-| .NET (F#, C#) | reflection on the compiled assembly | real types, incl. F#-inferred | ✅ generated F# project |
+| TypeScript | TypeScript compiler API / type checker ([ts-morph](https://github.com/dsherret/ts-morph)) | declarations, inferred | ✅ Node (tsx) |
+| Python | [griffe](https://github.com/mkdocstrings/griffe) (mkdocstrings) + [griffe-warnings-deprecated](https://github.com/mkdocstrings/griffe-warnings-deprecated) for PEP 702 | annotations | ✅ |
+| Go | [`go/packages`](https://pkg.go.dev/golang.org/x/tools/go/packages) + `go/types` (build constraints honoured) | type-checked signatures | ✅ generated program in a `go.work` |
+| Rust | rustdoc JSON (nightly), cross-checked against [cargo-public-api](https://github.com/cargo-public-api/cargo-public-api) | signatures | ✅ generated crate |
+| Ruby | runtime reflection (what is actually callable) + [YARD](https://yardoc.org) for `@param`/`@return`/`@deprecated` | YARD tags | ✅ |
+| Erlang | compiled `.beam`: `module_info(exports)` + `beam_lib` abstract code (specs, types) | `-spec` | ✅ `erlc` + escript |
+| .NET (F#, C#) | reflection on the compiled assembly, `NullabilityInfoContext`, portable PDB for lines | real types, incl. F#-inferred and C# `?` | ✅ generated F# project |
+
+Tools the adapters need beyond the language itself (griffe, YARD, x/tools) are pinned and
+installed into the work dir, never into the lib's environment.
 
 Adding a language is one adapter file: [docs/adding-a-language.md](docs/adding-a-language.md).
 Contract and lib config format: [docs/contract.md](docs/contract.md).

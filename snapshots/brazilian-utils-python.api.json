@@ -11,20 +11,20 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/cep.py",
         "line": 37
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "cep.generate",
       "params": [],
+      "returns": "str",
       "location": {
         "file": "brutils/cep.py",
         "line": 95
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cep.get_address_from_cep",
@@ -39,11 +39,11 @@
           "optional": true
         }
       ],
+      "returns": "Address | None",
       "location": {
         "file": "brutils/cep.py",
         "line": 116
-      },
-      "returns": "Address | None"
+      }
     },
     {
       "name": "cep.get_cep_information_from_address",
@@ -66,11 +66,11 @@
           "optional": true
         }
       ],
+      "returns": "list[Address] | None",
       "location": {
         "file": "brutils/cep.py",
         "line": 185
-      },
-      "returns": "list[Address] | None"
+      }
     },
     {
       "name": "cep.is_valid",
@@ -80,11 +80,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cep.py",
         "line": 65
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "cep.remove_symbols",
@@ -94,11 +94,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cep.py",
         "line": 14
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cnh.is_valid_cnh",
@@ -108,11 +108,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cnh.py",
         "line": 1
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "cnpj.display",
@@ -122,11 +122,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 58
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "cnpj.format_cnpj",
@@ -136,11 +136,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 99
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "cnpj.generate",
@@ -156,11 +156,11 @@
           "optional": true
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 218
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cnpj.is_valid",
@@ -170,11 +170,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 193
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "cnpj.remove_symbols",
@@ -184,11 +184,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 37
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cnpj.sieve",
@@ -198,11 +198,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 9
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cnpj.validate",
@@ -212,11 +212,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cnpj.py",
         "line": 154
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "convert_code_to_uf",
@@ -226,12 +226,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 40
-      },
       "returns": "str | None",
-      "aliasOf": "ibge.uf.convert_code_to_uf"
+      "aliasOf": "ibge.uf.convert_code_to_uf",
+      "location": {
+        "file": "brutils/ibge/uf.py",
+        "line": 6
+      }
     },
     {
       "name": "convert_date_to_text",
@@ -241,12 +241,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 30
-      },
       "returns": "str | None",
-      "aliasOf": "date_utils.convert_date_to_text"
+      "aliasOf": "date_utils.convert_date_to_text",
+      "location": {
+        "file": "brutils/date_utils.py",
+        "line": 65
+      }
     },
     {
       "name": "convert_license_plate_to_mercosul",
@@ -256,12 +256,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 58
-      },
       "returns": "str | None",
-      "aliasOf": "license_plate.convert_to_mercosul"
+      "aliasOf": "license_plate.convert_to_mercosul",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 10
+      }
     },
     {
       "name": "convert_name_to_uf",
@@ -271,12 +271,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 40
-      },
       "returns": "str | None",
-      "aliasOf": "ibge.uf.convert_name_to_uf"
+      "aliasOf": "ibge.uf.convert_name_to_uf",
+      "location": {
+        "file": "brutils/ibge/uf.py",
+        "line": 85
+      }
     },
     {
       "name": "convert_real_to_text",
@@ -286,12 +286,12 @@
           "type": "Decimal | float | int | str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 27
-      },
       "returns": "str | None",
-      "aliasOf": "currency.convert_real_to_text"
+      "aliasOf": "currency.convert_real_to_text",
+      "location": {
+        "file": "brutils/currency.py",
+        "line": 38
+      }
     },
     {
       "name": "convert_uf_to_name",
@@ -301,12 +301,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 40
-      },
       "returns": "str | None",
-      "aliasOf": "ibge.uf.convert_uf_to_name"
+      "aliasOf": "ibge.uf.convert_uf_to_name",
+      "location": {
+        "file": "brutils/ibge/uf.py",
+        "line": 34
+      }
     },
     {
       "name": "cpf.display",
@@ -316,11 +316,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cpf.py",
         "line": 49
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cpf.format_cpf",
@@ -330,20 +330,20 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cpf.py",
         "line": 80
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cpf.generate",
       "params": [],
+      "returns": "str",
       "location": {
         "file": "brutils/cpf.py",
         "line": 167
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cpf.is_valid",
@@ -353,11 +353,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cpf.py",
         "line": 142
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "cpf.remove_symbols",
@@ -367,11 +367,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cpf.py",
         "line": 35
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cpf.sieve",
@@ -381,11 +381,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/cpf.py",
         "line": 7
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "cpf.validate",
@@ -395,11 +395,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/cpf.py",
         "line": 111
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "currency.convert_real_to_text",
@@ -409,11 +409,11 @@
           "type": "Decimal | float | int | str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/currency.py",
         "line": 38
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "currency.format_currency",
@@ -423,11 +423,11 @@
           "type": "float | int | str | Decimal"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/currency.py",
         "line": 6
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "date_utils.convert_date_to_text",
@@ -437,11 +437,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/date_utils.py",
         "line": 65
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "date_utils.is_holiday",
@@ -456,11 +456,11 @@
           "optional": true
         }
       ],
+      "returns": "bool | None",
       "location": {
         "file": "brutils/date_utils.py",
         "line": 12
-      },
-      "returns": "bool | None"
+      }
     },
     {
       "name": "email.is_valid",
@@ -470,11 +470,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/email.py",
         "line": 4
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "format_cep",
@@ -484,12 +484,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 2
-      },
       "returns": "str | None",
-      "aliasOf": "cep.format_cep"
+      "aliasOf": "cep.format_cep",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 37
+      }
     },
     {
       "name": "format_cnpj",
@@ -499,12 +499,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 15
-      },
       "returns": "str | None",
-      "aliasOf": "cnpj.format_cnpj"
+      "aliasOf": "cnpj.format_cnpj",
+      "location": {
+        "file": "brutils/cnpj.py",
+        "line": 99
+      }
     },
     {
       "name": "format_cpf",
@@ -514,12 +514,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 21
-      },
       "returns": "str",
-      "aliasOf": "cpf.format_cpf"
+      "aliasOf": "cpf.format_cpf",
+      "location": {
+        "file": "brutils/cpf.py",
+        "line": 80
+      }
     },
     {
       "name": "format_currency",
@@ -529,12 +529,12 @@
           "type": "float | int | str | Decimal"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 27
-      },
       "returns": "str | None",
-      "aliasOf": "currency.format_currency"
+      "aliasOf": "currency.format_currency",
+      "location": {
+        "file": "brutils/currency.py",
+        "line": 6
+      }
     },
     {
       "name": "format_legal_process",
@@ -544,12 +544,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 52
-      },
       "returns": "str | None",
-      "aliasOf": "legal_process.format_legal_process"
+      "aliasOf": "legal_process.format_legal_process",
+      "location": {
+        "file": "brutils/legal_process.py",
+        "line": 39
+      }
     },
     {
       "name": "format_license_plate",
@@ -559,12 +559,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 61
-      },
       "returns": "str | None",
-      "aliasOf": "license_plate.format_license_plate"
+      "aliasOf": "license_plate.format_license_plate",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 37
+      }
     },
     {
       "name": "format_passport",
@@ -574,12 +574,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 68
-      },
       "returns": "str | None",
-      "aliasOf": "passport.format_passport"
+      "aliasOf": "passport.format_passport",
+      "location": {
+        "file": "brutils/passport.py",
+        "line": 62
+      }
     },
     {
       "name": "format_phone",
@@ -589,12 +589,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 74
-      },
       "returns": "str | None",
-      "aliasOf": "phone.format_phone"
+      "aliasOf": "phone.format_phone",
+      "location": {
+        "file": "brutils/phone.py",
+        "line": 7
+      }
     },
     {
       "name": "format_pis",
@@ -604,12 +604,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 83
-      },
       "returns": "str",
-      "aliasOf": "pis.format_pis"
+      "aliasOf": "pis.format_pis",
+      "location": {
+        "file": "brutils/pis.py",
+        "line": 31
+      }
     },
     {
       "name": "format_voter_id",
@@ -619,22 +619,22 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 92
-      },
       "returns": "str | None",
-      "aliasOf": "voter_id.format_voter_id"
+      "aliasOf": "voter_id.format_voter_id",
+      "location": {
+        "file": "brutils/voter_id.py",
+        "line": 269
+      }
     },
     {
       "name": "generate_cep",
       "params": [],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 7
-      },
       "returns": "str",
-      "aliasOf": "cep.generate"
+      "aliasOf": "cep.generate",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 95
+      }
     },
     {
       "name": "generate_cnpj",
@@ -650,22 +650,22 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 16
-      },
       "returns": "str",
-      "aliasOf": "cnpj.generate"
+      "aliasOf": "cnpj.generate",
+      "location": {
+        "file": "brutils/cnpj.py",
+        "line": 218
+      }
     },
     {
       "name": "generate_cpf",
       "params": [],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 22
-      },
       "returns": "str",
-      "aliasOf": "cpf.generate"
+      "aliasOf": "cpf.generate",
+      "location": {
+        "file": "brutils/cpf.py",
+        "line": 167
+      }
     },
     {
       "name": "generate_legal_process",
@@ -681,12 +681,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 53
-      },
       "returns": "str | None",
-      "aliasOf": "legal_process.generate"
+      "aliasOf": "legal_process.generate",
+      "location": {
+        "file": "brutils/legal_process.py",
+        "line": 116
+      }
     },
     {
       "name": "generate_license_plate",
@@ -697,22 +697,22 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 62
-      },
       "returns": "str | None",
-      "aliasOf": "license_plate.generate"
+      "aliasOf": "license_plate.generate",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 150
+      }
     },
     {
       "name": "generate_passport",
       "params": [],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 69
-      },
       "returns": "str",
-      "aliasOf": "passport.generate"
+      "aliasOf": "passport.generate",
+      "location": {
+        "file": "brutils/passport.py",
+        "line": 88
+      }
     },
     {
       "name": "generate_phone",
@@ -723,22 +723,22 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 79
-      },
       "returns": "str",
-      "aliasOf": "phone.generate"
+      "aliasOf": "phone.generate",
+      "location": {
+        "file": "brutils/phone.py",
+        "line": 83
+      }
     },
     {
       "name": "generate_pis",
       "params": [],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 84
-      },
       "returns": "str",
-      "aliasOf": "pis.generate"
+      "aliasOf": "pis.generate",
+      "location": {
+        "file": "brutils/pis.py",
+        "line": 90
+      }
     },
     {
       "name": "generate_voter_id",
@@ -749,12 +749,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 93
-      },
       "returns": "str | None",
-      "aliasOf": "voter_id.generate"
+      "aliasOf": "voter_id.generate",
+      "location": {
+        "file": "brutils/voter_id.py",
+        "line": 217
+      }
     },
     {
       "name": "get_address_from_cep",
@@ -769,12 +769,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 2
-      },
       "returns": "Address | None",
-      "aliasOf": "cep.get_address_from_cep"
+      "aliasOf": "cep.get_address_from_cep",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 116
+      }
     },
     {
       "name": "get_cep_information_from_address",
@@ -797,12 +797,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 2
-      },
       "returns": "list[Address] | None",
-      "aliasOf": "cep.get_cep_information_from_address"
+      "aliasOf": "cep.get_cep_information_from_address",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 185
+      }
     },
     {
       "name": "get_code_by_municipality_name",
@@ -816,12 +816,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 36
-      },
       "returns": "str | None",
-      "aliasOf": "ibge.municipality.get_code_by_municipality_name"
+      "aliasOf": "ibge.municipality.get_code_by_municipality_name",
+      "location": {
+        "file": "brutils/ibge/municipality.py",
+        "line": 50
+      }
     },
     {
       "name": "get_format_license_plate",
@@ -831,12 +831,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 63
-      },
       "returns": "str | None",
-      "aliasOf": "license_plate.get_format"
+      "aliasOf": "license_plate.get_format",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 120
+      }
     },
     {
       "name": "get_municipality_by_code",
@@ -846,12 +846,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 36
-      },
       "returns": "tuple[str, str] | None",
-      "aliasOf": "ibge.municipality.get_municipality_by_code"
+      "aliasOf": "ibge.municipality.get_municipality_by_code",
+      "location": {
+        "file": "brutils/ibge/municipality.py",
+        "line": 14
+      }
     },
     {
       "name": "get_natureza_legal_nature",
@@ -861,12 +861,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 47
-      },
       "returns": "Optional[str]",
-      "aliasOf": "legal_nature.get_description"
+      "aliasOf": "legal_nature.get_description",
+      "location": {
+        "file": "brutils/legal_nature.py",
+        "line": 136
+      }
     },
     {
       "name": "ibge.municipality.get_code_by_municipality_name",
@@ -880,11 +880,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/ibge/municipality.py",
         "line": 50
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "ibge.municipality.get_municipality_by_code",
@@ -894,11 +894,11 @@
           "type": "str"
         }
       ],
+      "returns": "tuple[str, str] | None",
       "location": {
         "file": "brutils/ibge/municipality.py",
         "line": 14
-      },
-      "returns": "tuple[str, str] | None"
+      }
     },
     {
       "name": "ibge.uf.convert_code_to_uf",
@@ -908,11 +908,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/ibge/uf.py",
         "line": 6
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "ibge.uf.convert_name_to_uf",
@@ -922,11 +922,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/ibge/uf.py",
         "line": 85
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "ibge.uf.convert_uf_to_name",
@@ -936,11 +936,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/ibge/uf.py",
         "line": 34
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "is_holiday",
@@ -955,12 +955,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 30
-      },
       "returns": "bool | None",
-      "aliasOf": "date_utils.is_holiday"
+      "aliasOf": "date_utils.is_holiday",
+      "location": {
+        "file": "brutils/date_utils.py",
+        "line": 12
+      }
     },
     {
       "name": "is_valid_cep",
@@ -970,12 +970,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 8
-      },
       "returns": "bool",
-      "aliasOf": "cep.is_valid"
+      "aliasOf": "cep.is_valid",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 65
+      }
     },
     {
       "name": "is_valid_cnh",
@@ -985,12 +985,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 12
-      },
       "returns": "bool",
-      "aliasOf": "cnh.is_valid_cnh"
+      "aliasOf": "cnh.is_valid_cnh",
+      "location": {
+        "file": "brutils/cnh.py",
+        "line": 1
+      }
     },
     {
       "name": "is_valid_cnpj",
@@ -1000,12 +1000,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 17
-      },
       "returns": "bool",
-      "aliasOf": "cnpj.is_valid"
+      "aliasOf": "cnpj.is_valid",
+      "location": {
+        "file": "brutils/cnpj.py",
+        "line": 193
+      }
     },
     {
       "name": "is_valid_cpf",
@@ -1015,12 +1015,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 23
-      },
       "returns": "bool",
-      "aliasOf": "cpf.is_valid"
+      "aliasOf": "cpf.is_valid",
+      "location": {
+        "file": "brutils/cpf.py",
+        "line": 142
+      }
     },
     {
       "name": "is_valid_email",
@@ -1030,12 +1030,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 33
-      },
       "returns": "bool",
-      "aliasOf": "email.is_valid"
+      "aliasOf": "email.is_valid",
+      "location": {
+        "file": "brutils/email.py",
+        "line": 4
+      }
     },
     {
       "name": "is_valid_legal_nature",
@@ -1045,12 +1045,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 48
-      },
       "returns": "bool",
-      "aliasOf": "legal_nature.is_valid"
+      "aliasOf": "legal_nature.is_valid",
+      "location": {
+        "file": "brutils/legal_nature.py",
+        "line": 109
+      }
     },
     {
       "name": "is_valid_legal_process",
@@ -1060,12 +1060,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 54
-      },
       "returns": "bool",
-      "aliasOf": "legal_process.is_valid"
+      "aliasOf": "legal_process.is_valid",
+      "location": {
+        "file": "brutils/legal_process.py",
+        "line": 72
+      }
     },
     {
       "name": "is_valid_license_plate",
@@ -1080,12 +1080,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 64
-      },
       "returns": "bool",
-      "aliasOf": "license_plate.is_valid"
+      "aliasOf": "license_plate.is_valid",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 72
+      }
     },
     {
       "name": "is_valid_passport",
@@ -1095,12 +1095,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 70
-      },
       "returns": "bool",
-      "aliasOf": "passport.is_valid"
+      "aliasOf": "passport.is_valid",
+      "location": {
+        "file": "brutils/passport.py",
+        "line": 6
+      }
     },
     {
       "name": "is_valid_phone",
@@ -1115,12 +1115,12 @@
           "optional": true
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 80
-      },
       "returns": "bool",
-      "aliasOf": "phone.is_valid"
+      "aliasOf": "phone.is_valid",
+      "location": {
+        "file": "brutils/phone.py",
+        "line": 37
+      }
     },
     {
       "name": "is_valid_pis",
@@ -1130,12 +1130,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 85
-      },
       "returns": "bool",
-      "aliasOf": "pis.is_valid"
+      "aliasOf": "pis.is_valid",
+      "location": {
+        "file": "brutils/pis.py",
+        "line": 63
+      }
     },
     {
       "name": "is_valid_renavam",
@@ -1145,12 +1145,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 89
-      },
       "returns": "bool",
-      "aliasOf": "renavam.is_valid_renavam"
+      "aliasOf": "renavam.is_valid_renavam",
+      "location": {
+        "file": "brutils/renavam.py",
+        "line": 25
+      }
     },
     {
       "name": "is_valid_voter_id",
@@ -1160,12 +1160,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 94
-      },
       "returns": "bool",
-      "aliasOf": "voter_id.is_valid"
+      "aliasOf": "voter_id.is_valid",
+      "location": {
+        "file": "brutils/voter_id.py",
+        "line": 4
+      }
     },
     {
       "name": "legal_nature.get_description",
@@ -1175,11 +1175,11 @@
           "type": "str"
         }
       ],
+      "returns": "Optional[str]",
       "location": {
         "file": "brutils/legal_nature.py",
         "line": 136
-      },
-      "returns": "Optional[str]"
+      }
     },
     {
       "name": "legal_nature.is_valid",
@@ -1189,20 +1189,20 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/legal_nature.py",
         "line": 109
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "legal_nature.list_all",
       "params": [],
+      "returns": "Dict[str, str]",
       "location": {
         "file": "brutils/legal_nature.py",
         "line": 158
-      },
-      "returns": "Dict[str, str]"
+      }
     },
     {
       "name": "legal_process.format_legal_process",
@@ -1212,11 +1212,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/legal_process.py",
         "line": 39
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "legal_process.generate",
@@ -1232,11 +1232,11 @@
           "optional": true
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/legal_process.py",
         "line": 116
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "legal_process.is_valid",
@@ -1246,11 +1246,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/legal_process.py",
         "line": 72
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "legal_process.remove_symbols",
@@ -1260,11 +1260,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/legal_process.py",
         "line": 16
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "license_plate.convert_to_mercosul",
@@ -1274,11 +1274,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 10
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "license_plate.format_license_plate",
@@ -1288,11 +1288,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 37
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "license_plate.generate",
@@ -1303,11 +1303,11 @@
           "optional": true
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 150
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "license_plate.get_format",
@@ -1317,11 +1317,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 120
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "license_plate.is_valid",
@@ -1336,11 +1336,11 @@
           "optional": true
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 72
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "license_plate.remove_symbols",
@@ -1350,21 +1350,21 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/license_plate.py",
         "line": 97
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "list_all_legal_nature",
       "params": [],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 49
-      },
       "returns": "Dict[str, str]",
-      "aliasOf": "legal_nature.list_all"
+      "aliasOf": "legal_nature.list_all",
+      "location": {
+        "file": "brutils/legal_nature.py",
+        "line": 158
+      }
     },
     {
       "name": "passport.format_passport",
@@ -1374,20 +1374,20 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/passport.py",
         "line": 62
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "passport.generate",
       "params": [],
+      "returns": "str",
       "location": {
         "file": "brutils/passport.py",
         "line": 88
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "passport.is_valid",
@@ -1397,11 +1397,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/passport.py",
         "line": 6
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "passport.remove_symbols",
@@ -1411,11 +1411,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/passport.py",
         "line": 37
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "phone.format_phone",
@@ -1425,11 +1425,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/phone.py",
         "line": 7
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "phone.generate",
@@ -1440,11 +1440,11 @@
           "optional": true
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/phone.py",
         "line": 83
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "phone.is_valid",
@@ -1459,11 +1459,11 @@
           "optional": true
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/phone.py",
         "line": 37
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "phone.remove_international_dialing_code",
@@ -1473,11 +1473,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/phone.py",
         "line": 113
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "phone.remove_symbols_phone",
@@ -1487,11 +1487,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/phone.py",
         "line": 61
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "pis.format_pis",
@@ -1501,20 +1501,20 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/pis.py",
         "line": 31
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "pis.generate",
       "params": [],
+      "returns": "str",
       "location": {
         "file": "brutils/pis.py",
         "line": 90
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "pis.is_valid",
@@ -1524,11 +1524,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/pis.py",
         "line": 63
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "pis.remove_symbols",
@@ -1538,11 +1538,11 @@
           "type": "str"
         }
       ],
+      "returns": "str",
       "location": {
         "file": "brutils/pis.py",
         "line": 9
-      },
-      "returns": "str"
+      }
     },
     {
       "name": "remove_international_dialing_code",
@@ -1552,12 +1552,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 74
-      },
       "returns": "str",
-      "aliasOf": "phone.remove_international_dialing_code"
+      "aliasOf": "phone.remove_international_dialing_code",
+      "location": {
+        "file": "brutils/phone.py",
+        "line": 113
+      }
     },
     {
       "name": "remove_symbols_cep",
@@ -1567,12 +1567,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 9
-      },
       "returns": "str",
-      "aliasOf": "cep.remove_symbols"
+      "aliasOf": "cep.remove_symbols",
+      "location": {
+        "file": "brutils/cep.py",
+        "line": 14
+      }
     },
     {
       "name": "remove_symbols_cnpj",
@@ -1582,12 +1582,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 18
-      },
       "returns": "str",
-      "aliasOf": "cnpj.remove_symbols"
+      "aliasOf": "cnpj.remove_symbols",
+      "location": {
+        "file": "brutils/cnpj.py",
+        "line": 37
+      }
     },
     {
       "name": "remove_symbols_cpf",
@@ -1597,12 +1597,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 24
-      },
       "returns": "str",
-      "aliasOf": "cpf.remove_symbols"
+      "aliasOf": "cpf.remove_symbols",
+      "location": {
+        "file": "brutils/cpf.py",
+        "line": 35
+      }
     },
     {
       "name": "remove_symbols_legal_process",
@@ -1612,12 +1612,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 55
-      },
       "returns": "str",
-      "aliasOf": "legal_process.remove_symbols"
+      "aliasOf": "legal_process.remove_symbols",
+      "location": {
+        "file": "brutils/legal_process.py",
+        "line": 16
+      }
     },
     {
       "name": "remove_symbols_license_plate",
@@ -1627,12 +1627,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 65
-      },
       "returns": "str",
-      "aliasOf": "license_plate.remove_symbols"
+      "aliasOf": "license_plate.remove_symbols",
+      "location": {
+        "file": "brutils/license_plate.py",
+        "line": 97
+      }
     },
     {
       "name": "remove_symbols_passport",
@@ -1642,12 +1642,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 71
-      },
       "returns": "str",
-      "aliasOf": "passport.remove_symbols"
+      "aliasOf": "passport.remove_symbols",
+      "location": {
+        "file": "brutils/passport.py",
+        "line": 37
+      }
     },
     {
       "name": "remove_symbols_phone",
@@ -1657,12 +1657,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 74
-      },
       "returns": "str",
-      "aliasOf": "phone.remove_symbols_phone"
+      "aliasOf": "phone.remove_symbols_phone",
+      "location": {
+        "file": "brutils/phone.py",
+        "line": 61
+      }
     },
     {
       "name": "remove_symbols_pis",
@@ -1672,12 +1672,12 @@
           "type": "str"
         }
       ],
-      "location": {
-        "file": "brutils/__init__.py",
-        "line": 86
-      },
       "returns": "str",
-      "aliasOf": "pis.remove_symbols"
+      "aliasOf": "pis.remove_symbols",
+      "location": {
+        "file": "brutils/pis.py",
+        "line": 9
+      }
     },
     {
       "name": "renavam.is_valid_renavam",
@@ -1687,11 +1687,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/renavam.py",
         "line": 25
-      },
-      "returns": "bool"
+      }
     },
     {
       "name": "voter_id.format_voter_id",
@@ -1701,11 +1701,11 @@
           "type": "str"
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/voter_id.py",
         "line": 269
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "voter_id.generate",
@@ -1716,11 +1716,11 @@
           "optional": true
         }
       ],
+      "returns": "str | None",
       "location": {
         "file": "brutils/voter_id.py",
         "line": 217
-      },
-      "returns": "str | None"
+      }
     },
     {
       "name": "voter_id.is_valid",
@@ -1730,11 +1730,11 @@
           "type": "str"
         }
       ],
+      "returns": "bool",
       "location": {
         "file": "brutils/voter_id.py",
         "line": 4
-      },
-      "returns": "bool"
+      }
     }
   ],
   "warnings": []

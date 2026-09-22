@@ -43,13 +43,13 @@ more than speed, in this order of preference:
 
 1. **What the compiler or runtime exposes**: compile the lib into `ctx.workDir` and read the
    result (rustdoc JSON, `.beam` abstract code, .NET assembly reflection), load it and
-   reflect (Ruby), or use the language's official parser/type checker (TypeScript,
-   Python `ast`, `go/parser`). Run helpers as a process printing `"\0JSON\0"` then
-   `{ "symbols": [...], "warnings": [...] }`; parse with `parseJsonOutput`.
-2. **A source scanner only as a fallback** when the toolchain is absent, returning a warning
-   that says so. Use `clean()` from `src/languages/shared/scanner.ts` first (comments and
-   strings cannot fool brace matching) and `readSource()` (strips BOMs). Add a test that
-   the scanner agrees with the precise extractor on the fixture.
+   reflect (Ruby), or use the ecosystem's standard API tool (TypeScript compiler API,
+   griffe for Python, `go/packages` for Go). Run helpers as a process printing
+   `"\0JSON\0"` then `{ "symbols": [...], "warnings": [...] }`; parse with `parseJsonOutput`.
+2. **Do not write a parser for the language.** If no suitable tool exists, look for a
+   well-known, maintained open source one before writing anything; pin its version and
+   install it into the work dir. If the toolchain is missing at run time, throw an error
+   with the install instruction rather than guessing.
 
 Each symbol: `name` (dotted path relative to the lib root, as users write it), `params`
 (`name`, `type` as written, `optional`, `rest`, `keyword`), `returns`, `deprecated`,
@@ -92,8 +92,8 @@ Always work in `ctx.workDir`, never in the lib checkout.
 
 ## Checklist
 
-- [ ] fixture under `test/fixtures/<id>/` exercising visibility, re-exports, deprecation,
-      optional/rest params and comments/strings that look like code
+- [ ] fixture under `test/fixtures/<id>/` exercising visibility, re-exports, deprecation and
+      optional/rest params
 - [ ] extractor + type mapping tests in `test/extractors.test.ts` / `test/core.test.ts`
 - [ ] runner test in `test/runners.test.ts` (skipped when the toolchain is absent)
 - [ ] toolchain added to `.github/workflows/ci.yml` and `conformance.yml`

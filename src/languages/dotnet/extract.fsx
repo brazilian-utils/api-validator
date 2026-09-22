@@ -3,11 +3,28 @@
 // Prints "\0JSON\0" followed by a JSON array of symbols.
 open System
 open System.Collections.Generic
+open System.IO
 open System.Reflection
+open System.Reflection.Metadata
+open System.Reflection.Metadata.Ecma335
 open System.Text.Json
 open Microsoft.FSharp.Core
 
-let asm = Assembly.LoadFrom(fsi.CommandLineArgs.[1])
+let dllPath = fsi.CommandLineArgs.[1]
+let asm = Assembly.LoadFrom dllPath
+
+// Source locations from the portable PDB next to the assembly (first sequence point).
+let pdb =
+    let path = Path.ChangeExtension(dllPath, ".pdb")
+    if File.Exists path then Some((MetadataReaderProvider.FromPortablePdbStream(File.OpenRead path)).GetMetadataReader()) else None
+
+let location (m: MethodInfo) : (string * int) option =
+    pdb
+    |> Option.bind (fun r ->
+        let info = r.GetMethodDebugInformation(MetadataTokens.MethodDefinitionHandle(m.MetadataToken))
+        info.GetSequencePoints()
+        |> Seq.tryFind (fun sp -> not sp.IsHidden)
+        |> Option.map (fun sp -> r.GetString(r.GetDocument(sp.Document).Name), sp.StartLine))
 
 let rec typeName (t: Type) : string =
     if t.IsArray then typeName (t.GetElementType()) + "[]"
@@ -57,6 +74,11 @@ let rec qualified (t: Type) =
 let attr<'T> (p: ICustomAttributeProvider) : 'T option =
     p.GetCustomAttributes(typeof<'T>, false) |> Array.tryHead |> Option.map (fun a -> a :?> 'T)
 
+// Nullable reference types (C# `string?`) are only visible through compiler metadata.
+let nullability = NullabilityInfoContext()
+let withNullability (name: string) (info: NullabilityInfo) =
+    if info.ReadState = NullabilityState.Nullable && not info.Type.IsValueType then name + "?" else name
+
 let symbols = List<obj>()
 for t in asm.GetExportedTypes() do
     // Static classes: F# modules and C# static classes.
@@ -77,7 +99,7 @@ for t in asm.GetExportedTypes() do
                 let param (p: ParameterInfo) : obj =
                     let d = Dictionary<string, obj>()
                     d.["name"] <- (if String.IsNullOrEmpty p.Name then sprintf "arg%d" p.Position else p.Name)
-                    d.["type"] <- typeName p.ParameterType
+                    d.["type"] <- withNullability (typeName p.ParameterType) (nullability.Create p)
                     if p.IsOptional || p.HasDefaultValue then d.["optional"] <- true
                     if (attr<ParamArrayAttribute> p).IsSome then
                         d.["optional"] <- true
@@ -86,8 +108,15 @@ for t in asm.GetExportedTypes() do
                 let s = Dictionary<string, obj>()
                 s.["name"] <- sourceName t + "." + name
                 s.["params"] <- (ps |> Array.map param)
-                s.["returns"] <- typeName m.ReturnType
+                s.["returns"] <- withNullability (typeName m.ReturnType) (nullability.Create m.ReturnParameter)
                 if (attr<ObsoleteAttribute> m).IsSome then s.["deprecated"] <- true
+                match location m with
+                | Some(file, line) ->
+                    let loc = Dictionary<string, obj>()
+                    loc.["file"] <- file
+                    loc.["line"] <- line
+                    s.["location"] <- loc
+                | None -> ()
                 let meta = Dictionary<string, obj>()
                 meta.["qualified"] <- qualified t + "." + name
                 meta.["groups"] <- groups

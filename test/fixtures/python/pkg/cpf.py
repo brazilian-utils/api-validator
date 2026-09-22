@@ -1,4 +1,3 @@
-import warnings
 from typing import Optional
 
 
@@ -8,11 +7,6 @@ def is_valid(cpf: str) -> bool:
 
 def format_cpf(cpf: str, *, pad: bool = False) -> Optional[str]:
     return cpf
-
-
-def validate(cpf):
-    warnings.warn("use is_valid", DeprecationWarning)
-    return is_valid(cpf)
 
 
 def _helper(x):

@@ -50,10 +50,12 @@ export const go: LanguageAdapter = {
     pascal(fn.flatName) // root package: IsValidCpf
   ],
   async extract(ctx): Promise<Extraction> {
+    // A small Go module (src/languages/go/extract) using go/packages + go/types, with its
+    // dependencies pinned in go.mod/go.sum.
     fs.mkdirSync(ctx.workDir, { recursive: true });
-    const out = runOrThrow("go", ["run", path.join(LANGUAGES_DIR, "go", "extract.go"), ctx.root], {
-      cwd: ctx.workDir,
-      env: { ...process.env, GOWORK: "off", GOFLAGS: "", GO111MODULE: "on", GOTOOLCHAIN: "local" }
+    const out = runOrThrow("go", ["run", ".", ctx.root], {
+      cwd: path.join(LANGUAGES_DIR, "go", "extract"),
+      env: { ...process.env, GOWORK: "off", GOFLAGS: "-mod=readonly", GO111MODULE: "on" }
     });
     return parseJsonOutput<Extraction>(out, "go extractor");
   },

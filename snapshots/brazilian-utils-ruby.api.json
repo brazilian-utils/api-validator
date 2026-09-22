@@ -165,7 +165,6 @@
         }
       ],
       "returns": "String | nil",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cnpj-utils.rb",
         "line": 54
@@ -224,7 +223,6 @@
         }
       ],
       "returns": "String",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cnpj-utils.rb",
         "line": 20
@@ -253,7 +251,6 @@
         }
       ],
       "returns": "Boolean",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cnpj-utils.rb",
         "line": 107
@@ -268,7 +265,6 @@
         }
       ],
       "returns": "String | nil",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cpf-utils.rb",
         "line": 54
@@ -320,7 +316,6 @@
         }
       ],
       "returns": "String",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cpf-utils.rb",
         "line": 20
@@ -349,7 +344,6 @@
         }
       ],
       "returns": "Boolean",
-      "deprecated": true,
       "location": {
         "file": "lib/brazilian-utils/cpf-utils.rb",
         "line": 104
@@ -489,7 +483,7 @@
     {
       "name": "LegalNatureUtils.list_all",
       "params": [],
-      "returns": "Hash<String | String>",
+      "returns": "Hash<String, String>",
       "location": {
         "file": "lib/brazilian-utils/legal-nature-utils.rb",
         "line": 181
@@ -503,7 +497,7 @@
           "type": "Integer | String"
         }
       ],
-      "returns": "Hash<String | String>",
+      "returns": "Hash<String, String>",
       "location": {
         "file": "lib/brazilian-utils/legal-nature-utils.rb",
         "line": 206
@@ -1037,6 +1031,7 @@
           "name": "uf"
         }
       ],
+      "returns": "Boolean",
       "location": {
         "file": "lib/brazilian-utils/cep-utils.rb",
         "line": 42

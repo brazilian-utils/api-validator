@@ -113,7 +113,9 @@ export function extractFromAssembly(ctx: AdapterContext): NativeSymbol[] {
   if ("error" in built) throw new Error(built.error);
   const r = run("dotnet", ["fsi", "--quiet", path.join(LANGUAGES_DIR, "dotnet", "extract.fsx"), built.dll], { cwd: ctx.workDir, env: ENV });
   if (!r.stdout.includes("\u0000JSON\u0000")) throw new Error(`.NET extractor failed: ${(r.stderr || r.stdout).trim().split("\n").slice(-10).join("\n")}`);
-  return parseJsonOutput<NativeSymbol[]>(r.stdout, ".NET extractor");
+  const symbols = parseJsonOutput<NativeSymbol[]>(r.stdout, ".NET extractor");
+  for (const s of symbols) if (s.location) s.location.file = path.relative(ctx.root, s.location.file);
+  return symbols;
 }
 
 export async function runDotnet(ctx: AdapterContext, calls: RunnerCall[]): Promise<RunnerResult[]> {

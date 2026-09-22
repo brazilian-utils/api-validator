@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { T } from "../../core/ctype.js";
 import type { NativeSymbol } from "../../core/model.js";
@@ -13,6 +14,18 @@ function interpreter(ctx: AdapterContext): string {
   const opt = ctx.lib.options.python;
   if (typeof opt === "string") return path.resolve(ctx.root, opt);
   return process.env.API_VALIDATOR_PYTHON ?? "python3";
+}
+
+/** Pinned versions of the extraction tooling, installed into the work dir (never into the lib's env). */
+const TOOLS = ["griffe==2.3.0", "griffe-warnings-deprecated==1.1.1"];
+
+function toolDeps(ctx: AdapterContext, py: string): string {
+  const dir = path.join(ctx.workDir, "..", ".python-tools", TOOLS.join("_").replace(/[^\w.=-]/g, ""));
+  if (!fs.existsSync(path.join(dir, "griffe"))) {
+    fs.mkdirSync(dir, { recursive: true });
+    runOrThrow(py, ["-m", "pip", "install", "--quiet", "--disable-pip-version-check", "--target", dir, ...TOOLS]);
+  }
+  return dir;
 }
 
 const mapPy = makeTypeMapper({
@@ -59,7 +72,9 @@ export const python: LanguageAdapter = {
     `${snake(fn.domain)}.${snake(fn.flatName)}` // module, suffixed: brutils.cpf.format_cpf
   ],
   async extract(ctx): Promise<Extraction> {
-    const out = runOrThrow(interpreter(ctx), [path.join(LANGUAGES_DIR, "python", "extract.py"), ctx.root, ctx.lib.entry]);
+    const py = interpreter(ctx);
+    const env = { ...process.env, PYTHONPATH: [toolDeps(ctx, py), process.env.PYTHONPATH].filter(Boolean).join(path.delimiter) };
+    const out = runOrThrow(py, [path.join(LANGUAGES_DIR, "python", "extract.py"), ctx.root, ctx.lib.entry], { env });
     return parseJsonOutput<Extraction>(out, "python extractor");
   },
   mapType: (native: string | undefined, _pos, _s: NativeSymbol) => mapPy(native),
