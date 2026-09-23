@@ -30,7 +30,10 @@ try {
   for (const viewport of VIEWPORTS) {
     for (const page of PAGES) {
       const url = `http://127.0.0.1:${PORT}${BASE}${page}`;
-      const run = spawnSync(path.join('node_modules', '.bin', 'impeccable'), ['detect', '--viewport', viewport, url], { encoding: 'utf8' });
+      const detect = () => spawnSync(path.join('node_modules', '.bin', 'impeccable'), ['detect', '--viewport', viewport, url], { encoding: 'utf8' });
+      let run = detect();
+      // A browser that did not start (a cold CI runner) is not a finding: try it once more.
+      if (run.status === 1 && /Failed to launch|WS endpoint/.test(run.stderr)) run = detect();
       const findings = (run.stderr + run.stdout).split('\n').filter((line) => /^\s+\[/.test(line)).map((line) => line.trim());
       if (run.status === 1) {
         console.log(`error ${viewport.padEnd(9)} ${page}\n${run.stderr}`);

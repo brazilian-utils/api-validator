@@ -5,26 +5,16 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { FlatTabs } from '@/components/flat-tabs';
 import { ArrowRight } from 'lucide-react';
-import { CATEGORIES, coverage, isImplemented, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
+import { CATEGORIES, coverage, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions } from '@/lib/layout';
 import { Markdown } from '@/lib/markdown';
 import { loadUsage } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
-import { Specimen, type Kind } from '@/components/specimen.client';
+import { GuideDemos, guideEntry } from '@/components/pages/guide';
 import { HomeJsonLd } from '@/components/json-ld';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
-
-const KINDS = [
-  { domain: 'cpf', check: 2 },
-  { domain: 'pis', check: 1 },
-  { domain: 'cnh', check: 2 },
-  { domain: 'cnpj', check: 2 },
-  { domain: 'voterId', check: 2 },
-  { domain: 'cep', check: 0 },
-  { domain: 'licensePlate', check: 0 },
-];
 
 /** The first code block of a usage file, as Markdown. */
 const firstCode = (body?: string) => body?.match(/^(`{3,})[^\n]*\n[\s\S]*?\n\1/m)?.[0];
@@ -35,18 +25,6 @@ export function HomePage({ locale }: { locale: Locale }) {
   const specs = loadSpecs();
   const libs = loadLibs();
   const status = loadStatus();
-
-  const kinds: Kind[] = KINDS.flatMap(({ domain, check }) => {
-    const spec = specs.find((s: any) => s.domain === domain);
-    const op = spec?.operations.find((o: any) => o.id === 'isValid');
-    if (!spec || !op) return [];
-    const example = (op.tests as any[]).find((c: any) => c.returns === true)?.args[0];
-    const names = libs.flatMap((lib: any) => {
-      const f = status?.libs?.[lib.id]?.functions?.[op.fnId];
-      return f && isImplemented(f) ? [{ lib: lib.id, label: lib.label, symbol: f.symbol }] : [];
-    });
-    return [{ domain, check, title: pick(spec.title, locale), href: `${p}/utils/${spec.id}/`, example, names }];
-  });
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
   const others = specs.length - 4;
@@ -90,19 +68,15 @@ export function HomePage({ locale }: { locale: Locale }) {
                 </Link>
               </div>
             </div>
-            <Specimen
-              kinds={kinds}
-              text={{
-                label: t('specimen.label'),
-                examples: t('specimen.examples'),
-                valid: t('specimen.valid'),
-                invalid: t('specimen.invalid'),
-                unknown: t('specimen.unknown'),
-                same: t('specimen.sameCheck'),
-                checkOne: t('specimen.checkDigits', { count: 1 }),
-                checkOther: t('specimen.checkDigits', { count: 2 }).replace('2', '{n}'),
-              }}
-            />
+            {guideEntry('javascript', 'document-field') && (
+              <div className="min-w-0">
+                <GuideDemos locale={locale} lib="javascript" slug="document-field" />
+                <Link href={`${p}/guides/javascript/document-field/`} className="mt-3 inline-flex items-center gap-1 text-sm font-medium hover:underline">
+                  {L(locale, 'The code of this field, in React, Angular, Vue and plain JavaScript', 'O código deste campo, em React, Angular, Vue e JavaScript puro')}
+                  <ArrowRight aria-hidden className="size-3.5" />
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 

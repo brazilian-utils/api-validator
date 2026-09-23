@@ -24,6 +24,53 @@ export function guideEntry(lib: string, slug: string) {
   return loadGuides().find((g: any) => g.lib === lib && g.slug === slug);
 }
 
+type DemoText = { demo: string; demoOf: string; open: string; loading: string };
+const demoTextOf = (locale: Locale): DemoText => {
+  const t = translator(locale);
+  return { demo: t('guide.liveDemo'), demoOf: t('guide.liveDemoOf', { title: '{title}' }), open: t('guide.openDemo'), loading: t('guide.loadingDemo') };
+};
+
+function Files({ node }: { node: any }) {
+  const files = node.children.filter((c: any) => c.kind === 'file');
+  if (!files.length) return null;
+  if (files.length === 1) return <Markdown source={fence(files[0].code, files[0].lang, files[0].name)} />;
+  return <FlatTabs items={files.map((f: any) => ({ value: f.name, label: <span className="font-mono text-xs">{f.name}</span>, content: <Markdown source={fence(f.code, f.lang)} /> }))} />;
+}
+
+/** One example of a guide (a framework, a variant): its intro, its live demo and, with `code`, its files. */
+function Content({ node, demoText, code }: { node: any; demoText: DemoText; code?: boolean }) {
+  const variants = node.children.filter((c: any) => c.kind === 'variant');
+  return (
+    <>
+      {code && node.intro && <Markdown source={node.intro} />}
+      {variants.length ? (
+        <Examples list={variants} group="guide-variant" demoText={demoText} code={code} />
+      ) : (
+        <>
+          {node.demo && <LiveDemo src={/^https?:\/\//.test(node.demo) ? node.demo : `${base}${node.demo}`} title={node.name} text={demoText} />}
+          {code && <Files node={node} />}
+        </>
+      )}
+    </>
+  );
+}
+
+/** A group of examples as tabs. Framework and variant tabs stay in sync across the site. */
+function Examples({ list, group, demoText, code }: { list: any[]; group: string; demoText: DemoText; code?: boolean }) {
+  return <FlatTabs groupId={group} persist items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
+}
+
+/**
+ * The first group of examples of a library guide, demos only (the home page shows the JavaScript
+ * library's document field this way). Null when the guide was not fetched (offline builds).
+ */
+export function GuideDemos({ locale, lib, slug }: { locale: Locale; lib: string; slug: string }) {
+  const guide = guideEntry(lib, slug) && loadGuide(lib, slug, locale);
+  const block = guide?.blocks.find((b: any) => b.type !== 'markdown');
+  if (!block) return null;
+  return <Examples list={block.examples} group="guide-example" demoText={demoTextOf(locale)} />;
+}
+
 export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; slug: string }) {
   const entry = guideEntry(lib, slug);
   const guide = entry && loadGuide(lib, slug, locale);
@@ -32,36 +79,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
   const library = loadLibs().find((l: any) => l.id === lib);
   const where = functionLinks(locale);
   const uses = entry.fns.flatMap((fn: string) => (where.get(fn) ? [where.get(fn)!] : []));
-  const demoText = { demo: t('guide.liveDemo'), demoOf: t('guide.liveDemoOf', { title: '{title}' }), open: t('guide.openDemo') };
-
-  const Files = ({ node }: { node: any }) => {
-    const files = node.children.filter((c: any) => c.kind === 'file');
-    if (files.length === 1) return <Markdown source={fence(files[0].code, files[0].lang, files[0].name)} />;
-    return (
-      <FlatTabs items={files.map((f: any) => ({ value: f.name, label: <span className="font-mono text-xs">{f.name}</span>, content: <Markdown source={fence(f.code, f.lang)} /> }))} />
-    );
-  };
-
-  const Content = ({ node }: { node: any }) => {
-    const variants = node.children.filter((c: any) => c.kind === 'variant');
-    return (
-      <>
-        {node.intro && <Markdown source={node.intro} />}
-        {variants.length ? (
-          <Examples list={variants} group="guide-variant" />
-        ) : (
-          <>
-            {node.demo && <LiveDemo src={/^https?:\/\//.test(node.demo) ? node.demo : `${base}${node.demo}`} title={node.name} text={demoText} />}
-            {node.children.length > 0 && <Files node={node} />}
-          </>
-        )}
-      </>
-    );
-  };
-
-  const Examples = ({ list, group }: { list: any[]; group: string }) => (
-    <FlatTabs groupId={group} persist items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} /> }))} />
-  );
+  const demoText = demoTextOf(locale);
 
   return (
     <DocsPage tableOfContent={{ enabled: false }}>
@@ -85,7 +103,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
       </div>
       {guide.locale !== locale && <Note type="info">{t('guide.englishOnly')}</Note>}
       <DocsBody>
-        {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" />))}
+        {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" demoText={demoText} code />))}
       </DocsBody>
       <EditOnGitHub href={guide.source.replace('/blob/', '/edit/')} />
     </DocsPage>
