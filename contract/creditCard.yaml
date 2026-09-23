@@ -1,7 +1,17 @@
 domain: creditCard
+title: Credit card
+description: Payment card numbers (credit or debit), Luhn check only.
 functions:
   isValid:
     summary: Validates a payment card number (crédito ou débito) using the Luhn algorithm.
+    description: |
+      Validates a payment card number (credit or debit): 12 to 19 digits and a Luhn check digit.
+
+      - No brand detection, issuer range lookup, expiry or CVV check.
+      - A number whose digits are all the same is rejected even though it passes Luhn.
+      - Accepts a string or a number, with whitespace, `.`, `-` and `/` anywhere between the digits; letters make it invalid. A number above the largest exactly representable integer should be passed as a string.
+    references:
+      - https://www.iso.org/standard/70484.html
     params:
       - name: value
         type: string | number

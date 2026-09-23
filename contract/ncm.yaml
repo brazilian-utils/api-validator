@@ -1,7 +1,15 @@
 domain: ncm
+title: NCM — Nomenclatura Comum do Mercosul
+description: Goods classification codes of the NCM table published by Siscomex.
 functions:
   format:
     summary: Formats a NCM (Nomenclatura Comum do Mercosul) code.
+    description: |
+      Formats an NCM code with the mask `NNNN.NN.NN`; only the structure changes (use `ncm.isValid` to check the code).
+
+      - Same rules as `cnae.format`; `options.pad` left-pads with zeros to 8 digits first.
+    references:
+      - https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json
     params:
       - name: value
         type: string | number
@@ -23,6 +31,12 @@ functions:
         returns: ""
   isValid:
     summary: Validates if a NCM (Nomenclatura Comum do Mercosul) code exists in the official table.
+    description: |
+      Checks whether an NCM code exists in the current table published by Siscomex.
+
+      - Same input rules as `cbo.isValid`, with 8 digits and the `NNNN.NN.NN` mask.
+    references:
+      - https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json
     params:
       - name: value
         type: string | number
@@ -50,6 +64,12 @@ functions:
         returns: false
   parse:
     summary: Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.
+    description: |
+      Removes NCM formatting and keeps only digits, capped to 8 digits.
+
+      - Nothing is left-padded; a partial code is kept as written.
+    references:
+      - https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json
     params:
       - name: value
         type: string | number

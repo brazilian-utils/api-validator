@@ -1,8 +1,16 @@
 domain: cei
+title: CEI — Cadastro Específico do INSS
+description: Registration of employers without a CNPJ (construction works, rural producers), superseded by the CNO and the CAEPF.
 functions:
   format:
     summary: Formats a CEI (Cadastro Específico do INSS) number according to the usual "00.000.00000/00" mask, the one the reference
       implementations of the check digit agree on (the Receita Federal does not print it).
+    description: |
+      Formats a CEI with the usual mask `00.000.00000/00`.
+
+      - The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 12 digits first.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
     params:
       - name: value
         type: string | number
@@ -24,6 +32,15 @@ functions:
         returns: ""
   isValid:
     summary: Validates a CEI (Cadastro Específico do INSS) number.
+    description: |
+      Validates a CEI: 12 digits, 11 base digits and one check digit.
+
+      - The check digit weights the base by 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4, adds the tens of the sum to its units and takes the complement to 10 of the resulting units digit (10 maps to 0).
+      - A value whose digits are all the same is rejected.
+      - Accepts a number or a string, bare or split into the printed groups (2, 3, 5 and 2 digits) by whitespace or the usual mask characters; anything else is rejected.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
+      - https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno
     params:
       - name: value
         type: string | number
@@ -52,6 +69,10 @@ functions:
         returns: false
   parse:
     summary: Removes CEI (Cadastro Específico do INSS) formatting characters and returns only digits.
+    description: |
+      Removes CEI formatting and keeps only digits, capped to 12 digits.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
     params:
       - name: value
         type: string | number

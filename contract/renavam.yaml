@@ -1,7 +1,13 @@
 domain: renavam
+title: RENAVAM — Registro Nacional de Veículos Automotores
+description: The Brazilian vehicle registry number.
 functions:
   generate:
     summary: Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.
+    description: |
+      Generates a valid random RENAVAM in the 11-digit form: 10 base digits plus the check digit.
+    references:
+      - https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm
     params: []
     returns: string
     tests:
@@ -12,6 +18,13 @@ functions:
         note: every generated value must pass the lib's own validator
   isValid:
     summary: Validates if a RENAVAM (Registro Nacional de Veículos Automotores) is valid.
+    description: |
+      Validates a RENAVAM: the old format (9 digits, left-padded to 11) or the new format (11 digits), with a modulus 11 check digit.
+
+      - Spaces, dots and hyphens are ignored; any other character, a letter in particular, makes the value invalid.
+      - A value whose digits are all the same is rejected.
+    references:
+      - https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm
     level: core
     params:
       - name: renavam

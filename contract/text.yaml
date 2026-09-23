@@ -1,9 +1,26 @@
 domain: text
+title: Text
+description: Text helpers for Brazilian names, company names and addresses.
 functions:
   capitalize:
     summary: 'Capitalizes a given string according to the way a Brazilian name, company name or address is written, with no configuration
       needed: `"jose da silva"` becomes `"Jose da Silva"`, `"empresa ltda"` becomes `"Empresa LTDA"` and `"santana/rs"` becomes
       `"Santana/RS"`.'
+    description: |
+      Capitalizes the first letter of each word the way a Brazilian name, company name or address is written.
+
+      - Prepositions and articles (`de`, `da`, `do`, `e`, …) stay lower case between two words; company designations and abbreviations (`LTDA`, `S.A.`, `ME`, `CNPJ`) and roman numerals are upper-cased. `options` can replace either list.
+      - Words split at whitespace, `-`, `/`, apostrophes and adjoining punctuation; whitespace runs collapse into one space.
+      - A lower-case word that is first, last or followed by punctuation keeps its capital; `ME` is upper-cased only as a designation; `SA` without dots is left alone (the surname Sá); a state code after a `/` is upper-cased.
+    references:
+      - https://www4.planalto.gov.br/centrodeestudos/assuntos/manual-de-redacao-da-presidencia-da-republica/manual-de-redacao.pdf
+      - https://www4.planalto.gov.br/centrodeestudos/assuntos/manual-de-redacao-da-presidencia-da-republica
+      - https://servicodados.ibge.gov.br/api/docs/localidades
+      - https://www.planalto.gov.br/ccivil_03/leis/l6404consol.htm
+      - https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm
+      - https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp123.htm
+      - https://www.gov.br/empresas-e-negocios/pt-br/drei/legislacao/instrucoes-normativas/arquivos-instrucoes-normativas-em-vigor/anexo-iv-limitada_link.pdf
+      - https://www.gov.br/empresas-e-negocios/pt-br/drei/legislacao/instrucoes-normativas
     flatName: capitalize
     params:
       - name: value
@@ -33,6 +50,13 @@ functions:
   removeAccents:
     summary: Removes diacritical marks (accents, tildes, cedillas) from a string, decomposing every accented character into its base letter plus
       combining marks (Unicode NFD) and then dropping every combining mark (Unicode general category M, so accents from any script).
+    description: |
+      Removes diacritical marks (accents, tildes, cedillas) from a string.
+
+      - Every character is decomposed (Unicode NFD) and every combining mark (general category M) is dropped, so accents from any script go.
+    references:
+      - https://unicode.org/reports/tr15/
+      - https://www.unicode.org/reports/tr44/#General_Category_Values
     flatName: removeAccents
     params:
       - name: value

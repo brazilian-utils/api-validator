@@ -1,8 +1,16 @@
 domain: number
+title: Numbers in words
+description: Integers written out in Brazilian Portuguese (por extenso).
 functions:
   convertToWords:
     summary: Formats an integer as its Brazilian Portuguese cardinal number words ("por extenso"), e.g. `1235` becomes `"mil duzentos e trinta e
       cinco"`.
+    description: |
+      Writes an integer in Brazilian Portuguese cardinal words ("por extenso"), e.g. 1235 is "mil duzentos e trinta e cinco".
+
+      - Accepts integers from -999 999 999 999 999 to 999 999 999 999 999; a non-integer is truncated toward zero; a negative number is prefixed with "menos".
+      - `options` selects the grammatical gender (default masculine), which agrees "um/uma", "dois/duas" and the hundreds.
+      - Returns an empty string for a value outside that range or not finite.
     flatName: convertNumberToWords
     params:
       - name: value

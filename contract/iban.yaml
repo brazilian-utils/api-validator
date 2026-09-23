@@ -1,7 +1,16 @@
 domain: iban
+title: IBAN — International Bank Account Number
+description: "Brazilian IBANs (country code BR): validation, formatting, parsing and decoding."
 functions:
   format:
     summary: Formats an IBAN in the ISO 13616 print grouping, blocks of 4 characters, the presentation used on statements and bank forms.
+    description: |
+      Formats an IBAN in the ISO 13616 print grouping: blocks of 4 characters separated by spaces, upper-cased. Does not validate (use `iban.isValid`).
+
+      - Only letters and digits are read; the result is capped at the 29 characters of a Brazilian IBAN.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf
+      - https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf
     params:
       - name: value
         type: string
@@ -20,6 +29,15 @@ functions:
         returns: ""
   getInfo:
     summary: Parses a Brazilian IBAN (International Bank Account Number) into its fields.
+    description: |
+      Parses a Brazilian IBAN into its fields; returns null whenever `iban.isValid` would return false.
+
+      - Fields, all strings: country code, check digits, bank ISPB, branch, account, account type and owner.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf
+      - https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf
+      - https://www.iso.org/standard/81090.html
+      - https://www.iso.org/standard/31531.html
     flatName: getIbanInfo
     params:
       - name: value
@@ -65,6 +83,16 @@ functions:
         returns: null
   isValid:
     summary: Validates a Brazilian IBAN (International Bank Account Number).
+    description: |
+      Validates a Brazilian IBAN; any other country is invalid.
+
+      - Layout, 29 characters: `BR`, 2 check digits (ISO 7064 MOD 97-10), 8-digit ISPB, 5-digit branch, 10-digit account, 1-letter account type (usually `C` or `P`), 1 owner indicator (`1` to `9`, then `A` to `Z`).
+      - Accepts the compact form or groups of 4 split by one whitespace, `.`, `-` or `/`, in any case; a separator inside a group makes it invalid.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf
+      - https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf
+      - https://www.iso.org/standard/81090.html
+      - https://www.iso.org/standard/31531.html
     params:
       - name: value
         type: string
@@ -92,6 +120,11 @@ functions:
         returns: false
   parse:
     summary: Removes IBAN formatting characters, uppercases the result and returns the compact IBAN.
+    description: |
+      Removes IBAN formatting, keeps letters and digits upper-cased, capped to 29 characters.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf
+      - https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf
     params:
       - name: value
         type: string | number

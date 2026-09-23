@@ -1,7 +1,19 @@
 domain: vin
+title: VIN — Vehicle Identification Number (chassi)
+description: Vehicle identification numbers, structural and check-digit validation.
 functions:
   isValid:
     summary: Validates a VIN (Vehicle Identification Number / chassi).
+    description: |
+      Validates a VIN (chassi) structurally: 17 characters, none of the excluded letters `I`, `O`, `Q`, and the check digit at position 9 (North American rule), case-insensitive.
+
+      - A VIN whose characters are all the same is rejected even when the check digit matches.
+      - Brazilian rules do not mandate the check digit, so many Brazilian-built VINs fail it.
+    references:
+      - https://www.iso.org/standard/52200.html
+      - https://www.ecfr.gov/current/title-49/section-565.15
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9682022.pdf
+      - https://vpic.nhtsa.dot.gov/api/
     params:
       - name: value
         type: string

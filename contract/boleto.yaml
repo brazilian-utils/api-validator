@@ -1,7 +1,19 @@
 domain: boleto
+title: Boleto — bank slip
+description: "Boleto de cobrança bancária and boleto de arrecadação: linha digitável and barcode validation, formatting, parsing and decoding."
 functions:
   format:
     summary: Formats a given value as a Brazilian boleto.
+    description: |
+      Formats a boleto linha digitável with its printed mask.
+
+      - The 47-digit cobrança bancária linha digitável is grouped as `00000.00000 00000.000000 00000.000000 0 00000000000000`.
+      - A 48-digit linha digitável starting with `8` (boleto de arrecadação) gets four blocks of 11 digits, each followed by its check digit; the 44-digit arrecadação barcode keeps the cobrança bancária mask.
+      - `options.pad` left-pads the value with zeros to the length of the pattern before masking.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf
+      - https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf
+      - https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban
     params:
       - name: value
         type: string | number
@@ -21,6 +33,15 @@ functions:
         returns: ""
   generate:
     summary: Generates a valid random Brazilian bank slip (boleto) number.
+    description: |
+      Generates a valid random boleto number.
+
+      - By default a 47-digit cobrança bancária linha digitável; `params.type` set to arrecadação generates a 48-digit boleto de arrecadação instead.
+      - The result passes `boleto.isValid`.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf
+      - https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf
+      - https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban
     params:
       - name: params
         type: GenerateBoletoParams
@@ -34,6 +55,17 @@ functions:
         note: every generated value must pass the lib's own validator
   getInfo:
     summary: Extracts information from a Brazilian bank slip (boleto).
+    description: |
+      Extracts the amount, due date and bank code from a boleto; returns null when the value is not a valid boleto.
+
+      - The amount is in cents; the bank code is the 3-digit COMPE code.
+      - The due date is null when the boleto carries no fator de vencimento (a factor below 1000).
+      - The fator de vencimento cycle reset on 2025-02-22, so a factor maps to two dates 9000 days apart; `options.referenceDate` resolves the cycle as of that date instead of today.
+      - A boleto de arrecadação has no bank code and no due date; it also reports its type, segment, the amount in reais and whether that amount is effective.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf
+      - https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf
+      - https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban
     flatName: getBoletoInfo
     params:
       - name: value
@@ -44,6 +76,15 @@ functions:
     returns: BoletoInfo?
   isValid:
     summary: Validates if a Brazilian bank slip (boleto) number is valid.
+    description: |
+      Validates a boleto: the 47-digit cobrança bancária linha digitável, or a boleto de arrecadação as its 48-digit linha digitável or 44-digit barcode.
+
+      - Every check digit of the chosen layout is verified (per Carta-Circular BCB 2.926/2000 and the FEBRABAN arrecadação layout).
+      - The código de moeda (position 4 of the cobrança bancária barcode) is not checked.
+    references:
+      - https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf
+      - https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf
+      - https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban
     level: core
     params:
       - name: value
@@ -91,6 +132,12 @@ functions:
         note: consensus of 4 libs (go, javascript, ruby, rust)
   parse:
     summary: Removes boleto formatting characters and returns only digits.
+    description: |
+      Removes boleto formatting and keeps only digits, capped to 47 digits (48 for a boleto de arrecadação).
+    references:
+      - https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf
+      - https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf
+      - https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban
     params:
       - name: value
         type: string | number

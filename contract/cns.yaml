@@ -1,7 +1,15 @@
 domain: cns
+title: CNS — Cartão Nacional de Saúde
+description: The SUS identifier of a user, health professional or health facility.
 functions:
   format:
     summary: Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.
+    description: |
+      Formats a CNS number into groups of 3-4-4-4 digits separated by spaces.
+
+      - `options.pad` left-pads with zeros to 15 digits first.
+    references:
+      - https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/
     params:
       - name: value
         type: string | number
@@ -24,6 +32,14 @@ functions:
   isValid:
     summary: Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health
       professional or health facility.
+    description: |
+      Validates a CNS number: 15 digits.
+
+      - Definitive cards start with 1 or 2, provisional ones with 7, 8 or 9; each kind has its own modulus 11 rule.
+      - A number starting with 5 is rejected, following ANVISA.
+      - Accepts the bare digits or the printed 3-4-4-4 groups split by whitespace, `.`, `-` or `/`; anything else is rejected.
+    references:
+      - https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/
     params:
       - name: value
         type: string | number
@@ -54,6 +70,10 @@ functions:
         returns: false
   parse:
     summary: Removes CNS (Cartão Nacional de Saúde) formatting characters and returns only digits.
+    description: |
+      Removes CNS formatting and keeps only digits, capped to 15 digits.
+    references:
+      - https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/
     params:
       - name: value
         type: string | number

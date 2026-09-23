@@ -1,7 +1,16 @@
 domain: csosn
+title: CSOSN — Código de Situação da Operação no Simples Nacional
+description: Tax situation codes of Simples Nacional operations.
 functions:
   isValid:
     summary: Validates if a CSOSN (Código de Situação da Operação no Simples Nacional) code is valid.
+    description: |
+      Checks whether a CSOSN is one of the 10 codes of the official table: `101`, `102`, `103`, `201`, `202`, `203`, `300`, `400`, `500`, `900`.
+
+      - Accepts the bare 3 digits as a string, or a non-negative integer; a CSOSN has no printed grouping, so a masked value is rejected.
+    references:
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2010/aj_003_10
     params:
       - name: value
         type: string | number

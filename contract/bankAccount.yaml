@@ -1,8 +1,20 @@
 domain: bankAccount
+title: Bank accounts
+description: Brazilian bank account (agência, conta and dígito) check-digit validation, per bank.
 functions:
   isValid:
     summary: Validates a Brazilian bank account. The bank code must belong to the Banco Central do Brasil STR participants list, otherwise the
       account is rejected.
+    description: |
+      Validates a Brazilian bank account (bank code, agency, account and check digit).
+
+      - `params` carries `bankCode` (3 digits), `agency` (1 to 5 digits), `account` (1 to 13 digits) and `digit` (1 or 2 characters, or `X` for Banco do Brasil and `P` for Bradesco), all strings.
+      - `bankCode` must be a Banco Central STR participant (the list `bank.getByCode` uses); any other code is rejected.
+      - Banks with a published check-digit algorithm are checked by it: Banco do Brasil (001), Santander (033), Banrisul (041), Caixa (104), Bradesco (237), Nubank (260, Verhoeff), Itaú (341), HSBC/Kirton (399) and Citibank (745), each with its own agency/account lengths.
+      - Some banks (Inter, C6, PicPay, Sicoob, Sicredi and others) are checked by structure only: a single numeric `digit` is enough.
+      - Every other listed bank uses a generic fallback: `digit` must match mod 10 or mod 11 over the account (a 2-character digit chains mod 10 then mod 11).
+    references:
+      - https://www.bcb.gov.br/content/estabilidadefinanceira/str1/ParticipantesSTR.csv
     params:
       - name: params
         type: IsValidBankAccountParams

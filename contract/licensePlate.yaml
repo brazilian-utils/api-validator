@@ -1,9 +1,19 @@
 domain: licensePlate
+title: License plate
+description: Brazilian vehicle license plates, old format (LLLNNNN) and Mercosul (LLLNLNN).
 functions:
   convertToMercosul:
     summary: 'Converts an old format Brazilian license plate ("LLLNNNN") to the Mercosul format ("LLLNLNN"), following the official conversion
       table: the digit in the 5th position (the 2nd digit of the 4 digit number) becomes a letter, `0` through `9` mapping to `A` through
       `J`, and every other character is kept as is.'
+    description: |
+      Converts an old-format plate (`LLLNNNN`) to the Mercosul format (`LLLNLNN`): the 5th character, a digit, becomes a letter, `0` to `9` mapping to `A` to `J`; the result is upper-cased.
+
+      - Pending decision (findings §1b): the reference (JS) also accepts the hyphen mask (`ABC-1234`); other libs reject it.
+      - Pending decision (findings §2 #5): for a plate that is already Mercosul or is not a valid old-format plate, the reference (JS) returns an empty string; most libs return null.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf
     flatName: convertLicensePlateToMercosul
     level: core
     params:
@@ -40,6 +50,13 @@ functions:
         note: the reference returns an empty string (asserted by its tests), several libs return null/None instead
   format:
     summary: Formats a Brazilian license plate (placa de carro ou moto).
+    description: |
+      Formats a license plate, upper-cased: old-format plates (`LLLNNNN`) get a hyphen (`ABC-1234`); Mercosul plates (`LLLNLNN`) have no separator.
+
+      - Returns an empty string when the value cannot start a valid plate.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf
     level: core
     params:
       - name: value
@@ -75,6 +92,13 @@ functions:
         note: consensus of 5 libs (go, javascript, python, ruby, rust)
   generate:
     summary: Generates a valid random Brazilian license plate (placa de carro ou moto).
+    description: |
+      Generates a valid random license plate, unformatted.
+
+      - `format` is `LLLNLNN` (Mercosul, the default) or `LLLNNNN` (old format); any other value falls back to the default.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf
     level: core
     params:
       - name: format
@@ -89,6 +113,15 @@ functions:
         note: every generated value must pass the lib's own validator
   getFormat:
     summary: Identifies the format of a Brazilian license plate (placa de carro ou moto).
+    description: |
+      Detects the format of a license plate: `LLLNNNN` for the old format, `LLLNLNN` for Mercosul.
+
+      - Separators are removed first; case is ignored.
+      - Returns null when the value is not 7 letters and digits in one of the two formats.
+      - Pending decision (findings §1): Erlang returns named formats instead of the patterns.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf
     level: core
     params:
       - name: value
@@ -124,6 +157,13 @@ functions:
         note: consensus of 5 libs (go, javascript, python, ruby, rust)
   isValid:
     summary: Validates if a Brazilian license plate (placa de carro ou moto) is valid.
+    description: |
+      Validates a license plate in the old format (`ABC1234`) or the Mercosul format (`ABC1D23`), in any case, with or without a hyphen or space.
+
+      - Any other sequence of letters and digits, or extra characters, makes it invalid.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf
     level: core
     params:
       - name: value
@@ -168,6 +208,10 @@ functions:
         note: consensus of 3 libs (javascript, python, ruby)
   parse:
     summary: Removes license plate formatting characters and returns only uppercase alphanumerics.
+    description: |
+      Removes separators from a license plate, upper-cases it and caps it to 7 characters.
+    references:
+      - https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf
     params:
       - name: value
         type: string

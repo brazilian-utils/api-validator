@@ -1,7 +1,24 @@
 domain: cst
+title: CST — Código de Situação Tributária
+description: Tax situation codes of ICMS, IPI, PIS and COFINS.
 functions:
   isValid:
     summary: Validates if a CST (Código de Situação Tributária) code is valid for a given tax.
+    description: |
+      Checks whether a CST code is valid for a tax.
+
+      - `options.tax` picks the table: `icms` (3 digits, origem `0`-`8` plus the Tabela B code), `ipi`, `pis` or `cofins` (2 digits; PIS and COFINS share a table). Omitted or unknown, every table is accepted.
+      - Accepts a string or a non-negative integer; the 3-digit ICMS form may have a single separator after the origin digit.
+      - A single digit is padded to the 3-digit ICMS form; a 2-digit string is a Tabela B code.
+    references:
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2023/ajuste-sinief-39-23
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2024/AJ020_24
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/1994/aj_003_94
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2000/AJ_006_00
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2012/aj_020_12
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2013/aj_015_13
+      - https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=15974
     params:
       - name: value
         type: string | number

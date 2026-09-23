@@ -1,7 +1,15 @@
 domain: cno
+title: CNO — Cadastro Nacional de Obras
+description: Registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).
 functions:
   format:
     summary: Formats a CNO (Cadastro Nacional de Obras) number according to the official mask.
+    description: |
+      Formats a CNO with the mask `00.000.00000/00` (the CEI numbering).
+
+      - Same rules as `cei.format`; `options.pad` left-pads with zeros to 12 digits first.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
     params:
       - name: value
         type: string | number
@@ -23,6 +31,13 @@ functions:
         returns: ""
   isValid:
     summary: Validates a CNO (Cadastro Nacional de Obras) number, the registration of a construction work with the Receita Federal.
+    description: |
+      Validates a CNO. The CNO replaced the CEI for construction works and kept its numbering.
+
+      - Same rules as `cei.isValid`.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
+      - https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno
     params:
       - name: value
         type: string | number
@@ -49,6 +64,10 @@ functions:
         returns: false
   parse:
     summary: Removes CNO (Cadastro Nacional de Obras) formatting characters and returns only digits.
+    description: |
+      Removes CNO formatting and keeps only digits, capped to 12 digits.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno
     params:
       - name: value
         type: string | number

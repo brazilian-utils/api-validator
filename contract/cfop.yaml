@@ -1,7 +1,18 @@
 domain: cfop
+title: CFOP — Código Fiscal de Operações e Prestações
+description: Fiscal operation codes of Anexo II of Convênio SINIEF s/nº 1970.
 functions:
   get:
     summary: Looks a CFOP (Código Fiscal de Operações e Prestações) code up in the official table.
+    description: |
+      Looks a CFOP code up in the official table and returns its code and description.
+
+      - Same input rules as `cfop.isValid`; returns null for a heading, an unknown code or a value not in an accepted form.
+    references:
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2025/AJ039_25
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2001/AJ_007_01
     params:
       - name: value
         type: string | number
@@ -29,6 +40,17 @@ functions:
         returns: null
   isValid:
     summary: Validates if a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.
+    description: |
+      Checks whether a CFOP code exists in the consolidated Anexo II of Convênio SINIEF s/nº 1970 in force.
+
+      - Only operable codes count: group and subgroup headings (codes ending in `00` and `50`) are rejected.
+      - Accepts the 4 digits, the `N.NNN` form with a single separator (space, `.`, `-` or `/`), or a non-negative integer; any other string is rejected.
+      - No CFOP starts with a zero, so nothing is padded.
+    references:
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2025/AJ039_25
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/2001/AJ_007_01
     params:
       - name: value
         type: string | number
@@ -57,6 +79,12 @@ functions:
         returns: false
   parse:
     summary: Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.
+    description: |
+      Removes CFOP formatting and keeps only digits, capped to 4 digits.
+
+      - Nothing is padded.
+    references:
+      - https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24
     params:
       - name: value
         type: string | number

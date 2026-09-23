@@ -1,7 +1,16 @@
 domain: legalNature
+title: Natureza jurídica — legal nature
+description: Legal nature codes of the IBGE/CONCLA Natureza Jurídica 2021 table.
 functions:
   format:
     summary: Formats a Brazilian legal nature (natureza jurídica) code.
+    description: |
+      Formats a legal nature code as `NNN-N`; use `legalNature.isValid` to check the code.
+
+      - The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 4 digits first.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     params:
       - name: value
         type: string | number
@@ -23,6 +32,11 @@ functions:
         returns: ""
   generate:
     summary: Generates a random valid Brazilian legal nature (natureza jurídica) code.
+    description: |
+      Generates a random valid legal nature code (4 digits), drawn only among the 92 codes in force, never a retired one.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     params: []
     returns: string
     tests:
@@ -33,6 +47,14 @@ functions:
         note: every generated value must pass the lib's own validator
   get:
     summary: Looks a Brazilian legal nature (natureza jurídica) code up.
+    description: |
+      Looks a legal nature code up in the IBGE/CONCLA Natureza Jurídica 2021 table; returns null for an unknown code.
+
+      - The entry has the code, its description and its CONCLA category (given by the first digit).
+      - A code retired by a past revision comes back flagged as legacy, with the code it corresponds to today, or none when it has no successor.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     params:
       - name: value
         type: string | number
@@ -89,6 +111,17 @@ functions:
         note: consensus of 4 libs (go, python, ruby, rust)
   isValid:
     summary: Validates if a Brazilian legal nature (natureza jurídica) code exists.
+    description: |
+      Checks whether a legal nature code exists in the IBGE/CONCLA Natureza Jurídica 2021 table.
+
+      - The 92 codes in force are accepted, plus the 8 codes a past revision retired (`legalNature.get` tells them apart).
+      - Only hyphens, dots and whitespace are tolerated around the 4 digits.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
+      - https://concla.ibge.gov.br/classificacoes/correspondencias/natureza-juridica.html
+      - https://concla.ibge.gov.br/images/concla/documentacao/correspTNJ2003(1)-2009.xls
+      - https://concla.ibge.gov.br/images/concla/documentacao/correspTNJ1995-2002-2003.xls
     level: core
     params:
       - name: code
@@ -124,6 +157,14 @@ functions:
         note: consensus of 5 libs (go, javascript, python, ruby, rust)
   list:
     summary: Returns every Brazilian legal nature (natureza jurídica) published by the CONCLA.
+    description: |
+      Returns the legal nature table as a map from code to description.
+
+      - Only the 92 codes in force by default; `params` can include the 8 retired codes.
+      - The table is CONCLA's Natureza Jurídica 2021 (findings §1b: some libs still ship an older table).
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     flatName: getLegalNatures
     aliases:
       - legalNature.listAll
@@ -233,6 +274,15 @@ functions:
           92 entries and that retired codes such as 2208 are excluded)
   listByCategory:
     summary: Retrieves every Brazilian legal nature (natureza jurídica) of a CONCLA category.
+    description: |
+      Returns every legal nature of a CONCLA category (the first digit of the code), sorted by code.
+
+      - Categories: 1 Administração Pública, 2 Entidades Empresariais, 3 Entidades sem Fins Lucrativos, 4 Pessoas Físicas, 5 Organizações Internacionais e Outras Instituições Extraterritoriais.
+      - `category` may be a string or a number; `options` can include the retired codes.
+      - Returns an empty list for an unknown category.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     flatName: getLegalNaturesByCategory
     params:
       - name: category
@@ -335,6 +385,11 @@ functions:
         returns: []
   parse:
     summary: Removes legal nature (natureza jurídica) formatting characters and returns only digits.
+    description: |
+      Removes legal nature formatting and keeps only digits, capped to 4 digits.
+    references:
+      - https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021
+      - https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf
     params:
       - name: value
         type: string | number

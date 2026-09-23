@@ -1,7 +1,15 @@
 domain: caepf
+title: CAEPF — Cadastro de Atividade Econômica da Pessoa Física
+description: Registration of individuals who employ workers (replaced the CEI for them).
 functions:
   format:
     summary: Formats a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number according to the official mask.
+    description: |
+      Formats a CAEPF with the mask `000.000.000/000-00`.
+
+      - The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 14 digits first.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf
     params:
       - name: value
         type: string | number
@@ -23,6 +31,14 @@ functions:
         returns: ""
   isValid:
     summary: Validates a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number.
+    description: |
+      Validates a CAEPF: 14 digits, the 9-digit CPF base of the holder, a 3-digit sequence and 2 check digits.
+
+      - Both check digits follow the CNPJ modulus 11; the resulting pair is then shifted by 12, wrapping around 100.
+      - A base whose digits are all the same is rejected.
+      - The value may be a number or a string, masked as `000.000.000/000-00` or not.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf
     params:
       - name: value
         type: string | number
@@ -51,6 +67,10 @@ functions:
         returns: false
   parse:
     summary: Removes CAEPF (Cadastro de Atividade Econômica da Pessoa Física) formatting characters and returns only digits.
+    description: |
+      Removes CAEPF formatting and keeps only digits, capped to 14 digits.
+    references:
+      - https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf
     params:
       - name: value
         type: string | number

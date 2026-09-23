@@ -1,8 +1,20 @@
 domain: certidao
+title: Certidão — civil registry certificate
+description: The 32-digit matrícula of a certidão de registro civil (birth, marriage, death and the other acts of the registro civil das
+  pessoas naturais).
 functions:
   format:
     summary: Formats the matrícula of a certidão de registro civil into the printed mask of the norm, the 32 digits grouped as 6 2 2 4 1 5 3 7 2
       and separated by spaces.
+    description: |
+      Formats the matrícula of a certidão de registro civil into the printed mask of art. 473 of the Código Nacional de Normas: the 32 digits grouped as 6 2 2 4 1 5 3 7 2, separated by spaces.
+
+      - The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 32 digits first.
+      - A full 32-digit matrícula does not fit an integer, so it has to be given as a string.
+    references:
+      - https://atos.cnj.jus.br/atos/detalhar/5243
+      - https://atos.cnj.jus.br/atos/detalhar/1311
+      - https://atos.cnj.jus.br/atos/detalhar/1310
     params:
       - name: value
         type: string | number
@@ -24,6 +36,15 @@ functions:
         returns: ""
   getInfo:
     summary: Parses the matrícula of a certidão de registro civil into its fields.
+    description: |
+      Parses the matrícula of a certidão de registro civil into its fields; returns null when it is not valid (same rules as `certidao.isValid`).
+
+      - Fields: CNS of the serventia (6 digits), acervo, service (always `55`), year, book type (birth, marriage, religious marriage, death, stillbirth, banns, other, emancipation, interdiction) and its raw code 1 to 9, book, page, term and the 2 check digits.
+      - Art. 473 V lists only book codes 1 to 7; codes 8 (emancipação) and 9 (interdição) are also accepted.
+    references:
+      - https://atos.cnj.jus.br/atos/detalhar/5243
+      - https://atos.cnj.jus.br/atos/detalhar/1311
+      - https://atos.cnj.jus.br/atos/detalhar/1310
     flatName: getCertidaoInfo
     params:
       - name: value
@@ -65,6 +86,17 @@ functions:
   isValid:
     summary: Validates the matrícula of a certidão de registro civil (nascimento, casamento, óbito and the other acts kept by a serventia de
       registro civil das pessoas naturais).
+    description: |
+      Validates the 32-digit matrícula of a certidão de registro civil (art. 473 of the Código Nacional de Normas da Corregedoria Nacional de Justiça).
+
+      - Layout: CNS da serventia (6), acervo (2), serviço (2, always `55`), ano (4), tipo do livro (1), livro (5), folha (3), termo (7) and 2 modulus 11 check digits.
+      - The serviço must be `55` and the book type one of the nine books (`0` is rejected).
+      - `options.accept` narrows the valid book types to the listed ones (default: every type).
+      - Accepts the value masked or not, with whitespace between and around the groups.
+    references:
+      - https://atos.cnj.jus.br/atos/detalhar/5243
+      - https://atos.cnj.jus.br/atos/detalhar/1311
+      - https://atos.cnj.jus.br/atos/detalhar/1310
     params:
       - name: value
         type: string
@@ -91,6 +123,11 @@ functions:
         returns: false
   parse:
     summary: Removes the formatting of the matrícula of a certidão de registro civil and returns only digits.
+    description: |
+      Removes the formatting of a certidão matrícula and keeps only digits, capped to 32 digits.
+    references:
+      - https://atos.cnj.jus.br/atos/detalhar/5243
+      - https://atos.cnj.jus.br/atos/detalhar/1310
     params:
       - name: value
         type: string | number

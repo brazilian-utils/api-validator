@@ -1,7 +1,19 @@
 domain: areaCode
+title: DDD — Brazilian area codes
+description: Telephone area codes (DDD) in use under the Anatel Plano Geral de Numeração, and the states they serve.
 functions:
   getInfo:
     summary: Retrieves the state (and its region) a Brazilian DDD (area code) belongs to.
+    description: |
+      Returns the state and region a DDD (area code) belongs to, among the 67 DDDs in use under the Anatel Plano Geral de Numeração.
+
+      - `areaCode` may be a string or a non-negative integer.
+      - The result carries the DDD, the state it is seated in (code and name), its region (code and name) and every state it serves.
+      - For the four DDDs that straddle a state border (61, 42, 47 and 49) the list of states also has the other state, the seat first.
+      - Returns null for a DDD not in use, a negative or non-integer number, or anything else.
+    references:
+      - https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749
+      - https://www.gov.br/anatel/pt-br/regulado/numeracao/codigos-nacionais
     flatName: getAreaCodeInfo
     params:
       - name: areaCode
@@ -59,6 +71,15 @@ functions:
         returns: null
   listByState:
     summary: Retrieves every DDD (area code) that serves a given Brazilian state, under the Plano Geral de Numeração.
+    description: |
+      Returns every DDD (area code) that serves a state, sorted in ascending order.
+
+      - `stateCode` is matched case-insensitively.
+      - A DDD that straddles a border is listed under every state it serves.
+      - Returns an empty list when `stateCode` is not a Brazilian state.
+    references:
+      - https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749
+      - https://www.gov.br/anatel/pt-br/regulado/numeracao/codigos-nacionais
     flatName: getAreaCodesByState
     params:
       - name: stateCode

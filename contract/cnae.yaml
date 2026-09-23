@@ -1,7 +1,17 @@
 domain: cnae
+title: CNAE — Classificação Nacional de Atividades Econômicas
+description: Economic activity subclass codes of the CNAE-Subclasses 2.3 table.
 functions:
   format:
     summary: Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.
+    description: |
+      Formats a CNAE subclass code with the mask `NNNN-N/NN`; only the structure changes (use `cnae.isValid` to check the code).
+
+      - The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 7 digits first.
+      - Characters other than digits are dropped; a number is read as the string of its digits.
+      - Returns an empty string when there is no digit at all.
+    references:
+      - https://servicodados.ibge.gov.br/api/v2/cnae/subclasses
     params:
       - name: value
         type: string | number
@@ -24,6 +34,14 @@ functions:
   get:
     summary: Looks a CNAE (Classificação Nacional de Atividades Econômicas) subclass code up in the official CNAE-Subclasses 2.3 table, the
       current subclass revision of CNAE 2.0.
+    description: |
+      Looks a CNAE subclass code up in the CNAE-Subclasses 2.3 table and returns its code (7 bare digits) and official description.
+
+      - Same input rules as `cbo.get`, with 7 digits and the `NNNN-N/NN` mask.
+      - Returns null for an unknown code or a value not in an accepted form.
+    references:
+      - https://servicodados.ibge.gov.br/api/v2/cnae/subclasses
+      - https://concla.ibge.gov.br/busca-online-cnae.html
     params:
       - name: value
         type: string | number
@@ -54,6 +72,13 @@ functions:
   isValid:
     summary: Validates if a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3
       table, the current subclass revision of CNAE 2.0.
+    description: |
+      Checks whether a CNAE subclass code exists in the CNAE-Subclasses 2.3 table (the current subclass revision of CNAE 2.0).
+
+      - Same input rules as `cbo.isValid`, with 7 digits and the `NNNN-N/NN` mask: bare digits are left-padded to 7, a masked value is read as written, other strings are rejected.
+    references:
+      - https://servicodados.ibge.gov.br/api/v2/cnae/subclasses
+      - https://concla.ibge.gov.br/busca-online-cnae.html
     params:
       - name: value
         type: string | number
@@ -84,6 +109,12 @@ functions:
         returns: false
   parse:
     summary: Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.
+    description: |
+      Removes CNAE formatting and keeps only digits, capped to 7 digits.
+
+      - Nothing is left-padded; a partial code is kept as written.
+    references:
+      - https://servicodados.ibge.gov.br/api/v2/cnae/subclasses
     params:
       - name: value
         type: string | number

@@ -1,7 +1,17 @@
 domain: voterId
+title: Título de eleitor — voter ID
+description: The Brazilian voter registration number.
 functions:
   format:
     summary: Formats a Brazilian voter id (título de eleitor) for display.
+    description: |
+      Formats a voter ID with the grouping `0000 0000 00 00`.
+
+      - The 13-digit grouping `0000 0000 0 00 00` is used only when the value has more than 12 digits and its UF code (10th and 11th digits) is `01` (SP) or `02` (MG).
+      - Digits past the last slot of the pattern are dropped.
+      - Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null.
+    references:
+      - https://www.tse.jus.br/legislacao/compilada/res/2021/resolucao-no-23-659-de-26-de-outubro-de-2021
     level: core
     params:
       - name: value
@@ -19,6 +29,12 @@ functions:
         note: consensus of 5 libs (go, javascript, python, ruby, rust)
   generate:
     summary: Generates a valid random Brazilian voter id (título de eleitor).
+    description: |
+      Generates a valid random voter ID: 12 digits, unformatted (never the 13-digit SP/MG form).
+
+      - `state` (a state code, or `ZZ` for a voter ID issued abroad) sets the UF code; an unknown value falls back to `ZZ` (UF `28`).
+    references:
+      - https://www.tse.jus.br/legislacao/compilada/res/2021/resolucao-no-23-659-de-26-de-outubro-de-2021
     level: core
     params:
       - name: state
@@ -33,6 +49,12 @@ functions:
         note: every generated value must pass the lib's own validator
   isValid:
     summary: Validates if a Brazilian voter id (título de eleitor) is valid.
+    description: |
+      Validates a voter ID: an 8-digit sequential number, a 2-digit UF code (`01` to `28`) and 2 modulus 11 check digits; SP (`01`) and MG (`02`) may also issue 13-digit IDs with a 9-digit sequential number.
+
+      - Pending decision (findings §2 #1): the reference (JS) accepts whitespace and dots around and between the groups (not hyphens); other libs accept digits only.
+    references:
+      - https://www.tse.jus.br/legislacao/compilada/res/2021/resolucao-no-23-659-de-26-de-outubro-de-2021
     level: core
     params:
       - name: value
@@ -71,6 +93,10 @@ functions:
         note: consensus of 5 libs (go, javascript, python, ruby, rust)
   parse:
     summary: Removes voter id (título de eleitor) formatting characters and returns only digits.
+    description: |
+      Removes voter ID formatting and keeps only digits, capped to 12 digits (13 when the UF digits are SP or MG).
+    references:
+      - https://www.tse.jus.br/legislacao/compilada/res/2021/resolucao-no-23-659-de-26-de-outubro-de-2021
     params:
       - name: value
         type: string | number

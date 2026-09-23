@@ -1,7 +1,16 @@
 domain: passport
+title: Passport
+description: Brazilian passport numbers (2 letters and 6 digits).
 functions:
   format:
     summary: Formats a Brazilian passport number for display. Converts to uppercase and removes all non-alphanumeric characters.
+    description: |
+      Formats a passport number: upper-cased, without symbols, capped to 8 characters (the same operation as `passport.parse`).
+
+      - Pending decision (findings §1b, §2 #8): the reference (JS) upper-cases lowercase and masked input; Erlang and Python accept only the strict uppercase form.
+    references:
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e
     params:
       - name: passport
         type: string
@@ -28,6 +37,11 @@ functions:
         note: reference truncates to 8 characters; asserted by the reference (JS) unit tests
   generate:
     summary: Generates a random valid Brazilian passport number.
+    description: |
+      Generates a random valid passport number: 2 uppercase letters followed by 6 digits.
+    references:
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e
     params: []
     returns: string
     tests:
@@ -43,6 +57,15 @@ functions:
       the input is a real passport number, as there are no checksums for the Brazilian passport. A number is accepted for symmetry with
       `formatPassport`/`parsePassport` but is never valid: the decimal form of a number never starts with the two letters a passport number
       needs."
+    description: |
+      Validates a Brazilian passport number: 2 letters followed by 6 digits, after removing non-alphanumeric characters.
+
+      - There is no check digit, so a well-formed number is not necessarily a real passport.
+      - A number is never valid (it cannot start with the two letters).
+      - Pending decision (findings §1b, §2 #8): the reference (JS) is case-insensitive and ignores symbols (`ab123456`, `AB-123.456` are valid); Erlang and Python accept only the strict uppercase form.
+    references:
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e
     params:
       - name: passport
         type: string | number
@@ -72,6 +95,11 @@ functions:
         note: a number is accepted but never valid (see summary)
   parse:
     summary: Removes non-alphanumeric characters from a passport number, uppercases it, and caps it to 8 characters.
+    description: |
+      Removes every non-alphanumeric character from a passport number, upper-cases it and caps it to 8 characters.
+    references:
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte
+      - https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e
     params:
       - name: passport
         type: string
