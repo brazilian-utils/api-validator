@@ -9,16 +9,6 @@ import "github.com/brazilian-utils/go/phone"
 phone.Format("")  // ""
 ```
 
-## removeSymbols
-
-```go
-import "github.com/brazilian-utils/go/phone"
-
-phone.RemoveSymbols("48976-5797")  // "489765797"
-phone.RemoveSymbols("31479-8146")  // "314798146"
-phone.RemoveSymbols("38942-4321")  // "389424321"
-```
-
 ## removeInternationalDialingCode
 
 ```go

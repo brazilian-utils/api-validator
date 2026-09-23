@@ -21,16 +21,6 @@ BrazilianUtils::CEPUtils.format_cep('91906293')  # => '91906-293'
 BrazilianUtils::CEPUtils.format_cep('00000000')  # => '00000-000'
 ```
 
-## removeSymbols
-
-```ruby
-require 'brazilian-utils/cep-utils'
-
-BrazilianUtils::CEPUtils.remove_symbols('91906-292')  # => '91906292'
-BrazilianUtils::CEPUtils.remove_symbols('21749-676')  # => '21749676'
-BrazilianUtils::CEPUtils.remove_symbols('41790-070')  # => '41790070'
-```
-
 ## generate
 
 ```ruby

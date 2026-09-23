@@ -17,14 +17,6 @@ brutils:format_pis(<<"00000000000">>).  % {ok, <<"000.00000.00-0">>}
 brutils:format_pis(<<"36365790380">>).  % {ok, <<"363.65790.38-0">>}
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_pis(<<"559.84775.36-3">>).  % <<"55984775363">>
-brutils:remove_symbols_pis(<<"363.65790.38-0">>).  % <<"36365790380">>
-brutils:remove_symbols_pis(<<"735.32010.29-4">>).  % <<"73532010294">>
-```
-
 ## generate
 
 ```erlang

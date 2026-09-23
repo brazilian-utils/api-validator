@@ -17,14 +17,6 @@ format_cnpj("03560714000142")  # '03.560.714/0001-42'
 format_cnpj("98765432100100")  # None (invalid input)
 ```
 
-## removeSymbols
-
-```python
-from brutils import remove_symbols_cnpj
-
-remove_symbols_cnpj("00.111.222/0001-00")  # '00111222000100'
-```
-
 ## generate
 
 ```python

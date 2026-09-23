@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..1c7d3c9
 --- /dev/null
 +++ b/apicontract/apicontract_test.go
-@@ -0,0 +1,441 @@
+@@ -0,0 +1,440 @@
 +// Package apicontract_test runs the brazilian-utils API contract suite (vendored in
 +// ../api-contract, see its README.md) against this library.
 +//
@@ -105,7 +105,6 @@ index 0000000..1c7d3c9
 +	// Go requires the type; "" means mobile or landline at random.
 +	"phone.generate":                       func(a []any) (any, error) { return phone.Generate(optStr(a, 0, "")), nil },
 +	"phone.removeInternationalDialingCode": func(a []any) (any, error) { return phone.RemoveInternationalDialingCode(str(a, 0)), nil },
-+	"phone.removeSymbols":                  func(a []any) (any, error) { return phone.RemoveSymbols(str(a, 0)), nil },
 +
 +	// pis
 +	"pis.format":   func(a []any) (any, error) { return pis.Format(str(a, 0)), nil },

@@ -17,15 +17,6 @@ format_cep("01310200")  # '01310-200'
 format_cep("12345")  # None (invalid input)
 ```
 
-## removeSymbols
-
-```python
-from brutils import remove_symbols_cep
-
-remove_symbols_cep("01310-200")  # '01310200'
-remove_symbols_cep("123-45.678.9")  # '123456789'
-```
-
 ## generate
 
 ```python

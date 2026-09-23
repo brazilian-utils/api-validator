@@ -21,16 +21,6 @@ Pis.formatPis("00000000000");  // Some("000.00000.00-0")
 Pis.formatPis("36365790380");  // Some("363.65790.38-0")
 ```
 
-## removeSymbols
-
-```csharp
-using BrazilianUtils;
-
-Pis.removeSymbols("559.84775.36-3");  // "55984775363"
-Pis.removeSymbols("363.65790.38-0");  // "36365790380"
-Pis.removeSymbols("735.32010.29-4");  // "73532010294"
-```
-
 ## generate
 
 ```csharp

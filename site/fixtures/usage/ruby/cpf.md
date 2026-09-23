@@ -21,16 +21,6 @@ BrazilianUtils::CPFUtils.format_cpf('02746891972')  # => '027.468.919-72'
 BrazilianUtils::CPFUtils.format_cpf('52708175602')  # => '527.081.756-02'
 ```
 
-## removeSymbols
-
-```ruby
-require 'brazilian-utils/cpf-utils'
-
-BrazilianUtils::CPFUtils.remove_symbols('831.595.621-31')  # => '83159562131'
-BrazilianUtils::CPFUtils.remove_symbols('027.468.919-72')  # => '02746891972'
-BrazilianUtils::CPFUtils.remove_symbols('527.081.756-02')  # => '52708175602'
-```
-
 ## generate
 
 ```ruby

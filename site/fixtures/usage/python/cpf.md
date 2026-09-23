@@ -16,14 +16,6 @@ format_cpf("82178537464")  # '821.785.374-64'
 format_cpf("55550207753")  # '555.502.077-53'
 ```
 
-## removeSymbols
-
-```python
-from brutils import remove_symbols_cpf
-
-remove_symbols_cpf("000.111.222-33")  # '00011122233'
-```
-
 ## generate
 
 ```python

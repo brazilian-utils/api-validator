@@ -27,7 +27,6 @@ module ApiContract
     'cep.generate' => ->(a) { CEPUtils.generate(*a) },
     'cep.getAddressInfo' => ->(a) { CEPUtils.get_address_from_cep(*a) },
     'cep.isValid' => ->(a) { CEPUtils.valid?(*a) },
-    'cep.removeSymbols' => ->(a) { CEPUtils.remove_symbols(*a) },
 
     # cnh
     'cnh.isValid' => ->(a) { CNHUtils.valid?(*a) },
@@ -36,13 +35,11 @@ module ApiContract
     'cnpj.format' => ->(a) { CNPJUtils.format_cnpj(*a) },
     'cnpj.generate' => ->(a) { CNPJUtils.generate(*a) },
     'cnpj.isValid' => ->(a) { CNPJUtils.valid?(*a) },
-    'cnpj.removeSymbols' => ->(a) { CNPJUtils.remove_symbols(*a) },
 
     # cpf
     'cpf.format' => ->(a) { CPFUtils.format_cpf(*a) },
     'cpf.generate' => ->(a) { CPFUtils.generate(*a) },
     'cpf.isValid' => ->(a) { CPFUtils.valid?(*a) },
-    'cpf.removeSymbols' => ->(a) { CPFUtils.remove_symbols(*a) },
 
     # currency
     'currency.convertToWords' => ->(a) { CurrencyUtils.convert_real_to_text(*a) },
@@ -62,7 +59,6 @@ module ApiContract
     # legalProcess
     'legalProcess.format' => ->(a) { LegalProcessUtils.format_legal_process(*a) },
     'legalProcess.isValid' => ->(a) { LegalProcessUtils.valid?(*a) },
-    'legalProcess.removeSymbols' => ->(a) { LegalProcessUtils.remove_symbols(*a) },
 
     # licensePlate
     'licensePlate.convertToMercosul' => ->(a) { LicensePlateUtils.convert_to_mercosul(*a) },
@@ -70,19 +66,16 @@ module ApiContract
     'licensePlate.generate' => ->(a) { LicensePlateUtils.generate(*a) },
     'licensePlate.getFormat' => ->(a) { LicensePlateUtils.get_format(*a) },
     'licensePlate.isValid' => ->(a) { LicensePlateUtils.valid?(*a) },
-    'licensePlate.removeSymbols' => ->(a) { LicensePlateUtils.remove_symbols(*a) },
 
     # phone
     'phone.format' => ->(a) { PhoneUtils.format(*a) },
     'phone.generate' => ->(a) { PhoneUtils.generate(*a) },
     'phone.removeInternationalDialingCode' => ->(a) { PhoneUtils.remove_international_dialing_code(*a) },
-    'phone.removeSymbols' => ->(a) { PhoneUtils.remove_symbols(*a) },
 
     # pis
     'pis.format' => ->(a) { PISUtils.format(*a) },
     'pis.generate' => ->(a) { PISUtils.generate(*a) },
     'pis.isValid' => ->(a) { PISUtils.valid?(*a) },
-    'pis.removeSymbols' => ->(a) { PISUtils.remove_symbols(*a) },
 
     # renavam
     'renavam.isValid' => ->(a) { RENAVAMUtils.valid?(*a) },

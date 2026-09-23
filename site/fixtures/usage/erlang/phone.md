@@ -9,14 +9,6 @@ brutils:is_valid_phone(<<"00000000000">>).  % false
 brutils:is_valid_phone(<<"48976579785">>).  % true
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_phone(<<"48976-5797">>).  % <<"489765797">>
-brutils:remove_symbols_phone(<<"31479-8146">>).  % <<"314798146">>
-brutils:remove_symbols_phone(<<"38942-4321">>).  % <<"389424321">>
-```
-
 ## generate
 
 ```erlang

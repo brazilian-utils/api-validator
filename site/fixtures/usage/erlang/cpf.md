@@ -17,14 +17,6 @@ brutils:format_cpf(<<"02746891972">>).  % {ok, <<"027.468.919-72">>}
 brutils:format_cpf(<<"52708175602">>).  % {ok, <<"527.081.756-02">>}
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_cpf(<<"831.595.621-31">>).  % <<"83159562131">>
-brutils:remove_symbols_cpf(<<"027.468.919-72">>).  % <<"02746891972">>
-brutils:remove_symbols_cpf(<<"527.081.756-02">>).  % <<"52708175602">>
-```
-
 ## generate
 
 ```erlang

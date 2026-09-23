@@ -17,14 +17,6 @@ brutils:format_license_plate(<<"gjg8u81">>).  % {ok, <<"GJG8U81">>}
 brutils:format_license_plate(<<"kds4w15">>).  % {ok, <<"KDS4W15">>}
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_license_plate(<<"WDG1S21">>).  % <<"WDG1S21">>
-brutils:remove_symbols_license_plate(<<"WDG1S22">>).  % <<"WDG1S22">>
-brutils:remove_symbols_license_plate(<<"wdg1s21">>).  % <<"wdg1s21">>
-```
-
 ## generate
 
 ```erlang

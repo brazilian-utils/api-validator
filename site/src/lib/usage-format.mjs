@@ -7,7 +7,7 @@
 /** `licensePlate` → `license-plate`: the URL slug and usage file name of a domain. */
 export const slugOf = (domain) => domain.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 
-/** Case/separator-insensitive key: `remove-symbols`, `removeSymbols`, `Remove symbols` → `removesymbols`. */
+/** Case/separator-insensitive key: `get-info`, `getInfo`, `Get info` → `getinfo`. */
 export const keyOf = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
 
 /** `brazilian-utils-python` → `python`: the lib id on the site and in fixtures/usage/. */
@@ -17,7 +17,7 @@ export const shortName = (name) => name.replace(/^brazilian-utils-/, '');
 export const repoSlug = (url) => new URL(url).pathname.replace(/^\/|\.git$/g, '');
 
 /** Display order of operations on a page; the rest follow alphabetically. */
-export const OP_ORDER = ['isValid', 'format', 'parse', 'removeSymbols', 'generate', 'getInfo', 'get', 'list'];
+export const OP_ORDER = ['isValid', 'format', 'parse', 'generate', 'getInfo', 'get', 'list'];
 
 /** Position of an operation in OP_ORDER (unlisted ones after every listed one). */
 export const opRank = (op) => (OP_ORDER.includes(op) ? OP_ORDER.indexOf(op) : OP_ORDER.length);
@@ -30,7 +30,6 @@ export const DEFAULT_LABELS = {
   isValid: { en: 'Validate', 'pt-BR': 'Validar' },
   format: { en: 'Format', 'pt-BR': 'Formatar' },
   parse: { en: 'Parse', 'pt-BR': 'Extrair' },
-  removeSymbols: { en: 'Remove symbols', 'pt-BR': 'Remover símbolos' },
   generate: { en: 'Generate', 'pt-BR': 'Gerar' },
   getInfo: { en: 'Decode', 'pt-BR': 'Decodificar' },
   get: { en: 'Look up', 'pt-BR': 'Consultar' },

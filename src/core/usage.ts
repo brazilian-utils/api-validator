@@ -4,7 +4,7 @@
  * Every lib keeps `<site.usage.path>/<slug>.md` (default `docs/usage/`), one file per contract
  * domain, named after the site slug (`license-plate.md`) or the domain (`licensePlate.md`).
  * Each `## <operation>` section documents one contract function: `## isValid`, `## format`, …
- * (`is-valid`, `remove-symbols` and the older `validate` resolve too). A `.pt-br.md` twin holds
+ * (`is-valid`, `get-info` and the older `validate` resolve too). A `.pt-br.md` twin holds
  * Portuguese prose when the lib has it. The site (site/scripts/fetch-libs.mjs) cuts the files
  * into one usage tab per lib and operation.
  *

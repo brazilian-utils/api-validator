@@ -21,16 +21,6 @@ format_pis('00000000000')  # '000.00000.00-0'
 format_pis('36365790380')  # '363.65790.38-0'
 ```
 
-## removeSymbols
-
-```python
-from brutils import remove_symbols_pis
-
-remove_symbols_pis('559.84775.36-3')  # '55984775363'
-remove_symbols_pis('363.65790.38-0')  # '36365790380'
-remove_symbols_pis('735.32010.29-4')  # '73532010294'
-```
-
 ## generate
 
 ```python

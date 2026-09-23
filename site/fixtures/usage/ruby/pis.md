@@ -21,16 +21,6 @@ BrazilianUtils::PISUtils.format('00000000000')  # => '000.00000.00-0'
 BrazilianUtils::PISUtils.format('36365790380')  # => '363.65790.38-0'
 ```
 
-## removeSymbols
-
-```ruby
-require 'brazilian-utils/pis-utils'
-
-BrazilianUtils::PISUtils.remove_symbols('559.84775.36-3')  # => '55984775363'
-BrazilianUtils::PISUtils.remove_symbols('363.65790.38-0')  # => '36365790380'
-BrazilianUtils::PISUtils.remove_symbols('735.32010.29-4')  # => '73532010294'
-```
-
 ## generate
 
 ```ruby

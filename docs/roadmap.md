@@ -33,14 +33,14 @@ human review, and the open behavior questions need answers.
 
 1. Decide the 3 confirmations and 9 decisions in [findings.md](findings.md). Encode each one
    as a case with a `note`. These are suggested defaults, open to discussion:
-   - `isValid` accepts the usual masks (JS/Go/.NET already do, and every library has
-     `removeSymbols`).
+   - `isValid` accepts the usual masks (JS/Go/.NET already do, and every library can
+     `parse`).
    - `format` of an invalid value returns `null` (the typed libraries already say
      `Option`/`None`).
    - Empty input to `format` gives `null`.
    - PIS of repeated digits is invalid (same rule as CPF/CNPJ).
-2. Review names: `legalProcess` or `processoJuridico`, `removeSymbols` or JS `parse*`
-   (different semantics: keep both, or pick one), options objects or positional parameters
+2. Review names: `legalProcess` or `processoJuridico` (decided: `parse` replaces
+   `removeSymbols` everywhere, with the name and the behavior of JS `parse*`), options objects or positional parameters
    (the contract can declare the positional form and let JS keep options as an extra).
 3. Give every function test cases. `api-validator lint` lists the functions without any. Today,
    the validator checks only the name and signature of those functions. Then turn on

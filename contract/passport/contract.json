@@ -124,14 +124,6 @@
         { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456" },
         { "name": "empty", "args": [""], "returns": "" }
       ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string"
     }
   }
 }

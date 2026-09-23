@@ -131,18 +131,7 @@
         { "name": "unmasked", "args": ["94389575104"], "returns": "94389575104" },
         { "name": "strips-non-digits", "args": ["943.?ABC895.751-04abc"], "returns": "94389575104" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["94389575104123"], "returns": "94389575104", "note": "reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests" }
-      ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "level": "core",
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string",
-      "tests": [
+        { "name": "caps-length", "args": ["94389575104123"], "returns": "94389575104", "note": "reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests" },
         { "args": ["83159562131"], "returns": "83159562131", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["83159562132"], "returns": "83159562132", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 3 libs (python, ruby, rust)" },
@@ -153,9 +142,6 @@
         { "args": ["831.595.621-31"], "returns": "83159562131", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["027.468.919-72"], "returns": "02746891972", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["527.081.756-02"], "returns": "52708175602", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["123.456.789-09"], "returns": "12345678909", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
         { "args": ["111.444.777-35"], "returns": "11144477735", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
         { "args": ["12345678909"], "returns": "12345678909", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },

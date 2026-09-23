@@ -17,14 +17,6 @@ brutils:format_cep(<<"91906293">>).  % {ok, <<"91906-293">>}
 brutils:format_cep(<<"00000000">>).  % {ok, <<"00000-000">>}
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_cep(<<"91906-292">>).  % <<"91906292">>
-brutils:remove_symbols_cep(<<"21749-676">>).  % <<"21749676">>
-brutils:remove_symbols_cep(<<"41790-070">>).  % <<"41790070">>
-```
-
 ## generate
 
 ```erlang

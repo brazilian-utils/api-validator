@@ -20,13 +20,3 @@ legal_process::format_legal_process("16669239820269264931");  // Some("1666923-9
 legal_process::format_legal_process("16669239820269264932");  // Some("1666923-98.2026.9.26.4932")
 legal_process::format_legal_process("00000000000000000000");  // Some("0000000-00.0000.0.00.0000")
 ```
-
-## removeSymbols
-
-```rust
-use brazilian_utils::legal_process;
-
-legal_process::remove_symbols("1666923-98.2026.9.26.4931");  // "16669239820269264931"
-legal_process::remove_symbols("5507954-68.2026.9.13.4836");  // "55079546820269134836"
-legal_process::remove_symbols("4709757-95.2026.3.00.5802");  // "47097579520263005802"
-```

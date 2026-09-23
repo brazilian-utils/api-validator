@@ -127,18 +127,7 @@
         { "name": "unmasked", "args": ["00020802520125150049"], "returns": "00020802520125150049" },
         { "name": "strips-non-digits", "args": ["0002080@$25201%!@2515.%0049"], "returns": "00020802520125150049" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["00020802520125150049123"], "returns": "00020802520125150049", "note": "reference truncates to the 20 characters of the document; asserted by the reference (JS) unit tests" }
-      ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "level": "core",
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string",
-      "tests": [
+        { "name": "caps-length", "args": ["00020802520125150049123"], "returns": "00020802520125150049", "note": "reference truncates to the 20 characters of the document; asserted by the reference (JS) unit tests" },
         { "args": ["16669239820269264931"], "returns": "16669239820269264931", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["16669239820269264932"], "returns": "16669239820269264932", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["00000000000000000000"], "returns": "00000000000000000000", "note": "consensus of 3 libs (python, ruby, rust)" },
@@ -148,10 +137,7 @@
         { "args": ["47097579520263005803"], "returns": "47097579520263005803", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["1666923-98.2026.9.26.4931"], "returns": "16669239820269264931", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["5507954-68.2026.9.13.4836"], "returns": "55079546820269134836", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["4709757-95.2026.3.00.5802"], "returns": "47097579520263005802", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+        { "args": ["4709757-95.2026.3.00.5802"], "returns": "47097579520263005802", "note": "consensus of 3 libs (python, ruby, rust)" }
       ]
     }
   }

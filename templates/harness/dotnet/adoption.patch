@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..31a6b96
 --- /dev/null
 +++ b/BrazilianUtils.Tests/ApiContractTests.fs
-@@ -0,0 +1,373 @@
+@@ -0,0 +1,370 @@
 +/// Runs the shared brazilian-utils conformance suite (vendored in `api-contract/`, never edited
 +/// here) against this lib. The registry below is the only hand-maintained part: one line per
 +/// contract function this lib implements. See api-contract/README.md.
@@ -66,20 +66,17 @@ index 0000000..31a6b96
 +
 +        "legalProcess.format", fun a -> box (LegalProcess.formatLegalProcess (str 0 a))
 +        "legalProcess.isValid", fun a -> box (LegalProcess.isValid (str 0 a))
-+        "legalProcess.removeSymbols", fun a -> box (LegalProcess.removeSymbols (str 0 a))
 +
 +        "licensePlate.convertToMercosul", fun a -> box (LicensePlate.convertToMercosul (str 0 a))
 +        "licensePlate.format", fun a -> box (LicensePlate.formatLicensePlate (str 0 a))
 +        "licensePlate.generate", fun a -> box (LicensePlate.generate (opt 0 a))
 +        "licensePlate.getFormat", fun a -> box (LicensePlate.getFormat (str 0 a))
-+        "licensePlate.removeSymbols", fun a -> box (LicensePlate.removeSymbols (str 0 a))
 +
 +        "phone.isValid", fun a -> box (Phone.IsValid(str 0 a))
 +
 +        "pis.format", fun a -> box (Pis.formatPis (str 0 a))
 +        "pis.generate", fun _ -> box (Pis.generate ())
 +        "pis.isValid", fun a -> box (Pis.isValid (str 0 a))
-+        "pis.removeSymbols", fun a -> box (Pis.removeSymbols (str 0 a))
 +
 +        "renavam.isValid", fun a -> box (Renavam.isValidRenavam (str 0 a))
 +

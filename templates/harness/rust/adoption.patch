@@ -16,7 +16,7 @@ new file mode 100644
 index 0000000..bf93fee
 --- /dev/null
 +++ b/tests/api_contract.rs
-@@ -0,0 +1,578 @@
+@@ -0,0 +1,565 @@
 +//! brazilian-utils API contract harness.
 +//!
 +//! Runs the language-agnostic conformance suite vendored in `api-contract/` (see its README.md)
@@ -79,7 +79,6 @@ index 0000000..bf93fee
 +            ok(cep::generate())
 +        }),
 +        ("cep.isValid", |a| ok(cep::is_valid(s(a, 0)?))),
-+        ("cep.removeSymbols", |a| ok(cep::remove_symbols(s(a, 0)?))),
 +        // cnh
 +        ("cnh.isValid", |a| ok(cnh::is_valid_cnh(s(a, 0)?))),
 +        // cnpj (the contract's optional argument is a version/params; the lib's is a branch
@@ -90,7 +89,6 @@ index 0000000..bf93fee
 +            ok(cnpj::generate(None))
 +        }),
 +        ("cnpj.isValid", |a| ok(cnpj::is_valid(s(a, 0)?))),
-+        ("cnpj.removeSymbols", |a| ok(cnpj::remove_symbols(s(a, 0)?))),
 +        // cpf
 +        ("cpf.format", |a| ok(cpf::format_cpf(s(a, 0)?))),
 +        ("cpf.generate", |a| {
@@ -98,7 +96,6 @@ index 0000000..bf93fee
 +            ok(cpf::generate())
 +        }),
 +        ("cpf.isValid", |a| ok(cpf::is_valid(s(a, 0)?))),
-+        ("cpf.removeSymbols", |a| ok(cpf::remove_symbols(s(a, 0)?))),
 +        // currency
 +        ("currency.convertToWords", |a| {
 +            ok(currency::convert_real_to_text(n(a, 0)?))
@@ -126,9 +123,6 @@ index 0000000..bf93fee
 +        ("legalProcess.isValid", |a| {
 +            ok(legal_process::is_valid(s(a, 0)?))
 +        }),
-+        ("legalProcess.removeSymbols", |a| {
-+            ok(legal_process::remove_symbols(s(a, 0)?))
-+        }),
 +        // licensePlate
 +        ("licensePlate.convertToMercosul", |a| {
 +            ok(license_plate::convert_to_mercosul(s(a, 0)?))
@@ -142,17 +136,11 @@ index 0000000..bf93fee
 +        ("licensePlate.getFormat", |a| {
 +            ok(license_plate::get_format(s(a, 0)?))
 +        }),
-+        ("licensePlate.removeSymbols", |a| {
-+            ok(license_plate::remove_symbols(s(a, 0)?))
-+        }),
 +        // phone
 +        ("phone.format", |a| ok(phone::format_phone(s(a, 0)?))),
 +        ("phone.generate", |a| ok(phone::generate(opt_s(a, 0)?))),
 +        ("phone.removeInternationalDialingCode", |a| {
 +            ok(phone::remove_international_dialing_code(s(a, 0)?))
-+        }),
-+        ("phone.removeSymbols", |a| {
-+            ok(phone::remove_symbols(s(a, 0)?))
 +        }),
 +        // pis
 +        ("pis.format", |a| ok(pis::format_pis(s(a, 0)?))),
@@ -161,7 +149,6 @@ index 0000000..bf93fee
 +            ok(pis::generate())
 +        }),
 +        ("pis.isValid", |a| ok(pis::is_valid(s(a, 0)?))),
-+        ("pis.removeSymbols", |a| ok(pis::remove_symbols(s(a, 0)?))),
 +        // renavam
 +        ("renavam.generate", |a| {
 +            none(a)?;

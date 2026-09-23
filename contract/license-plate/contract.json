@@ -206,30 +206,13 @@
         { "name": "old-format-masked", "args": ["abc-1234"], "returns": "ABC1234" },
         { "name": "mercosul-lowercase", "args": ["abc1d23"], "returns": "ABC1D23" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["abc123456"], "returns": "ABC1234", "note": "reference truncates to 7 characters; asserted by the reference (JS) unit tests" }
-      ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "level": "core",
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string",
-      "tests": [
+        { "name": "caps-length", "args": ["abc123456"], "returns": "ABC1234", "note": "reference truncates to 7 characters; asserted by the reference (JS) unit tests" },
         { "args": ["WDG1S21"], "returns": "WDG1S21", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["WDG1S22"], "returns": "WDG1S22", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["wdg1s21"], "returns": "wdg1s21", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["GJG8U81"], "returns": "GJG8U81", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["GJG8U82"], "returns": "GJG8U82", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["gjg8u81"], "returns": "gjg8u81", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["KDS4W15"], "returns": "KDS4W15", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["kds4w15"], "returns": "kds4w15", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 3 libs (python, ruby, rust)" }
       ]
     }
   }

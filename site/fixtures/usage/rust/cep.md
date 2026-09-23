@@ -21,16 +21,6 @@ cep::format_cep("91906293");  // Some("91906-293")
 cep::format_cep("00000000");  // Some("00000-000")
 ```
 
-## removeSymbols
-
-```rust
-use brazilian_utils::cep;
-
-cep::remove_symbols("91906-292");  // "91906292"
-cep::remove_symbols("21749-676");  // "21749676"
-cep::remove_symbols("41790-070");  // "41790070"
-```
-
 ## generate
 
 ```rust

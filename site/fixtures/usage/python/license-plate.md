@@ -20,14 +20,6 @@ format_license_plate("abc1d23")  # 'ABC1D23' (Mercosur)
 format_license_plate("ABCD123")  # None (invalid input)
 ```
 
-## removeSymbols
-
-```python
-from brutils import remove_symbols_license_plate
-
-remove_symbols_license_plate("ABC-1234")  # 'ABC1234'
-```
-
 ## generate
 
 ```python

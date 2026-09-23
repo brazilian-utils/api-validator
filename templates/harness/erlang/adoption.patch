@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..97922f7
 --- /dev/null
 +++ b/test/brutils_api_contract_tests.erl
-@@ -0,0 +1,386 @@
+@@ -0,0 +1,378 @@
 +%% @doc Harness for the brazilian-utils API contract suite.
 +%%
 +%% Runs every case of the language-agnostic conformance suite vendored in
@@ -42,19 +42,16 @@ index 0000000..97922f7
 +     {<<"cep.format">>, fun brutils:format_cep/1},
 +     {<<"cep.generate">>, fun brutils:generate_cep/0},
 +     {<<"cep.isValid">>, fun brutils:is_valid_cep/1},
-+     {<<"cep.removeSymbols">>, fun brutils:remove_symbols_cep/1},
 +     %% CNH
 +     {<<"cnh.isValid">>, fun brutils:is_valid_cnh/1},
 +     %% CNPJ
 +     {<<"cnpj.format">>, fun brutils:format_cnpj/1},
 +     {<<"cnpj.generate">>, fun brutils:generate_cnpj/0},
 +     {<<"cnpj.isValid">>, fun brutils:is_valid_cnpj/1},
-+     {<<"cnpj.removeSymbols">>, fun brutils:remove_symbols_cnpj/1},
 +     %% CPF
 +     {<<"cpf.format">>, fun brutils:format_cpf/1},
 +     {<<"cpf.generate">>, fun brutils:generate_cpf/0},
 +     {<<"cpf.isValid">>, fun brutils:is_valid_cpf/1},
-+     {<<"cpf.removeSymbols">>, fun brutils:remove_symbols_cpf/1},
 +     %% License plate
 +     {<<"licensePlate.convertToMercosul">>,
 +      fun brutils:convert_license_plate_to_mercosul/1},
@@ -62,25 +59,20 @@ index 0000000..97922f7
 +     {<<"licensePlate.generate">>, fun brutils:generate_license_plate/0},
 +     {<<"licensePlate.getFormat">>, fun brutils:get_format_license_plate/1},
 +     {<<"licensePlate.isValid">>, fun brutils:is_valid_license_plate/1},
-+     {<<"licensePlate.removeSymbols">>,
-+      fun brutils:remove_symbols_license_plate/1},
 +     %% Passport
 +     {<<"passport.format">>, fun brutils:format_passport/1},
 +     {<<"passport.generate">>, fun brutils:generate_passport/0},
 +     {<<"passport.isValid">>, fun brutils:is_valid_passport/1},
-+     {<<"passport.removeSymbols">>, fun brutils:remove_symbols_passport/1},
 +     %% Phone
 +     {<<"phone.format">>, fun brutils:format_phone/1},
 +     {<<"phone.generate">>, fun brutils:generate_phone/0},
 +     {<<"phone.isValid">>, fun brutils:is_valid_phone/1},
 +     {<<"phone.removeInternationalDialingCode">>,
 +      fun brutils:remove_international_dialing_code/1},
-+     {<<"phone.removeSymbols">>, fun brutils:remove_symbols_phone/1},
 +     %% PIS
 +     {<<"pis.format">>, fun brutils:format_pis/1},
 +     {<<"pis.generate">>, fun brutils:generate_pis/0},
 +     {<<"pis.isValid">>, fun brutils:is_valid_pis/1},
-+     {<<"pis.removeSymbols">>, fun brutils:remove_symbols_pis/1},
 +     %% RENAVAM
 +     {<<"renavam.isValid">>, fun brutils:is_valid_renavam/1},
 +     %% Voter ID

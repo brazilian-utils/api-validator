@@ -129,14 +129,6 @@
         { "name": "empty", "args": [""], "returns": "" },
         { "name": "13-digit-sp-mg", "args": ["1234 5678 8 01 91"], "returns": "1234567880191" }
       ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string"
     }
   }
 }

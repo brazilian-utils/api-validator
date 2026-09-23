@@ -5,7 +5,7 @@
 # Humans review the PR as usual; the shared tests are the acceptance criterion.
 #
 # Needs the ANTHROPIC_API_KEY secret. Run it from the Actions tab ("Run workflow") with the
-# contract functions to port, e.g. `cpf.removeSymbols` or `pis.*`.
+# contract functions to port, e.g. `cpf.parse` or `pis.*`.
 name: API contract port
 
 on:

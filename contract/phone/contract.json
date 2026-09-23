@@ -246,7 +246,19 @@
         { "name": "ddd-55", "args": ["55988887777"], "returns": "55988887777", "note": "11 digits: 55 is read as the DDD, not a country code; asserted by the reference (JS) unit tests" },
         { "name": "service", "args": ["0800 123 4567"], "returns": "08001234567" },
         { "name": "caps-length", "args": ["11988887777123"], "returns": "11988887777" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["48976579784"], "returns": "48976579784", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976579785"], "returns": "48976579785", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981464"], "returns": "3147981464", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981465"], "returns": "3147981465", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["0000000000"], "returns": "0000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432195"], "returns": "38942432195", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432196"], "returns": "38942432196", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976-5797"], "returns": "489765797", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["31479-8146"], "returns": "314798146", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942-4321"], "returns": "389424321", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["   "], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" }
       ]
     },
     "removeInternationalDialingCode": {
@@ -268,31 +280,6 @@
         { "args": ["38942-4321"], "returns": "38942-4321", "note": "consensus of 4 libs (go, python, ruby, rust)" },
         { "args": [""], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" },
         { "args": ["   "], "returns": "   ", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["abc"], "returns": "abc", "note": "consensus of 4 libs (go, python, ruby, rust)" }
-      ]
-    },
-    "removeSymbols": {
-      "summary": {
-        "en": "Removes the formatting characters and keeps everything else.",
-        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
-      },
-      "level": "core",
-      "params": [{ "name": "value", "type": "string" }],
-      "returns": "string",
-      "tests": [
-        { "args": ["48976579784"], "returns": "48976579784", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["48976579785"], "returns": "48976579785", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["3147981464"], "returns": "3147981464", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["3147981465"], "returns": "3147981465", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["0000000000"], "returns": "0000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["38942432195"], "returns": "38942432195", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["38942432196"], "returns": "38942432196", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["48976-5797"], "returns": "489765797", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["31479-8146"], "returns": "314798146", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["38942-4321"], "returns": "389424321", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": [""], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" },
-        { "args": ["   "], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" },
         { "args": ["abc"], "returns": "abc", "note": "consensus of 4 libs (go, python, ruby, rust)" }
       ]
     }

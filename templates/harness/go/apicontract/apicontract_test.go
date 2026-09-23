@@ -99,7 +99,6 @@ var registry = map[string]impl{
 	// Go requires the type; "" means mobile or landline at random.
 	"phone.generate":                       func(a []any) (any, error) { return phone.Generate(optStr(a, 0, "")), nil },
 	"phone.removeInternationalDialingCode": func(a []any) (any, error) { return phone.RemoveInternationalDialingCode(str(a, 0)), nil },
-	"phone.removeSymbols":                  func(a []any) (any, error) { return phone.RemoveSymbols(str(a, 0)), nil },
 
 	// pis
 	"pis.format":   func(a []any) (any, error) { return pis.Format(str(a, 0)), nil },

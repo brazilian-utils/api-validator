@@ -48,7 +48,7 @@ format_cpf('82178537464')  # '821.785.374-64'
 
 Regras:
 
-- **O título é o nome da função**: `isValid`, `format`, `parse`, `removeSymbols`, `generate`, `getInfo`. O site também aceita `remove-symbols`, o título padrão (`Validate`) e o nome antigo `validate`. O `api-validator usage` aponta um título que não corresponde a nenhuma função, e o build o ignora.
+- **O título é o nome da função**: `isValid`, `format`, `parse`, `generate`, `getInfo`. O site também aceita `get-info`, o título padrão (`Validate`) e o nome antigo `validate`. O `api-validator usage` aponta um título que não corresponde a nenhuma função, e o build o ignora.
 - **Cada seção mostra a chamada.** Mostre o import, a chamada e o resultado. Uma linha de texto pode ajudar, por exemplo "Esta função chama o ViaCEP". Não explique a regra. A spec na mesma página explica.
 - **O exemplo chama a função da biblioteca.** O validador sabe o nome nativo de cada função. O validador aponta uma seção que não usa esse nome.
 - **Escreva código e comentários em inglês.** Para texto em português, adicione `cpf.pt-br.md` ao lado de `cpf.md`. As páginas em português usam esse arquivo.

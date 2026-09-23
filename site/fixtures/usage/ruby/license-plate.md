@@ -21,16 +21,6 @@ BrazilianUtils::LicensePlateUtils.format('gjg8u81')  # => 'GJG8U81'
 BrazilianUtils::LicensePlateUtils.format('kds4w15')  # => 'KDS4W15'
 ```
 
-## removeSymbols
-
-```ruby
-require 'brazilian-utils/license-plate-utils'
-
-BrazilianUtils::LicensePlateUtils.remove_symbols('WDG1S21')  # => 'WDG1S21'
-BrazilianUtils::LicensePlateUtils.remove_symbols('WDG1S22')  # => 'WDG1S22'
-BrazilianUtils::LicensePlateUtils.remove_symbols('wdg1s21')  # => 'wdg1s21'
-```
-
 ## generate
 
 ```ruby

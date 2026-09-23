@@ -11,16 +11,6 @@ license_plate::format_license_plate("gjg8u81");  // Some("GJG8U81")
 license_plate::format_license_plate("kds4w15");  // Some("KDS4W15")
 ```
 
-## removeSymbols
-
-```rust
-use brazilian_utils::license_plate;
-
-license_plate::remove_symbols("WDG1S21");  // "WDG1S21"
-license_plate::remove_symbols("WDG1S22");  // "WDG1S22"
-license_plate::remove_symbols("wdg1s21");  // "wdg1s21"
-```
-
 ## convertToMercosul
 
 ```rust

@@ -11,16 +11,6 @@ LicensePlate.formatLicensePlate("gjg8u81");  // Some("GJG8U81")
 LicensePlate.formatLicensePlate("kds4w15");  // Some("KDS4W15")
 ```
 
-## removeSymbols
-
-```csharp
-using BrazilianUtils;
-
-LicensePlate.removeSymbols("WDG1S21");  // "WDG1S21"
-LicensePlate.removeSymbols("WDG1S22");  // "WDG1S22"
-LicensePlate.removeSymbols("wdg1s21");  // "wdg1s21"
-```
-
 ## convertToMercosul
 
 ```csharp

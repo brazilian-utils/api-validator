@@ -41,19 +41,16 @@ REGISTRY = {
     "cep.format": call(brutils.format_cep),
     "cep.generate": call(brutils.generate_cep),
     "cep.isValid": call(brutils.is_valid_cep),
-    "cep.removeSymbols": call(brutils.remove_symbols_cep),
     # CNH
     "cnh.isValid": call(brutils.is_valid_cnh),
     # CNPJ
     "cnpj.format": call(brutils.format_cnpj),
     "cnpj.generate": call(brutils.generate_cnpj),
     "cnpj.isValid": call(brutils.is_valid_cnpj),
-    "cnpj.removeSymbols": call(brutils.remove_symbols_cnpj),
     # CPF
     "cpf.format": call(brutils.format_cpf),
     "cpf.generate": call(brutils.generate_cpf),
     "cpf.isValid": call(brutils.is_valid_cpf),
-    "cpf.removeSymbols": call(brutils.remove_symbols_cpf),
     # Currency
     "currency.convertToWords": call(currency.convert_real_to_text),
     "currency.format": call(brutils.format_currency),
@@ -66,7 +63,6 @@ REGISTRY = {
     # Legal process
     "legalProcess.format": call(brutils.format_legal_process),
     "legalProcess.isValid": call(brutils.is_valid_legal_process),
-    "legalProcess.removeSymbols": call(brutils.remove_symbols_legal_process),
     # License plate
     "licensePlate.convertToMercosul": call(
         brutils.convert_license_plate_to_mercosul
@@ -75,24 +71,20 @@ REGISTRY = {
     "licensePlate.generate": call(brutils.generate_license_plate),
     "licensePlate.getFormat": call(brutils.get_format_license_plate),
     "licensePlate.isValid": call(brutils.is_valid_license_plate),
-    "licensePlate.removeSymbols": call(brutils.remove_symbols_license_plate),
     # Passport
     "passport.format": call(brutils.format_passport),
     "passport.generate": call(brutils.generate_passport),
     "passport.isValid": call(brutils.is_valid_passport),
-    "passport.removeSymbols": call(brutils.remove_symbols_passport),
     # Phone
     "phone.format": call(brutils.format_phone),
     "phone.generate": call(brutils.generate_phone),
     "phone.removeInternationalDialingCode": call(
         phone.remove_international_dialing_code
     ),
-    "phone.removeSymbols": call(brutils.remove_symbols_phone),
     # PIS
     "pis.format": call(brutils.format_pis),
     "pis.generate": call(brutils.generate_pis),
     "pis.isValid": call(brutils.is_valid_pis),
-    "pis.removeSymbols": call(brutils.remove_symbols_pis),
     # RENAVAM
     "renavam.isValid": call(brutils.is_valid_renavam),
     # State (IBGE)

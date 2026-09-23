@@ -21,16 +21,6 @@ BrazilianUtils::CNPJUtils.format_cnpj('64977017647333')  # => '64.977.017/6473-3
 BrazilianUtils::CNPJUtils.format_cnpj('62932200808587')  # => '62.932.200/8085-87'
 ```
 
-## removeSymbols
-
-```ruby
-require 'brazilian-utils/cnpj-utils'
-
-BrazilianUtils::CNPJUtils.remove_symbols('10.799.163/9892-71')  # => '10799163989271'
-BrazilianUtils::CNPJUtils.remove_symbols('64.977.017/6473-33')  # => '64977017647333'
-BrazilianUtils::CNPJUtils.remove_symbols('62.932.200/8085-87')  # => '62932200808587'
-```
-
 ## generate
 
 ```ruby

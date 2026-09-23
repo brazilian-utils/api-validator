@@ -5,7 +5,7 @@
  * automatically per domain, so divergences surface on their own:
  *   - args of every contract test of the domain (a cpf.isValid vector also feeds cpf.format)
  *   - fresh values from the domain's `generate` in the reference lib, their formatted and
- *     "symbols removed" versions, a copy with a corrupted last digit, and a same-length
+ *     parsed versions, a copy with a corrupted last digit, and a same-length
  *     repeated-digit value (the classic "00000000000" trap)
  *   - generic edge cases: "", whitespace, letters, a lowercase/uppercase variant
  * Results are clustered per input; any input where libs disagree is reported, and
@@ -108,7 +108,7 @@ async function corpora(contract: Contract, domains: string[], reference: DiffLib
       if (lastDigit >= 0) set.add(g.slice(0, lastDigit) + ((Number(g[lastDigit]) + 1) % 10) + g.slice(lastDigit + 1));
       if (/^\d+$/.test(g)) set.add("0".repeat(g.length));
       if (/[a-z]/i.test(g)) set.add(g === g.toLowerCase() ? g.toUpperCase() : g.toLowerCase());
-      for (const op of ["format", "removeSymbols"]) {
+      for (const op of ["format", "parse"]) {
         const f = contract.functions.get(`${domain}.${op}`);
         const sym = f ? bind(reference, f) : undefined;
         if (sym) follow.push({ domain, symbol: sym, args: [g] });

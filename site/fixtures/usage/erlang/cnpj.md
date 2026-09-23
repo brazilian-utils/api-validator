@@ -17,14 +17,6 @@ brutils:format_cnpj(<<"64977017647333">>).  % {ok, <<"64.977.017/6473-33">>}
 brutils:format_cnpj(<<"62932200808587">>).  % {ok, <<"62.932.200/8085-87">>}
 ```
 
-## removeSymbols
-
-```erlang
-brutils:remove_symbols_cnpj(<<"10.799.163/9892-71">>).  % <<"10799163989271">>
-brutils:remove_symbols_cnpj(<<"64.977.017/6473-33">>).  % <<"64977017647333">>
-brutils:remove_symbols_cnpj(<<"62.932.200/8085-87">>).  % <<"62932200808587">>
-```
-
 ## generate
 
 ```erlang

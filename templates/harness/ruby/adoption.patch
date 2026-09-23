@@ -3,7 +3,7 @@ new file mode 100644
 index 0000000..cb93a85
 --- /dev/null
 +++ b/spec/api_contract_spec.rb
-@@ -0,0 +1,239 @@
+@@ -0,0 +1,232 @@
 +# Conformance harness for the shared brazilian-utils API contract.
 +#
 +# Runs every case of the vendored suite in api-contract/ (see api-contract/README.md) against
@@ -33,7 +33,6 @@ index 0000000..cb93a85
 +    'cep.generate' => ->(a) { CEPUtils.generate(*a) },
 +    'cep.getAddressInfo' => ->(a) { CEPUtils.get_address_from_cep(*a) },
 +    'cep.isValid' => ->(a) { CEPUtils.valid?(*a) },
-+    'cep.removeSymbols' => ->(a) { CEPUtils.remove_symbols(*a) },
 +
 +    # cnh
 +    'cnh.isValid' => ->(a) { CNHUtils.valid?(*a) },
@@ -42,13 +41,11 @@ index 0000000..cb93a85
 +    'cnpj.format' => ->(a) { CNPJUtils.format_cnpj(*a) },
 +    'cnpj.generate' => ->(a) { CNPJUtils.generate(*a) },
 +    'cnpj.isValid' => ->(a) { CNPJUtils.valid?(*a) },
-+    'cnpj.removeSymbols' => ->(a) { CNPJUtils.remove_symbols(*a) },
 +
 +    # cpf
 +    'cpf.format' => ->(a) { CPFUtils.format_cpf(*a) },
 +    'cpf.generate' => ->(a) { CPFUtils.generate(*a) },
 +    'cpf.isValid' => ->(a) { CPFUtils.valid?(*a) },
-+    'cpf.removeSymbols' => ->(a) { CPFUtils.remove_symbols(*a) },
 +
 +    # currency
 +    'currency.convertToWords' => ->(a) { CurrencyUtils.convert_real_to_text(*a) },
@@ -68,7 +65,6 @@ index 0000000..cb93a85
 +    # legalProcess
 +    'legalProcess.format' => ->(a) { LegalProcessUtils.format_legal_process(*a) },
 +    'legalProcess.isValid' => ->(a) { LegalProcessUtils.valid?(*a) },
-+    'legalProcess.removeSymbols' => ->(a) { LegalProcessUtils.remove_symbols(*a) },
 +
 +    # licensePlate
 +    'licensePlate.convertToMercosul' => ->(a) { LicensePlateUtils.convert_to_mercosul(*a) },
@@ -76,19 +72,16 @@ index 0000000..cb93a85
 +    'licensePlate.generate' => ->(a) { LicensePlateUtils.generate(*a) },
 +    'licensePlate.getFormat' => ->(a) { LicensePlateUtils.get_format(*a) },
 +    'licensePlate.isValid' => ->(a) { LicensePlateUtils.valid?(*a) },
-+    'licensePlate.removeSymbols' => ->(a) { LicensePlateUtils.remove_symbols(*a) },
 +
 +    # phone
 +    'phone.format' => ->(a) { PhoneUtils.format(*a) },
 +    'phone.generate' => ->(a) { PhoneUtils.generate(*a) },
 +    'phone.removeInternationalDialingCode' => ->(a) { PhoneUtils.remove_international_dialing_code(*a) },
-+    'phone.removeSymbols' => ->(a) { PhoneUtils.remove_symbols(*a) },
 +
 +    # pis
 +    'pis.format' => ->(a) { PISUtils.format(*a) },
 +    'pis.generate' => ->(a) { PISUtils.generate(*a) },
 +    'pis.isValid' => ->(a) { PISUtils.valid?(*a) },
-+    'pis.removeSymbols' => ->(a) { PISUtils.remove_symbols(*a) },
 +
 +    # renavam
 +    'renavam.isValid' => ->(a) { RENAVAMUtils.valid?(*a) },
