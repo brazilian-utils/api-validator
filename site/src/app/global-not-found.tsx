@@ -1,8 +1,9 @@
 // 404 for every path (GitHub Pages serves 404.html): both languages, links back into the site.
 import Link from '@/components/link';
 import { Html } from '@/components/html';
+import { NOINDEX } from '@/lib/meta';
 
-export const metadata = { title: 'Page not found · Brazilian Utils', robots: { index: false } };
+export const metadata = { title: 'Page not found · Brazilian Utils', robots: { index: false, follow: !NOINDEX } };
 
 export default function NotFound() {
   return (

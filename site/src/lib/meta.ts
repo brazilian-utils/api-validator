@@ -8,6 +8,15 @@ export const SITE = new URL(process.env.SITE_URL || 'https://brazilian-utils.git
 const base = SITE.pathname.replace(/\/$/, '');
 export const SITE_ROOT = `${SITE.origin}${base}`;
 const OG_IMAGE = `${SITE_ROOT}/og.png`;
+/** Where this build is served from (Vercel serves at the domain root, GitHub Pages under a path). */
+const servedBase = process.env.NEXT_PUBLIC_BASE ?? '';
+
+/**
+ * A build that is not the canonical site: every Vercel deployment (review links). Its pages, files
+ * and headers all say noindex (vercel.json adds X-Robots-Tag), and canonical links point at
+ * SITE_URL. SITE_INDEXABLE=true lifts it, for the day Vercel serves the canonical site.
+ */
+export const NOINDEX = Boolean(process.env.VERCEL) && process.env.SITE_INDEXABLE !== 'true';
 
 /** Metadata for a page at `path` (without language prefix, starting and ending with /). */
 export function pageMetadata(locale: Locale, path: string, title: string, description: string): Metadata {
@@ -43,7 +52,8 @@ export function rootMetadata(locale: Locale): Metadata {
     metadataBase: new URL(`${SITE_ROOT}/`),
     title: { template: '%s · Brazilian Utils', default: 'Brazilian Utils' },
     applicationName: 'Brazilian Utils',
-    icons: { icon: `${base}/favicon.ico`, apple: `${base}/apple-touch-icon.png` },
+    icons: { icon: `${servedBase}/favicon.ico`, apple: `${servedBase}/apple-touch-icon.png` },
+    ...(NOINDEX && { robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } } }),
     openGraph: { siteName: 'Brazilian Utils', locale: locale === 'en' ? 'en_US' : 'pt_BR' },
   };
 }

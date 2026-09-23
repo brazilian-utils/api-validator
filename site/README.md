@@ -192,8 +192,12 @@ revisão na Vercel, com o link no PR. A configuração está no repositório:
 - `site/vercel.json` quando o projeto da Vercel usa `site` como Root Directory (recomendado);
 - `vercel.json` na raiz quando o Root Directory é a raiz do repositório.
 
-Na Vercel o site fica na raiz do domínio (sem `basePath`). As URLs canônicas continuam apontando
-para `SITE_URL`, e o `robots.txt` dos deploys de revisão bloqueia a indexação. A Vercel não roda
+Na Vercel o site fica na raiz do domínio (sem `basePath`). Nenhum deploy da Vercel entra em
+buscador, em três camadas: o header `X-Robots-Tag: noindex, nofollow, noarchive` em toda resposta
+(`vercel.json`), a meta `robots` `noindex, nofollow` em toda página e um `robots.txt` sem sitemap
+(ele deixa o robô entrar, porque só assim ele lê o `noindex`). As URLs canônicas apontam para
+`SITE_URL`. `SITE_INDEXABLE=true` desliga o bloqueio, para o dia em que a Vercel servir o site
+oficial. A Vercel não roda
 o validador (precisaria das sete linguagens), então o build baixa a situação da última execução
 publicada. O `ignoreCommand` pula o build quando nada que o site usa mudou desde o último deploy. Não
 precisa de variável de ambiente. As opcionais são `SITE_URL`, `SITE_DATA_URL` e `GITHUB_TOKEN`

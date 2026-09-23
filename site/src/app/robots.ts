@@ -1,10 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { SITE } from '@/lib/meta';
+import { NOINDEX, SITE } from '@/lib/meta';
 
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
-  // Review deployments (Vercel previews) stay out of search engines; the canonical site is SITE_URL.
-  if (process.env.VERCEL_ENV === 'preview') return { rules: { userAgent: '*', disallow: '/' } };
+  // Review deployments stay out of search engines through noindex on every page and file, which a
+  // crawler can only read when robots.txt lets it in; so no Disallow here, and no sitemap.
+  if (NOINDEX) return { rules: { userAgent: '*', allow: '/' } };
   return { rules: { userAgent: '*', allow: '/' }, sitemap: `${SITE.origin}${SITE.pathname.replace(/\/$/, '')}/sitemap.xml` };
 }
