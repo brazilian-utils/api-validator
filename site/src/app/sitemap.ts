@@ -2,6 +2,7 @@
 import type { MetadataRoute } from 'next';
 import { loadGuides, loadLibs, loadSpecs } from '@/lib/data';
 import { SITE } from '@/lib/meta';
+import { folderPages } from '@/lib/source';
 
 export const dynamic = 'force-static';
 
@@ -11,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/',
     '/getting-started/',
     '/reference/parity/',
-    ...['specs', 'usage-files', 'new-language'].map((s) => `/contributing/${s}/`),
+    ...folderPages('en', 'contributing').map((p) => `/contributing/${p.slug}/`),
     ...loadSpecs().map((s: any) => `/utils/${s.id}/`),
     ...loadLibs().map((l: any) => `/libs/${l.id}/`),
     ...loadGuides().map((g: any) => `/guides/${g.lib}/${g.slug}/`),

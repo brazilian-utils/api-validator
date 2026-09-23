@@ -46,7 +46,9 @@ npx tsx src/cli.ts diff            # output/diff.json (opcional: divergências)
 npx tsx src/cli.ts site-data       # site/.generated/status.json, public/badges/, public/cases/
 ```
 
-Sem esses passos, o site compila do mesmo jeito, só que sem a situação.
+Sem esses passos, o build baixa a situação da última execução publicada (`/status.json` e os
+badges do site no ar, ver `scripts/fetch-site-data.mjs`). Sem rede, o site compila do mesmo
+jeito, só que sem a situação.
 
 ## Dependências e segurança
 
@@ -82,7 +84,8 @@ gh api repos/actions/checkout/commits/<tag> --jq .sha
 fixtures/usage/<lib>/        arquivos de uso até cada lib ter docs/usage/ no próprio repo
 scripts/fetch-libs.mjs       clona cada lib no `usage.ref`, roda o `prepare`, lê arquivos de uso, página
                              de referência e guias, e copia os assets das demos para public/lib-assets/<lib>/
-content/docs/                páginas escritas à mão: <página>.mdx em inglês, <página>.pt-br.mdx em português
+content/docs/                páginas escritas à mão: <página>.mdx em inglês, <página>.pt-br.mdx em português;
+                             o meta.json de cada pasta dá a ordem no menu (uma página nova só precisa do .mdx)
 src/content/i18n/            strings da interface (en.json, pt-br.json)
 src/lib/registry.mjs         único lugar que sabe ler tudo isso (também usado pelo validador e pelos testes)
 src/lib/guides.mjs           parser dos guias (example → variant → file, demos, links); testado em ../test/site.test.ts
@@ -180,6 +183,21 @@ Todo arquivo e toda pasta que criamos usa kebab-case: `license-plate/`, `spec.pt
 ferramenta ou uma convenção fixa: `README.md`, `DESIGN.md`, `LICENSE`, `CONTRIBUTING.md`,
 `Cargo.toml`, os arquivos que começam com `_` (ignorados pelo validador) e as fixtures escritas
 na convenção de cada linguagem.
+
+## Deploy de revisão (Vercel)
+
+Cada push e cada PR que mexe no site, no contrato, nas libs ou no schema ganha um deploy de
+revisão na Vercel, com o link no PR. A configuração está no repositório:
+
+- `site/vercel.json` quando o projeto da Vercel usa `site` como Root Directory (recomendado);
+- `vercel.json` na raiz quando o Root Directory é a raiz do repositório.
+
+Na Vercel o site fica na raiz do domínio (sem `basePath`). As URLs canônicas continuam apontando
+para `SITE_URL`, e o `robots.txt` dos deploys de revisão bloqueia a indexação. A Vercel não roda
+o validador (precisaria das sete linguagens), então o build baixa a situação da última execução
+publicada. O `ignoreCommand` pula o build quando o commit não mexe em nada que o site usa. Não
+precisa de variável de ambiente. As opcionais são `SITE_URL`, `SITE_DATA_URL` e `GITHUB_TOKEN`
+(sem token, a versão de cada lib sai da tag mais nova, lida com `git ls-remote`).
 
 ## Pendências conhecidas
 

@@ -1,11 +1,10 @@
-import { GuidePage, guideTitle } from '@/components/pages/guide';
-import { loadGuides } from '@/lib/data';
+import { GuidePage, guideParams, guideTitle } from '@/components/pages/guide';
 import { pageMetadata } from '@/lib/meta';
 
 type Props = { params: Promise<{ lib: string; slug: string }> };
 
 export const dynamicParams = false;
-export const generateStaticParams = () => loadGuides().map((g: any) => ({ lib: g.lib, slug: g.slug }));
+export const generateStaticParams = guideParams;
 export async function generateMetadata({ params }: Props) {
   const { lib, slug } = await params;
   const { title, description } = guideTitle('pt-BR', lib, slug);

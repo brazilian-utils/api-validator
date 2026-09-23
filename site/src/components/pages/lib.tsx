@@ -115,11 +115,10 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
                         </span>
                       </th>
                       <td>
-                        <span className="flex items-center gap-2 tabular-nums">
-                          <span className="h-1.5 w-20 overflow-hidden rounded-full bg-fd-secondary" aria-hidden>
-                            <span className="block h-full rounded-full bg-fd-primary" style={{ width: `${os.coreCoverage}%` }} />
-                          </span>
-                          {os.coreCoverage}%
+                        {/* A data bar, no track: its length is the share, the number says it. */}
+                        <span className="flex items-center gap-3 tabular-nums">
+                          <span className="w-12 text-right">{os.coreCoverage}%</span>
+                          <span className="block h-2 max-w-20 rounded-sm bg-fd-primary/70" style={{ width: `${(os.coreCoverage / 100) * 5}rem` }} aria-hidden />
                         </span>
                       </td>
                       <td className="tabular-nums">{os.ok + os.failing}/{os.total}</td>

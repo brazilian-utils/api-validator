@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Brazilian Utils documentation: the shared contract and how to use it in every language (Next.js + Fumadocs, static export).",
   "scripts": {
-    "prepare:content": "node scripts/fetch-libs.mjs",
+    "prepare:content": "node scripts/fetch-libs.mjs && node scripts/fetch-site-data.mjs",
     "site-data": "cd .. && node --import ./node_modules/tsx/dist/esm/index.mjs src/cli.ts site-data",
     "dev": "npm run prepare:content && next dev",
     "build": "npm run prepare:content && next build",

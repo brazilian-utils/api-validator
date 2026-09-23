@@ -4,6 +4,7 @@ import { BookOpen, Boxes, Compass, GitPullRequest } from 'lucide-react';
 import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './data';
 import { type Locale, pick, prefixOf } from './i18n';
 import { LangIcon } from '@/components/lang-icon';
+import { folderPages } from './source';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
@@ -69,11 +70,8 @@ export function pageTree(locale: Locale): PageTree.Root {
     name: L(locale, 'Contributing', 'Contribuindo'),
     description: L(locale, 'Specs, usage files, new languages', 'Specs, arquivos de uso, novas linguagens'),
     icon: <GitPullRequest />,
-    children: [
-      page(L(locale, 'Write a spec', 'Escreva uma spec'), '/contributing/specs/'),
-      page(L(locale, 'Usage files', 'Arquivos de uso'), '/contributing/usage-files/'),
-      page(L(locale, 'Port to a new language', 'Porte para uma nova linguagem'), '/contributing/new-language/'),
-    ],
+    // The .mdx files of content/docs/contributing/, in the order of its meta.json.
+    children: folderPages(locale, 'contributing').map((p) => page(p.title, `/contributing/${p.slug}/`)),
   };
 
   return { $id: `${locale}:root`, name: 'Brazilian Utils', children: [utilities, libraries, ...(guides.length ? [guideFolder] : []), contributing] };

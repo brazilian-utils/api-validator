@@ -96,3 +96,12 @@ export const guideTitle = (locale: Locale, lib: string, slug: string) => {
   const e = guideEntry(lib, slug);
   return { title: pick(e?.title, locale), description: pick(e?.description, locale) };
 };
+
+/**
+ * The guide routes to prerender. A static export needs at least one per dynamic route, so a build
+ * without guides (offline, USAGE_SOURCE=fixtures) gets one placeholder that renders the 404 page.
+ */
+export const guideParams = () => {
+  const params = loadGuides().map((g: any) => ({ lib: g.lib, slug: g.slug }));
+  return params.length ? params : [{ lib: 'none', slug: 'none' }];
+};

@@ -106,10 +106,12 @@ async function sourceOf(lib) {
   };
   if (MODE === 'local') return localSource();
   try {
-    // Without the API (rate limit, bad token) the clone takes the default branch.
+    // Without the API (rate limit, no token: Vercel builds) the newest version tag stands in for
+    // the latest release, and without tags the clone takes the default branch.
     const ref = await resolveRef(lib).catch((error) => {
-      warnings.push(`${lib.id}: could not resolve ${lib.ref} (${error.message}); using the default branch`);
-      return null;
+      const tag = lib.ref === 'latest-release' ? newestTag(lib) : null;
+      warnings.push(`${lib.id}: could not resolve ${lib.ref} (${error.message}); using ${tag ?? 'the default branch'}`);
+      return tag;
     });
     const dir = path.join(REPOS_CACHE, lib.id);
     fs.rmSync(dir, { recursive: true, force: true });
@@ -143,6 +145,21 @@ async function resolveRef(lib) {
     /* no releases yet */
   }
   return (await get(`https://api.github.com/repos/${lib.repo}`)).default_branch || 'main';
+}
+
+/** The highest version tag of a repository (`v1.2.3`, `1.2.3`), read with git: no API, no token. */
+function newestTag(lib) {
+  const r = spawnSync('git', ['ls-remote', '--tags', '--refs', `https://github.com/${lib.repo}.git`], { encoding: 'utf8', timeout: 60_000 });
+  if (r.status !== 0) return null;
+  const versions = r.stdout
+    .split('\n')
+    .map((l) => l.split('refs/tags/')[1])
+    .flatMap((tag) => {
+      const m = tag?.match(/^v?(\d+)\.(\d+)\.(\d+)$/);
+      return m ? [{ tag, v: m.slice(1).map(Number) }] : [];
+    });
+  versions.sort((a, b) => b.v[0] - a.v[0] || b.v[1] - a.v[1] || b.v[2] - a.v[2]);
+  return versions[0]?.tag ?? null;
 }
 
 function gitHead(dir) {
