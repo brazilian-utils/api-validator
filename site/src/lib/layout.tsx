@@ -9,7 +9,7 @@ import type { Section } from '@/components/site-header.client';
 
 /** The brand logo, the dog and the wordmark (header, 404 page), from brazilian-utils/brand. */
 export function SiteMark({ className = 'h-11' }: { className?: string }) {
-  return <Image src={logo} alt="Brazilian Utils" height={96} className={`w-auto ${className}`} priority />;
+  return <Image src={logo} alt="Brazilian Utils" height={96} className={`site-logo w-auto ${className}`} priority />;
 }
 
 export function baseOptions(locale: Locale): BaseLayoutProps {

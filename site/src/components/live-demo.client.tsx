@@ -5,7 +5,7 @@
 // select, output, the message under a field, button), and keeps its theme in step. The frame
 // takes the demo's height, measured here or reported by the demo with
 // `parent.postMessage({ type: 'example-height', height }, origin)`, and starts at the last height
-// a demo had, so switching between examples does not make the page jump.
+// a demo had on this page, so switching between examples does not make the page jump.
 import { ExternalLink, LoaderCircle } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
@@ -50,16 +50,10 @@ button:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 
 }
 `;
 
-/** The height the last demo had: the best guess for the next one, which is usually alike. */
+/** The height each demo had, and the last one's, while the page is open (nothing is stored): the
+ *  best guess for a demo shown again, or for the next one, which is usually alike. */
+const heights = new Map<string, number>();
 let lastHeight = 0;
-const KEY = 'live-demo-height:';
-const stored = (src: string) => {
-  try {
-    return Number(localStorage.getItem(KEY + src)) || 0;
-  } catch {
-    return 0;
-  }
-};
 
 export function LiveDemo({ src, title, text }: { src: string; title?: string; text: { demo: string; demoOf: string; open: string; loading: string } }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -70,16 +64,14 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
   const take = (h: number) => {
     const next = Math.max(64, Math.ceil(h));
     lastHeight = next;
+    heights.set(src, next);
     setHeight(next);
-    try {
-      localStorage.setItem(KEY + src, String(next));
-    } catch {}
   };
 
-  // Before the first paint: the height this demo had last time, or the last demo's, written to the
+  // Before the first paint: the height this demo had before, or the last demo's, written to the
   // frame directly (the server cannot know it, and React leaves an unset height alone).
   useLayoutEffect(() => {
-    const h = stored(src) || lastHeight;
+    const h = heights.get(src) || lastHeight;
     if (h && frame.current) frame.current.style.height = `${h}px`;
   }, [src]);
 
@@ -128,6 +120,33 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
     return true;
   };
 
+  // A same-origin demo gets the page's look before it shows; one from elsewhere cannot be read and
+  // shows once loaded. One that never renders shows after a while, whatever it has.
+  const loaded = () => {
+    let dressed = false;
+    try {
+      dressed = dress();
+    } catch {}
+    if (!dressed) setReady(true);
+    else setTimeout(() => setReady(true), 10_000);
+  };
+
+  // A fast demo can finish loading before React is attached to the page, and then its load event
+  // is gone: check once after mounting whether it already loaded.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      try {
+        const doc = frame.current?.contentDocument;
+        if (doc && doc.readyState === 'complete' && doc.location.href !== 'about:blank') loaded();
+      } catch {
+        // A demo from elsewhere: its load event still comes.
+      }
+    });
+    return () => cancelAnimationFrame(id);
+    // Only on mount: later loads come as load events.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const observer = new MutationObserver(() => dress());
     observer.observe(document.documentElement, {
@@ -149,17 +168,7 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
           title={caption}
           loading="lazy"
           style={{ height }}
-          // A same-origin demo gets the page's look before it shows; one from elsewhere shows as it is.
-          onLoad={() => {
-            let dressed = false;
-            try {
-              dressed = dress();
-            } catch {}
-            // A demo from elsewhere cannot be read: it shows once loaded. One that never renders
-            // shows after a while, whatever it has.
-            if (!dressed) setReady(true);
-            else setTimeout(() => setReady(true), 10_000);
-          }}
+          onLoad={loaded}
           className={`block h-40 w-full transition-opacity duration-150 motion-reduce:transition-none ${ready ? 'opacity-100' : 'opacity-0'}`}
         />
         {!ready && (

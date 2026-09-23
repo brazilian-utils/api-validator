@@ -137,7 +137,7 @@ a {
 
 /* Running text keeps a readable measure (the page description included); tables, code, links
    drawn as cards (the pager) and flex rows (legends, chips) keep the full column. */
-#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, a *, .flex) {
+#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, a *, .flex, .not-prose) {
   max-width: 52ch;
 }
 
@@ -190,4 +190,11 @@ tr:hover > .pinned {
 /* The phone's "On this page" bar names the section; a progress ring beside it says nothing more. */
 [data-toc-popover-trigger] svg[role='progressbar'] {
   display: none;
+}
+
+/* The wordmark's green and yellow are the flag's: on dark paper they read well, on light paper the
+   yellow nearly disappears. In the light theme the logo gets a thin dark outline, the same ink as
+   the dog's own outline, so its colors stay the brand's. */
+html:not(.dark) .site-logo {
+  filter: drop-shadow(0 0 0.5px #2a211b) drop-shadow(0 0 0.5px #2a211b) drop-shadow(0 0 0.5px #2a211b);
 }
