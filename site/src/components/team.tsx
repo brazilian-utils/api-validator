@@ -42,7 +42,7 @@ export function Team({ locale = 'en' }: { locale?: Locale }) {
           </a>
         </li>
       ))}
-      {/* The last seat is empty: an invitation to take it, pointing to how to join. */}
+      {/* The last card is an invitation: start contributing; the section below says how people join. */}
       <li>
         <a
           href={locale === 'en' ? '#join-the-team' : '#entre-para-o-time'}
@@ -53,10 +53,10 @@ export function Team({ locale = 'en' }: { locale?: Locale }) {
           </span>
           <span className="mt-4 text-lg font-semibold tracking-[-0.01em]">{locale === 'en' ? 'You?' : 'Você?'}</span>
           <span className="mt-0.5 text-sm text-fd-muted-foreground text-balance">
-            {locale === 'en' ? 'This seat is saved for whoever sends the next pull request.' : 'Este lugar está guardado para quem mandar o próximo pull request.'}
+            {locale === 'en' ? 'Everyone here started with a first contribution. Yours could be next.' : 'Todo mundo aqui começou com uma primeira contribuição. A próxima pode ser a sua.'}
           </span>
           <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-medium text-fd-primary">
-            {locale === 'en' ? 'Join the team' : 'Entre para o time'}
+            {locale === 'en' ? 'How to take part' : 'Como participar'}
             <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
           </span>
         </a>
