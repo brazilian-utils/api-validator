@@ -1,11 +1,26 @@
 ---
-/** Note at the top of the operations: their descriptions are only in English for now (pt-BR pages). */
-const { lang } = Astro.locals.starlightRoute;
+/**
+ * On a Portuguese page, a note when some function descriptions of the utility exist only in
+ * English (the contract's `description` has no `pt-BR` yet). Nothing when all are translated.
+ */
+import { loadSpec } from '@lib/registry.mjs';
+import { pageContext } from '@lib/page';
+
+interface Props {
+  util: string;
+}
+const { util } = Astro.props;
 const t = Astro.locals.t;
+const { locale } = pageContext(Astro);
+const untranslated =
+  locale !== 'en' && (loadSpec(util)?.operations ?? []).some((op) => (op.description ?? op.summary) && !(op.description ?? op.summary)?.[locale]);
 ---
 
-{lang === 'pt-BR' && t('ops.englishOnly') && <p class="ops-intro">{t('ops.englishOnly')}</p>}
+{untranslated && <p class="ops-intro">{t('ops.englishOnly')}</p>}
 
 <style>
-  .ops-intro { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+  .ops-intro {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
 </style>

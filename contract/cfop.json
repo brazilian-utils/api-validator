@@ -10,12 +10,22 @@
   "order": 2,
   "functions": {
     "get": {
-      "summary": "Looks a CFOP (Código Fiscal de Operações e Prestações) code up in the official table.",
-      "description": [
-        "Looks a CFOP code up in the official table and returns its code and description.",
-        "",
-        "- Same input rules as `cfop.isValid`; returns null for a heading, an unknown code or a value not in an accepted form."
-      ],
+      "summary": {
+        "en": "Looks up a CFOP (Código Fiscal de Operações e Prestações) code in the official table.",
+        "pt-BR": "Consulta um código CFOP (Código Fiscal de Operações e Prestações) na tabela oficial."
+      },
+      "description": {
+        "en": [
+          "Looks up a CFOP code in the official table and returns its code and description.",
+          "",
+          "- Same input rules as `cfop.isValid`. Returns null for a heading, an unknown code or a value not in an accepted form."
+        ],
+        "pt-BR": [
+          "Consulta um código CFOP na tabela oficial e retorna o código e a descrição.",
+          "",
+          "- Mesmas regras de entrada de `cfop.isValid`. Retorna null para um título de grupo, um código desconhecido ou um valor fora das formas aceitas."
+        ]
+      },
       "references": [
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24",
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70",
@@ -33,14 +43,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.",
-      "description": [
-        "Checks whether a CFOP code exists in the consolidated Anexo II of Convênio SINIEF s/nº 1970 in force.",
-        "",
-        "- Only operable codes count: group and subgroup headings (codes ending in `00` and `50`) are rejected.",
-        "- Accepts the 4 digits, the `N.NNN` form with a single separator (space, `.`, `-` or `/`), or a non-negative integer; any other string is rejected.",
-        "- No CFOP starts with a zero, so nothing is padded."
-      ],
+      "summary": {
+        "en": "Checks whether a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.",
+        "pt-BR": "Verifica se um código CFOP (Código Fiscal de Operações e Prestações) existe na tabela oficial."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CFOP code exists in the consolidated Anexo II of Convênio SINIEF s/nº 1970 in force.",
+          "",
+          "- Only operable codes count: the function rejects group and subgroup headings (codes ending in `00` and `50`).",
+          "- Accepts the 4 digits, the `N.NNN` form with a single separator (space, `.`, `-` or `/`), or a non-negative integer. Any other string is rejected.",
+          "- No CFOP starts with a zero, so the function pads nothing."
+        ],
+        "pt-BR": [
+          "Verifica se um código CFOP existe no Anexo II consolidado do Convênio SINIEF s/nº 1970 em vigor.",
+          "",
+          "- Só contam os códigos operáveis: a função rejeita títulos de grupo e de subgrupo (códigos terminados em `00` e `50`).",
+          "- Aceita os 4 dígitos, a forma `N.NNN` com um único separador (espaço, `.`, `-` ou `/`) ou um inteiro não negativo. Qualquer outra string é rejeitada.",
+          "- Nenhum CFOP começa com zero, então a função não completa nada com zeros."
+        ]
+      },
       "references": [
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24",
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70",
@@ -61,8 +83,22 @@
       ]
     },
     "parse": {
-      "summary": "Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.",
-      "description": ["Removes CFOP formatting and keeps only digits, capped to 4 digits.", "", "- Nothing is padded."],
+      "summary": {
+        "en": "Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CFOP (Código Fiscal de Operações e Prestações) e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": [
+          "Removes CFOP formatting and keeps only digits, capped to 4 digits.",
+          "",
+          "- The function does not pad the result."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CFOP e mantém apenas os dígitos, limitados a 4.",
+          "",
+          "- A função não completa o resultado com zeros."
+        ]
+      },
       "references": ["https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cfop_cvsn_1-6.24"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

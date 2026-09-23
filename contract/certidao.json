@@ -10,13 +10,24 @@
   "order": 7,
   "functions": {
     "format": {
-      "summary": "Formats the matrícula of a certidão de registro civil into the printed mask of the norm, the 32 digits grouped as 6 2 2 4 1 5 3 7 2 and separated by spaces.",
-      "description": [
-        "Formats the matrícula of a certidão de registro civil into the printed mask of art. 473 of the Código Nacional de Normas: the 32 digits grouped as 6 2 2 4 1 5 3 7 2, separated by spaces.",
-        "",
-        "- The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 32 digits first.",
-        "- A full 32-digit matrícula does not fit an integer, so it has to be given as a string."
-      ],
+      "summary": {
+        "en": "Formats the matrícula of a certidão de registro civil into the printed mask of the norm. The mask groups the 32 digits as 6 2 2 4 1 5 3 7 2, separated by spaces.",
+        "pt-BR": "Formata a matrícula de uma certidão de registro civil na máscara impressa da norma. A máscara agrupa os 32 dígitos como 6 2 2 4 1 5 3 7 2, separados por espaços."
+      },
+      "description": {
+        "en": [
+          "Formats the matrícula of a certidão de registro civil into the printed mask of art. 473 of the Código Nacional de Normas. The mask groups the 32 digits as 6 2 2 4 1 5 3 7 2, separated by spaces.",
+          "",
+          "- The function applies the mask as far as the digits go. `options.pad` left-pads with zeros to 32 digits first.",
+          "- A full 32-digit matrícula does not fit an integer, so you must give it as a string."
+        ],
+        "pt-BR": [
+          "Formata a matrícula de uma certidão de registro civil na máscara impressa do art. 473 do Código Nacional de Normas. A máscara agrupa os 32 dígitos como 6 2 2 4 1 5 3 7 2, separados por espaços.",
+          "",
+          "- A função aplica a máscara até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 32 dígitos.",
+          "- Uma matrícula completa de 32 dígitos não cabe em um inteiro, então você deve passá-la como string."
+        ]
+      },
       "references": [
         "https://atos.cnj.jus.br/atos/detalhar/5243",
         "https://atos.cnj.jus.br/atos/detalhar/1311",
@@ -35,13 +46,24 @@
       ]
     },
     "getInfo": {
-      "summary": "Parses the matrícula of a certidão de registro civil into its fields.",
-      "description": [
-        "Parses the matrícula of a certidão de registro civil into its fields; returns null when it is not valid (same rules as `certidao.isValid`).",
-        "",
-        "- Fields: CNS of the serventia (6 digits), acervo, service (always `55`), year, book type (birth, marriage, religious marriage, death, stillbirth, banns, other, emancipation, interdiction) and its raw code 1 to 9, book, page, term and the 2 check digits.",
-        "- Art. 473 V lists only book codes 1 to 7; codes 8 (emancipação) and 9 (interdição) are also accepted."
-      ],
+      "summary": {
+        "en": "Parses the matrícula of a certidão de registro civil into its fields.",
+        "pt-BR": "Decompõe a matrícula de uma certidão de registro civil em seus campos."
+      },
+      "description": {
+        "en": [
+          "Parses the matrícula of a certidão de registro civil into its fields. Returns null when it is not valid (same rules as `certidao.isValid`).",
+          "",
+          "- Fields: CNS of the serventia (6 digits), acervo, service (always `55`), year, book type (birth, marriage, religious marriage, death, stillbirth, banns, other, emancipation, interdiction) and its raw code 1 to 9, book, page, term and the 2 check digits.",
+          "- Art. 473 V lists only book codes 1 to 7. The function also accepts codes 8 (emancipação) and 9 (interdição)."
+        ],
+        "pt-BR": [
+          "Decompõe a matrícula de uma certidão de registro civil em seus campos. Retorna null quando ela não é válida (mesmas regras de `certidao.isValid`).",
+          "",
+          "- Campos: CNS da serventia (6 dígitos), acervo, serviço (sempre `55`), ano, tipo do livro (nascimento, casamento, casamento religioso, óbito, natimorto, proclamas, outros, emancipação, interdição) e seu código bruto de 1 a 9, livro, folha, termo e os 2 dígitos verificadores.",
+          "- O art. 473 V lista apenas os códigos de livro 1 a 7. A função também aceita os códigos 8 (emancipação) e 9 (interdição)."
+        ]
+      },
       "references": [
         "https://atos.cnj.jus.br/atos/detalhar/5243",
         "https://atos.cnj.jus.br/atos/detalhar/1311",
@@ -59,15 +81,28 @@
       ]
     },
     "isValid": {
-      "summary": "Validates the matrícula of a certidão de registro civil (nascimento, casamento, óbito and the other acts kept by a serventia de registro civil das pessoas naturais).",
-      "description": [
-        "Validates the 32-digit matrícula of a certidão de registro civil (art. 473 of the Código Nacional de Normas da Corregedoria Nacional de Justiça).",
-        "",
-        "- Layout: CNS da serventia (6), acervo (2), serviço (2, always `55`), ano (4), tipo do livro (1), livro (5), folha (3), termo (7) and 2 modulus 11 check digits.",
-        "- The serviço must be `55` and the book type one of the nine books (`0` is rejected).",
-        "- `options.accept` narrows the valid book types to the listed ones (default: every type).",
-        "- Accepts the value masked or not, with whitespace between and around the groups."
-      ],
+      "summary": {
+        "en": "Validates the matrícula of a certidão de registro civil (nascimento, casamento, óbito and the other acts kept by a serventia de registro civil das pessoas naturais).",
+        "pt-BR": "Valida a matrícula de uma certidão de registro civil (nascimento, casamento, óbito e os demais atos mantidos por uma serventia de registro civil das pessoas naturais)."
+      },
+      "description": {
+        "en": [
+          "Validates the 32-digit matrícula of a certidão de registro civil (art. 473 of the Código Nacional de Normas da Corregedoria Nacional de Justiça).",
+          "",
+          "- Layout: CNS da serventia (6), acervo (2), serviço (2, always `55`), ano (4), tipo do livro (1), livro (5), folha (3), termo (7) and 2 modulus 11 check digits.",
+          "- The serviço must be `55`. The book type must be one of the nine books (the function rejects `0`).",
+          "- `options.accept` limits the valid book types to the listed ones (default: every type).",
+          "- Accepts the value masked or not, with whitespace between and around the groups."
+        ],
+        "pt-BR": [
+          "Valida a matrícula de 32 dígitos de uma certidão de registro civil (art. 473 do Código Nacional de Normas da Corregedoria Nacional de Justiça).",
+          "",
+          "- Estrutura: CNS da serventia (6), acervo (2), serviço (2, sempre `55`), ano (4), tipo do livro (1), livro (5), folha (3), termo (7) e 2 dígitos verificadores por módulo 11.",
+          "- O serviço tem de ser `55`. O tipo do livro tem de ser um dos nove livros (a função rejeita `0`).",
+          "- `options.accept` restringe os tipos de livro válidos aos listados (padrão: todos os tipos).",
+          "- Aceita o valor com ou sem máscara, com espaços em branco entre os grupos e antes e depois deles."
+        ]
+      },
       "references": [
         "https://atos.cnj.jus.br/atos/detalhar/5243",
         "https://atos.cnj.jus.br/atos/detalhar/1311",
@@ -88,8 +123,16 @@
       ]
     },
     "parse": {
-      "summary": "Removes the formatting of the matrícula of a certidão de registro civil and returns only digits.",
-      "description": ["Removes the formatting of a certidão matrícula and keeps only digits, capped to 32 digits."],
+      "summary": {
+        "en": "Removes the formatting of the matrícula of a certidão de registro civil and returns only the digits.",
+        "pt-BR": "Remove a formatação da matrícula de uma certidão de registro civil e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": ["Removes the formatting of a certidão matrícula and keeps only digits, capped to 32 digits."],
+        "pt-BR": [
+          "Remove a formatação da matrícula de uma certidão e mantém apenas os dígitos, com no máximo 32 dígitos."
+        ]
+      },
       "references": ["https://atos.cnj.jus.br/atos/detalhar/5243", "https://atos.cnj.jus.br/atos/detalhar/1310"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

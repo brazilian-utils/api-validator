@@ -11,14 +11,26 @@
   "related": ["cnpj"],
   "functions": {
     "format": {
-      "summary": "Formats a given CPF (Cadastro de Pessoas Físicas) value according to the Brazilian standard.",
-      "description": [
-        "Formats a CPF as `000.000.000-00`.",
-        "",
-        "- `options.pad` left-pads the value with zeros to 11 digits first.",
-        "- `options.obfuscate` hides the first 3 digits and the 2 check digits with `*`, after padding.",
-        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
-      ],
+      "summary": {
+        "en": "Formats a CPF (Cadastro de Pessoas Físicas) value to the Brazilian standard.",
+        "pt-BR": "Formata um valor de CPF (Cadastro de Pessoas Físicas) no padrão brasileiro."
+      },
+      "description": {
+        "en": [
+          "Formats a CPF as `000.000.000-00`.",
+          "",
+          "- `options.pad` left-pads the value with zeros to 11 digits first.",
+          "- `options.obfuscate` hides the first 3 digits and the 2 check digits with `*`, after padding.",
+          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um CPF como `000.000.000-00`.",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 11 dígitos.",
+          "- `options.obfuscate` oculta os 3 primeiros dígitos e os 2 dígitos verificadores com `*`, depois do preenchimento.",
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+        ]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf"],
       "level": "core",
       "params": [
@@ -35,12 +47,22 @@
       ]
     },
     "generate": {
-      "summary": "Generates a valid random CPF (Cadastro de Pessoas Físicas).",
-      "description": [
-        "Generates a valid random CPF: 11 digits, unformatted.",
-        "",
-        "- `state` (a state code such as `SP`) fixes the 9th digit, the região fiscal, to that state's code; without it, or with an unknown code, the digit is random."
-      ],
+      "summary": {
+        "en": "Generates a valid random CPF (Cadastro de Pessoas Físicas).",
+        "pt-BR": "Gera um CPF (Cadastro de Pessoas Físicas) aleatório e válido."
+      },
+      "description": {
+        "en": [
+          "Generates a valid random CPF: 11 digits, unformatted.",
+          "",
+          "- `state` (a state code such as `SP`) sets the 9th digit, the região fiscal, to the code of that state. Without it, or with an unknown code, the digit is random."
+        ],
+        "pt-BR": [
+          "Gera um CPF aleatório e válido: 11 dígitos, sem máscara.",
+          "",
+          "- `state` (um código de estado como `SP`) define o 9º dígito, a região fiscal, com o código desse estado. Sem ele, ou com um código desconhecido, o dígito é aleatório."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf",
         "https://www.gov.br/receitafederal/pt-br/assuntos/educacao-fiscal/educacao_fiscal/folhetos-orientativos/cadastros-dig.pdf",
@@ -54,14 +76,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CPF (Cadastro de Pessoas Físicas) is valid. Accepts the usual mask characters (`.`, `-`) and whitespace around and between groups.",
-      "description": [
-        "Validates a CPF: 9 base digits and 2 modulus 11 check digits (REGRA_VALIDA_CPF of the Receita Federal).",
-        "",
-        "- A reserved number (all 11 digits the same, e.g. `00000000000`) is rejected.",
-        "- Empty, blank or non-numeric input is invalid.",
-        "- Pending decision (findings §2 #1): the reference (JS) ignores the mask characters (`.`, `-`) and whitespace around and between groups; other libs accept digits only."
-      ],
+      "summary": {
+        "en": "Checks if a CPF (Cadastro de Pessoas Físicas) is valid. Accepts the usual mask characters (`.`, `-`) and whitespace around and between groups.",
+        "pt-BR": "Verifica se um CPF (Cadastro de Pessoas Físicas) é válido. Aceita os caracteres usuais de máscara (`.`, `-`) e espaços em branco antes, depois e entre os grupos."
+      },
+      "description": {
+        "en": [
+          "Validates a CPF: 9 base digits and 2 modulus 11 check digits (REGRA_VALIDA_CPF of the Receita Federal).",
+          "",
+          "- Rejects a reserved number (all 11 digits the same, for example `00000000000`).",
+          "- Empty, blank or non-numeric input is invalid.",
+          "- Pending decision (findings §2 #1): the reference (JS) ignores the mask characters (`.`, `-`) and whitespace around and between groups. Other libraries accept digits only."
+        ],
+        "pt-BR": [
+          "Valida um CPF: 9 dígitos base e 2 dígitos verificadores por módulo 11 (REGRA_VALIDA_CPF da Receita Federal).",
+          "",
+          "- Rejeita um número reservado (os 11 dígitos iguais, por exemplo `00000000000`).",
+          "- Entrada vazia, em branco ou não numérica é inválida.",
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres de máscara (`.`, `-`) e os espaços em branco antes, depois e entre os grupos. Outras bibliotecas aceitam apenas dígitos."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf",
         "https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=151372"
@@ -87,8 +121,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CPF formatting characters and returns only digits.",
-      "description": ["Removes CPF formatting and keeps only digits, capped to 11 digits."],
+      "summary": {
+        "en": "Removes the CPF formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação do CPF e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": ["Removes CPF formatting and keeps only digits, capped to 11 digits."],
+        "pt-BR": ["Remove a formatação do CPF e mantém apenas os dígitos, com no máximo 11 dígitos."]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",
@@ -101,7 +141,10 @@
       ]
     },
     "removeSymbols": {
-      "summary": "Removes the formatting symbols (keeps everything else).",
+      "summary": {
+        "en": "Removes the formatting symbols (keeps everything else).",
+        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+      },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",

@@ -23,7 +23,7 @@
   "parity.none": "none",
   "parity.fetchedAt": "Usage files read on",
   "parity.fromRun": "Results of the api-validator run of {{date}}.",
-  "ops.englishOnly": "",
+  "ops.englishOnly": "Some function descriptions are in English only.",
   "ops.network": "This function calls a remote service.",
   "ops.deprecated": "Deprecated. Do not use this function in new code.",
   "status.label": "Status in each library",
@@ -92,12 +92,13 @@
   "specimen.valid": "valid",
   "specimen.invalid": "not valid",
   "specimen.unknown": "No document in the contract has this format.",
-  "specimen.checkDigits": "The {{n}} highlighted digits are the check digits.",
   "specimen.sameCheck": "The same check in each library:",
   "libs.language": "Library",
   "libs.install": "Install",
   "libs.coverage": "Contract",
   "libs.coverageValue": "{{done}} of {{total}} functions, {{core}} of core",
   "util.since": "since {{version}}",
-  "libs.source": "source code"
+  "libs.source": "source code",
+  "specimen.checkDigits_one": "The highlighted digit is the check digit.",
+  "specimen.checkDigits_other": "The {{count}} highlighted digits are the check digits."
 }

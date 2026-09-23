@@ -11,14 +11,26 @@
   "related": ["cnpj"],
   "functions": {
     "format": {
-      "summary": "Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.",
-      "description": [
-        "Formats a CNAE subclass code with the mask `NNNN-N/NN`; only the structure changes (use `cnae.isValid` to check the code).",
-        "",
-        "- The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 7 digits first.",
-        "- Characters other than digits are dropped; a number is read as the string of its digits.",
-        "- Returns an empty string when there is no digit at all."
-      ],
+      "summary": {
+        "en": "Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.",
+        "pt-BR": "Formata um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas)."
+      },
+      "description": {
+        "en": [
+          "Formats a CNAE subclass code with the mask `NNNN-N/NN`. Only the structure changes (use `cnae.isValid` to check the code).",
+          "",
+          "- The mask is applied as far as the digits go. `options.pad` first left-pads with zeros to 7 digits.",
+          "- Characters other than digits are dropped. A number is read as the string of its digits.",
+          "- Returns an empty string when there is no digit at all."
+        ],
+        "pt-BR": [
+          "Formata um código de subclasse CNAE com a máscara `NNNN-N/NN`. Só a estrutura muda (use `cnae.isValid` para verificar o código).",
+          "",
+          "- A máscara é aplicada até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 7 dígitos.",
+          "- Caracteres que não são dígitos são descartados. Um número é lido como a string dos seus dígitos.",
+          "- Retorna uma string vazia quando não há nenhum dígito."
+        ]
+      },
       "references": ["https://servicodados.ibge.gov.br/api/v2/cnae/subclasses"],
       "params": [
         { "name": "value", "type": "string | number" },
@@ -33,13 +45,24 @@
       ]
     },
     "get": {
-      "summary": "Looks a CNAE (Classificação Nacional de Atividades Econômicas) subclass code up in the official CNAE-Subclasses 2.3 table, the current subclass revision of CNAE 2.0.",
-      "description": [
-        "Looks a CNAE subclass code up in the CNAE-Subclasses 2.3 table and returns its code (7 bare digits) and official description.",
-        "",
-        "- Same input rules as `cbo.get`, with 7 digits and the `NNNN-N/NN` mask.",
-        "- Returns null for an unknown code or a value not in an accepted form."
-      ],
+      "summary": {
+        "en": "Looks up a CNAE (Classificação Nacional de Atividades Econômicas) subclass code in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
+        "pt-BR": "Consulta um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas) na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+      },
+      "description": {
+        "en": [
+          "Looks up a CNAE subclass code in the CNAE-Subclasses 2.3 table and returns its code (7 bare digits) and official description.",
+          "",
+          "- Same input rules as `cbo.get`, with 7 digits and the `NNNN-N/NN` mask.",
+          "- Returns null for an unknown code or a value not in an accepted form."
+        ],
+        "pt-BR": [
+          "Consulta um código de subclasse CNAE na tabela CNAE-Subclasses 2.3 e retorna o código (7 dígitos sem máscara) e a descrição oficial.",
+          "",
+          "- Mesmas regras de entrada de `cbo.get`, com 7 dígitos e a máscara `NNNN-N/NN`.",
+          "- Retorna null para um código desconhecido ou para um valor fora das formas aceitas."
+        ]
+      },
       "references": [
         "https://servicodados.ibge.gov.br/api/v2/cnae/subclasses",
         "https://concla.ibge.gov.br/busca-online-cnae.html"
@@ -56,12 +79,22 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3 table, the current subclass revision of CNAE 2.0.",
-      "description": [
-        "Checks whether a CNAE subclass code exists in the CNAE-Subclasses 2.3 table (the current subclass revision of CNAE 2.0).",
-        "",
-        "- Same input rules as `cbo.isValid`, with 7 digits and the `NNNN-N/NN` mask: bare digits are left-padded to 7, a masked value is read as written, other strings are rejected."
-      ],
+      "summary": {
+        "en": "Checks whether a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
+        "pt-BR": "Verifica se um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas) existe na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CNAE subclass code exists in the CNAE-Subclasses 2.3 table (the current subclass revision of CNAE 2.0).",
+          "",
+          "- Same input rules as `cbo.isValid`, with 7 digits and the `NNNN-N/NN` mask. Bare digits are left-padded to 7, a masked value is read as written, and other strings are rejected."
+        ],
+        "pt-BR": [
+          "Verifica se um código de subclasse CNAE existe na tabela CNAE-Subclasses 2.3 (a revisão atual das subclasses da CNAE 2.0).",
+          "",
+          "- Mesmas regras de entrada de `cbo.isValid`, com 7 dígitos e a máscara `NNNN-N/NN`. Dígitos sem máscara são completados à esquerda até 7, um valor com máscara é lido como está escrito, e outras strings são rejeitadas."
+        ]
+      },
       "references": [
         "https://servicodados.ibge.gov.br/api/v2/cnae/subclasses",
         "https://concla.ibge.gov.br/busca-online-cnae.html"
@@ -80,12 +113,22 @@
       ]
     },
     "parse": {
-      "summary": "Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.",
-      "description": [
-        "Removes CNAE formatting and keeps only digits, capped to 7 digits.",
-        "",
-        "- Nothing is left-padded; a partial code is kept as written."
-      ],
+      "summary": {
+        "en": "Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CNAE (Classificação Nacional de Atividades Econômicas) e retorna somente os dígitos."
+      },
+      "description": {
+        "en": [
+          "Removes CNAE formatting and keeps only digits, capped to 7 digits.",
+          "",
+          "- It does not left-pad anything. A partial code stays as written."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CNAE e mantém somente os dígitos, limitados a 7 dígitos.",
+          "",
+          "- Não completa nada com zeros à esquerda. Um código parcial fica como está escrito."
+        ]
+      },
       "references": ["https://servicodados.ibge.gov.br/api/v2/cnae/subclasses"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

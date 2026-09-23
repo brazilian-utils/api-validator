@@ -11,12 +11,22 @@
   "related": ["cpf"],
   "functions": {
     "format": {
-      "summary": "Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.",
-      "description": [
-        "Formats a CNS number into groups of 3-4-4-4 digits separated by spaces.",
-        "",
-        "- `options.pad` left-pads with zeros to 15 digits first."
-      ],
+      "summary": {
+        "en": "Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.",
+        "pt-BR": "Formata um número do CNS (Cartão Nacional de Saúde) nos grupos usuais de exibição de 3-4-4-4 dígitos separados por espaços."
+      },
+      "description": {
+        "en": [
+          "Formats a CNS number into groups of 3-4-4-4 digits separated by spaces.",
+          "",
+          "- `options.pad` left-pads with zeros to 15 digits first."
+        ],
+        "pt-BR": [
+          "Formata um número do CNS em grupos de 3-4-4-4 dígitos separados por espaços.",
+          "",
+          "- `options.pad` primeiro completa com zeros à esquerda até 15 dígitos."
+        ]
+      },
       "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
       "params": [
         { "name": "value", "type": "string | number" },
@@ -31,14 +41,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health professional or health facility.",
-      "description": [
-        "Validates a CNS number: 15 digits.",
-        "",
-        "- Definitive cards start with 1 or 2, provisional ones with 7, 8 or 9; each kind has its own modulus 11 rule.",
-        "- A number starting with 5 is rejected, following ANVISA.",
-        "- Accepts the bare digits or the printed 3-4-4-4 groups split by whitespace, `.`, `-` or `/`; anything else is rejected."
-      ],
+      "summary": {
+        "en": "Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health professional or health facility.",
+        "pt-BR": "Valida um número do CNS (Cartão Nacional de Saúde), o identificador único de um usuário, profissional de saúde ou estabelecimento de saúde do SUS (Sistema Único de Saúde)."
+      },
+      "description": {
+        "en": [
+          "Validates a CNS number: 15 digits.",
+          "",
+          "- Definitive cards start with 1 or 2, provisional ones with 7, 8 or 9. Each kind has its own modulus 11 rule.",
+          "- Rejects a number that starts with 5, following ANVISA.",
+          "- Accepts the bare digits or the printed 3-4-4-4 groups split by whitespace, `.`, `-` or `/`. Rejects anything else."
+        ],
+        "pt-BR": [
+          "Valida um número do CNS: 15 dígitos.",
+          "",
+          "- Cartões definitivos começam com 1 ou 2, e os provisórios com 7, 8 ou 9. Cada tipo tem sua própria regra de módulo 11.",
+          "- Rejeita um número que começa com 5, conforme a ANVISA.",
+          "- Aceita os dígitos puros ou os grupos impressos 3-4-4-4 separados por espaço em branco, `.`, `-` ou `/`. Rejeita qualquer outra coisa."
+        ]
+      },
       "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "boolean",
@@ -54,8 +76,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CNS (Cartão Nacional de Saúde) formatting characters and returns only digits.",
-      "description": ["Removes CNS formatting and keeps only digits, capped to 15 digits."],
+      "summary": {
+        "en": "Removes the CNS (Cartão Nacional de Saúde) formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação do CNS (Cartão Nacional de Saúde) e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": ["Removes CNS formatting and keeps only digits, capped to 15 digits."],
+        "pt-BR": ["Remove a formatação do CNS e mantém apenas os dígitos, com no máximo 15 dígitos."]
+      },
       "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

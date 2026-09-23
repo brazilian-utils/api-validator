@@ -11,14 +11,26 @@
   "related": ["state", "cep"],
   "functions": {
     "getByCode": {
-      "summary": "Looks up a Brazilian municipality by its 7 digit IBGE code, published by the IBGE.",
-      "description": [
-        "Looks a municipality up by its 7-digit IBGE code.",
-        "",
-        "- `code` may be a string or a non-negative integer.",
-        "- The result has the code, the name and the state code.",
-        "- Returns null when the code is not 7 digits long or matches no municipality."
-      ],
+      "summary": {
+        "en": "Looks up a Brazilian municipality by its 7-digit IBGE code, published by the IBGE.",
+        "pt-BR": "Busca um município pelo código IBGE de 7 dígitos, publicado pelo IBGE."
+      },
+      "description": {
+        "en": [
+          "Looks up a municipality by its 7-digit IBGE code.",
+          "",
+          "- `code` may be a string or a non-negative integer.",
+          "- The result has the code, the name and the state code.",
+          "- Returns null when the code is not 7 digits long or matches no municipality."
+        ],
+        "pt-BR": [
+          "Busca um município pelo código IBGE de 7 dígitos.",
+          "",
+          "- `code` pode ser uma string ou um inteiro não negativo.",
+          "- O resultado tem o código, o nome e a sigla da UF.",
+          "- Retorna null quando o código não tem 7 dígitos ou não corresponde a nenhum município."
+        ]
+      },
       "references": ["https://servicodados.ibge.gov.br/api/docs/localidades"],
       "flatName": "getMunicipalityByCode",
       "params": [{ "name": "code", "type": "string | number" }],
@@ -35,14 +47,26 @@
       ]
     },
     "list": {
-      "summary": "Returns Brazilian municipalities published by the IBGE, optionally filtered by state.",
-      "description": [
-        "Returns the Brazilian municipalities published by the IBGE, sorted by name (pt-BR collation): all of them, or those of one state.",
-        "",
-        "- Each entry has the 7-digit IBGE code, the name and the state code.",
-        "- Only an omitted `stateCode` returns the full list; an empty or unknown code returns an empty list.",
-        "- `stateCode` is case-sensitive: `sp`, like an unknown code, returns an empty list."
-      ],
+      "summary": {
+        "en": "Returns Brazilian municipalities published by the IBGE, optionally filtered by state.",
+        "pt-BR": "Retorna os municípios publicados pelo IBGE, com filtro opcional por estado."
+      },
+      "description": {
+        "en": [
+          "Returns the Brazilian municipalities published by the IBGE, sorted by name (pt-BR collation). It returns all of them, or those of one state.",
+          "",
+          "- Each entry has the 7-digit IBGE code, the name and the state code.",
+          "- Only an omitted `stateCode` returns the full list. An empty or unknown code returns an empty list.",
+          "- `stateCode` is case-sensitive: `sp`, like an unknown code, returns an empty list."
+        ],
+        "pt-BR": [
+          "Retorna os municípios publicados pelo IBGE, ordenados por nome (ordenação pt-BR). Retorna todos eles ou os de um estado.",
+          "",
+          "- Cada item tem o código IBGE de 7 dígitos, o nome e a sigla da UF.",
+          "- Só a omissão de `stateCode` retorna a lista completa. Um código vazio ou desconhecido retorna uma lista vazia.",
+          "- `stateCode` diferencia maiúsculas de minúsculas: `sp`, como um código desconhecido, retorna uma lista vazia."
+        ]
+      },
       "references": ["https://servicodados.ibge.gov.br/api/docs/localidades"],
       "flatName": "getMunicipalities",
       "params": [{ "name": "stateCode", "type": "string", "optional": true }],

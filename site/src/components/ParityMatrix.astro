@@ -6,7 +6,7 @@
  */
 import { CATEGORIES, coverage, loadLibs, loadSpecs, loadStatus, loadUsageManifest } from '@lib/registry.mjs';
 import { STATUS_MARK } from '@lib/text.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 const t = Astro.locals.t;
 const { locale, prefix } = pageContext(Astro);
@@ -67,7 +67,7 @@ const mark = Object.fromEntries(MARKS.map(([state, m, cls]) => [state, { m, cls 
     ))}
   </p>
   <p class="fetched">
-    {status ? t('parity.fromRun', { date: new Date(status.generatedAt).toLocaleString(locale) }) : manifest?.fetchedAt ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.` : ''}
+    {status ? t('parity.fromRun', { ...RAW, date: new Date(status.generatedAt).toLocaleString(locale) }) : manifest?.fetchedAt ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.` : ''}
   </p>
 </div>
 

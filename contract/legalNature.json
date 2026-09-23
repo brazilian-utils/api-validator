@@ -11,12 +11,22 @@
   "related": ["cnpj"],
   "functions": {
     "format": {
-      "summary": "Formats a Brazilian legal nature (natureza jurídica) code.",
-      "description": [
-        "Formats a legal nature code as `NNN-N`; use `legalNature.isValid` to check the code.",
-        "",
-        "- The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 4 digits first."
-      ],
+      "summary": {
+        "en": "Formats a Brazilian legal nature (natureza jurídica) code.",
+        "pt-BR": "Formata um código de natureza jurídica."
+      },
+      "description": {
+        "en": [
+          "Formats a legal nature code as `NNN-N`. Use `legalNature.isValid` to check the code.",
+          "",
+          "- The mask is applied as far as the digits go. `options.pad` first left-pads with zeros to 4 digits."
+        ],
+        "pt-BR": [
+          "Formata um código de natureza jurídica como `NNN-N`. Use `legalNature.isValid` para verificar o código.",
+          "",
+          "- A máscara é aplicada até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 4 dígitos."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"
@@ -34,10 +44,18 @@
       ]
     },
     "generate": {
-      "summary": "Generates a random valid Brazilian legal nature (natureza jurídica) code.",
-      "description": [
-        "Generates a random valid legal nature code (4 digits), drawn only among the 92 codes in force, never a retired one."
-      ],
+      "summary": {
+        "en": "Generates a random valid Brazilian legal nature (natureza jurídica) code.",
+        "pt-BR": "Gera um código de natureza jurídica aleatório e válido."
+      },
+      "description": {
+        "en": [
+          "Generates a random valid legal nature code (4 digits). It picks only among the 92 codes in force, never a retired one."
+        ],
+        "pt-BR": [
+          "Gera um código de natureza jurídica aleatório e válido (4 dígitos). Escolhe somente entre os 92 códigos em vigor, nunca um código extinto."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"
@@ -49,13 +67,24 @@
       ]
     },
     "get": {
-      "summary": "Looks a Brazilian legal nature (natureza jurídica) code up.",
-      "description": [
-        "Looks a legal nature code up in the IBGE/CONCLA Natureza Jurídica 2021 table; returns null for an unknown code.",
-        "",
-        "- The entry has the code, its description and its CONCLA category (given by the first digit).",
-        "- A code retired by a past revision comes back flagged as legacy, with the code it corresponds to today, or none when it has no successor."
-      ],
+      "summary": {
+        "en": "Looks up a Brazilian legal nature (natureza jurídica) code.",
+        "pt-BR": "Consulta um código de natureza jurídica."
+      },
+      "description": {
+        "en": [
+          "Looks up a legal nature code in the IBGE/CONCLA Natureza Jurídica 2021 table. Returns null for an unknown code.",
+          "",
+          "- The entry has the code, its description and its CONCLA category (given by the first digit).",
+          "- A code that a past revision retired comes back flagged as legacy. The entry also gives the code it corresponds to today, or none when it has no successor."
+        ],
+        "pt-BR": [
+          "Consulta um código de natureza jurídica na tabela Natureza Jurídica 2021 do IBGE/CONCLA. Retorna null para um código desconhecido.",
+          "",
+          "- A entrada tem o código, a descrição e a categoria CONCLA (dada pelo primeiro dígito).",
+          "- Um código que uma revisão anterior extinguiu volta marcado como legado. A entrada também informa o código correspondente atual, ou nenhum quando não há sucessor."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"
@@ -72,7 +101,10 @@
       ]
     },
     "getDescription": {
-      "summary": "Description of a legal nature code.",
+      "summary": {
+        "en": "Returns the description of a legal nature code.",
+        "pt-BR": "Retorna a descrição de um código de natureza jurídica."
+      },
       "level": "core",
       "params": [{ "name": "code", "type": "string" }],
       "returns": "string?",
@@ -82,13 +114,24 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a Brazilian legal nature (natureza jurídica) code exists.",
-      "description": [
-        "Checks whether a legal nature code exists in the IBGE/CONCLA Natureza Jurídica 2021 table.",
-        "",
-        "- The 92 codes in force are accepted, plus the 8 codes a past revision retired (`legalNature.get` tells them apart).",
-        "- Only hyphens, dots and whitespace are tolerated around the 4 digits."
-      ],
+      "summary": {
+        "en": "Checks whether a Brazilian legal nature (natureza jurídica) code exists.",
+        "pt-BR": "Verifica se um código de natureza jurídica existe."
+      },
+      "description": {
+        "en": [
+          "Checks whether a legal nature code exists in the IBGE/CONCLA Natureza Jurídica 2021 table.",
+          "",
+          "- It accepts the 92 codes in force, plus the 8 codes that a past revision retired. `legalNature.get` tells them apart.",
+          "- Around the 4 digits, it tolerates only hyphens, dots and whitespace."
+        ],
+        "pt-BR": [
+          "Verifica se um código de natureza jurídica existe na tabela Natureza Jurídica 2021 do IBGE/CONCLA.",
+          "",
+          "- Aceita os 92 códigos em vigor e também os 8 códigos que uma revisão anterior extinguiu. `legalNature.get` distingue uns dos outros.",
+          "- Em volta dos 4 dígitos, tolera somente hifens, pontos e espaços em branco."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf",
@@ -112,13 +155,24 @@
       ]
     },
     "list": {
-      "summary": "Returns every Brazilian legal nature (natureza jurídica) published by the CONCLA.",
-      "description": [
-        "Returns the legal nature table as a map from code to description.",
-        "",
-        "- Only the 92 codes in force by default; `params` can include the 8 retired codes.",
-        "- The table is CONCLA's Natureza Jurídica 2021 (findings §1b: some libs still ship an older table)."
-      ],
+      "summary": {
+        "en": "Returns every Brazilian legal nature (natureza jurídica) that CONCLA publishes.",
+        "pt-BR": "Retorna todas as naturezas jurídicas que a CONCLA publica."
+      },
+      "description": {
+        "en": [
+          "Returns the legal nature table as a map from code to description.",
+          "",
+          "- By default, it returns only the 92 codes in force. `params` can include the 8 retired codes.",
+          "- The table is CONCLA's Natureza Jurídica 2021 (findings §1b: some libraries still ship an older table)."
+        ],
+        "pt-BR": [
+          "Retorna a tabela de naturezas jurídicas como um mapa de código para descrição.",
+          "",
+          "- Por padrão, retorna somente os 92 códigos em vigor. `params` pode incluir os 8 códigos extintos.",
+          "- A tabela é a Natureza Jurídica 2021 da CONCLA (findings §1b: algumas bibliotecas ainda trazem uma tabela mais antiga)."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"
@@ -231,14 +285,26 @@
       ]
     },
     "listByCategory": {
-      "summary": "Retrieves every Brazilian legal nature (natureza jurídica) of a CONCLA category.",
-      "description": [
-        "Returns every legal nature of a CONCLA category (the first digit of the code), sorted by code.",
-        "",
-        "- Categories: 1 Administração Pública, 2 Entidades Empresariais, 3 Entidades sem Fins Lucrativos, 4 Pessoas Físicas, 5 Organizações Internacionais e Outras Instituições Extraterritoriais.",
-        "- `category` may be a string or a number; `options` can include the retired codes.",
-        "- Returns an empty list for an unknown category."
-      ],
+      "summary": {
+        "en": "Gets every Brazilian legal nature (natureza jurídica) of a CONCLA category.",
+        "pt-BR": "Obtém todas as naturezas jurídicas de uma categoria CONCLA."
+      },
+      "description": {
+        "en": [
+          "Returns every legal nature of a CONCLA category (the first digit of the code), sorted by code.",
+          "",
+          "- Categories: 1 Administração Pública, 2 Entidades Empresariais, 3 Entidades sem Fins Lucrativos, 4 Pessoas Físicas, 5 Organizações Internacionais e Outras Instituições Extraterritoriais.",
+          "- `category` may be a string or a number. `options` can include the retired codes.",
+          "- Returns an empty list for an unknown category."
+        ],
+        "pt-BR": [
+          "Retorna todas as naturezas jurídicas de uma categoria CONCLA (o primeiro dígito do código), em ordem de código.",
+          "",
+          "- Categorias: 1 Administração Pública, 2 Entidades Empresariais, 3 Entidades sem Fins Lucrativos, 4 Pessoas Físicas, 5 Organizações Internacionais e Outras Instituições Extraterritoriais.",
+          "- `category` pode ser uma string ou um número. `options` pode incluir os códigos extintos.",
+          "- Retorna uma lista vazia para uma categoria desconhecida."
+        ]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"
@@ -365,8 +431,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes legal nature (natureza jurídica) formatting characters and returns only digits.",
-      "description": ["Removes legal nature formatting and keeps only digits, capped to 4 digits."],
+      "summary": {
+        "en": "Removes legal nature (natureza jurídica) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação da natureza jurídica e retorna somente os dígitos."
+      },
+      "description": {
+        "en": ["Removes legal nature formatting and keeps only digits, capped to 4 digits."],
+        "pt-BR": ["Remove a formatação da natureza jurídica e mantém somente os dígitos, limitados a 4 dígitos."]
+      },
       "references": [
         "https://concla.ibge.gov.br/estrutura/natjur-estrutura/natureza-juridica-2021",
         "https://concla.ibge.gov.br/images/concla/documentacao/CONCLA-TNJ2021-EstruturaDetalhada.pdf"

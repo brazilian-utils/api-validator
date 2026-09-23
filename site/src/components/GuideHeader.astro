@@ -5,7 +5,7 @@
  */
 import { loadGuides, loadLibs, loadSpecs } from '@lib/registry.mjs';
 import { opPath } from '@lib/text.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 interface Props {
   lib: string;
@@ -30,7 +30,7 @@ const uses = guide.fns.flatMap((fnId: string) => {
 
 <div class="guide-header not-content">
   <p>
-    {t('guide.from', { lib: lib.label })} <a href={source} rel="noopener noreferrer">{t('guide.source')}</a>
+    {t('guide.from', { ...RAW, lib: lib.label })} <a href={source} rel="noopener noreferrer">{t('guide.source')}</a>
   </p>
   {shown !== locale && <p class="fallback">{t('guide.englishOnly')}</p>}
   {uses.length > 0 && (

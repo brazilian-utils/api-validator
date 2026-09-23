@@ -6,7 +6,7 @@
  * the browser; examples and names come from the contract and the last validator run.
  */
 import { loadLibs, loadSpecs, loadStatus } from '@lib/registry.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 import { isImplemented } from '@lib/text.mjs';
 
 const t = Astro.locals.t;
@@ -40,7 +40,7 @@ const first = kinds.find((k) => k.domain === 'cpf');
 ---
 
 <section class="specimen not-content" aria-labelledby="specimen-label" data-kinds={JSON.stringify(kinds)}
-  data-valid={t('specimen.valid')} data-invalid={t('specimen.invalid')} data-unknown={t('specimen.unknown')} data-check={t('specimen.checkDigits')} data-same={t('specimen.sameCheck')}>
+  data-valid={t('specimen.valid')} data-invalid={t('specimen.invalid')} data-unknown={t('specimen.unknown')} data-check-one={t('specimen.checkDigits_one')} data-check-other={t('specimen.checkDigits_other', { count: '{n}', ...RAW })} data-same={t('specimen.sameCheck')}>
   <label id="specimen-label" for="specimen-input">{t('specimen.label')}</label>
   <input id="specimen-input" type="text" inputmode="text" autocomplete="off" spellcheck="false" value={first?.example ?? ''} aria-describedby="specimen-result" />
   <p class="formatted" aria-hidden="true"></p>
@@ -57,13 +57,16 @@ const first = kinds.find((k) => k.domain === 'cpf');
   import { formatCep, formatCnh, formatCnpj, formatCpf, formatLicensePlate, formatPis, formatVoterId, isValidCep, isValidCnh, isValidCnpj, isValidCpf, isValidLicensePlate, isValidPis, isValidVoterId } from '@brazilian-utils/brazilian-utils';
 
   type Kind = { domain: string; check: number; title: string; href: string; names: Array<{ lib: string; symbol: string }> };
-  const RULES: Record<string, { fits: (alnum: string) => boolean; valid: (v: string) => boolean; format: (v: string) => string }> = {
-    cpf: { fits: (a) => /^\d{11}$/.test(a), valid: isValidCpf, format: formatCpf },
-    pis: { fits: (a) => /^\d{11}$/.test(a), valid: isValidPis, format: formatPis },
+  // `mask`: the written format of the document. A value typed with a mask says which document the
+  // reader means, even when the same digits make another document valid.
+  type Rule = { fits: (alnum: string) => boolean; mask?: RegExp; valid: (v: string) => boolean; format: (v: string) => string };
+  const RULES: Record<string, Rule> = {
+    cpf: { fits: (a) => /^\d{11}$/.test(a), mask: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/, valid: isValidCpf, format: formatCpf },
+    pis: { fits: (a) => /^\d{11}$/.test(a), mask: /^\d{3}\.\d{5}\.\d{2}-\d$/, valid: isValidPis, format: formatPis },
     cnh: { fits: (a) => /^\d{11}$/.test(a), valid: isValidCnh, format: formatCnh },
-    cnpj: { fits: (a) => /^[0-9A-Z]{12}\d{2}$/.test(a), valid: (v) => isValidCnpj(v, { version: 2 }), format: (v) => formatCnpj(v, { version: 2 }) },
+    cnpj: { fits: (a) => /^[0-9A-Z]{12}\d{2}$/.test(a), mask: /^[0-9A-Z]{2}\.[0-9A-Z]{3}\.[0-9A-Z]{3}\/[0-9A-Z]{4}-\d{2}$/i, valid: (v) => isValidCnpj(v, { version: 2 }), format: (v) => formatCnpj(v, { version: 2 }) },
     voterId: { fits: (a) => /^\d{12}$/.test(a), valid: isValidVoterId, format: formatVoterId },
-    cep: { fits: (a) => /^\d{8}$/.test(a), valid: isValidCep, format: formatCep },
+    cep: { fits: (a) => /^\d{8}$/.test(a), mask: /^\d{5}-\d{3}$/, valid: isValidCep, format: formatCep },
     licensePlate: { fits: (a) => /^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(a), valid: isValidLicensePlate, format: (v) => formatLicensePlate(v) || v },
   };
 
@@ -74,11 +77,12 @@ const first = kinds.find((k) => k.domain === 'cpf');
     const formatted = box.querySelector('.formatted')!;
     const result = box.querySelector('.result')!;
 
-    // Which document the value is: the first that fits and is valid, else the first that fits.
+    // Which document the value is: the one whose mask it is written in, else the first that fits
+    // and is valid, else the first that fits.
     const detect = (value: string) => {
       const alnum = value.toUpperCase().replace(/[^0-9A-Z]/g, '');
       const fitting = kinds.filter((k) => RULES[k.domain]?.fits(alnum));
-      return fitting.find((k) => RULES[k.domain].valid(value)) ?? fitting[0];
+      return fitting.find((k) => RULES[k.domain].mask?.test(value)) ?? fitting.find((k) => RULES[k.domain].valid(value)) ?? fitting[0];
     };
 
     /** The formatted value, with its last `check` digits marked. */
@@ -115,7 +119,7 @@ const first = kinds.find((k) => k.domain === 'cpf');
       verdict.className = valid ? 'bu-ok' : 'bu-fail';
       verdict.textContent = `${valid ? '✓' : '✕'} ${valid ? box.dataset.valid : box.dataset.invalid}`;
       head.append(link, ': ', verdict, '.');
-      if (valid && kind.check) head.append(` ${box.dataset.check!.replace('{{n}}', String(kind.check))}`);
+      if (valid && kind.check) head.append(` ${kind.check === 1 ? box.dataset.checkOne : box.dataset.checkOther!.replace('{n}', String(kind.check))}`);
       result.append(head);
       if (kind.names.length) {
         const caption = document.createElement('p');

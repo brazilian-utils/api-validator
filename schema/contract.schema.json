@@ -37,14 +37,37 @@
             "type": "array",
             "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*\\.[a-z][A-Za-z0-9]*$" }
           },
-          "summary": { "type": "string" },
+          "summary": {
+            "anyOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": { "en": { "type": "string" }, "pt-BR": { "type": "string" } },
+                "required": ["en"],
+                "additionalProperties": false
+              }
+            ]
+          },
           "label": {
             "type": "object",
             "properties": { "en": { "type": "string", "minLength": 1 }, "pt-BR": { "type": "string", "minLength": 1 } },
             "required": ["en", "pt-BR"],
             "additionalProperties": false
           },
-          "description": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+          "description": {
+            "anyOf": [
+              { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+              {
+                "type": "object",
+                "properties": {
+                  "en": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+                  "pt-BR": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] }
+                },
+                "required": ["en"],
+                "additionalProperties": false
+              }
+            ]
+          },
           "references": { "default": [], "type": "array", "items": { "type": "string", "format": "uri" } },
           "level": { "default": "extended", "type": "string", "enum": ["core", "extended"] },
           "params": {

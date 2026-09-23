@@ -8,7 +8,7 @@
 import { Aside } from '@astrojs/starlight/components';
 import { loadLibs, loadSpecs, loadStatus } from '@lib/registry.mjs';
 import { isImplemented, opPath } from '@lib/text.mjs';
-import { BASE, pageContext } from '@lib/page';
+import { BASE, RAW, pageContext } from '@lib/page';
 
 interface Props {
   lib: string;
@@ -53,7 +53,7 @@ const external = { rel: 'noopener noreferrer' };
   {mine && (
     <>
       <dt>{t('lib.badge')}</dt>
-      <dd><img src={`${BASE}/badges/${lib.id}.svg`} alt={t('lib.badgeAlt', { core: s.coreCoverage, passed: s.testsPassed })} height="20" /></dd>
+      <dd><img src={`${BASE}/badges/${lib.id}.svg`} alt={t('lib.badgeAlt', { ...RAW, core: s.coreCoverage, passed: s.testsPassed })} height="20" /></dd>
     </>
   )}
 </dl>
@@ -63,10 +63,10 @@ const external = { rel: 'noopener noreferrer' };
 ) : (
   <>
     <p class="summary">
-      {t('lib.summary', { lib: lib.label, done: s.ok + s.failing, total: s.total, core: s.coreCoverage })}{' '}
-      {t('lib.summaryCases', { passed: s.testsPassed, failed: s.testsFailed })}{' '}
-      {s.signature > 0 && t('lib.summarySignatures', { count: s.signature })}{' '}
-      {mine.unmapped.length > 0 && t('lib.summaryOutside', { count: mine.unmapped.length })}
+      {t('lib.summary', { ...RAW, lib: lib.label, done: s.ok + s.failing, total: s.total, core: s.coreCoverage })}{' '}
+      {t('lib.summaryCases', { ...RAW, passed: s.testsPassed, failed: s.testsFailed })}{' '}
+      {s.signature > 0 && t('lib.summarySignatures', { ...RAW, count: s.signature })}{' '}
+      {mine.unmapped.length > 0 && t('lib.summaryOutside', { ...RAW, count: mine.unmapped.length })}
     </p>
 
     <h2 id="compare">{t('lib.compare')}</h2>
@@ -107,7 +107,7 @@ const external = { rel: 'noopener noreferrer' };
                   <div class="muted"><code>{id}</code>{f.level === 'core' && ` ${t('lib.coreTag')}`}</div>
                 </td>
                 <td class:list={['nowrap', { 'bu-fail': f.status === 'failing', 'bu-warn': f.status === 'signature', 'bu-none': f.status === 'missing' }]}>{t(`status.short.${f.status}` as any)}</td>
-                <td class="small">{f.status === 'failing' ? t('status.failedCases', { count: f.failed }) : f.status === 'signature' ? f.issues.join('. ') : f.suggestions?.length ? t('lib.maybe', { symbols: f.suggestions.join(', ') }) : ''}</td>
+                <td class="small">{f.status === 'failing' ? t('status.failedCases', { ...RAW, count: f.failed }) : f.status === 'signature' ? f.issues.join('. ') : f.suggestions?.length ? t('lib.maybe', { ...RAW, symbols: f.suggestions.join(', ') }) : ''}</td>
                 <td class="small">{by.length ? by.join(', ') : t('lib.nobody')}</td>
               </tr>
             ))}
@@ -144,7 +144,7 @@ const external = { rel: 'noopener noreferrer' };
       <>
         <h2 id="outside">{t('lib.outsideTitle')}</h2>
         <p>{t('lib.outsideIntro')}</p>
-        <ul>{mine.unmapped.map((u: any) => <li><code>{u.symbol}</code>{u.suggestions.length > 0 && <span class="muted"> {t('lib.maybe', { symbols: u.suggestions.join(', ') })}</span>}</li>)}</ul>
+        <ul>{mine.unmapped.map((u: any) => <li><code>{u.symbol}</code>{u.suggestions.length > 0 && <span class="muted"> {t('lib.maybe', { ...RAW, symbols: u.suggestions.join(', ') })}</span>}</li>)}</ul>
       </>
     )}
   </>

@@ -44,6 +44,8 @@ export const LANG_PREFIX = { en: '', 'pt-BR': 'pt-br' };
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const lines = (v) => (Array.isArray(v) ? v.join('\n') : v);
+/** Contract prose, English only or `{ en, pt-BR }`, as `{ en, 'pt-BR'? }` of strings (undefined when absent). */
+const translations = (v) => (v == null ? undefined : typeof v === 'object' && !Array.isArray(v) ? { en: lines(v.en), 'pt-BR': v['pt-BR'] == null ? undefined : lines(v['pt-BR']) } : { en: lines(v) });
 /**
  * Compute once per process (every page of a build reads the same files).
  * @template T
@@ -108,8 +110,8 @@ function normalize(doc) {
       id: op,
       fnId: `${domain}.${op}`,
       label: operationLabel(op, fn.label),
-      summary: fn.summary,
-      description: lines(fn.description),
+      summary: translations(fn.summary),
+      description: translations(fn.description),
       references: fn.references ?? [],
       level: fn.level ?? 'extended',
       network: Boolean(fn.network),
@@ -261,7 +263,7 @@ export function coverage(spec, libId) {
  * @property {number=} order
  * @property {{en:string,'pt-BR':string}} title
  * @property {{en:string,'pt-BR':string}} summary
- * @property {Array<{id:string,fnId:string,label:{en:string,'pt-BR':string},summary?:string,description?:string,references:string[],level:string,network:boolean,deprecated:boolean,params:Array<{name:string,type:string,optional?:boolean}>,returns:string,tests:Array<object>}>} operations
+ * @property {Array<{id:string,fnId:string,label:{en:string,'pt-BR':string},summary?:{en:string,'pt-BR'?:string},description?:{en:string,'pt-BR'?:string},references:string[],level:string,network:boolean,deprecated:boolean,params:Array<{name:string,type:string,optional?:boolean}>,returns:string,tests:Array<object>}>} operations
  * @property {string[]} related   slugs
  * @property {{en:boolean,'pt-BR':boolean}} hasSpec
  */

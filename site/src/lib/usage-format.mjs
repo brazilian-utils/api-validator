@@ -95,8 +95,8 @@ export function symbolMap(entries) {
  * are the lib's own symbol names (`### isValidCpf`). Every `##`/`###` heading outside fenced
  * code ends the section before it; one whose text is a symbol `bySymbol` knows (a single
  * token, backticks allowed) starts the section of that contract function. `intro` is what
- * comes before the first documented function (conventions every function follows), minus the
- * family heading (`## License plate`) right above it.
+ * comes before the first documented function (conventions every function follows): from the
+ * first heading on (without that heading), minus the family heading (`## CPF`) right above it.
  */
 export function referenceSections(body, bySymbol) {
   // Headings, except lines inside fenced code (a `## comment` in an example).
@@ -116,7 +116,11 @@ export function referenceSections(body, bySymbol) {
     let cut = marks[first].index;
     const parent = marks.slice(0, first).reverse().find((m) => m[1].length < marks[first][1].length);
     if (parent && marks[first][1].length === 3) cut = parent.index;
-    intro = body.slice(0, cut).trim();
+    // The page's own opening text describes that page ("Every function of the package…"): the
+    // intro starts at the first heading before the functions, and that heading gives way to the
+    // site's own ("API conventions").
+    const start = marks.find((m) => m.index < cut);
+    intro = start ? body.slice(start.index + start[0].length, cut).trim() : body.slice(0, cut).trim();
   }
   return { sections, intro };
 }

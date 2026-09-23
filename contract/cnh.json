@@ -10,12 +10,22 @@
   "order": 2,
   "functions": {
     "format": {
-      "summary": "Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.",
-      "description": [
-        "Formats a CNH number as `000000000-00` (9 digits, hyphen, 2 check digits).",
-        "",
-        "- `options.pad` left-pads the value with zeros to 11 digits first."
-      ],
+      "summary": {
+        "en": "Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.",
+        "pt-BR": "Formata um número de CNH (Carteira Nacional de Habilitação)."
+      },
+      "description": {
+        "en": [
+          "Formats a CNH number as `000000000-00` (9 digits, hyphen, 2 check digits).",
+          "",
+          "- `options.pad` left-pads the value with zeros to 11 digits first."
+        ],
+        "pt-BR": [
+          "Formata um número de CNH como `000000000-00` (9 dígitos, hífen, 2 dígitos verificadores).",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 11 dígitos."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
       ],
@@ -32,8 +42,14 @@
       ]
     },
     "generate": {
-      "summary": "Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).",
-      "description": ["Generates a valid random CNH number: 11 digits, unformatted, that pass `cnh.isValid`."],
+      "summary": {
+        "en": "Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).",
+        "pt-BR": "Gera um número de CNH (Carteira Nacional de Habilitação, o número da carteira de motorista brasileira) aleatório e válido."
+      },
+      "description": {
+        "en": ["Generates a valid random CNH number: 11 digits, unformatted, that pass `cnh.isValid`."],
+        "pt-BR": ["Gera um número de CNH aleatório e válido: 11 dígitos, sem máscara, que passam em `cnh.isValid`."]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
       ],
@@ -44,14 +60,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number) is valid.",
-      "description": [
-        "Validates a CNH registry number: 9 digits plus 2 check digits (Resolução CONTRAN nº 886/2021, art. 4º).",
-        "",
-        "- Spaces, dots and hyphens are ignored; any other character makes the value invalid.",
-        "- A value whose 11 digits are all the same is rejected.",
-        "- Pending decision (findings §1): the reference (JS) keeps a remainder of 1 in the first check digit as `1`, as real registry numbers do (art. 4º § 1º says `0`); Python and Erlang implement a different (2022) algorithm."
-      ],
+      "summary": {
+        "en": "Checks if a CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number) is valid.",
+        "pt-BR": "Verifica se um número de CNH (Carteira Nacional de Habilitação, o número da carteira de motorista brasileira) é válido."
+      },
+      "description": {
+        "en": [
+          "Validates a CNH registry number: 9 digits plus 2 check digits (Resolução CONTRAN nº 886/2021, art. 4º).",
+          "",
+          "- The function ignores spaces, dots and hyphens. Any other character makes the value invalid.",
+          "- Rejects a value whose 11 digits are all the same.",
+          "- Pending decision (findings §1): the reference (JS) keeps a remainder of 1 in the first check digit as `1`, as real registry numbers do (art. 4º § 1º says `0`). Python and Erlang use a different (2022) algorithm."
+        ],
+        "pt-BR": [
+          "Valida um número de registro da CNH: 9 dígitos mais 2 dígitos verificadores (Resolução CONTRAN nº 886/2021, art. 4º).",
+          "",
+          "- A função ignora espaços, pontos e hífens. Qualquer outro caractere torna o valor inválido.",
+          "- Rejeita um valor com os 11 dígitos iguais.",
+          "- Decisão pendente (findings §1): a referência (JS) mantém um resto 1 no primeiro dígito verificador como `1`, como fazem os números de registro reais (o art. 4º § 1º diz `0`). Python e Erlang usam um algoritmo diferente (de 2022)."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
       ],
@@ -76,8 +104,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CNH (Carteira Nacional de Habilitação) formatting characters and returns only digits.",
-      "description": ["Removes CNH formatting and keeps only digits, capped to 11 digits."],
+      "summary": {
+        "en": "Removes the CNH (Carteira Nacional de Habilitação) formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação da CNH (Carteira Nacional de Habilitação) e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": ["Removes CNH formatting and keeps only digits, capped to 11 digits."],
+        "pt-BR": ["Remove a formatação da CNH e mantém apenas os dígitos, com no máximo 11 dígitos."]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
       ],

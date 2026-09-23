@@ -11,14 +11,26 @@
   "related": ["csosn"],
   "functions": {
     "isValid": {
-      "summary": "Validates if a CST (Código de Situação Tributária) code is valid for a given tax.",
-      "description": [
-        "Checks whether a CST code is valid for a tax.",
-        "",
-        "- `options.tax` picks the table: `icms` (3 digits, origem `0`-`8` plus the Tabela B code), `ipi`, `pis` or `cofins` (2 digits; PIS and COFINS share a table). Omitted or unknown, every table is accepted.",
-        "- Accepts a string or a non-negative integer; the 3-digit ICMS form may have a single separator after the origin digit.",
-        "- A single digit is padded to the 3-digit ICMS form; a 2-digit string is a Tabela B code."
-      ],
+      "summary": {
+        "en": "Checks whether a CST (Código de Situação Tributária) code is valid for a given tax.",
+        "pt-BR": "Verifica se um código CST (Código de Situação Tributária) é válido para um tributo."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CST code is valid for a tax.",
+          "",
+          "- `options.tax` picks the table: `icms` (3 digits, origem `0`-`8` plus the Tabela B code), `ipi`, `pis` or `cofins` (2 digits, and PIS and COFINS share a table). When `options.tax` is omitted or unknown, the function accepts every table.",
+          "- Accepts a string or a non-negative integer. The 3-digit ICMS form may have a single separator after the origin digit.",
+          "- The function pads a single digit to the 3-digit ICMS form. A 2-digit string is a Tabela B code."
+        ],
+        "pt-BR": [
+          "Verifica se um código CST é válido para um tributo.",
+          "",
+          "- `options.tax` escolhe a tabela: `icms` (3 dígitos, origem `0`-`8` mais o código da Tabela B), `ipi`, `pis` ou `cofins` (2 dígitos, e PIS e COFINS usam a mesma tabela). Quando `options.tax` é omitido ou desconhecido, a função aceita todas as tabelas.",
+          "- Aceita uma string ou um inteiro não negativo. A forma de 3 dígitos do ICMS pode ter um único separador após o dígito de origem.",
+          "- A função completa um único dígito com zeros até a forma de 3 dígitos do ICMS. Uma string de 2 dígitos é um código da Tabela B."
+        ]
+      },
       "references": [
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70",
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2023/ajuste-sinief-39-23",

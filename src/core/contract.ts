@@ -11,6 +11,15 @@ const markdown = z.union([z.string(), z.array(z.string())]).transform((v) => (Ar
 /** Text in the site's languages. */
 const localized = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1) }).strict();
 
+/**
+ * Prose in English only, or in each site language: `"…"` or `{ "en": "…", "pt-BR": "…" }`.
+ * The validator (issues, briefs, reports, the exported suite) uses the English text; the docs site
+ * reads the contract files directly and shows the page's language.
+ */
+const english = (v: string | { en: string }) => (typeof v === "string" ? v : v.en);
+const translatableText = z.union([z.string(), z.object({ en: z.string(), "pt-BR": z.string().optional() }).strict()]).transform(english);
+const translatableMarkdown = z.union([markdown, z.object({ en: markdown, "pt-BR": markdown.optional() }).strict()]).transform(english);
+
 const identifier = z.string().regex(/^[a-z][A-Za-z0-9]*$/, "must be lowerCamelCase");
 
 const TestSchema = z
@@ -48,11 +57,11 @@ const FunctionSchema = z
   .object({
     flatName: identifier.optional(),
     aliases: z.array(z.string().regex(/^[a-z][A-Za-z0-9]*\.[a-z][A-Za-z0-9]*$/, "must be domain.operation")).default([]),
-    summary: z.string().optional(),
+    summary: translatableText.optional(),
     /** Name of the operation on the docs site (default: derived from the operation id). */
     label: localized.optional(),
     /** Language-agnostic spec in markdown (a string, or one string per line): rules, edge cases, bad-input behaviour. */
-    description: markdown.optional(),
+    description: translatableMarkdown.optional(),
     /** Links to authoritative sources (official specs, manuals). */
     references: z.array(z.string().url()).default([]),
     level: z.enum(["core", "extended"]).default("extended"),

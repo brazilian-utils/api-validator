@@ -6,6 +6,7 @@
  * whether the answer is the one the contract expects. Built from the contract and the last
  * validator run (the library's symbol), so every operation the published package has gets one.
  */
+import { RAW } from '@lib/page';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as reference from '@brazilian-utils/brazilian-utils';
@@ -47,7 +48,7 @@ const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) 
 
 {usable && (
   <details class="try-it not-content" data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
-    <summary>{t('try.title', { lib: lib!.label })} <code>{fn.symbol}</code></summary>
+    <summary>{t('try.title', { ...RAW, lib: lib!.label })} <code>{fn.symbol}</code></summary>
     <form>
       {params.map((p: any) => (
         <label for={p.id}>
@@ -62,7 +63,7 @@ const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) 
       <button type="submit">{t('try.run')}</button>
     </form>
     <output aria-live="polite"><span class="muted">{t('try.hint')}</span></output>
-    <p class="note">{t('try.note', { package: `${lib!.package} ${version}` })}</p>
+    <p class="note">{t('try.note', { ...RAW, package: `${lib!.package} ${version}` })}</p>
   </details>
 )}
 

@@ -10,12 +10,22 @@
   "order": 3,
   "functions": {
     "format": {
-      "summary": "Formats a NCM (Nomenclatura Comum do Mercosul) code.",
-      "description": [
-        "Formats an NCM code with the mask `NNNN.NN.NN`; only the structure changes (use `ncm.isValid` to check the code).",
-        "",
-        "- Same rules as `cnae.format`; `options.pad` left-pads with zeros to 8 digits first."
-      ],
+      "summary": {
+        "en": "Formats an NCM (Nomenclatura Comum do Mercosul) code.",
+        "pt-BR": "Formata um código NCM (Nomenclatura Comum do Mercosul)."
+      },
+      "description": {
+        "en": [
+          "Formats an NCM code with the mask `NNNN.NN.NN`. Only the structure changes (use `ncm.isValid` to check the code).",
+          "",
+          "- Same rules as `cnae.format`. `options.pad` first left-pads the value with zeros to 8 digits."
+        ],
+        "pt-BR": [
+          "Formata um código NCM com a máscara `NNNN.NN.NN`. Só a estrutura muda (use `ncm.isValid` para verificar o código).",
+          "",
+          "- Mesmas regras de `cnae.format`. `options.pad` antes completa o valor com zeros à esquerda até 8 dígitos."
+        ]
+      },
       "references": ["https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json"],
       "params": [
         { "name": "value", "type": "string | number" },
@@ -30,12 +40,22 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a NCM (Nomenclatura Comum do Mercosul) code exists in the official table.",
-      "description": [
-        "Checks whether an NCM code exists in the current table published by Siscomex.",
-        "",
-        "- Same input rules as `cbo.isValid`, with 8 digits and the `NNNN.NN.NN` mask."
-      ],
+      "summary": {
+        "en": "Checks whether an NCM (Nomenclatura Comum do Mercosul) code exists in the official table.",
+        "pt-BR": "Verifica se um código NCM (Nomenclatura Comum do Mercosul) existe na tabela oficial."
+      },
+      "description": {
+        "en": [
+          "Checks whether an NCM code exists in the current table that Siscomex publishes.",
+          "",
+          "- Same input rules as `cbo.isValid`, with 8 digits and the `NNNN.NN.NN` mask."
+        ],
+        "pt-BR": [
+          "Verifica se um código NCM existe na tabela vigente publicada pelo Siscomex.",
+          "",
+          "- Mesmas regras de entrada de `cbo.isValid`, com 8 dígitos e a máscara `NNNN.NN.NN`."
+        ]
+      },
       "references": ["https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "boolean",
@@ -50,12 +70,22 @@
       ]
     },
     "parse": {
-      "summary": "Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.",
-      "description": [
-        "Removes NCM formatting and keeps only digits, capped to 8 digits.",
-        "",
-        "- Nothing is left-padded; a partial code is kept as written."
-      ],
+      "summary": {
+        "en": "Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação de um NCM (Nomenclatura Comum do Mercosul) e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": [
+          "Removes NCM formatting and keeps only digits, capped to 8 digits.",
+          "",
+          "- The function does not left-pad the value. It keeps a partial code as written."
+        ],
+        "pt-BR": [
+          "Remove a formatação do NCM e mantém apenas os dígitos, limitados a 8.",
+          "",
+          "- A função não completa o valor com zeros à esquerda. Ela mantém um código parcial como foi escrito."
+        ]
+      },
       "references": ["https://portalunico.siscomex.gov.br/classif/api/publico/nomenclatura/download/json"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

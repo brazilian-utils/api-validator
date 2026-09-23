@@ -5,7 +5,7 @@
  * nothing) and takes the height the demo reports with
  * `parent.postMessage({ type: 'example-height', height }, origin)`.
  */
-import { BASE } from '@lib/page';
+import { BASE, RAW } from '@lib/page';
 
 interface Props {
   src: string;
@@ -18,8 +18,8 @@ const url = /^https?:\/\//.test(src) ? src : `${BASE}${src}`;
 
 <figure class="live-demo not-content">
   <figcaption>
-    <span class="dot" aria-hidden="true"></span>{title ? t('guide.liveDemoOf', { title }) : t('guide.liveDemo')}
-    <a href={url} target="_blank" rel="noopener">{t('guide.openDemo')}</a>
+    <span class="dot" aria-hidden="true"></span>{title ? t('guide.liveDemoOf', { ...RAW, title }) : t('guide.liveDemo')}
+    <a href={url} target="_blank" rel="noopener">{t('guide.openDemo')}{title && <span class="sr-only"> ({title})</span>}</a>
   </figcaption>
   <iframe src={url} title={`${t('guide.liveDemo')}${title ? `: ${title}` : ''}`} loading="lazy" height="160"></iframe>
 </figure>

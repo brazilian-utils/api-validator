@@ -10,7 +10,7 @@ import { getCollection, render } from 'astro:content';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import { loadLibs, loadStatus } from '@lib/registry.mjs';
 import { isImplemented } from '@lib/text.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 interface Props {
   util: string;
@@ -54,7 +54,7 @@ const tabs = await Promise.all(
         </div>
       ) : (
         <p class="usage-missing">
-          {implemented ? t('usage.undocumented', { lib: lib.label }) : t('usage.notAvailable', { lib: lib.label })}{' '}
+          {implemented ? t('usage.undocumented', { ...RAW, lib: lib.label }) : t('usage.notAvailable', { ...RAW, lib: lib.label })}{' '}
           <a href={implemented ? `${prefix}/contributing/usage-files/` : `${prefix}/contributing/new-language/`}>{implemented ? t('usage.document') : t('usage.contribute')}</a>
         </p>
       )}

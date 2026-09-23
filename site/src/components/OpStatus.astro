@@ -5,7 +5,7 @@
  */
 import { loadLibs, loadStatus } from '@lib/registry.mjs';
 import { STATUS_CLASS, STATUS_MARK } from '@lib/text.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 interface Props {
   fn: string;
@@ -26,7 +26,7 @@ const entries = status ? loadLibs().map((lib) => ({ lib, f: status.libs[lib.id]?
           <span class={STATUS_CLASS[f.status as keyof typeof STATUS_CLASS]} aria-hidden="true">{STATUS_MARK[f.status as keyof typeof STATUS_MARK]}</span>
           {lib.label}
           <span class="sr-only">: {t(`status.${f.status}` as any)}</span>
-          {f.status === 'failing' && <span class="bu-fail">{t('status.failedCases', { count: f.failed })}</span>}
+          {f.status === 'failing' && <span class="bu-fail">{t('status.failedCases', { ...RAW, count: f.failed })}</span>}
         </a>
       </li>
     ))}

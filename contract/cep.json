@@ -11,13 +11,21 @@
   "related": ["state", "municipality"],
   "functions": {
     "format": {
-      "summary": "Formats a given value as a Brazilian postal code (CEP).",
-      "description": [
-        "Formats a CEP as `00000-000`.",
-        "",
-        "- `options.pad` left-pads the value with zeros to 8 digits first; a CEP starting with `0` given as a number loses that zero otherwise.",
-        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
-      ],
+      "summary": { "en": "Formats a value as a Brazilian postal code (CEP).", "pt-BR": "Formata um valor como CEP." },
+      "description": {
+        "en": [
+          "Formats a CEP as `00000-000`.",
+          "",
+          "- `options.pad` left-pads the value with zeros to 8 digits first. Otherwise, a CEP that starts with `0` and comes as a number loses that zero.",
+          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes. It returns an empty string for empty or garbage input. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um CEP como `00000-000`.",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 8 dígitos. Sem isso, um CEP que começa com `0` e chega como número perde esse zero.",
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai. Ela retorna uma string vazia para entrada vazia ou inválida. As outras bibliotecas retornam null."
+        ]
+      },
       "references": [
         "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
         "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
@@ -39,12 +47,19 @@
       ]
     },
     "generate": {
-      "summary": "Generates a random Brazilian CEP (postal code).",
-      "description": [
-        "Generates a random CEP: 8 digits, unformatted.",
-        "",
-        "- A CEP has no check digit, so every 8-digit string is structurally valid."
-      ],
+      "summary": { "en": "Generates a random Brazilian CEP (postal code).", "pt-BR": "Gera um CEP aleatório." },
+      "description": {
+        "en": [
+          "Generates a random CEP: 8 digits, unformatted.",
+          "",
+          "- A CEP has no check digit, so every 8-digit string is structurally valid."
+        ],
+        "pt-BR": [
+          "Gera um CEP aleatório: 8 dígitos, sem máscara.",
+          "",
+          "- O CEP não tem dígito verificador, então toda string de 8 dígitos é estruturalmente válida."
+        ]
+      },
       "references": [
         "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
         "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
@@ -57,16 +72,30 @@
       ]
     },
     "getAddressInfo": {
-      "summary": "Fetches address information for a given CEP using multiple providers simultaneously. Returns the result from the first provider that responds successfully.",
-      "description": [
-        "Fetches the address of a CEP from several providers at once and returns the first successful answer (network call).",
-        "",
-        "- `cep` may be a string or a number; a number is left-padded with zeros to 8 digits.",
-        "- The result carries the CEP, state, city, neighborhood and street.",
-        "- `options.providers` picks which providers to query.",
-        "- Transient network failures are retried per provider.",
-        "- Fails with an error, distinguishing an invalid CEP or provider list, a CEP no provider knows, and a service failure."
-      ],
+      "summary": {
+        "en": "Fetches the address information for a CEP from several providers at the same time. Returns the result from the first provider that responds successfully.",
+        "pt-BR": "Busca as informações de endereço de um CEP em vários provedores ao mesmo tempo. Retorna o resultado do primeiro provedor que responde com sucesso."
+      },
+      "description": {
+        "en": [
+          "Fetches the address of a CEP from several providers at once and returns the first successful answer (network call).",
+          "",
+          "- `cep` may be a string or a number. A number is left-padded with zeros to 8 digits.",
+          "- The result carries the CEP, state, city, neighborhood and street.",
+          "- `options.providers` picks which providers to query.",
+          "- The function retries transient network failures per provider.",
+          "- Fails with an error. The error tells apart an invalid CEP or provider list, a CEP that no provider knows, and a service failure."
+        ],
+        "pt-BR": [
+          "Busca o endereço de um CEP em vários provedores ao mesmo tempo e retorna a primeira resposta com sucesso (chamada de rede).",
+          "",
+          "- `cep` pode ser uma string ou um número. Um número é completado com zeros à esquerda até 8 dígitos.",
+          "- O resultado traz o CEP, o estado, o município, o bairro e o logradouro.",
+          "- `options.providers` escolhe quais provedores consultar.",
+          "- A função tenta de novo as falhas transitórias de rede, por provedor.",
+          "- Falha com um erro. O erro distingue um CEP ou uma lista de provedores inválidos, um CEP que nenhum provedor conhece e uma falha do serviço."
+        ]
+      },
       "references": ["https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep"],
       "flatName": "getAddressInfoByCep",
       "aliases": ["cep.getAddressFromCep", "cep.getAddress"],
@@ -79,15 +108,28 @@
       "returns": "AddressInfo"
     },
     "getInfoByAddress": {
-      "summary": "Looks every CEP of a Brazilian street up on the ViaCEP API.",
-      "description": [
-        "Looks up every CEP of a street on the ViaCEP service (network call).",
-        "",
-        "- `params` carries the state (federative unit, case-insensitive), the city and the street; city and street are trimmed and stripped of accents before the query.",
-        "- Each result is the ViaCEP record unchanged.",
-        "- Transient network failures are retried.",
-        "- Fails with an error, distinguishing a missing or invalid state/city/street, an address with no match, and an HTTP error from the service."
-      ],
+      "summary": {
+        "en": "Looks up every CEP of a Brazilian street on the ViaCEP API.",
+        "pt-BR": "Consulta todos os CEPs de um logradouro na API ViaCEP."
+      },
+      "description": {
+        "en": [
+          "Looks up every CEP of a street on the ViaCEP service (network call).",
+          "",
+          "- `params` carries the state (federative unit, case-insensitive), the city and the street. Before the query, the function trims the city and the street and removes their accents.",
+          "- Each result is the ViaCEP record unchanged.",
+          "- The function retries transient network failures.",
+          "- Fails with an error. The error tells apart a missing or invalid state/city/street, an address with no match, and an HTTP error from the service."
+        ],
+        "pt-BR": [
+          "Consulta todos os CEPs de um logradouro no serviço ViaCEP (chamada de rede).",
+          "",
+          "- `params` traz a UF (sem diferenciar maiúsculas de minúsculas), o município e o logradouro. Antes da consulta, a função remove os espaços das pontas do município e do logradouro e tira os acentos deles.",
+          "- Cada resultado é o registro do ViaCEP sem alteração.",
+          "- A função tenta de novo as falhas transitórias de rede.",
+          "- Falha com um erro. O erro distingue UF/município/logradouro ausente ou inválido, um endereço sem resultado e um erro HTTP do serviço."
+        ]
+      },
       "references": ["https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep"],
       "flatName": "getCepInfoByAddress",
       "aliases": ["cep.getCepInformationFromAddress", "cep.getCepFromAddress"],
@@ -97,14 +139,26 @@
       "returns": "CepAddressInfo[]"
     },
     "isValid": {
-      "summary": "Validates if a CEP (Brazilian postal code) is valid.",
-      "description": [
-        "Validates a CEP: exactly 8 digits.",
-        "",
-        "- `cep` may be a string or a number; a CEP starting with `0` has to be a string.",
-        "- Letters or other characters make the value invalid.",
-        "- Pending decision (findings §2 #1): the reference (JS) ignores spaces, dots and hyphens (`01310-200` is valid); other libs accept digits only."
-      ],
+      "summary": {
+        "en": "Checks whether a CEP (Brazilian postal code) is valid.",
+        "pt-BR": "Verifica se um CEP é válido."
+      },
+      "description": {
+        "en": [
+          "Validates a CEP: exactly 8 digits.",
+          "",
+          "- `cep` may be a string or a number. A CEP that starts with `0` must be a string.",
+          "- Letters or other characters make the value invalid.",
+          "- Pending decision (findings §2 #1): the reference (JS) ignores spaces, dots and hyphens (`01310-200` is valid). Other libraries accept digits only."
+        ],
+        "pt-BR": [
+          "Valida um CEP: exatamente 8 dígitos.",
+          "",
+          "- `cep` pode ser uma string ou um número. Um CEP que começa com `0` precisa ser uma string.",
+          "- Letras ou outros caracteres tornam o valor inválido.",
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora espaços, pontos e hífens (`01310-200` é válido). As outras bibliotecas aceitam só dígitos."
+        ]
+      },
       "references": [
         "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
         "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
@@ -126,8 +180,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CEP formatting characters and returns only digits.",
-      "description": ["Removes CEP formatting and keeps only digits, capped to 8 digits."],
+      "summary": {
+        "en": "Removes CEP formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de máscara do CEP e retorna só os dígitos."
+      },
+      "description": {
+        "en": ["Removes CEP formatting and keeps only digits, capped at 8 digits."],
+        "pt-BR": ["Remove a máscara do CEP e mantém só os dígitos, limitados a 8."]
+      },
       "references": [
         "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
         "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
@@ -143,7 +203,10 @@
       ]
     },
     "removeSymbols": {
-      "summary": "Removes the formatting symbols (keeps everything else).",
+      "summary": {
+        "en": "Removes the formatting symbols (keeps everything else).",
+        "pt-BR": "Remove os símbolos de máscara (mantém todo o resto)."
+      },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",

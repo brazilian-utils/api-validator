@@ -83,7 +83,8 @@ export default defineConfig({
                   slug: `guides/${g.lib}/${g.slug}`,
                   label: g.title.en ?? Object.values(g.title)[0],
                   translations: g.title['pt-BR'] ? { 'pt-BR': g.title['pt-BR'] } : {},
-                  badge: { text: libs.find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' },
+                  // Name the library only when guides come from more than one.
+                  ...(new Set(guides.map((x) => x.lib)).size > 1 ? { badge: { text: libs.find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' } } : {}),
                 })),
               },
             ]
@@ -100,9 +101,9 @@ export default defineConfig({
           label: 'Contributing',
           translations: { 'pt-BR': 'Contribuindo' },
           items: [
-            { slug: 'contributing/specs', label: 'Writing a spec', translations: { 'pt-BR': 'Escrevendo uma spec' } },
+            { slug: 'contributing/specs', label: 'Write a spec', translations: { 'pt-BR': 'Escreva uma spec' } },
             { slug: 'contributing/usage-files', label: 'Usage files', translations: { 'pt-BR': 'Arquivos de uso' } },
-            { slug: 'contributing/new-language', label: 'Porting to a new language', translations: { 'pt-BR': 'Portando para outra linguagem' } },
+            { slug: 'contributing/new-language', label: 'Port to a new language', translations: { 'pt-BR': 'Porte para uma nova linguagem' } },
           ],
         },
       ],

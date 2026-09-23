@@ -11,14 +11,26 @@
   "related": ["pixPayload", "cpf", "cnpj", "phone", "email"],
   "functions": {
     "getInfo": {
-      "summary": "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code.",
-      "description": [
-        "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code; returns null when the value is not a valid Pix key.",
-        "",
-        "- The result has the key type (CPF, CNPJ, email, phone or EVP) and the canonical value: digits for a CPF or CNPJ (letters upper-cased), a lowercase email, an E.164 phone or a lowercase UUID.",
-        "- An 11-digit value valid as both CPF and mobile phone is a CPF, unless written as a phone (`+55` prefix or DDD in parentheses).",
-        "- Landlines are not Pix keys; an email longer than 77 characters is rejected."
-      ],
+      "summary": {
+        "en": "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code.",
+        "pt-BR": "Identifica uma chave Pix e a normaliza para a forma canônica que o DICT espera dentro de um BR Code."
+      },
+      "description": {
+        "en": [
+          "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code. Returns null when the value is not a valid Pix key.",
+          "",
+          "- The result has the key type (CPF, CNPJ, email, phone or EVP) and the canonical value: digits for a CPF or CNPJ (letters upper-cased), a lowercase email, an E.164 phone or a lowercase UUID.",
+          "- An 11-digit value valid as both CPF and mobile phone is a CPF, unless written as a phone (`+55` prefix or DDD in parentheses).",
+          "- Landlines are not Pix keys. The function rejects an email longer than 77 characters."
+        ],
+        "pt-BR": [
+          "Identifica uma chave Pix e a normaliza para a forma canônica que o DICT espera dentro de um BR Code. Retorna null quando a entrada não é uma chave Pix válida.",
+          "",
+          "- O resultado traz o tipo de chave (CPF, CNPJ, e-mail, telefone ou EVP) e o valor canônico: dígitos para CPF ou CNPJ (letras em maiúsculas), e-mail em minúsculas, telefone em E.164 ou UUID em minúsculas.",
+          "- Um valor de 11 dígitos válido tanto como CPF quanto como celular é um CPF, a não ser que esteja escrito como telefone (prefixo `+55` ou DDD entre parênteses).",
+          "- Telefones fixos não são chaves Pix. A função rejeita um e-mail com mais de 77 caracteres."
+        ]
+      },
       "references": [
         "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/API-DICT.html",
@@ -38,13 +50,24 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a Pix key (chave Pix) against the DICT key formats.",
-      "description": [
-        "Checks whether a value is a valid Pix key: a CPF, a CNPJ, an email, a Brazilian mobile phone or a random EVP key, per the DICT key formats.",
-        "",
-        "- Same recognition rules as `pixKey.getInfo`.",
-        "- `options` can restrict the accepted key types; an empty list rejects everything."
-      ],
+      "summary": {
+        "en": "Validates a Pix key (chave Pix) against the DICT key formats.",
+        "pt-BR": "Valida uma chave Pix de acordo com os formatos de chave do DICT."
+      },
+      "description": {
+        "en": [
+          "Checks whether a value is a valid Pix key: a CPF, a CNPJ, an email, a Brazilian mobile phone or a random EVP key, per the DICT key formats.",
+          "",
+          "- Same recognition rules as `pixKey.getInfo`.",
+          "- `options` can restrict the accepted key types. An empty list rejects everything."
+        ],
+        "pt-BR": [
+          "Verifica se um valor é uma chave Pix válida: CPF, CNPJ, e-mail, celular brasileiro ou chave aleatória EVP, conforme os formatos de chave do DICT.",
+          "",
+          "- Mesmas regras de reconhecimento de `pixKey.getInfo`.",
+          "- `options` pode restringir os tipos de chave aceitos. Uma lista vazia rejeita tudo."
+        ]
+      },
       "references": [
         "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/API-DICT.html",

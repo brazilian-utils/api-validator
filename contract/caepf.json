@@ -11,12 +11,22 @@
   "related": ["cei", "cno"],
   "functions": {
     "format": {
-      "summary": "Formats a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number according to the official mask.",
-      "description": [
-        "Formats a CAEPF with the mask `000.000.000/000-00`.",
-        "",
-        "- The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 14 digits first."
-      ],
+      "summary": {
+        "en": "Formats a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number with the official mask.",
+        "pt-BR": "Formata um número CAEPF (Cadastro de Atividade Econômica da Pessoa Física) com a máscara oficial."
+      },
+      "description": {
+        "en": [
+          "Formats a CAEPF with the mask `000.000.000/000-00`.",
+          "",
+          "- The mask is applied as far as the digits go. `options.pad` first left-pads with zeros to 14 digits."
+        ],
+        "pt-BR": [
+          "Formata um CAEPF com a máscara `000.000.000/000-00`.",
+          "",
+          "- A máscara é aplicada até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 14 dígitos."
+        ]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf"],
       "params": [
         { "name": "value", "type": "string | number" },
@@ -31,14 +41,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number.",
-      "description": [
-        "Validates a CAEPF: 14 digits, the 9-digit CPF base of the holder, a 3-digit sequence and 2 check digits.",
-        "",
-        "- Both check digits follow the CNPJ modulus 11; the resulting pair is then shifted by 12, wrapping around 100.",
-        "- A base whose digits are all the same is rejected.",
-        "- The value may be a number or a string, masked as `000.000.000/000-00` or not."
-      ],
+      "summary": {
+        "en": "Validates a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number.",
+        "pt-BR": "Valida um número CAEPF (Cadastro de Atividade Econômica da Pessoa Física)."
+      },
+      "description": {
+        "en": [
+          "Validates a CAEPF: 14 digits, the 9-digit CPF base of the holder, a 3-digit sequence and 2 check digits.",
+          "",
+          "- Both check digits follow the CNPJ modulus 11. Then the resulting pair is shifted by 12, wrapping around 100.",
+          "- A base whose digits are all the same is rejected.",
+          "- The value may be a number or a string, masked as `000.000.000/000-00` or not."
+        ],
+        "pt-BR": [
+          "Valida um CAEPF: 14 dígitos, com a base de 9 dígitos do CPF do titular, uma sequência de 3 dígitos e 2 dígitos verificadores.",
+          "",
+          "- Os dois dígitos verificadores seguem o módulo 11 do CNPJ. Depois, o par resultante é deslocado em 12, com volta ao chegar a 100.",
+          "- Uma base com todos os dígitos iguais é rejeitada.",
+          "- O valor pode ser um número ou uma string, com a máscara `000.000.000/000-00` ou sem ela."
+        ]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "boolean",
@@ -54,8 +76,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CAEPF (Cadastro de Atividade Econômica da Pessoa Física) formatting characters and returns only digits.",
-      "description": ["Removes CAEPF formatting and keeps only digits, capped to 14 digits."],
+      "summary": {
+        "en": "Removes CAEPF (Cadastro de Atividade Econômica da Pessoa Física) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CAEPF (Cadastro de Atividade Econômica da Pessoa Física) e retorna somente os dígitos."
+      },
+      "description": {
+        "en": ["Removes CAEPF formatting and keeps only digits, capped to 14 digits."],
+        "pt-BR": ["Remove a formatação do CAEPF e mantém somente os dígitos, limitados a 14 dígitos."]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/caepf"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

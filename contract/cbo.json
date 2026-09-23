@@ -10,13 +10,24 @@
   "order": 5,
   "functions": {
     "get": {
-      "summary": "Looks a CBO (Classificação Brasileira de Ocupações) code up in the official CBO 2002 table.",
-      "description": [
-        "Looks a CBO code up in the CBO 2002 occupation table and returns its code and official title.",
-        "",
-        "- Same input rules as `cbo.isValid`; the returned code is the 6 bare digits.",
-        "- Returns null for an unknown code or a value not written in one of the accepted forms."
-      ],
+      "summary": {
+        "en": "Looks up a CBO (Classificação Brasileira de Ocupações) code in the official CBO 2002 table.",
+        "pt-BR": "Consulta um código CBO (Classificação Brasileira de Ocupações) na tabela oficial CBO 2002."
+      },
+      "description": {
+        "en": [
+          "Looks up a CBO code in the CBO 2002 occupation table and returns its code and official title.",
+          "",
+          "- Same input rules as `cbo.isValid`. The returned code is the 6 bare digits.",
+          "- Returns null for an unknown code or a value not written in one of the accepted forms."
+        ],
+        "pt-BR": [
+          "Consulta um código CBO na tabela de ocupações CBO 2002 e retorna o código e o título oficial.",
+          "",
+          "- Mesmas regras de entrada de `cbo.isValid`. O código retornado tem os 6 dígitos sem máscara.",
+          "- Retorna null para um código desconhecido ou para um valor que não está escrito em uma das formas aceitas."
+        ]
+      },
       "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "Cbo?",
@@ -30,14 +41,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CBO (Classificação Brasileira de Ocupações) code exists in the official CBO 2002 table.",
-      "description": [
-        "Checks whether a CBO code exists in the official CBO 2002 occupation table.",
-        "",
-        "- Accepts the 6 digits, the `NNNN-NN` mask (a single separator — space, `.`, `-` or `/` — between the groups) or a non-negative integer.",
-        "- Bare digits (string or number) are left-padded with zeros to 6; a masked value is read as written.",
-        "- Any other string is rejected instead of having its digits picked out."
-      ],
+      "summary": {
+        "en": "Checks whether a CBO (Classificação Brasileira de Ocupações) code exists in the official CBO 2002 table.",
+        "pt-BR": "Verifica se um código CBO (Classificação Brasileira de Ocupações) existe na tabela oficial CBO 2002."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CBO code exists in the official CBO 2002 occupation table.",
+          "",
+          "- Accepts the 6 digits, the `NNNN-NN` mask or a non-negative integer. The mask has a single separator between the groups: space, `.`, `-` or `/`.",
+          "- Bare digits (string or number) are left-padded with zeros to 6. A masked value is read as written.",
+          "- Any other string is rejected. The function does not pick out its digits."
+        ],
+        "pt-BR": [
+          "Verifica se um código CBO existe na tabela oficial de ocupações CBO 2002.",
+          "",
+          "- Aceita os 6 dígitos, a máscara `NNNN-NN` ou um inteiro não negativo. A máscara tem um único separador entre os grupos: espaço, `.`, `-` ou `/`.",
+          "- Dígitos sem máscara (string ou número) são completados com zeros à esquerda até 6. Um valor com máscara é lido como está escrito.",
+          "- Qualquer outra string é rejeitada. A função não extrai os dígitos dela."
+        ]
+      },
       "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "boolean",
@@ -53,12 +76,22 @@
       ]
     },
     "parse": {
-      "summary": "Removes CBO (Classificação Brasileira de Ocupações) formatting characters and returns only digits.",
-      "description": [
-        "Removes CBO formatting and keeps only digits, capped to 6 digits.",
-        "",
-        "- Nothing is left-padded: a leading zero has to be written out."
-      ],
+      "summary": {
+        "en": "Removes CBO (Classificação Brasileira de Ocupações) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CBO (Classificação Brasileira de Ocupações) e retorna somente os dígitos."
+      },
+      "description": {
+        "en": [
+          "Removes CBO formatting and keeps only digits, capped to 6 digits.",
+          "",
+          "- It does not left-pad anything. A leading zero must be written out."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CBO e mantém somente os dígitos, limitados a 6 dígitos.",
+          "",
+          "- Não completa nada com zeros à esquerda. Um zero à esquerda precisa estar escrito."
+        ]
+      },
       "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

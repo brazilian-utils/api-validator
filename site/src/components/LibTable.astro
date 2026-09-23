@@ -4,7 +4,7 @@
  * how much of the contract it implements in the last validator run.
  */
 import { loadLibs, loadStatus } from '@lib/registry.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 const t = Astro.locals.t;
 const { locale, prefix } = pageContext(Astro);
@@ -27,11 +27,11 @@ const pct = (n: number) => `${Math.round(n)}%`;
         <tr>
           <th scope="row">
             <a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a>
-            <span class="sub"><a href={lib.registry}>{lib.package}</a> <a href={`https://github.com/${lib.repo}`}>{t('libs.source')}</a></span>
+            <span class="sub"><a href={lib.registry}>{lib.package}</a> <a href={`https://github.com/${lib.repo}`}>{t('libs.source')}<span class="sr-only"> ({lib.label})</span></a></span>
           </th>
           <td><code>{lib.install}</code></td>
           {status && (
-            <td>{summary ? t('libs.coverageValue', { core: pct(summary.coreCoverage), done: summary.ok + summary.failing, total: summary.total }) : '–'}</td>
+            <td>{summary ? t('libs.coverageValue', { ...RAW, core: pct(summary.coreCoverage), done: summary.ok + summary.failing, total: summary.total }) : '–'}</td>
           )}
         </tr>
       ))}

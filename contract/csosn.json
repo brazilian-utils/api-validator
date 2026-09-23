@@ -11,12 +11,22 @@
   "related": ["cst"],
   "functions": {
     "isValid": {
-      "summary": "Validates if a CSOSN (Código de Situação da Operação no Simples Nacional) code is valid.",
-      "description": [
-        "Checks whether a CSOSN is one of the 10 codes of the official table: `101`, `102`, `103`, `201`, `202`, `203`, `300`, `400`, `500`, `900`.",
-        "",
-        "- Accepts the bare 3 digits as a string, or a non-negative integer; a CSOSN has no printed grouping, so a masked value is rejected."
-      ],
+      "summary": {
+        "en": "Checks whether a CSOSN (Código de Situação da Operação no Simples Nacional) code is valid.",
+        "pt-BR": "Verifica se um código CSOSN (Código de Situação da Operação no Simples Nacional) é válido."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CSOSN is one of the 10 codes of the official table: `101`, `102`, `103`, `201`, `202`, `203`, `300`, `400`, `500`, `900`.",
+          "",
+          "- Accepts the bare 3 digits as a string, or a non-negative integer. A CSOSN has no printed grouping, so the function rejects a masked value."
+        ],
+        "pt-BR": [
+          "Verifica se um CSOSN é um dos 10 códigos da tabela oficial: `101`, `102`, `103`, `201`, `202`, `203`, `300`, `400`, `500`, `900`.",
+          "",
+          "- Aceita os 3 dígitos sem formatação como string, ou um inteiro não negativo. O CSOSN não tem agrupamento impresso, então a função rejeita um valor com máscara."
+        ]
+      },
       "references": [
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70",
         "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2010/aj_003_10"

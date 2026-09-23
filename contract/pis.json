@@ -10,13 +10,24 @@
   "order": 4,
   "functions": {
     "format": {
-      "summary": "Formats a PIS (Programa de Integração Social) number according to the specified pattern.",
-      "description": [
-        "Formats a PIS as `000.00000.00-0`.",
-        "",
-        "- `options.pad` left-pads the value with zeros to 11 digits first.",
-        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
-      ],
+      "summary": {
+        "en": "Formats a PIS (Programa de Integração Social) number with the specified pattern.",
+        "pt-BR": "Formata um número de PIS (Programa de Integração Social) com o padrão especificado."
+      },
+      "description": {
+        "en": [
+          "Formats a PIS as `000.00000.00-0`.",
+          "",
+          "- `options.pad` left-pads the value with zeros to 11 digits first.",
+          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um PIS como `000.00000.00-0`.",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 11 dígitos.",
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+        ]
+      },
       "references": [
         "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
         "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
@@ -36,8 +47,14 @@
       ]
     },
     "generate": {
-      "summary": "Generates a valid random Brazilian PIS (Programa de Integração Social) number.",
-      "description": ["Generates a valid random PIS: 11 digits, unformatted."],
+      "summary": {
+        "en": "Generates a valid random Brazilian PIS (Programa de Integração Social) number.",
+        "pt-BR": "Gera um número de PIS (Programa de Integração Social) aleatório e válido."
+      },
+      "description": {
+        "en": ["Generates a valid random PIS: 11 digits, unformatted."],
+        "pt-BR": ["Gera um PIS aleatório e válido: 11 dígitos, sem máscara."]
+      },
       "references": [
         "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
         "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
@@ -51,13 +68,24 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a Brazilian PIS (Programa de Integração Social) number. Accepts the usual mask characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
-      "description": [
-        "Validates a PIS/PASEP/NIT: 10 base digits and a modulus 11 check digit.",
-        "",
-        "- Pending decision (findings §1): the reference (JS) rejects a value whose digits are all the same as a reserved number; six libs accept them when the check digit matches.",
-        "- Pending decision (findings §2 #1): the reference (JS) ignores the usual mask characters and whitespace; other libs accept digits only."
-      ],
+      "summary": {
+        "en": "Validates a Brazilian PIS (Programa de Integração Social) number. Accepts the usual mask characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
+        "pt-BR": "Valida um número de PIS (Programa de Integração Social). Aceita os caracteres usuais de máscara (`.`, `-`, `/`, `(`, `)`, `,`, `*`) e espaços em branco."
+      },
+      "description": {
+        "en": [
+          "Validates a PIS/PASEP/NIT: 10 base digits and a modulus 11 check digit.",
+          "",
+          "- Pending decision (findings §1): the reference (JS) rejects a value whose digits are all the same as a reserved number. Six libraries accept them when the check digit matches.",
+          "- Pending decision (findings §2 #1): the reference (JS) ignores the usual mask characters and whitespace. Other libraries accept digits only."
+        ],
+        "pt-BR": [
+          "Valida um PIS/PASEP/NIT: 10 dígitos base e um dígito verificador por módulo 11.",
+          "",
+          "- Decisão pendente (findings §1): a referência (JS) rejeita como número reservado um valor com todos os dígitos iguais. Seis bibliotecas aceitam esses valores quando o dígito verificador confere.",
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres usuais de máscara e os espaços em branco. Outras bibliotecas aceitam apenas dígitos."
+        ]
+      },
       "references": [
         "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
         "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
@@ -81,8 +109,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes PIS formatting characters and returns only digits.",
-      "description": ["Removes PIS formatting and keeps only digits, capped to 11 digits."],
+      "summary": {
+        "en": "Removes the PIS formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação do PIS e retorna apenas os dígitos."
+      },
+      "description": {
+        "en": ["Removes PIS formatting and keeps only digits, capped to 11 digits."],
+        "pt-BR": ["Remove a formatação do PIS e mantém apenas os dígitos, com no máximo 11 dígitos."]
+      },
       "references": [
         "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
         "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
@@ -99,7 +133,10 @@
       ]
     },
     "removeSymbols": {
-      "summary": "Removes the formatting symbols (keeps everything else).",
+      "summary": {
+        "en": "Removes the formatting symbols (keeps everything else).",
+        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+      },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",

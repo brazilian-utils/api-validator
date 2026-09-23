@@ -11,12 +11,22 @@
   "related": ["bank"],
   "functions": {
     "format": {
-      "summary": "Formats an IBAN in the ISO 13616 print grouping, blocks of 4 characters, the presentation used on statements and bank forms.",
-      "description": [
-        "Formats an IBAN in the ISO 13616 print grouping: blocks of 4 characters separated by spaces, upper-cased. Does not validate (use `iban.isValid`).",
-        "",
-        "- Only letters and digits are read; the result is capped at the 29 characters of a Brazilian IBAN."
-      ],
+      "summary": {
+        "en": "Formats an IBAN in the ISO 13616 print grouping, with blocks of 4 characters. Statements and bank forms show the IBAN in this form.",
+        "pt-BR": "Formata um IBAN no agrupamento de impressão da ISO 13616, em blocos de 4 caracteres. Extratos e formulários bancários mostram o IBAN nessa forma."
+      },
+      "description": {
+        "en": [
+          "Formats an IBAN in the ISO 13616 print grouping: blocks of 4 characters separated by spaces, upper-cased. It does not validate the IBAN (use `iban.isValid`).",
+          "",
+          "- The function reads only letters and digits. The result is capped at the 29 characters of a Brazilian IBAN."
+        ],
+        "pt-BR": [
+          "Formata um IBAN no agrupamento de impressão da ISO 13616: blocos de 4 caracteres separados por espaços, em maiúsculas. Não valida o IBAN (use `iban.isValid`).",
+          "",
+          "- A função lê apenas letras e dígitos. O resultado é limitado aos 29 caracteres de um IBAN brasileiro."
+        ]
+      },
       "references": [
         "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf"
@@ -31,12 +41,22 @@
       ]
     },
     "getInfo": {
-      "summary": "Parses a Brazilian IBAN (International Bank Account Number) into its fields.",
-      "description": [
-        "Parses a Brazilian IBAN into its fields; returns null whenever `iban.isValid` would return false.",
-        "",
-        "- Fields, all strings: country code, check digits, bank ISPB, branch, account, account type and owner."
-      ],
+      "summary": {
+        "en": "Parses a Brazilian IBAN (International Bank Account Number) into its fields.",
+        "pt-BR": "Decompõe um IBAN (International Bank Account Number) brasileiro em seus campos."
+      },
+      "description": {
+        "en": [
+          "Parses a Brazilian IBAN into its fields. Returns null whenever `iban.isValid` would return false.",
+          "",
+          "- Fields, all strings: country code, check digits, bank ISPB, branch, account, account type and owner."
+        ],
+        "pt-BR": [
+          "Decompõe um IBAN brasileiro em seus campos. Retorna null sempre que `iban.isValid` retornaria false.",
+          "",
+          "- Campos, todos strings: código do país, dígitos verificadores, ISPB do banco, agência, conta, tipo de conta e titular."
+        ]
+      },
       "references": [
         "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf",
@@ -56,13 +76,24 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a Brazilian IBAN (International Bank Account Number).",
-      "description": [
-        "Validates a Brazilian IBAN; any other country is invalid.",
-        "",
-        "- Layout, 29 characters: `BR`, 2 check digits (ISO 7064 MOD 97-10), 8-digit ISPB, 5-digit branch, 10-digit account, 1-letter account type (usually `C` or `P`), 1 owner indicator (`1` to `9`, then `A` to `Z`).",
-        "- Accepts the compact form or groups of 4 split by one whitespace, `.`, `-` or `/`, in any case; a separator inside a group makes it invalid."
-      ],
+      "summary": {
+        "en": "Validates a Brazilian IBAN (International Bank Account Number).",
+        "pt-BR": "Valida um IBAN (International Bank Account Number) brasileiro."
+      },
+      "description": {
+        "en": [
+          "Validates a Brazilian IBAN. Any other country is invalid.",
+          "",
+          "- Layout, 29 characters: `BR`, 2 check digits (ISO 7064 MOD 97-10), 8-digit ISPB, 5-digit branch, 10-digit account, 1-letter account type (usually `C` or `P`), 1 owner indicator (`1` to `9`, then `A` to `Z`).",
+          "- Accepts the compact form or groups of 4 split by one whitespace, `.`, `-` or `/`, in any case. A separator inside a group makes the IBAN invalid."
+        ],
+        "pt-BR": [
+          "Valida um IBAN brasileiro. Um IBAN de qualquer outro país é inválido.",
+          "",
+          "- Leiaute, 29 caracteres: `BR`, 2 dígitos verificadores (ISO 7064 MOD 97-10), ISPB de 8 dígitos, agência de 5 dígitos, conta de 10 dígitos, tipo de conta de 1 letra (em geral `C` ou `P`), 1 indicador de titular (`1` a `9`, depois `A` a `Z`).",
+          "- Aceita a forma compacta ou grupos de 4 separados por um espaço em branco, `.`, `-` ou `/`, em maiúsculas ou minúsculas. Um separador dentro de um grupo torna o IBAN inválido."
+        ]
+      },
       "references": [
         "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf",
@@ -82,8 +113,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes IBAN formatting characters, uppercases the result and returns the compact IBAN.",
-      "description": ["Removes IBAN formatting, keeps letters and digits upper-cased, capped to 29 characters."],
+      "summary": {
+        "en": "Removes IBAN formatting characters, upper-cases the result and returns the compact IBAN.",
+        "pt-BR": "Remove os caracteres de formatação de um IBAN, converte o resultado para maiúsculas e retorna o IBAN compacto."
+      },
+      "description": {
+        "en": ["Removes IBAN formatting and keeps letters and digits upper-cased, capped to 29 characters."],
+        "pt-BR": ["Remove a formatação do IBAN e mantém letras e dígitos em maiúsculas, limitados a 29 caracteres."]
+      },
       "references": [
         "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
         "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf"

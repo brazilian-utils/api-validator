@@ -7,7 +7,7 @@
 import { getCollection } from 'astro:content';
 import { coverage, loadGuides, loadLibs, loadSpec } from '@lib/registry.mjs';
 import { STATUS_CLASS, STATUS_MARK } from '@lib/text.mjs';
-import { pageContext } from '@lib/page';
+import { RAW, pageContext } from '@lib/page';
 
 interface Props {
   util: string;
@@ -46,7 +46,7 @@ const libLabel = (id: string) => libs.find((l) => l.id === id)?.label ?? id;
         <a href={`${prefix}/libs/${lib.id}/`} class:list={['lib', { none: count === 0 }]}>
           <span class={cls} aria-hidden="true">{mark}</span>
           {lib.label}
-          <span class="count">{t('util.count', { count, total })}{since && ` ${t('util.since', { version: since })}`}</span>
+          <span class="count">{t('util.count', { ...RAW, count, total })}{since && ` ${t('util.since', { ...RAW, version: since })}`}</span>
           {failing > 0 && <span class="sr-only">{t('status.failing')}</span>}
         </a>
       ))}
@@ -56,7 +56,7 @@ const libLabel = (id: string) => libs.find((l) => l.id === id)?.label ?? id;
       <p class="row">
         <span class="label">{t('util.guides')}</span>
         {guides.map((g) => (
-          <a href={`${prefix}/guides/${g.lib}/${g.slug}/`}>{t('util.guideFrom', { title: g.title[locale] ?? g.title.en, lib: libLabel(g.lib) })}</a>
+          <a href={`${prefix}/guides/${g.lib}/${g.slug}/`}>{t('util.guideFrom', { ...RAW, title: g.title[locale] ?? g.title.en, lib: libLabel(g.lib) })}</a>
         ))}
       </p>
     )}

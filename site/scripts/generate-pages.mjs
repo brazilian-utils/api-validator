@@ -17,13 +17,16 @@ import { DOCS_DIR, LANGS, LANG_PREFIX, REPO_URL, loadGuide, loadGuides, loadLibs
 import { signature } from '../src/lib/text.mjs';
 
 const HEADINGS = {
-  en: { operations: 'Usage', references: 'Official sources', libTitle: (l) => `${l} status`, conventions: 'API conventions' },
-  'pt-BR': { operations: 'Uso', references: 'Fontes oficiais', libTitle: (l) => `Situação: ${l}`, conventions: 'Convenções da API' },
+  en: { operations: 'Usage', references: 'Official sources', libTitle: (l) => `${l} library`, conventions: 'API conventions' },
+  'pt-BR': { operations: 'Uso', references: 'Fontes oficiais', libTitle: (l) => `Biblioteca ${l}`, conventions: 'Convenções da API' },
 };
 const LIB_DESCRIPTION = {
-  en: (l) => `How the ${l} library stands against the shared contract: what it implements, what fails and what to do next.`,
-  'pt-BR': (l) => `Como a biblioteca ${l} está em relação ao contrato: o que implementa, o que falha e o que fazer agora.`,
+  en: (l) => `What the ${l} library implements from the shared contract, what fails, and what to do next.`,
+  'pt-BR': (l) => `O que a biblioteca ${l} implementa do contrato compartilhado, o que falha e o que fazer agora.`,
 };
+/** Contract prose in the page's language, else English. */
+const textIn = (t, lang) => t?.[lang] ?? t?.en;
+
 const EDIT_BASE = `${REPO_URL}/edit/main/`;
 
 const specs = loadSpecs();
@@ -65,7 +68,7 @@ function utilPage(spec, lang) {
         '',
         `<OpStatus fn="${op.fnId}" />`,
         '',
-        mdx(op.description || op.summary || ''),
+        mdx(textIn(op.description, lang) || textIn(op.summary, lang) || ''),
         notes ? `\n<OpNotes network={${op.network}} deprecated={${op.deprecated}} />` : '',
         '',
         `<Usage util="${spec.id}" op="${op.id}" fn="${op.fnId}" />`,
@@ -99,7 +102,7 @@ import TryIt from '@components/TryIt.astro';
 
 ## ${h.operations}
 
-<OpsIntro />
+<OpsIntro util="${spec.id}" />
 
 ${ops}
 ## ${h.references}

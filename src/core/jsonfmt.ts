@@ -37,6 +37,13 @@ function lines(v: Json | undefined): Json | undefined {
   return v.replace(/\n+$/, "").split("\n");
 }
 
+/** `lines` for text that may be `{ en, pt-BR }`: each language on its own lines, `en` first. */
+function localizedLines(v: Json): Json | undefined {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return lines(v);
+  const o = v as { [k: string]: Json };
+  return Object.fromEntries(["en", "pt-BR", ...Object.keys(o)].filter((k, i, all) => k in o && all.indexOf(k) === i).map((k) => [k, lines(o[k])!]));
+}
+
 /** Put the keys of a contract domain file in canonical order. */
 export function orderDomain(doc: { [k: string]: Json }): { [k: string]: Json } {
   const out = ordered(doc, KEY_ORDER.domain);
@@ -45,7 +52,7 @@ export function orderDomain(doc: { [k: string]: Json }): { [k: string]: Json } {
     out.functions = Object.fromEntries(
       Object.entries(fns).map(([op, fn]) => {
         const f = ordered(fn, KEY_ORDER.fn);
-        if (f.description !== undefined) f.description = lines(f.description)!;
+        if (f.description !== undefined) f.description = localizedLines(f.description)!;
         if (Array.isArray(f.params)) f.params = f.params.map((p) => ordered(p as { [k: string]: Json }, KEY_ORDER.param));
         if (Array.isArray(f.tests)) f.tests = f.tests.map((t) => ordered(t as { [k: string]: Json }, KEY_ORDER.test));
         return [op, f];

@@ -3,7 +3,7 @@
  * Reports what is missing or stale between the two languages.
  *
  *  - contract: every domain has its title and summary in both languages (the contract schema
- *              requires both); a long-form spec, when a domain has one, must exist as both
+ *              requires both), and every function its summary and description; a long-form spec, when a domain has one, must exist as both
  *              contract/<domain>/spec.en.md and spec.pt-BR.md, and warns if one was changed more
  *              than a day after the other.
  *  - pages:    every hand-written page in src/content/docs/ must have a pt-br/ twin.
@@ -25,6 +25,16 @@ for (const spec of loadSpecs()) {
   for (const lang of LANGS) {
     if (typeof raw.title !== 'string' && !raw.title?.[lang]) problems.push(`contract/${spec.domain}.json: title.${lang} is missing`);
     if (!raw.summary?.[lang]) problems.push(`contract/${spec.domain}.json: summary.${lang} is missing`);
+  }
+  // Function prose: a plain string is English only; the site shows it on Portuguese pages too.
+  for (const [op, fn] of Object.entries(raw.functions ?? {})) {
+    for (const field of ['summary', 'description']) {
+      const v = fn[field];
+      if (v === undefined) continue;
+      for (const lang of LANGS) {
+        if (typeof v === 'object' && !Array.isArray(v) ? !v[lang] : lang !== 'en') problems.push(`contract/${spec.domain}.json: ${op}.${field}.${lang} is missing`);
+      }
+    }
   }
   const pt = path.join(CONTRACT_DIR, spec.domain, 'spec.pt-BR.md');
   const en = path.join(CONTRACT_DIR, spec.domain, 'spec.en.md');

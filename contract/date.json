@@ -11,15 +11,28 @@
   "aliases": ["dateUtils"],
   "functions": {
     "addBusinessDays": {
-      "summary": "Adds a number of Brazilian business days (dias úteis) to a date.",
-      "description": [
-        "Adds a number of Brazilian business days (dias úteis) to a date, skipping Saturdays, Sundays and the holidays `date.isBusinessDay` skips.",
-        "",
-        "- `options` may count the optional holidays (Carnaval, Corpus Christi; counted by default) and one state's holidays.",
-        "- Returns a new date with the time of day preserved; the input is never mutated.",
-        "- An `amount` of 0 returns the same date, even on a non-business day; a negative `amount` walks backwards.",
-        "- Returns null for an invalid date, a non-integer `amount`, or a result outside the years 1900 to 2099."
-      ],
+      "summary": {
+        "en": "Adds a number of Brazilian business days (dias úteis) to a date.",
+        "pt-BR": "Soma um número de dias úteis a uma data."
+      },
+      "description": {
+        "en": [
+          "Adds a number of Brazilian business days (dias úteis) to a date. It skips Saturdays, Sundays and the holidays that `date.isBusinessDay` skips.",
+          "",
+          "- `options` may count the optional holidays (Carnaval and Corpus Christi, which count by default) and the holidays of one state.",
+          "- Returns a new date and keeps the time of day. The function never changes the input.",
+          "- An `amount` of 0 returns the same date, even on a non-business day. A negative `amount` walks backwards.",
+          "- Returns null for an invalid date, a non-integer `amount`, or a result outside the years 1900 to 2099."
+        ],
+        "pt-BR": [
+          "Soma um número de dias úteis a uma data. Pula sábados, domingos e os feriados que `date.isBusinessDay` pula.",
+          "",
+          "- `options` pode contar os feriados opcionais (Carnaval e Corpus Christi, que contam por padrão) e os feriados de um estado.",
+          "- Retorna uma nova data e mantém a hora do dia. A função nunca altera a entrada.",
+          "- Um `amount` de 0 retorna a mesma data, mesmo em um dia que não é útil. Um `amount` negativo anda para trás.",
+          "- Retorna null para uma data inválida, um `amount` não inteiro ou um resultado fora dos anos 1900 a 2099."
+        ]
+      },
       "flatName": "addBusinessDays",
       "params": [
         { "name": "date", "type": "date" },
@@ -29,15 +42,28 @@
       "returns": "date?"
     },
     "convertToWords": {
-      "summary": "Formats a date as its Brazilian Portuguese \"por extenso\" textual representation, e.g. `\"01/01/2024\"` becomes `\"primeiro de janeiro de dois mil e vinte e quatro\"`.",
-      "description": [
-        "Writes a date in Brazilian Portuguese words (\"por extenso\"), e.g. \"primeiro de janeiro de dois mil e vinte e quatro\".",
-        "",
-        "- `value` is a date (its local calendar date) or a string `dd/mm/yyyy` or ISO `yyyy-mm-dd`.",
-        "- Day 1 is \"primeiro\"; `options` can spell out only the month (digits for day and year, day 1 as `1º`) and prefix the weekday.",
-        "- Pending decision (findings §1b): the reference (JS) writes all lower case and parses ISO strings; Go and Ruby capitalise and do not parse ISO strings.",
-        "- Pending decision (findings §2 #9): for an invalid date, a malformed string, a day or month that does not exist, or a year before 1 the reference (JS) returns an empty string; other libs return null."
-      ],
+      "summary": {
+        "en": "Formats a date as its Brazilian Portuguese \"por extenso\" text. For example, `\"01/01/2024\"` becomes `\"primeiro de janeiro de dois mil e vinte e quatro\"`.",
+        "pt-BR": "Formata uma data por extenso em português. Por exemplo, `\"01/01/2024\"` vira `\"primeiro de janeiro de dois mil e vinte e quatro\"`."
+      },
+      "description": {
+        "en": [
+          "Writes a date in Brazilian Portuguese words (\"por extenso\"), e.g. \"primeiro de janeiro de dois mil e vinte e quatro\".",
+          "",
+          "- `value` is a date (its local calendar date) or a string `dd/mm/yyyy` or ISO `yyyy-mm-dd`.",
+          "- Day 1 is \"primeiro\". `options` can spell out only the month (digits for day and year, day 1 as `1º`) and add the weekday in front.",
+          "- Pending decision (findings §1b): the reference (JS) writes all lower case and parses ISO strings. Go and Ruby capitalise and do not parse ISO strings.",
+          "- Pending decision (findings §2 #9): the reference (JS) returns an empty string for an invalid date, a malformed string, a day or month that does not exist, or a year before 1. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Escreve uma data por extenso em português, por exemplo \"primeiro de janeiro de dois mil e vinte e quatro\".",
+          "",
+          "- `value` é uma data (a data local do calendário) ou uma string `dd/mm/yyyy` ou ISO `yyyy-mm-dd`.",
+          "- O dia 1 é \"primeiro\". `options` pode escrever por extenso só o mês (dígitos para dia e ano, dia 1 como `1º`) e colocar o dia da semana na frente.",
+          "- Decisão pendente (findings §1b): a referência (JS) escreve tudo em minúsculas e interpreta strings ISO. Go e Ruby usam inicial maiúscula e não interpretam strings ISO.",
+          "- Decisão pendente (findings §2 #9): a referência (JS) retorna uma string vazia para uma data inválida, uma string malformada, um dia ou mês que não existe ou um ano antes de 1. As outras bibliotecas retornam null."
+        ]
+      },
       "flatName": "convertDateToWords",
       "aliases": ["date.convertDateToText"],
       "params": [
@@ -58,15 +84,28 @@
       ]
     },
     "differenceInBusinessDays": {
-      "summary": "Counts the number of Brazilian business days (dias úteis) between two dates.",
-      "description": [
-        "Counts the Brazilian business days between two dates.",
-        "",
-        "- Counts `earlierDate` when it is a business day and every business day strictly between the two; `laterDate` is never counted. The time of day is ignored.",
-        "- Negative when `laterDate` is before `earlierDate`; 0 on the same calendar day.",
-        "- `options` as in `date.addBusinessDays`.",
-        "- Returns null when either date is invalid or outside the years 1900 to 2099."
-      ],
+      "summary": {
+        "en": "Counts the number of Brazilian business days (dias úteis) between two dates.",
+        "pt-BR": "Conta o número de dias úteis entre duas datas."
+      },
+      "description": {
+        "en": [
+          "Counts the Brazilian business days between two dates.",
+          "",
+          "- Counts `earlierDate` when it is a business day, and every business day strictly between the two. It never counts `laterDate`. The time of day is ignored.",
+          "- The result is negative when `laterDate` is before `earlierDate`, and 0 on the same calendar day.",
+          "- `options` as in `date.addBusinessDays`.",
+          "- Returns null when either date is invalid or outside the years 1900 to 2099."
+        ],
+        "pt-BR": [
+          "Conta os dias úteis entre duas datas.",
+          "",
+          "- Conta `earlierDate` quando é dia útil e todos os dias úteis estritamente entre as duas. Nunca conta `laterDate`. A hora do dia é ignorada.",
+          "- O resultado é negativo quando `laterDate` é antes de `earlierDate`, e 0 no mesmo dia do calendário.",
+          "- `options` como em `date.addBusinessDays`.",
+          "- Retorna null quando uma das datas é inválida ou está fora dos anos 1900 a 2099."
+        ]
+      },
       "flatName": "differenceInBusinessDays",
       "params": [
         { "name": "laterDate", "type": "date" },
@@ -76,14 +115,26 @@
       "returns": "number?"
     },
     "getHolidays": {
-      "summary": "Retrieves all Brazilian holidays for a given year.",
-      "description": [
-        "Returns the national Brazilian holidays of a year, sorted by date.",
-        "",
-        "- Each holiday has a name, a date and a type: national, state, optional (e.g. Carnaval, Corpus Christi) or religious.",
-        "- \"Dia da Consciência Negra\" (Nov 20) is national from 2024 on.",
-        "- Returns an empty list when `year` is not an integer from 1900 to 2099."
-      ],
+      "summary": {
+        "en": "Gets all Brazilian holidays for a year.",
+        "pt-BR": "Obtém todos os feriados brasileiros de um ano."
+      },
+      "description": {
+        "en": [
+          "Returns the national Brazilian holidays of a year, sorted by date.",
+          "",
+          "- Each holiday has a name, a date and a `type`: `national`, `state`, `optional` (ponto facultativo, for example Carnaval and Corpus Christi) or `religious`.",
+          "- \"Dia da Consciência Negra\" (Nov 20) is national from 2024 on.",
+          "- Returns an empty list when `year` is not an integer from 1900 to 2099."
+        ],
+        "pt-BR": [
+          "Retorna os feriados nacionais brasileiros de um ano, ordenados por data.",
+          "",
+          "- Cada feriado tem um nome, uma data e um `type`: `national`, `state`, `optional` (ponto facultativo, por exemplo Carnaval e Corpus Christi) ou `religious`.",
+          "- O \"Dia da Consciência Negra\" (20 de novembro) é nacional a partir de 2024.",
+          "- Retorna uma lista vazia quando `year` não é um inteiro de 1900 a 2099."
+        ]
+      },
       "references": [
         "https://legis.ac.gov.br/detalhar/1087",
         "https://legis.ac.gov.br/detalhar/1828",
@@ -150,13 +201,24 @@
       "returns": "Holiday[]"
     },
     "isBusinessDay": {
-      "summary": "Checks whether a given date is a Brazilian business day (dia útil).",
-      "description": [
-        "Checks whether a date is a Brazilian business day (dia útil): not a Saturday, a Sunday or a holiday of `date.getHolidays`, by its local calendar date.",
-        "",
-        "- `options` may count the optional holidays (Carnaval, Corpus Christi; counted by default) and one state's holidays.",
-        "- Returns false for an invalid date or a year outside 1900 to 2099."
-      ],
+      "summary": {
+        "en": "Checks whether a date is a Brazilian business day (dia útil).",
+        "pt-BR": "Verifica se uma data é dia útil."
+      },
+      "description": {
+        "en": [
+          "Checks whether a date is a Brazilian business day (dia útil), by its local calendar date. A business day is not a Saturday, a Sunday or a holiday of `date.getHolidays`.",
+          "",
+          "- `options` may count the optional holidays (Carnaval and Corpus Christi, which count by default) and the holidays of one state.",
+          "- Returns false for an invalid date or a year outside 1900 to 2099."
+        ],
+        "pt-BR": [
+          "Verifica se uma data é dia útil, pela data local do calendário. Dia útil não é sábado, domingo nem feriado de `date.getHolidays`.",
+          "",
+          "- `options` pode contar os feriados opcionais (Carnaval e Corpus Christi, que contam por padrão) e os feriados de um estado.",
+          "- Retorna false para uma data inválida ou um ano fora de 1900 a 2099."
+        ]
+      },
       "references": [
         "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
         "https://www.planalto.gov.br/ccivil_03/leis/2002/l10607.htm",
@@ -173,13 +235,24 @@
       "returns": "boolean"
     },
     "isHoliday": {
-      "summary": "Checks whether a given date is a Brazilian holiday.",
-      "description": [
-        "Checks whether a date is a Brazilian holiday, by its local calendar date.",
-        "",
-        "- `options` carries the target date and, optionally, a state code whose holidays also count (an unknown code is ignored).",
-        "- Returns false when the date is missing or invalid."
-      ],
+      "summary": {
+        "en": "Checks whether a date is a Brazilian holiday.",
+        "pt-BR": "Verifica se uma data é feriado no Brasil."
+      },
+      "description": {
+        "en": [
+          "Checks whether a date is a Brazilian holiday, by its local calendar date.",
+          "",
+          "- `options` carries the target date and, optionally, a state code whose holidays also count. The function ignores an unknown code.",
+          "- Returns false when the date is missing or invalid."
+        ],
+        "pt-BR": [
+          "Verifica se uma data é feriado no Brasil, pela data local do calendário.",
+          "",
+          "- `options` traz a data alvo e, opcionalmente, a sigla de um estado cujos feriados também contam. A função ignora uma sigla desconhecida.",
+          "- Retorna false quando a data está ausente ou é inválida."
+        ]
+      },
       "references": [
         "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
         "https://www.planalto.gov.br/ccivil_03/leis/2002/l10607.htm",
@@ -194,12 +267,22 @@
       "returns": "boolean"
     },
     "subBusinessDays": {
-      "summary": "Subtracts a number of Brazilian business days (dias úteis) from a date.",
-      "description": [
-        "Subtracts a number of Brazilian business days from a date: the same as `date.addBusinessDays` with the opposite `amount`.",
-        "",
-        "- Same rules as `date.addBusinessDays`; a negative `amount` walks forwards."
-      ],
+      "summary": {
+        "en": "Subtracts a number of Brazilian business days (dias úteis) from a date.",
+        "pt-BR": "Subtrai um número de dias úteis de uma data."
+      },
+      "description": {
+        "en": [
+          "Subtracts a number of Brazilian business days from a date. This is the same as `date.addBusinessDays` with the opposite `amount`.",
+          "",
+          "- Same rules as `date.addBusinessDays`. A negative `amount` walks forwards."
+        ],
+        "pt-BR": [
+          "Subtrai um número de dias úteis de uma data. É o mesmo que `date.addBusinessDays` com o `amount` oposto.",
+          "",
+          "- Mesmas regras de `date.addBusinessDays`. Um `amount` negativo anda para frente."
+        ]
+      },
       "flatName": "subBusinessDays",
       "params": [
         { "name": "date", "type": "date" },

@@ -11,16 +11,30 @@
   "related": ["number"],
   "functions": {
     "convertToWords": {
-      "summary": "Formats a monetary amount in Brazilian Reais as its \"por extenso\" textual representation, the style used to write out the amount by hand on cheques and contracts, e.g. `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
-      "description": [
-        "Writes an amount in reais in Brazilian Portuguese words (\"por extenso\"), as on cheques and contracts.",
-        "",
-        "- `value` is truncated (not rounded) to 2 decimal places.",
-        "- Singular and plural agree (\"um real\", \"um centavo\", \"zero reais\"); millions and above take \"de reais\" (\"um milhão de reais\").",
-        "- A negative amount is prefixed with \"menos\".",
-        "- Pending decision (findings §1b): the reference (JS) writes all lower case with no comma between groups; several libs capitalise the first word and some add commas.",
-        "- Pending decision (findings §2 #9): for invalid input or an amount above 999 trillion reais the reference (JS) returns an empty string."
-      ],
+      "summary": {
+        "en": "Formats an amount in Brazilian reais as its \"por extenso\" text, the style people use to write out an amount by hand on cheques and contracts. For example, `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
+        "pt-BR": "Formata um valor em reais por extenso, o estilo usado para escrever um valor à mão em cheques e contratos. Por exemplo, `1523.45` vira `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`."
+      },
+      "description": {
+        "en": [
+          "Writes an amount in reais in Brazilian Portuguese words (\"por extenso\"), as on cheques and contracts.",
+          "",
+          "- The function truncates `value` (does not round it) to 2 decimal places.",
+          "- Singular and plural agree (\"um real\", \"um centavo\", \"zero reais\"). Millions and above take \"de reais\" (\"um milhão de reais\").",
+          "- The function adds the prefix \"menos\" to a negative amount.",
+          "- Pending decision (findings §1b): the reference (JS) writes all lower case with no comma between groups. Several libraries capitalise the first word and some add commas.",
+          "- Pending decision (findings §2 #9): for invalid input or an amount above 999 trillion reais, the reference (JS) returns an empty string."
+        ],
+        "pt-BR": [
+          "Escreve um valor em reais por extenso, em português do Brasil, como em cheques e contratos.",
+          "",
+          "- A função trunca `value` (não arredonda) para 2 casas decimais.",
+          "- Singular e plural concordam (\"um real\", \"um centavo\", \"zero reais\"). A partir de milhões, o texto usa \"de reais\" (\"um milhão de reais\").",
+          "- A função coloca \"menos\" antes de um valor negativo.",
+          "- Decisão pendente (findings §1b): a referência (JS) escreve tudo em minúsculas, sem vírgula entre os grupos. Várias bibliotecas põem a primeira palavra em maiúscula e algumas adicionam vírgulas.",
+          "- Decisão pendente (findings §2 #9): para entrada inválida ou valor acima de 999 trilhões de reais, a referência (JS) retorna uma string vazia."
+        ]
+      },
       "flatName": "convertCurrencyToWords",
       "aliases": ["currency.convertRealToText"],
       "level": "core",
@@ -42,15 +56,28 @@
       ]
     },
     "format": {
-      "summary": "Formats a given value as a currency string in Brazilian Real (BRL).",
-      "description": [
-        "Formats a number in the BRL pattern `1.234,56`.",
-        "",
-        "- A number keeps its sign; `options.precision` sets the decimal places (default 2, clamped to 0 to 20).",
-        "- A string is read as `currency.parse` reads it, except that a value without any separator is whole units (`1234` formats as `1.234,00`).",
-        "- Pending decision (findings §1b): the reference (JS) adds no currency symbol by default (the `R$ ` prefix is opt-in through `options.symbol`); the other libs prefix `R$ `.",
-        "- Pending decision (findings §2 #9): for a non-finite or non-numeric value the reference (JS) returns an empty string; other libs return null."
-      ],
+      "summary": {
+        "en": "Formats a value as a currency string in Brazilian real (BRL).",
+        "pt-BR": "Formata um valor como texto monetário em real brasileiro (BRL)."
+      },
+      "description": {
+        "en": [
+          "Formats a number in the BRL pattern `1.234,56`.",
+          "",
+          "- A number keeps its sign. `options.precision` sets the decimal places (default 2, clamped to 0 to 20).",
+          "- The function reads a string as `currency.parse` reads it, except that a value without any separator is whole units (`1234` formats as `1.234,00`).",
+          "- Pending decision (findings §1b): the reference (JS) adds no currency symbol by default (the `R$ ` prefix is opt-in through `options.symbol`). The other libraries prefix `R$ `.",
+          "- Pending decision (findings §2 #9): for a non-finite or non-numeric value, the reference (JS) returns an empty string. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um número no padrão BRL `1.234,56`.",
+          "",
+          "- Um número mantém o sinal. `options.precision` define as casas decimais (padrão 2, limitado de 0 a 20).",
+          "- A função lê uma string como `currency.parse` a lê, exceto que um valor sem nenhum separador vale unidades inteiras (`1234` é formatado como `1.234,00`).",
+          "- Decisão pendente (findings §1b): a referência (JS) não adiciona símbolo de moeda por padrão (o prefixo `R$ ` é opcional, via `options.symbol`). As outras bibliotecas usam o prefixo `R$ `.",
+          "- Decisão pendente (findings §2 #9): para um valor não finito ou não numérico, a referência (JS) retorna uma string vazia. Outras bibliotecas retornam null."
+        ]
+      },
       "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"],
       "level": "core",
       "params": [
@@ -70,14 +97,26 @@
       ]
     },
     "parse": {
-      "summary": "Parses a string representing Brazilian currency format into a number.",
-      "description": [
-        "Parses a BRL amount string (e.g. `R$ 1.234,56`) into a number.",
-        "",
-        "- The last `,` or `.` followed by 1 to 2 digits (up to `options.precision`, when larger) is the decimal separator; every other `,` or `.` is a thousands separator.",
-        "- A value without any separator is read as cents (divided by 10 to the power of the precision, default 2).",
-        "- A leading `-` is preserved; an empty string is 0."
-      ],
+      "summary": {
+        "en": "Parses a string in Brazilian currency format into a number.",
+        "pt-BR": "Converte uma string no formato monetário brasileiro em número."
+      },
+      "description": {
+        "en": [
+          "Parses a BRL amount string (e.g. `R$ 1.234,56`) into a number.",
+          "",
+          "- The last `,` or `.` followed by 1 to 2 digits (up to `options.precision`, when larger) is the decimal separator. Every other `,` or `.` is a thousands separator.",
+          "- The function reads a value without any separator as cents (divided by 10 to the power of the precision, default 2).",
+          "- The function keeps a leading `-`. An empty string is 0."
+        ],
+        "pt-BR": [
+          "Converte uma string de valor em BRL (por exemplo, `R$ 1.234,56`) em número.",
+          "",
+          "- O último `,` ou `.` seguido de 1 a 2 dígitos (até `options.precision`, quando maior) é o separador decimal. Todo outro `,` ou `.` é separador de milhar.",
+          "- A função lê um valor sem nenhum separador como centavos (dividido por 10 elevado à precisão, padrão 2).",
+          "- A função mantém um `-` inicial. Uma string vazia vale 0."
+        ]
+      },
       "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"],
       "params": [
         { "name": "value", "type": "string" },

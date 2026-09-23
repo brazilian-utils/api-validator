@@ -12,3 +12,9 @@ export function pageContext(astro: { locals: { starlightRoute: { lang: string } 
   const folder = (LANG_PREFIX as Record<string, string>)[locale];
   return { locale, prefix: folder ? `${BASE}/${folder}` : BASE };
 }
+
+/**
+ * Options for t() calls that insert values: i18next escapes them for HTML, but Astro escapes what
+ * it renders already, so the text would show `&#x2F;` for `/`. Starlight does the same.
+ */
+export const RAW = { interpolation: { escapeValue: false } } as const;

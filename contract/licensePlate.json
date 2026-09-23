@@ -11,13 +11,24 @@
   "related": ["renavam"],
   "functions": {
     "convertToMercosul": {
-      "summary": "Converts an old format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\"), following the official conversion table: the digit in the 5th position (the 2nd digit of the 4 digit number) becomes a letter, `0` through `9` mapping to `A` through `J`, and every other character is kept as is.",
-      "description": [
-        "Converts an old-format plate (`LLLNNNN`) to the Mercosul format (`LLLNLNN`): the 5th character, a digit, becomes a letter, `0` to `9` mapping to `A` to `J`; the result is upper-cased.",
-        "",
-        "- Pending decision (findings §1b): the reference (JS) also accepts the hyphen mask (`ABC-1234`); other libs reject it.",
-        "- Pending decision (findings §2 #5): for a plate that is already Mercosul or is not a valid old-format plate, the reference (JS) returns an empty string; most libs return null."
-      ],
+      "summary": {
+        "en": "Converts an old-format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\"). It follows the official conversion table. The digit in the 5th position (the 2nd digit of the 4-digit number) becomes a letter, with `0` through `9` mapping to `A` through `J`. Every other character stays as it is.",
+        "pt-BR": "Converte uma placa no formato antigo (\"LLLNNNN\") para o padrão Mercosul (\"LLLNLNN\"). A conversão segue a tabela oficial. O dígito na 5ª posição (o 2º dígito do número de 4 dígitos) vira uma letra, de `0` a `9` para `A` a `J`. Todos os outros caracteres ficam como estão."
+      },
+      "description": {
+        "en": [
+          "Converts an old-format plate (`LLLNNNN`) to the Mercosul format (`LLLNLNN`). The 5th character, a digit, becomes a letter, with `0` to `9` mapping to `A` to `J`. The result is upper-cased.",
+          "",
+          "- Pending decision (findings §1b): the reference (JS) also accepts the hyphen mask (`ABC-1234`). Other libraries reject it.",
+          "- Pending decision (findings §2 #5): for a plate that is already Mercosul or is not a valid old-format plate, the reference (JS) returns an empty string. Most libraries return null."
+        ],
+        "pt-BR": [
+          "Converte uma placa no formato antigo (`LLLNNNN`) para o padrão Mercosul (`LLLNLNN`). O 5º caractere, um dígito, vira uma letra, de `0` a `9` para `A` a `J`. O resultado fica em maiúsculas.",
+          "",
+          "- Decisão pendente (findings §1b): a referência (JS) também aceita a máscara com hífen (`ABC-1234`). As outras bibliotecas a rejeitam.",
+          "- Decisão pendente (findings §2 #5): para uma placa que já é Mercosul ou que não é uma placa válida no formato antigo, a referência (JS) retorna uma string vazia. A maioria das bibliotecas retorna null."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
@@ -38,12 +49,22 @@
       ]
     },
     "format": {
-      "summary": "Formats a Brazilian license plate (placa de carro ou moto).",
-      "description": [
-        "Formats a license plate, upper-cased: old-format plates (`LLLNNNN`) get a hyphen (`ABC-1234`); Mercosul plates (`LLLNLNN`) have no separator.",
-        "",
-        "- Returns an empty string when the value cannot start a valid plate."
-      ],
+      "summary": {
+        "en": "Formats a Brazilian license plate (placa de carro ou moto).",
+        "pt-BR": "Formata uma placa de carro ou moto."
+      },
+      "description": {
+        "en": [
+          "Formats a license plate in upper case. Old-format plates (`LLLNNNN`) get a hyphen (`ABC-1234`). Mercosul plates (`LLLNLNN`) have no separator.",
+          "",
+          "- Returns an empty string when the value cannot start a valid plate."
+        ],
+        "pt-BR": [
+          "Formata uma placa em maiúsculas. Placas no formato antigo (`LLLNNNN`) ganham um hífen (`ABC-1234`). Placas Mercosul (`LLLNLNN`) não têm separador.",
+          "",
+          "- Retorna uma string vazia quando o valor não pode ser o início de uma placa válida."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
@@ -64,12 +85,22 @@
       ]
     },
     "generate": {
-      "summary": "Generates a valid random Brazilian license plate (placa de carro ou moto).",
-      "description": [
-        "Generates a valid random license plate, unformatted.",
-        "",
-        "- `format` is `LLLNLNN` (Mercosul, the default) or `LLLNNNN` (old format); any other value falls back to the default."
-      ],
+      "summary": {
+        "en": "Generates a valid random Brazilian license plate (placa de carro ou moto).",
+        "pt-BR": "Gera uma placa de carro ou moto aleatória e válida."
+      },
+      "description": {
+        "en": [
+          "Generates a valid random license plate, unformatted.",
+          "",
+          "- `format` is `LLLNLNN` (Mercosul, the default) or `LLLNNNN` (old format). Any other value falls back to the default."
+        ],
+        "pt-BR": [
+          "Gera uma placa aleatória e válida, sem máscara.",
+          "",
+          "- `format` é `LLLNLNN` (Mercosul, o padrão) ou `LLLNNNN` (formato antigo). Qualquer outro valor usa o padrão."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
@@ -82,14 +113,26 @@
       ]
     },
     "getFormat": {
-      "summary": "Identifies the format of a Brazilian license plate (placa de carro ou moto).",
-      "description": [
-        "Detects the format of a license plate: `LLLNNNN` for the old format, `LLLNLNN` for Mercosul.",
-        "",
-        "- Separators are removed first; case is ignored.",
-        "- Returns null when the value is not 7 letters and digits in one of the two formats.",
-        "- Pending decision (findings §1): Erlang returns named formats instead of the patterns."
-      ],
+      "summary": {
+        "en": "Identifies the format of a Brazilian license plate (placa de carro ou moto).",
+        "pt-BR": "Identifica o formato de uma placa de carro ou moto."
+      },
+      "description": {
+        "en": [
+          "Detects the format of a license plate: `LLLNNNN` for the old format, `LLLNLNN` for Mercosul.",
+          "",
+          "- The function removes separators first and ignores case.",
+          "- Returns null when the value is not 7 letters and digits in one of the two formats.",
+          "- Pending decision (findings §1): Erlang returns named formats instead of the patterns."
+        ],
+        "pt-BR": [
+          "Detecta o formato de uma placa: `LLLNNNN` para o formato antigo, `LLLNLNN` para Mercosul.",
+          "",
+          "- A função remove os separadores primeiro e ignora maiúsculas e minúsculas.",
+          "- Retorna null quando o valor não tem 7 letras e dígitos em um dos dois formatos.",
+          "- Decisão pendente (findings §1): Erlang retorna formatos com nome em vez dos padrões."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
@@ -110,12 +153,22 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a Brazilian license plate (placa de carro ou moto) is valid.",
-      "description": [
-        "Validates a license plate in the old format (`ABC1234`) or the Mercosul format (`ABC1D23`), in any case, with or without a hyphen or space.",
-        "",
-        "- Any other sequence of letters and digits, or extra characters, makes it invalid."
-      ],
+      "summary": {
+        "en": "Checks whether a Brazilian license plate (placa de carro ou moto) is valid.",
+        "pt-BR": "Verifica se uma placa de carro ou moto é válida."
+      },
+      "description": {
+        "en": [
+          "Validates a license plate in the old format (`ABC1234`) or the Mercosul format (`ABC1D23`), in any case, with or without a hyphen or space.",
+          "",
+          "- Any other sequence of letters and digits, or extra characters, makes it invalid."
+        ],
+        "pt-BR": [
+          "Valida uma placa no formato antigo (`ABC1234`) ou no padrão Mercosul (`ABC1D23`), em maiúsculas ou minúsculas, com ou sem hífen ou espaço.",
+          "",
+          "- Qualquer outra sequência de letras e dígitos, ou caracteres a mais, torna a placa inválida."
+        ]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
@@ -139,8 +192,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes license plate formatting characters and returns only uppercase alphanumerics.",
-      "description": ["Removes separators from a license plate, upper-cases it and caps it to 7 characters."],
+      "summary": {
+        "en": "Removes license plate formatting characters and returns only upper-case letters and digits.",
+        "pt-BR": "Remove os caracteres de máscara da placa e retorna só letras maiúsculas e dígitos."
+      },
+      "description": {
+        "en": ["Removes separators from a license plate, upper-cases it and caps it at 7 characters."],
+        "pt-BR": ["Remove os separadores de uma placa, converte para maiúsculas e limita a 7 caracteres."]
+      },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf"
       ],
@@ -154,7 +213,10 @@
       ]
     },
     "removeSymbols": {
-      "summary": "Removes the formatting symbols (keeps everything else).",
+      "summary": {
+        "en": "Removes the formatting symbols (keeps everything else).",
+        "pt-BR": "Remove os símbolos de máscara (mantém todo o resto)."
+      },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",

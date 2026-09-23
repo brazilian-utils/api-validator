@@ -11,8 +11,16 @@
   "related": ["licensePlate", "vin"],
   "functions": {
     "generate": {
-      "summary": "Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.",
-      "description": ["Generates a valid random RENAVAM in the 11-digit form: 10 base digits plus the check digit."],
+      "summary": {
+        "en": "Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.",
+        "pt-BR": "Gera um número RENAVAM (Registro Nacional de Veículos Automotores) aleatório e válido."
+      },
+      "description": {
+        "en": ["Generates a valid random RENAVAM in the 11-digit form: 10 base digits plus the check digit."],
+        "pt-BR": [
+          "Gera um RENAVAM aleatório e válido no formato de 11 dígitos: 10 dígitos base mais o dígito verificador."
+        ]
+      },
       "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm"],
       "params": [],
       "returns": "string",
@@ -21,13 +29,24 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a RENAVAM (Registro Nacional de Veículos Automotores) is valid.",
-      "description": [
-        "Validates a RENAVAM: the old format (9 digits, left-padded to 11) or the new format (11 digits), with a modulus 11 check digit.",
-        "",
-        "- Spaces, dots and hyphens are ignored; any other character, a letter in particular, makes the value invalid.",
-        "- A value whose digits are all the same is rejected."
-      ],
+      "summary": {
+        "en": "Checks whether a RENAVAM (Registro Nacional de Veículos Automotores) is valid.",
+        "pt-BR": "Verifica se um RENAVAM (Registro Nacional de Veículos Automotores) é válido."
+      },
+      "description": {
+        "en": [
+          "Validates a RENAVAM: the old format (9 digits, left-padded to 11) or the new format (11 digits), with a modulus 11 check digit.",
+          "",
+          "- The function ignores spaces, dots and hyphens. Any other character, in particular a letter, makes the value invalid.",
+          "- A value whose digits are all the same is rejected."
+        ],
+        "pt-BR": [
+          "Valida um RENAVAM: o formato antigo (9 dígitos, completado com zeros à esquerda até 11) ou o novo (11 dígitos), com dígito verificador por módulo 11.",
+          "",
+          "- A função ignora espaços, pontos e hífens. Qualquer outro caractere, em especial uma letra, torna o valor inválido.",
+          "- Um valor com todos os dígitos iguais é rejeitado."
+        ]
+      },
       "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm"],
       "level": "core",
       "params": [{ "name": "renavam", "type": "string | number" }],

@@ -11,12 +11,22 @@
   "related": ["cno", "caepf"],
   "functions": {
     "format": {
-      "summary": "Formats a CEI (Cadastro Específico do INSS) number according to the usual \"00.000.00000/00\" mask, the one the reference implementations of the check digit agree on (the Receita Federal does not print it).",
-      "description": [
-        "Formats a CEI with the usual mask `00.000.00000/00`.",
-        "",
-        "- The mask is applied as far as the digits go; `options.pad` left-pads with zeros to 12 digits first."
-      ],
+      "summary": {
+        "en": "Formats a CEI (Cadastro Específico do INSS) number with the usual \"00.000.00000/00\" mask. The reference implementations of the check digit agree on this mask (the Receita Federal does not print it).",
+        "pt-BR": "Formata um número CEI (Cadastro Específico do INSS) com a máscara usual \"00.000.00000/00\". As implementações de referência do dígito verificador concordam com essa máscara (a Receita Federal não a imprime)."
+      },
+      "description": {
+        "en": [
+          "Formats a CEI with the usual mask `00.000.00000/00`.",
+          "",
+          "- The mask is applied as far as the digits go. `options.pad` first left-pads with zeros to 12 digits."
+        ],
+        "pt-BR": [
+          "Formata um CEI com a máscara usual `00.000.00000/00`.",
+          "",
+          "- A máscara é aplicada até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 12 dígitos."
+        ]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
       "params": [
         { "name": "value", "type": "string | number" },
@@ -31,14 +41,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates a CEI (Cadastro Específico do INSS) number.",
-      "description": [
-        "Validates a CEI: 12 digits, 11 base digits and one check digit.",
-        "",
-        "- The check digit weights the base by 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4, adds the tens of the sum to its units and takes the complement to 10 of the resulting units digit (10 maps to 0).",
-        "- A value whose digits are all the same is rejected.",
-        "- Accepts a number or a string, bare or split into the printed groups (2, 3, 5 and 2 digits) by whitespace or the usual mask characters; anything else is rejected."
-      ],
+      "summary": {
+        "en": "Validates a CEI (Cadastro Específico do INSS) number.",
+        "pt-BR": "Valida um número CEI (Cadastro Específico do INSS)."
+      },
+      "description": {
+        "en": [
+          "Validates a CEI: 12 digits, 11 base digits and one check digit.",
+          "",
+          "- The check digit weights the base by 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4. It adds the tens of the sum to its units. Then it takes the complement to 10 of the resulting units digit (10 maps to 0).",
+          "- A value whose digits are all the same is rejected.",
+          "- Accepts a number or a string, bare or split into the printed groups (2, 3, 5 and 2 digits) by whitespace or the usual mask characters. Anything else is rejected."
+        ],
+        "pt-BR": [
+          "Valida um CEI: 12 dígitos, sendo 11 dígitos de base e um dígito verificador.",
+          "",
+          "- O dígito verificador aplica à base os pesos 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4. Soma a dezena da soma à sua unidade. Depois, toma o complemento a 10 do dígito das unidades resultante (10 vira 0).",
+          "- Um valor com todos os dígitos iguais é rejeitado.",
+          "- Aceita um número ou uma string, sem separadores ou dividida nos grupos impressos (2, 3, 5 e 2 dígitos) por espaços em branco ou pelos caracteres usuais da máscara. Qualquer outra forma é rejeitada."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno",
         "https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno"
@@ -57,8 +79,14 @@
       ]
     },
     "parse": {
-      "summary": "Removes CEI (Cadastro Específico do INSS) formatting characters and returns only digits.",
-      "description": ["Removes CEI formatting and keeps only digits, capped to 12 digits."],
+      "summary": {
+        "en": "Removes CEI (Cadastro Específico do INSS) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CEI (Cadastro Específico do INSS) e retorna somente os dígitos."
+      },
+      "description": {
+        "en": ["Removes CEI formatting and keeps only digits, capped to 12 digits."],
+        "pt-BR": ["Remove a formatação do CEI e mantém somente os dígitos, limitados a 12 dígitos."]
+      },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
       "params": [{ "name": "value", "type": "string | number" }],
       "returns": "string",

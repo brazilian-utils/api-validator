@@ -11,15 +11,28 @@
   "related": ["cpf", "ie", "legalNature"],
   "functions": {
     "format": {
-      "summary": "Formats a given CNPJ (Cadastro Nacional da Pessoa Jurídica) value according to the specified options.",
-      "description": [
-        "Formats a CNPJ as `00.000.000/0000-00`.",
-        "",
-        "- `options.pad` left-pads the value with zeros to 14 characters first.",
-        "- `options.version`: `1` (default) keeps digits only; `2` (alphanumeric CNPJ) keeps letters, upper-cased, and digits.",
-        "- `options.obfuscate` hides the first 2 digits and the 2 check digits with `*`, after padding.",
-        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
-      ],
+      "summary": {
+        "en": "Formats a CNPJ (Cadastro Nacional da Pessoa Jurídica) value with the given options.",
+        "pt-BR": "Formata um CNPJ (Cadastro Nacional da Pessoa Jurídica) com as opções informadas."
+      },
+      "description": {
+        "en": [
+          "Formats a CNPJ as `00.000.000/0000-00`.",
+          "",
+          "- `options.pad` first left-pads the value with zeros to 14 characters.",
+          "- `options.version`: `1` (default) keeps digits only. `2` (alphanumeric CNPJ) keeps letters (upper-cased) and digits.",
+          "- `options.obfuscate` hides the first 2 digits and the 2 check digits with `*`, after padding.",
+          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um CNPJ como `00.000.000/0000-00`.",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 14 caracteres.",
+          "- `options.version`: `1` (padrão) mantém somente dígitos. `2` (CNPJ alfanumérico) mantém letras (em maiúsculas) e dígitos.",
+          "- `options.obfuscate` oculta os 2 primeiros dígitos e os 2 dígitos verificadores com `*`, depois do preenchimento.",
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
         "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
@@ -38,13 +51,24 @@
       ]
     },
     "generate": {
-      "summary": "Generates a valid random CNPJ (Cadastro Nacional da Pessoa Jurídica).",
-      "description": [
-        "Generates a valid random CNPJ, unformatted.",
-        "",
-        "- `versionOrParams` picks the version, `1` (default, numeric) or `2` (alphanumeric), and optionally the branch (número de ordem), an integer from 1 to 9999 (random by default; an invalid branch is ignored).",
-        "- The branch block stays numeric in both versions."
-      ],
+      "summary": {
+        "en": "Generates a valid random CNPJ (Cadastro Nacional da Pessoa Jurídica).",
+        "pt-BR": "Gera um CNPJ (Cadastro Nacional da Pessoa Jurídica) aleatório e válido."
+      },
+      "description": {
+        "en": [
+          "Generates a valid random CNPJ, unformatted.",
+          "",
+          "- `versionOrParams` picks the version: `1` (default, numeric) or `2` (alphanumeric). It can also set the branch (número de ordem), an integer from 1 to 9999. The branch is random by default, and an invalid branch is ignored.",
+          "- The branch block stays numeric in both versions."
+        ],
+        "pt-BR": [
+          "Gera um CNPJ aleatório e válido, sem formatação.",
+          "",
+          "- `versionOrParams` escolhe a versão: `1` (padrão, numérico) ou `2` (alfanumérico). Também pode definir a filial (número de ordem), um inteiro de 1 a 9999. A filial é aleatória por padrão, e uma filial inválida é ignorada.",
+          "- O bloco da filial continua numérico nas duas versões."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
         "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
@@ -58,14 +82,26 @@
       ]
     },
     "isValid": {
-      "summary": "Validates if a CNPJ (Cadastro Nacional da Pessoa Jurídica) is valid. Supports both numeric (version 1) and alphanumeric (version 2) CNPJ formats. Accepts the usual mask characters (`.`, `-`, `/`) and whitespace around and between groups.",
-      "description": [
-        "Validates a CNPJ: 12 base characters and 2 modulus 11 check digits.",
-        "",
-        "- `options.version`: `1` (default) accepts numeric CNPJs only; `2` also accepts the alphanumeric CNPJ, case-insensitively. Any other value is read as `1`.",
-        "- A numeric CNPJ whose digits are all the same is rejected; the alphanumeric format has no reserved list.",
-        "- Pending decision (findings §2 #1): the reference (JS) ignores the mask characters (`.`, `-`, `/`) and whitespace around and between groups; other libs accept digits only."
-      ],
+      "summary": {
+        "en": "Validates a CNPJ (Cadastro Nacional da Pessoa Jurídica). Supports both numeric (version 1) and alphanumeric (version 2) CNPJ formats. Accepts the usual mask characters (`.`, `-`, `/`) and whitespace around and between groups.",
+        "pt-BR": "Valida um CNPJ (Cadastro Nacional da Pessoa Jurídica). Aceita os formatos numérico (versão 1) e alfanumérico (versão 2). Aceita os caracteres usuais da máscara (`.`, `-`, `/`) e espaços em branco em volta dos grupos e entre eles."
+      },
+      "description": {
+        "en": [
+          "Validates a CNPJ: 12 base characters and 2 modulus 11 check digits.",
+          "",
+          "- `options.version`: `1` (default) accepts numeric CNPJs only. `2` also accepts the alphanumeric CNPJ, case-insensitively. Any other value is read as `1`.",
+          "- A numeric CNPJ whose digits are all the same is rejected. The alphanumeric format has no reserved list.",
+          "- Pending decision (findings §2 #1): the reference (JS) ignores the mask characters (`.`, `-`, `/`) and whitespace around and between groups. Other libraries accept digits only."
+        ],
+        "pt-BR": [
+          "Valida um CNPJ: 12 caracteres de base e 2 dígitos verificadores por módulo 11.",
+          "",
+          "- `options.version`: `1` (padrão) aceita somente CNPJs numéricos. `2` também aceita o CNPJ alfanumérico, sem diferenciar maiúsculas de minúsculas. Qualquer outro valor é lido como `1`.",
+          "- Um CNPJ numérico com todos os dígitos iguais é rejeitado. O formato alfanumérico não tem lista de valores reservados.",
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres da máscara (`.`, `-`, `/`) e os espaços em branco em volta dos grupos e entre eles. Outras bibliotecas aceitam somente dígitos."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
         "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
@@ -91,12 +127,22 @@
       ]
     },
     "parse": {
-      "summary": "Removes CNPJ formatting characters and returns a normalized value.",
-      "description": [
-        "Removes CNPJ formatting and returns the normalized value, capped to 14 characters.",
-        "",
-        "- `options.version`: `1` (default) keeps digits only; `2` keeps letters and digits, upper-cased."
-      ],
+      "summary": {
+        "en": "Removes CNPJ formatting characters and returns a normalized value.",
+        "pt-BR": "Remove os caracteres de formatação do CNPJ e retorna um valor normalizado."
+      },
+      "description": {
+        "en": [
+          "Removes CNPJ formatting and returns the normalized value, capped to 14 characters.",
+          "",
+          "- `options.version`: `1` (default) keeps digits only. `2` keeps letters and digits, upper-cased."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CNPJ e retorna o valor normalizado, limitado a 14 caracteres.",
+          "",
+          "- `options.version`: `1` (padrão) mantém somente dígitos. `2` mantém letras e dígitos, em maiúsculas."
+        ]
+      },
       "references": [
         "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
         "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
@@ -116,7 +162,10 @@
       ]
     },
     "removeSymbols": {
-      "summary": "Removes the formatting symbols (keeps everything else).",
+      "summary": {
+        "en": "Removes the formatting symbols and keeps all other characters.",
+        "pt-BR": "Remove os símbolos de formatação e mantém todos os outros caracteres."
+      },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",
