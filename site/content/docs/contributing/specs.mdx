@@ -1,0 +1,74 @@
+---
+title: Write a spec
+description: Add or change a function in the shared contract. Every page of this site and every library follows the contract.
+---
+
+The spec of each utility is the contract in [api-validator](https://github.com/brazilian-utils/api-validator). The contract has one JSON file per domain. Each file lists the functions, their signatures and the test cases that every library runs. This site makes its pages from the contract. When a change to the contract merges, each library that does not have the new function gets an issue.
+
+## Files of a domain
+
+```text
+contract/
+├── _categories.json   the groups of the sidebar
+├── cpf.json           title, summary, category, functions and their test cases
+└── cpf/
+    ├── spec.en.md     the long rule and the algorithm, in English (optional)
+    ├── spec.pt-BR.md  the same text, in Portuguese
+    └── references.md  links to the official documents
+```
+
+```json
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cpf",
+  "title": { "en": "CPF", "pt-BR": "CPF" },
+  "summary": { "en": "One sentence under the page title.", "pt-BR": "Uma frase abaixo do título." },
+  "category": "documents",
+  "order": 1,
+  "related": ["cnpj"],
+  "functions": {
+    "isValid": {
+      "level": "core",
+      "summary": "Whether the value is a valid CPF",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["82178537464"], "returns": true },
+        { "args": ["00000000000"], "returns": false, "note": "reserved number" }
+      ]
+    }
+  }
+}
+```
+
+The keys of `functions` are the function names in the contract, such as `isValid`. The same name has three uses:
+
+- the `##` heading of the function in each library's [usage files](/contributing/usage-files/),
+- the second part of the function id, such as `cpf.isValid`,
+- the name that the validator, the issues and the status pages use.
+
+Do not rename a function. A new name breaks every library. To change only the title on the page, add `label` with `{ "en", "pt-BR" }`. [docs/contract.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/contract.md) describes every field.
+
+## Add a function or a domain
+
+<Steps>
+
+1. Add the function to `contract/<domain>.json`, or create the file for a new domain. Give the function a signature and **test cases**. The test cases are the spec that every library must pass. Include the examples of the official rule and the edge cases: empty input, formatted input, a wrong check digit.
+
+2. A new domain can need more text than the function descriptions, for example an algorithm or a regular expression. Write that text in `spec.en.md` and `spec.pt-BR.md`. List the official sources in `references.md`.
+
+3. Run `npm run lint`. It checks the contract, the schemas and the format. `npm run api-validator fmt` fixes the format.
+
+4. Run `npm run check -- --tests` to see which libraries already pass the new cases.
+
+5. Open the pull request. The pipeline adds the contract changelog to the pull request, and the list of issues it will open. After the merge, each library without the function gets an `implement` issue, and the function appears on this site.
+
+</Steps>
+
+<Callout type="warn" title="The test cases decide">
+The text explains the rule. The test cases decide the behavior, and the libraries run the test cases. If the text says that formatted input is not valid, a test case must expect `false` for formatted input.
+</Callout>
+
+## Change a behavior
+
+A change to an expected value changes every library. In the pull request, give the official source of the change and the libraries that it affects. After the merge, each library that fails the changed cases gets a `fix` issue.

@@ -19,7 +19,7 @@ one library in seven languages.
   in every library that does not have it. A merged bug-fix case opens an issue in every
   library that fails it. The pipeline closes these issues automatically when the work is
   done. A bot also opens a PR in a library when its copy of the suite changes.
-- **Documented once**: the docs site ([`site/`](site), Starlight, English and Portuguese) is
+- **Documented once**: the docs site ([`site/`](site), Next.js + Fumadocs, English and Portuguese) is
   built from the contract. It has one page per utility with the spec, the signature of each
   function, its status in every library, a usage tab per library (from the
   `docs/usage/<util>.md` file of each library) and the shared cases. The `summary` and
@@ -144,7 +144,7 @@ Each library keeps the usage examples for the site (`docs/usage/<util>.md`, one
 `## <operation>` section per contract function).
 `api-validator usage --lib python --path . --scaffold` writes the missing sections from the
 cases the library passes. For the format, read the
-[usage files](site/src/content/docs/contributing/usage-files.mdx) page of the site.
+[usage files](site/content/docs/contributing/usage-files.mdx) page of the site.
 
 To run the check locally from a library checkout, use `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.

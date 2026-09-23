@@ -34,13 +34,19 @@ jobs:
       - run: npm ci
       - name: No known vulnerabilities, at any severity
         run: npm audit --audit-level=low
-      - name: Every domain and page has both languages
+      - name: Every domain, page and interface string has both languages
         run: npm run check:i18n -- --strict
+      - name: Lint (Next.js, React hooks, jsx-a11y) with no warnings
+        run: npm run lint -- --max-warnings 0
       - name: Site builds (usage and guides from the libraries, no status)
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # axe-core, WCAG 2.1 A and AA plus best practices, every page type, light and dark theme.
+      # After the build: it writes next-env.d.ts and the route types the check reads.
+      - name: Types
+        run: npm run typecheck
+      # axe-core, WCAG 2.1 A and AA plus best practices, every page type: light and dark theme on a
+      # desktop, light theme on a phone.
       # The two tools are installed for this step only; they are not dependencies of the site.
       - name: Accessibility
         run: |

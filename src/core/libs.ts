@@ -38,7 +38,7 @@ export const LibSchema = z
         registry: z.string().url(),
         /**
          * Where the lib documents how to use it, read by the site at `ref` (see
-         * site/src/content/docs/contributing/usage-files.mdx):
+         * site/content/docs/contributing/usage-files.mdx):
          *   path       one file per utility, one `## <operation id>` section per function
          *   reference  a page (per locale) whose `##`/`###` headings are the lib's own symbol names
          *   guides     a folder (per locale) of guides: prose plus framework / variant / file examples

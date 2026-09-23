@@ -1,0 +1,94 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@source '../node_modules/fumadocs-ui/dist/**/*.js';
+
+/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent. Brand colors only mark state and
+   the check digits. Text colors meet WCAG 2.1 AA on their backgrounds in both themes. */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-fd-background: #fffcf0;
+  --color-fd-foreground: #100f0f;
+  --color-fd-card: #f2f0e5;
+  --color-fd-card-foreground: #100f0f;
+  --color-fd-popover: #fffcf0;
+  --color-fd-popover-foreground: #100f0f;
+  --color-fd-muted: #f2f0e5;
+  --color-fd-muted-foreground: #5c5b57;
+  --color-fd-secondary: #e6e4d9;
+  --color-fd-secondary-foreground: #100f0f;
+  --color-fd-accent: #e6e4d9;
+  --color-fd-accent-foreground: #100f0f;
+  --color-fd-border: #dad8ce;
+  --color-fd-primary: #1c6c66;
+  --color-fd-primary-foreground: #fffcf0;
+  --color-fd-ring: #24837b;
+  --color-header: #f2f0e5;
+  --color-brand-green: #009c3b;
+  --color-brand-yellow: #ffdf00;
+  --color-brand-blue: #3e4095;
+  --color-ok: #3d6a07;
+  --color-fail: #af3029;
+  --color-warn: #8c5a00;
+}
+
+.dark {
+  --color-fd-background: #100f0f;
+  --color-fd-foreground: #cecdc3;
+  --color-fd-card: #1c1b1a;
+  --color-fd-card-foreground: #cecdc3;
+  --color-fd-popover: #1c1b1a;
+  --color-fd-popover-foreground: #cecdc3;
+  --color-fd-muted: #1c1b1a;
+  --color-fd-muted-foreground: #9f9d96;
+  --color-fd-secondary: #282726;
+  --color-fd-secondary-foreground: #cecdc3;
+  --color-fd-accent: #282726;
+  --color-fd-accent-foreground: #cecdc3;
+  --color-fd-border: #343331;
+  --color-fd-primary: #3aa99f;
+  --color-fd-primary-foreground: #100f0f;
+  --color-fd-ring: #3aa99f;
+  --color-header: #1c1b1a;
+  --color-ok: #879a39;
+  --color-fail: #e8705f;
+  --color-warn: #d0a215;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #1c1b1a;
+  --color-fd-secondary: #282726;
+}
+
+.font-samba {
+  font-family: var(--font-samba), var(--font-sans);
+  font-weight: 400;
+}
+
+/* The check digits of a document number: the brand yellow, ink text on it in both themes. */
+mark.check {
+  background: var(--color-brand-yellow);
+  color: #1d1f3d;
+  border-radius: 0.2em;
+  padding: 0 0.08em;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+/* The header stands apart from the page: its own paper tone and a rule under it. */
+#nd-subnav {
+  background: var(--color-header);
+}
+#nd-subnav > [data-header-body],
+#nd-subnav [data-header-tabs] {
+  border-bottom: 1px solid var(--color-fd-border);
+}
+
+/* Code blocks sit on the page's paper, where every syntax color meets AA. */
+figure.shiki {
+  background-color: var(--color-fd-background);
+}

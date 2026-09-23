@@ -10,7 +10,7 @@
  *     </div>
  *   </div>
  *
- * parseGuide turns one into blocks for scripts/generate-pages.mjs: prose, and groups of
+ * parseGuide turns one into blocks for the guide pages (src/components/pages/guide.tsx): prose, and groups of
  * examples with their files inlined, demo URLs moved under /lib-assets/<lib>/ and links
  * rewritten for this site. Used by scripts/fetch-libs.mjs; tested in ../../test/site.test.ts.
  *
@@ -50,7 +50,7 @@ function attrs(s) {
  * are rewritten for this site.
  */
 export function parseGuide(ctx) {
-  const { lib, src, file } = ctx;
+  const { src, file } = ctx;
   const [data, body] = frontmatter(fs.readFileSync(file, 'utf8'));
   const relFile = path.relative(src.dir, file);
   const blocks = [];

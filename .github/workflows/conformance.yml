@@ -1,6 +1,6 @@
 # The one pipeline: every lib at its latest default branch, contract + shared tests +
 # differential testing, issues in the lib repos, the vendored suite PRs, and the docs site
-# (site/, Starlight) built from the contract, the libs' usage files and this run's results.
+# (site/, Next.js + Fumadocs, static export) built from the contract, the libs' usage files and this run's results.
 # Fails on regressions against baselines/ and on new divergences.
 #
 # Publishing: the site goes to GitHub Pages from main when vars.PUBLISH_SITE == 'true'.
@@ -175,6 +175,7 @@ jobs:
           npm ci
           npm audit --audit-level=low
           npm run check:i18n -- --strict
+          npm run lint
           npm run build
       - uses: actions/upload-artifact@v4
         if: always()
@@ -184,7 +185,7 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         if: always() && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
-          path: site/dist/
+          path: site/out/
 
   publish:
     needs: conformance

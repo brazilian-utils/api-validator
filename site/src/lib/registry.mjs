@@ -1,6 +1,6 @@
 // Single place that knows where the site's data comes from.
-// Used by astro.config.mjs, the build scripts and the Astro components.
-// Plain ESM (no TypeScript) so astro.config.mjs can import it without a build step.
+// Used by the pages (src/app), the build scripts (scripts/) and the validator's tests.
+// Plain ESM (no TypeScript) so the scripts run without a build step.
 //
 // Everything is read from the api-validator repository this site lives in:
 //   ../contract/<domain>.json          the spec: functions, signatures, cases, summaries, labels
@@ -17,8 +17,8 @@ import { keyOf, operationLabel, opRank, resolveOperation as resolveIn, shortName
 
 export { keyOf, slugOf };
 
-// The site root. Resolved from the working directory (not import.meta.url) because Astro
-// bundles this module into dist/ at build time, where a relative path would point nowhere.
+// The site root. Resolved from the working directory (not import.meta.url) because Next bundles
+// this module at build time, where a relative path would point nowhere.
 const ROOT = path.resolve(process.env.DOCS_ROOT || process.cwd());
 const REPO_ROOT = path.resolve(process.env.API_VALIDATOR_ROOT || path.join(ROOT, '..'));
 export const CONTRACT_DIR = path.join(REPO_ROOT, 'contract');
@@ -30,7 +30,8 @@ export const LOCAL_REPOS = path.join(REPO_ROOT, '.repos');
 /** Files the libraries' live demos load, served at <base>/lib-assets/<lib>/. */
 export const LIB_ASSETS_DIR = path.join(ROOT, 'public', 'lib-assets');
 export const FIXTURES_DIR = path.join(ROOT, 'fixtures', 'usage');
-export const DOCS_DIR = path.join(ROOT, 'src', 'content', 'docs');
+/** Hand-written pages: <page>.mdx in English, <page>.pt-BR.mdx in Portuguese. */
+export const DOCS_DIR = path.join(ROOT, 'content', 'docs');
 const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
 
 /** The api-validator repository (contract, validator, this site). */
@@ -38,9 +39,6 @@ export const REPO_URL = 'https://github.com/brazilian-utils/api-validator';
 
 /** Site languages. `en` is the root locale, `pt-BR` lives under /pt-br/. */
 export const LANGS = ['en', 'pt-BR'];
-
-/** URL prefix for each language ('' for the root locale). */
-export const LANG_PREFIX = { en: '', 'pt-BR': 'pt-br' };
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const lines = (v) => (Array.isArray(v) ? v.join('\n') : v);

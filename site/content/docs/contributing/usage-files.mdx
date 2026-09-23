@@ -1,0 +1,168 @@
+---
+title: Usage files
+description: How a library shows its examples on this site. Plain usage files, an existing reference page, and guides with live demos.
+---
+
+Each utility page shows the spec, the signature and the test cases from the contract in [api-validator](https://github.com/brazilian-utils/api-validator). The code examples in the tabs come from the libraries. Each library writes its own examples in its own repository. Whoever changes the API updates the examples in the same pull request. This site only reads them.
+
+A library can publish its examples in three ways. It can use one, two or all three:
+
+| Way | Use it for | Where |
+| --- | --- | --- |
+| Usage files | one short example for each function | `docs/usage/<util>.md` |
+| Reference page | a page that the library already has, with one heading for each of its functions | any file, declared in `libs/<lib>.json` |
+| Guides | longer examples, such as a form field, with tabs per framework and a live demo | a folder, declared in `libs/<lib>.json` |
+
+## Usage files
+
+```text
+python/
+└── docs/
+    └── usage/
+        ├── cpf.md
+        ├── cnpj.md
+        ├── license-plate.md
+        └── …
+```
+
+Write one file for each utility. Give the file the name of the page (`cpf.md`, `license-plate.md`) or of the contract domain (`licensePlate.md`). In the file, write one `##` heading for each function. The heading is the **function name in the contract**, which is a key of `functions` in `contract/<domain>.json`:
+
+````markdown
+## isValid
+
+```python
+from brutils import is_valid_cpf
+
+is_valid_cpf('82178537464')  # True
+is_valid_cpf('00011122233')  # False
+```
+
+## format
+
+```python
+from brutils import format_cpf
+
+format_cpf('82178537464')  # '821.785.374-64'
+```
+````
+
+Rules:
+
+- **The heading is the function name**: `isValid`, `format`, `parse`, `removeSymbols`, `generate`, `getInfo`. The site also accepts `remove-symbols`, the default title (`Validate`) and the old name `validate`. `api-validator usage` reports a heading that matches no function, and the build skips it.
+- **Each section shows the call.** Show the import, the call and the result. One line of text can help, for example "This function calls ViaCEP". Do not explain the rule. The spec on the same page explains it.
+- **The example calls the library's function.** The validator knows the native name of each function. It reports a section that does not use that name.
+- **Write code and comments in English.** For Portuguese text, add `cpf.pt-br.md` next to `cpf.md`. The Portuguese pages use it.
+- **`since` is optional.** Put `since: 2.1.0` in the front matter to show the first version with the utility.
+- **A function without a section has an empty tab.** The tab then says that the library does not have the function, or that it has the function but no example.
+
+## Reference page
+
+Many libraries already document all functions on one page, with one heading for each function. That page works as it is. Declare it in `libs/<lib>.json`:
+
+```json
+"usage": {
+  "ref": "main",
+  "reference": { "en": "docs/utilities.md", "pt-BR": "docs/pt-br/utilities.md" }
+}
+```
+
+The site finds each heading that is a function name of the library, such as `### isValidCpf`. It links that heading to the contract function that the validator matched to the name. A section is all the text down to the next heading: prose, options, edge cases and examples. The site skips other headings, such as `## Conventions` or `## CPF`. The text before the first function goes on the library's page, as its **API conventions**.
+
+If a library has both, its usage files win for the functions that they document. `api-validator usage --lib <lib> --materialize` writes a reference page as usage files. Use it to move a library to usage files, or to update the site's offline copy.
+
+## Guides with live demos
+
+Some tasks need more than one call: a form field that masks and validates while you type, an address form that the CEP fills, a list of states and cities. Front-end developers need to see these work. A library can publish **guides**, which are Markdown pages with examples in tabs. There is a tab for each framework, a second row of tabs for each variant, and a tab for each file. Each example can have a live demo.
+
+```json
+"usage": {
+  "guides": { "en": "docs/guides", "pt-BR": "docs/pt-br/guides" },
+  "root": "docs",
+  "assets": ["docs/snippets"],
+  "prepare": ["node", "scripts/examples.ts"]
+}
+```
+
+In a guide, mark each example with these tags. Put each tag on its own line. docsify shows the same markup, so a library can use the same files for its own site.
+
+````markdown
+<div class="example" data-name="React">
+
+Text about the React version.
+
+<div class="variant" data-variant="CPF" data-demo="/snippets/live/?dir=cpf/react&example=cpf-field.tsx">
+
+<div class="file" data-file="cpf-field.tsx">
+
+[cpf-field.tsx](../snippets/cpf/react/cpf-field.tsx ':include :type=code tsx')
+
+</div>
+
+</div>
+
+</div>
+````
+
+- `example` is a tab for a framework (React, Angular, Vue, Vanilla) or for a library (Zod, Valibot). A reader selects a tab once, and every guide opens that tab.
+- `variant` is an optional second row of tabs, for example CPF, CNPJ, CEP and Phone.
+- `file` is one file of the example. Use an `:include` link to the file in the repository, or a code block.
+- `data-demo` is a page of the library that runs the example. Its path starts at `root`. The site shows it above the files. The site copies the folders in `assets` without changes, so the demo runs the same code that the page shows. The demo sends its height with `parent.postMessage({ type: 'example-height', height }, location.origin)`.
+- `prepare` is a command that the site runs in the library's files before it reads them. Use it if the library generates its examples. The command runs without a shell and without secrets.
+
+Links between guides stay on this site. A link to the reference page with a function anchor, such as `utilities.md#formatcpf`, goes to that function on this site. The site finds the contract functions that each guide calls, and lists the guide on the pages of those utilities.
+
+## Try it
+
+Each function of the JavaScript library gets a **Try it** box. Nobody writes it. The box has one input for each parameter in the contract, with the first shared test case as the start value. It runs the published JavaScript package in the browser. If the inputs match a shared test case, the box tells if the result is the one that the contract expects.
+
+## Generate the first examples
+
+You do not have to write the first examples by hand. The validator knows which functions the library implements and which shared test cases it passes. From those cases, it writes one section for each function without an example, in the language of the library:
+
+```sh
+# in the library repository, after `check --tests` wrote its report
+npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
+npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
+```
+
+The command does not change sections that exist. It adds the new sections at the end of the file. Each result in a comment is the value that the contract expects, for a case that the library passes. The examples are correct when the command writes them. You can edit them after that.
+
+Without `--scaffold`, `api-validator usage` shows what is documented, what is missing and what is wrong. With `--strict`, the command fails when something is missing or wrong. A library can use it in its CI.
+
+## The version on the site
+
+The site reads the files at `usage.ref`. The default is the library's **latest GitHub release**, so the site matches the package that readers install. A repository without releases uses its default branch. If the library's own documentation follows its main branch, set `"ref": "main"`.
+
+A library without `docs/usage/` uses the copies in `site/fixtures/usage/<lib>/` of api-validator. These copies have the same format, so you can copy them into the library as they are.
+
+## Update the site on each release
+
+Add this step to the library's release workflow. The site then builds again with the new version:
+
+```yaml
+- name: Notify the docs site
+  if: success()
+  run: gh api repos/brazilian-utils/api-validator/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
+  env:
+    GH_TOKEN: ${{ secrets.API_VALIDATOR_DISPATCH_TOKEN }}
+```
+
+Without this step, the site builds again every day and after each change to the contract.
+
+## Add usage files to a library
+
+<Steps>
+
+1. Copy `site/fixtures/usage/<lib>/` from api-validator to `docs/usage/` in the library, or run the command in [Generate the first examples](#generate-the-first-examples).
+
+2. Read the examples and add text where it helps.
+
+3. Make the README shorter: keep the installation, one or two examples and a link to this site.
+
+4. Merge and release. The next build of the site reads the files from the library.
+
+</Steps>
+
+<Callout type="info">
+The site does not run the examples. But the results in generated examples come from cases that the library's own tests run. If you write an example by hand, use inputs from the contract's test cases. The example then stays correct for the same reason.
+</Callout>

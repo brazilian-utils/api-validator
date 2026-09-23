@@ -1,107 +1,79 @@
-# Design plan
+# Design
 
 The site documents seven libraries that validate, format and generate Brazilian identifiers: CPF,
 CNPJ, CEP, license plates, boletos and more. Readers are developers. They come to one page with one
 question: how do I call this in my language, and does my library do it right?
 
-## Subject
+## Stack
 
-The material of the subject is the **masked number**: `529.982.247-25`, `11.222.333/0001-81`,
-`01310-100`, `BRA2E19`. Digits carry the value, separators carry the format, and the last digits
-are the **check digits** that make a number valid or not. The design takes its one bold element
-from that material.
-
-## Tokens
-
-Color (brand palette from github.com/brazilian-utils/brand, tuned for contrast):
-
-| Name        | Light     | Dark      | Role |
-|-------------|-----------|-----------|------|
-| paper       | `#ffffff` | `#16172e` | page background (dark is a night version of the brand blue, not grey) |
-| ink         | `#1d1f3d` | `#e9eaf6` | text: brand blue darkened, instead of a neutral black |
-| green       | `#00692a` | `#4ad17f` | accent: links in the sidebar, "implemented", focus ring (AA on paper) |
-| brand green | `#009c3b` | `#009c3b` | large marks only: the header stripe, filled status marks (not text) |
-| blue        | `#3e4095` | `#b9bbf5` | links in running text |
-| highlighter | `#ffdf00` | `#ffdf00` | brand yellow, only behind check digits (ink text on it) |
-
-Type:
-
-- **Samba** (brand face) for the site name and page titles only.
-- **Archivo** for all text: the brand's second face (the old CSS already fell back to it), a
-  grotesque with an even color at body size.
-- **Atkinson Hyperlegible Mono** for code, identifiers and document numbers. The Braille Institute
-  made it so that `0/O`, `1/l/I` and `5/S` never look alike, which matters on a site about
-  document numbers. (A first pass used Atkinson for body text too: too wide and mechanical for
-  running prose.)
-- Scale: 1.2 ratio, body 1rem/1.6, line length below 75 characters.
+Next.js (static export) with Fumadocs, the documentation framework behind many current developer
+docs. Fumadocs brings the parts readers already know from those sites: search (⌘K), a sidebar per
+section, a table of contents that follows the scroll, code blocks with a copy button, synced tabs,
+type tables, accordions and callouts. The site keeps all of it and adds only what the data needs.
 
 ## Layout
 
-Starlight's three columns stay (sidebar, content, table of contents): readers know them. The
-Nova theme (`starlight-theme-nova`) draws the frame: a flat header, a quieter sidebar. The sidebar
-is split into four topics with `starlight-sidebar-topics` (Utilities, Guides, Libraries,
-Contributing): the reader picks one at the top and sees only its pages. Utility categories start
-closed; the category of the current page opens.
-
-Home page:
+The Fumadocs "notebook" layout: a full-width header with its own background and a rule under it,
+so the frame reads apart from the page. The header holds the logo, the search, the language, the
+theme and GitHub, and a second row with the four sections of the site as tabs: Utilities,
+Libraries, Guides, Contributing. The sidebar lists only the pages of the current section; utility
+categories start closed.
 
 ```
- [dog]                         ┌ Type a Brazilian document number ────────┐
- Brazilian Utils               │ 83159562131                               │
- Validate, format and          │ 831.595.621-[31]   ← check digits, yellow │
- generate Brazilian documents. │ CPF: ✓ valid.                             │
- One contract, seven languages.│ JavaScript isValidCpf · Python … · Go …   │
- [Get started]  Browse         └───────────────────────────────────────────┘
- ─────────────────────────────────────────────────────────────────────────
- Libraries          table: icon + language, package, install, coverage
- How the libraries stay the same    1 Contract  2 Issues  3 Tests  4 This site
+┌ [dog] Brazilian Utils        [ Search            ⌘K ]           GitHub  文A  ☀/☾ ┐
+│ Utilities   Libraries   Guides   Contributing                                    │
+├──────────────┬──────────────────────────────────────────────┬──────────────────┤
+│ Getting      │ Personal documents                           │ On this page     │
+│ started      │ CPF                                          │   Validate       │
+│ ▾ Personal   │ Cadastro de Pessoas Físicas, …               │   Format         │
+│   CPF        │ [Contract] [Edit]                            │   …              │
+│   CNH …      │ [JS 4/5][Py 4/5][Go 3/5] …  one card a lib   │   Specification  │
+│ ▸ Companies  │                                              │   Official       │
+│ ▸ …          │ Validate  cpf.isValid                        │   sources        │
+│              │ ┌ cpf.isValid(cpf: string): boolean ─────┐   │                  │
+│              │ ✓ JavaScript ✓ Python …                      │                  │
+│              │ description · ⚠ pending decision · params    │                  │
+│              │ [JS][Py][Go][Ruby][Rust][.NET][Erlang] tabs  │                  │
+│              │ ▸ Try it   ▸ Shared test cases               │                  │
+└──────────────┴──────────────────────────────────────────────┴──────────────────┘
 ```
 
-Utility page: summary, then one line per library (✓ JavaScript 4/5), then the spec, then one
-block per function. A block starts with a rule, the function's name and its signature set as type
-(name bold, types in the link blue), then the status per library, the behavior, an open decision
-as a quiet note, the tabs, and two disclosures of the same look: try it, and the shared cases.
+The home page is a product page: a headline, the document specimen (type a number, see it
+formatted with the check digits highlighted, valid or not, and the same function in every
+language), the project in numbers, one card per library with its install command and coverage,
+the four steps that keep the libraries the same, and every utility by category.
 
-Marks, everywhere: ✓ all good, ◐ some, ✕ a case fails, ! signature differs, ○ not implemented,
-– not planned or not run.
+## Tokens
 
-## Principles
+Color: [Flexoki](https://stephango.com/flexoki), an ink-on-paper palette. Warm paper
+(`#fffcf0`), a darker paper for the header, the hero and cards (`#f2f0e5`), ink text, a cyan
+accent (`#1c6c66` light, `#3aa99f` dark). The dark theme is Flexoki's black (`#100f0f`).
 
-1. One bold element: the check-digit highlighter. It appears in the home specimen, and nowhere as
-   decoration.
-2. Structure encodes information: tables for things with columns, lists for sequences, no card
-   grids, no all-caps labels, no middle-dot meta strings, no arrows appended to links.
-3. Status is text first (✓ implemented, ✕ failing, – missing), color second.
-4. Every text and control meets WCAG 2.1 AA in both themes; visible focus; reduced motion.
+The brand colors (github.com/brazilian-utils/brand: green `#009c3b`, yellow `#ffdf00`, blue
+`#3e4095`) stay where they mean something: the yellow behind check digits, and the three stripes
+at the bottom of the link preview image.
 
-## Review against the defaults
+State is an icon first and a color second: ✓ all good (green), ◐ some (amber), ✕ a case fails
+(red), ! signature differs (amber), ○ not implemented (muted), – not planned or not run.
 
-- First draft kept the Starlight splash hero with the big dog on the right and a four-card grid
-  under it. That is the template every Starlight site ships with. Replaced by the specimen: the
-  reader does the thing the libraries do in the first second on the page.
-- First draft used brand green for links. `#009c3b` on white is 3.6:1 and fails AA. Links in text
-  use the brand blue (8.9:1), the green is darkened to `#00692a` where it carries text.
-- Considered a cream paper background: that is a generated-page default. White stays, with the
-  ink drawn from the brand blue.
+Type: Geist Sans for text, Geist Mono for code and document numbers (self-hosted, no CDN). Samba,
+the brand face, only for the wordmark in the header.
 
-## Notes from the first pass
+## Rules
 
-What was measured, so the next pass starts from numbers:
+1. Every text meets WCAG 2.1 AA in both themes, code included (Shiki's high-contrast themes on
+   the paper background). `npm run a11y` checks it on every page type, light and dark, desktop
+   and phone.
+2. Structure encodes information: tables for things with columns, tabs for alternatives (one
+   library, one framework), accordions for what most readers skip (try it, test cases).
+3. The page loads what it shows. Search, the full reference library and the demos load on use.
+4. Both languages everywhere, from the same data.
 
-- Accessibility (axe-core 4.10, WCAG 2.1 A and AA plus best practices, 13 pages, light and dark, every
-  `<details>` open): 328 failing elements before, 0 after. The audit script and the keyboard walk
-  live outside the repo. Run them again after any change to colors or components.
-- The keyboard reaches every control on the home page, with a visible focus ring on each one. The
-  specimen and the try-it box work without a mouse.
-- JavaScript on the home page: 6 KB. The specimen imports each function from its own entry point
-  (`@brazilian-utils/brazilian-utils/format-cpf`). A plain import of the package pulls in 605 KB,
-  because Vite shares one chunk with the try-it box, which loads the whole package when it opens.
-- Contrast pairs used for text are all 5.8:1 or more. The brand green `#009c3b` (3.6:1 on white)
-  only draws marks and the header stripe.
+## Tried and dropped
 
-Tried and dropped:
-
-- Pills with borders for the status of each library under a function: noise at 7 libraries × 5
-  functions per page. Plain marks with the library name read faster.
-- One sidebar for the whole site: about 60 entries, every category open. Replaced by the topics.
-- A giant mascot in the hero: the brand already shows it in the header. The specimen took its place.
+- Starlight with its own themes (default, Nova, Rapide, Black, Galaxy, Flexoki, Next): the
+  sidebar stayed one long list, and the theme could not separate the header from the page.
+- One sidebar for the whole site: about 60 entries at once. Replaced by the sections in the
+  header.
+- Pills with borders for the status of each library under a function in the first design: noise
+  at 7 libraries × 5 functions per page. Now small chips with an icon and the library name.

@@ -385,7 +385,7 @@ program
 program
   .command("site-data")
   .description("Export what the last run found (status per lib and function, badges, JSON suite) for the docs site in site/")
-  .option("-o, --out <dir>", "the Starlight site root", path.join(PACKAGE_ROOT, "site"))
+  .option("-o, --out <dir>", "the docs site root", path.join(PACKAGE_ROOT, "site"))
   .action((opts) => {
     const contract = loadContract(CONTRACT_DIR);
     const libs: SiteDataLib[] = [];
@@ -584,7 +584,7 @@ program
           "Add the function to the harness registry; its cases then run with this repo's own tests. This issue closes automatically once the api-validator run sees it done.",
           "",
           kind === "implement" && lib.site
-            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`api-validator usage --lib ${shortName(lib.name)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/api-validator/blob/main/site/src/content/docs/contributing/usage-files.mdx"}`
+            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`api-validator usage --lib ${shortName(lib.name)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/api-validator/blob/main/site/content/docs/contributing/usage-files.mdx"}`
             : "",
           "",
           "_Maintained by [api-validator](https://github.com/brazilian-utils/api-validator): opened, refreshed and closed automatically._"

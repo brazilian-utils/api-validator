@@ -2,19 +2,13 @@
 node_modules/
 
 # build output
-dist/
-.astro/
+out/
+.next/
+.source/
+next-env.d.ts
 
 # usage files fetched from the library repos (regenerated on every build)
 .cache/
-
-# pages generated from ../contract and ../libs (regenerated on every build)
-src/content/docs/utils/
-src/content/docs/pt-br/utils/
-src/content/docs/libs/
-src/content/docs/pt-br/libs/
-src/content/docs/guides/
-src/content/docs/pt-br/guides/
 
 # written by `api-validator site-data` from the last run (status, badges, the JSON suite)
 .generated/
@@ -33,3 +27,4 @@ public/cases.schema.json
 .vscode/*
 !.vscode/extensions.json
 public/lib-assets/
+

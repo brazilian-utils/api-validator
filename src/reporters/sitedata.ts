@@ -1,5 +1,5 @@
 /**
- * Data the docs site (site/, Starlight) needs from a validator run, written by
+ * Data the docs site (site/, Next.js + Fumadocs) needs from a validator run, written by
  * `api-validator site-data`:
  *
  *   site/.generated/status.json     per lib: summary, and per contract function its status,

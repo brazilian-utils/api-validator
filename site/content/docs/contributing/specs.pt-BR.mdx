@@ -1,0 +1,74 @@
+---
+title: Escreva uma spec
+description: Adicione ou mude uma função no contrato compartilhado. Todas as páginas deste site e todas as bibliotecas seguem o contrato.
+---
+
+A spec de cada utilitário é o contrato no [api-validator](https://github.com/brazilian-utils/api-validator). O contrato tem um arquivo JSON por domínio. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra, cada biblioteca que não tem a função nova recebe uma issue.
+
+## Arquivos de um domínio
+
+```text
+contract/
+├── _categories.json   os grupos da barra lateral
+├── cpf.json           título, resumo, categoria, funções e os casos de teste delas
+└── cpf/
+    ├── spec.en.md     a regra longa e o algoritmo, em inglês (opcional)
+    ├── spec.pt-BR.md  o mesmo texto, em português
+    └── references.md  links para os documentos oficiais
+```
+
+```json
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cpf",
+  "title": { "en": "CPF", "pt-BR": "CPF" },
+  "summary": { "en": "One sentence under the page title.", "pt-BR": "Uma frase abaixo do título." },
+  "category": "documents",
+  "order": 1,
+  "related": ["cnpj"],
+  "functions": {
+    "isValid": {
+      "level": "core",
+      "summary": "Whether the value is a valid CPF",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["82178537464"], "returns": true },
+        { "args": ["00000000000"], "returns": false, "note": "reserved number" }
+      ]
+    }
+  }
+}
+```
+
+As chaves de `functions` são os nomes das funções no contrato, como `isValid`. O mesmo nome tem três usos:
+
+- o título `##` da função nos [arquivos de uso](/pt-br/contributing/usage-files/) de cada biblioteca,
+- a segunda parte do id da função, como `cpf.isValid`,
+- o nome que o validador, as issues e as páginas de situação usam.
+
+Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar só o título na página, adicione `label` com `{ "en", "pt-BR" }`. O [docs/contract.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/contract.md) descreve todos os campos.
+
+## Adicione uma função ou um domínio
+
+<Steps>
+
+1. Adicione a função em `contract/<domínio>.json`, ou crie o arquivo de um domínio novo. Dê à função uma assinatura e **casos de teste**. Os casos de teste são a spec que toda biblioteca precisa passar. Inclua os exemplos da regra oficial e os casos de borda: entrada vazia, entrada formatada, dígito verificador errado.
+
+2. Um domínio novo pode precisar de mais texto que as descrições das funções, por exemplo um algoritmo ou uma expressão regular. Escreva esse texto em `spec.en.md` e `spec.pt-BR.md`. Liste as fontes oficiais em `references.md`.
+
+3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run api-validator fmt` corrige o formato.
+
+4. Rode `npm run check -- --tests` para ver quais bibliotecas já passam nos casos novos.
+
+5. Abra o pull request. O pipeline adiciona ao pull request o changelog do contrato e a lista de issues que vai abrir. Depois do merge, cada biblioteca sem a função recebe uma issue `implement`, e a função aparece neste site.
+
+</Steps>
+
+<Callout type="warn" title="Os casos de teste decidem">
+O texto explica a regra. Os casos de teste decidem o comportamento, e as bibliotecas rodam os casos de teste. Se o texto diz que entrada formatada é inválida, um caso de teste precisa esperar `false` para entrada formatada.
+</Callout>
+
+## Mude um comportamento
+
+Mudar um valor esperado muda todas as bibliotecas. No pull request, dê a fonte oficial da mudança e as bibliotecas que ela afeta. Depois do merge, cada biblioteca que falha nos casos alterados recebe uma issue `fix`.

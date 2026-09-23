@@ -6,7 +6,8 @@
  *              requires both), and every function its summary and description; a long-form spec, when a domain has one, must exist as both
  *              contract/<domain>/spec.en.md and spec.pt-BR.md, and warns if one was changed more
  *              than a day after the other.
- *  - pages:    every hand-written page in src/content/docs/ must have a pt-br/ twin.
+ *  - pages:    every hand-written page content/docs/<page>.mdx must have its <page>.pt-BR.mdx twin.
+ *  - strings:  every interface string in src/content/i18n/en.json exists in pt-BR.json.
  *
  * Exit code 1 with --strict when anything is missing (used in CI on pull requests).
  */
@@ -49,15 +50,18 @@ for (const spec of loadSpecs()) {
   }
 }
 
-// pages (utils/, libs/ and guides/ are generated in both languages)
-const skip = new Set(['utils', 'libs', 'guides']);
+// pages (utility, library and guide pages come from the data, in both languages)
 for (const file of walk(DOCS_DIR)) {
-  const rel = path.relative(DOCS_DIR, file);
-  const top = rel.split(path.sep)[0];
-  if (top === 'pt-br' || skip.has(top)) continue;
-  const twin = path.join(DOCS_DIR, 'pt-br', rel);
-  if (!fs.existsSync(twin)) problems.push(`src/content/docs/pt-br/${rel.split(path.sep).join('/')} is missing`);
+  if (/\.pt-BR\.mdx?$/.test(file)) continue;
+  const twin = file.replace(/\.(mdx?)$/, '.pt-BR.$1');
+  if (!fs.existsSync(twin)) problems.push(`content/docs/${path.relative(DOCS_DIR, twin).split(path.sep).join('/')} is missing`);
 }
+
+// interface strings
+const strings = (lang) => JSON.parse(fs.readFileSync(new URL(`../src/content/i18n/${lang}.json`, import.meta.url), 'utf8'));
+const en = strings('en');
+const pt = strings('pt-BR');
+for (const key of Object.keys(en)) if (!(key in pt)) problems.push(`src/content/i18n/pt-BR.json: "${key}" is missing`);
 
 for (const p of problems) console.log(`missing  ${p}`);
 for (const n of notes) console.log(`note     ${n}`);

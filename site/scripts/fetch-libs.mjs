@@ -4,7 +4,7 @@
  * shows (its latest GitHub release by default), and prepares it for the pages:
  *
  *   usage      `<site.usage.path>/<util>.md`: one `## <operation id>` section per contract
- *              function (see src/content/docs/contributing/usage-files.mdx)
+ *              function (see content/docs/contributing/usage-files.mdx)
  *   reference  `<site.usage.reference>`: one page whose `##`/`###` headings are the library's own
  *              symbol names (`### isValidCpf`), mapped to contract functions with the validator's
  *              bindings (.generated/status.json). Fills what the usage files do not cover.
