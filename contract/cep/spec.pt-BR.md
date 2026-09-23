@@ -6,16 +6,16 @@ references:
   - lei 6.538/1978
 ---
 
-# CEP - Código de Endereçamento Postal 
+# CEP: Código de Endereçamento Postal
 
 ## Resumo
 
-O CEP é um conjunto numérico constituído de oito algarismos, que orienta e acelera o encaminhamento, o tratamento e a distribuição de objetos de correspondência, por meio da sua atribuição a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios.
+O CEP é um código numérico de oito algarismos. Os Correios atribuem esses códigos a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. Os códigos orientam e aceleram o encaminhamento, o tratamento e a distribuição de objetos de correspondência.
 
-## Operações
+## Funções
 
 - **Validação**: Verificar se um CEP sem formatação contém exatamente `8` dígitos numéricos.
-- **Formatação**: Apresentar o CEP no formato padrão `XXXXX-XXX`.
+- **Formatação**: Mostrar o CEP no formato padrão `XXXXX-XXX`.
 - **Remoção de símbolos**: Remover os caracteres `.` e `-` da entrada.
 - **Geração**: Gerar um CEP aleatório de `8` dígitos.
 
@@ -23,11 +23,11 @@ O CEP é um conjunto numérico constituído de oito algarismos, que orienta e ac
 
 1. A entrada deve conter exatamente `8` dígitos numéricos.
 
-## Algoritmo detalhado
+## Algoritmo
 
 1. Verificar se a entrada contém exatamente `8` caracteres.
 2. Verificar se todos os caracteres são dígitos numéricos.
-3. Retornar válido se ambas as condições forem atendidas, caso contrário, retornar inválido.
+3. Se as duas condições forem verdadeiras, retornar válido. Se não, retornar inválido.
 
 ## Regex
 
@@ -36,8 +36,8 @@ O CEP é um conjunto numérico constituído de oito algarismos, que orienta e ac
 
 ## Exemplos
 
-- Válido: `01310200` 
+- Válido: `01310200`
 - Inválido: `01310-200` (a validação aceita apenas CEPs sem formatação)
-- Inválido: `12345` (deve conter exatamente 8 caracteres)
-- Inválido: `123456789` (deve conter exatamente 8 caracteres)
+- Inválido: `12345` (deve conter exatamente `8` caracteres)
+- Inválido: `123456789` (deve conter exatamente `8` caracteres)
 - Inválido: `abcdefgh` (deve conter apenas dígitos numéricos)

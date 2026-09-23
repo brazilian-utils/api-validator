@@ -1,12 +1,14 @@
 # Contract reference
 
-One JSON file per domain in `contract/`, named after the domain. Files starting with `_` are
-ignored (e.g. `contract/_proposals/`). Validate with `api-validator lint`, format with
-`api-validator fmt` (CI runs `fmt --check`). Every file points at `schema/contract.schema.json`,
-so editors (VS Code, JetBrains…) validate and autocomplete it as you type.
+Use this page to write or change a contract file or a library config. The contract has one
+JSON file per domain in `contract/`, named after the domain. The validator ignores files whose
+names start with `_` (for example, `contract/_proposals/`). Validate the files with
+`api-validator lint` and format them with `api-validator fmt` (CI runs `fmt --check`). Every
+file points at `schema/contract.schema.json`, so editors (VS Code, JetBrains…) validate and
+autocomplete it as you type.
 
-`fmt` keeps one test case per line, and writes multi-line text (`description`) as an array of
-lines, so a file reads like this:
+`fmt` keeps one test case per line. It writes multi-line text (`description`) as an array of
+lines. A file looks like this:
 
 ```json
 {
@@ -47,43 +49,71 @@ lines, so a file reads like this:
 | Field | Meaning |
 |---|---|
 | `domain` | lowerCamelCase, same as the file name |
-| `aliases` (domain) | other names of the domain some libs use |
-| function key | the operation: `isValid` → id `legalProcess.isValid` |
-| `summary` | one sentence |
-| `description` | the language-neutral spec (markdown; string or array of lines): rules, edge cases, bad input |
+| `title` (domain) | short name for the sidebar and the page title. A string, or `{ "en": "…", "pt-BR": "…" }` with both languages |
+| `summary` (domain) | one or two sentences: what the domain is. `{ "en": "…", "pt-BR": "…" }`, both languages required |
+| `aliases` (domain) | other names of the domain that some libraries use |
+| function key | the function: `isValid` → id `legalProcess.isValid` |
+| `summary` (function) | one sentence. English only (a string) or bilingual (`{ "en": "…", "pt-BR": "…" }`, see below) |
+| `label` (function) | name of the function on the docs site, `{ "en": "…", "pt-BR": "…" }` (default: derived from the function id) |
+| `description` (function) | the language-neutral spec (markdown, a string or an array of lines): rules, edge cases, bad input. English only or bilingual, like `summary` |
 | `references` | official sources (laws, manuals, specs) |
-| `flatName` | facade name; default = operation + Domain (`isValidLegalProcess`) |
+| `flatName` | facade name. Default: function + Domain (`isValidLegalProcess`) |
 | `aliases` (function) | other `domain.operation` spellings in use |
-| `level` | `core`: every lib must have it; `extended` (default) |
-| `network` | `true`: calls a remote service (skipped in tests and diff by default) |
-| `params`, `returns` | canonical types (below); `optional: true` for optional params |
-| `tests[]` | args + exactly one of `returns` (any JSON value), `throws: true` (must fail), `matches` (regex on a string result), `satisfies` (result fed to that function must return `true`); optional `name`, `repeat`, `note` |
+| `level` | `core`: every library must have it. `extended` (default) |
+| `network` | `true`: calls a remote service (tests and diff skip it by default) |
+| `params`, `returns` | canonical types (below). `optional: true` for optional params |
+| `tests[]` | args and exactly one of `returns` (any JSON value), `throws: true` (must fail), `matches` (regex on a string result), `satisfies` (the result, given to that function, must return `true`). Optional: `name`, `repeat`, `note` |
+
+## Bilingual summary and description
+
+The `summary` and `description` of a function accept two forms:
+
+- A plain string (for `description`, also an array of lines): English only.
+- An object with one entry per site language. `en` is required. `pt-BR` is optional in the
+  schema. In `description`, each language can be a string or an array of lines.
+
+```json
+"summary": {
+  "en": "Checks whether a legal process number (NUP) is valid.",
+  "pt-BR": "Verifica se um número de processo judicial (NUP) é válido."
+}
+```
+
+The validator (issues, briefs, reports, the exported suite) uses the English text. The docs
+site reads the contract files directly and shows the text in the language of the page. When a
+language is missing, the site shows the English text. `site/scripts/check-i18n.mjs` reports
+every function `summary` or `description` that does not have both `en` and `pt-BR`. A plain
+string counts as English only. With `--strict` (used in CI on pull requests), the script exits
+with code 1 when anything is missing.
 
 ## Canonical types
 
-`string`, `integer`, `number`, `boolean`, `date`, `void`, `any`, `null`; `T?` (nullable),
-`T[]`, `A | B`, literals (`"a"`, `1`, `true`), and named object types (`Address`) which are
-compared only as "an object" across languages. Each language adapter maps its native types
-to these; anything it cannot map is reported as unverified rather than wrong.
+The canonical types are `string`, `integer`, `number`, `boolean`, `date`, `void`, `any` and
+`null`. You can also write `T?` (nullable), `T[]`, `A | B`, literals (`"a"`, `1`, `true`) and
+named object types (`Address`). The validator compares named object types across languages
+only as "an object". Each language adapter maps its native types to these types. When an
+adapter cannot map a type, it reports the type as unverified, not as wrong.
 
-Signature rules (from the caller's point of view): a call written against the contract must
-work — the lib may accept more (extra optional params, wider types) but not less; and every
-value the lib may return must be allowed by the contract (`string?` vs `string` is a
-warning in either direction).
+Signature rules (from the point of view of the caller):
+
+- A call written against the contract must work. The library may accept more (extra optional
+  params, wider types) but not less.
+- The contract must allow every value that the library may return. `string?` against `string`
+  is a warning in either direction.
 
 ## Test ids and values
 
-A test's id is `<fn>#<name>` or `<fn>#<index>`; `knownFailures`/baselines refer to these,
-so prefer `name` for hand-written vectors. Values are JSON: `null` stands for
-`None`/`nil`/`undefined`/`Option::None`/`{error, _}`; objects compare keys
-case/separator-insensitively (`zipCode` == `zip_code`) and absent == `null`.
+The id of a test is `<fn>#<name>` or `<fn>#<index>`. `knownFailures` and baselines refer to
+these ids, so give hand-written cases a `name`. Values are JSON. `null` stands for
+`None`/`nil`/`undefined`/`Option::None`/`{error, _}`. The comparison of object keys ignores
+case and separators (`zipCode` == `zip_code`), and an absent key equals `null`.
 
-Mined vectors (`api-validator diff --propose --unanimous --apply`) carry a `note` saying
-which libs agreed.
+Mined cases (`api-validator diff --propose --unanimous --apply`) have a `note` that says which
+libraries agreed.
 
-## Lib config (`libs/<name>.json`)
+## Library config (`libs/<name>.json`)
 
-Validated by `schema/lib.schema.json`.
+`schema/lib.schema.json` validates this file.
 
 ```json
 {
@@ -104,10 +134,9 @@ Validated by `schema/lib.schema.json`.
 | Field | Meaning |
 |---|---|
 | `language` | adapter id or alias |
-| `entry` | adapter-specific: package dir, entry file, src dir… |
+| `entry` | specific to the adapter: package dir, entry file, src dir… |
 | `options` | adapter options (`namespace`, `app`, `casesDir`, `testFile`…) |
-| `bindings` | contract id → native symbol(s), when the naming conventions don't find it |
-| `ignore` | public symbols intentionally outside the contract (globs) |
-| `waivers` | contract functions this lib will not implement, with the reason |
-| `knownFailures` | test (or function) ids expected to fail for now, with the reason |
-
+| `bindings` | contract id → native symbol(s), when the naming conventions do not find it |
+| `ignore` | public symbols that are outside the contract on purpose (globs) |
+| `waivers` | contract functions that this library will not implement, with the reason |
+| `knownFailures` | test (or function) ids that are expected to fail for now, with the reason |

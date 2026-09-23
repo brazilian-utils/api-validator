@@ -1,31 +1,39 @@
 # API Validator
 
-Keeps the [brazilian-utils](https://github.com/brazilian-utils) implementations —
-JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang and .NET — one library in seven
-languages.
+Use this repository to keep the [brazilian-utils](https://github.com/brazilian-utils)
+implementations in JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang and .NET working as
+one library in seven languages.
 
-- **Same API**: one language-agnostic contract (`contract/*.json`) declares every function,
-  its inputs and outputs; each language adapter checks the real, extracted API against it
-  in that language's idiom (`cpf.isValid` → `isValidCpf` · `cpf.is_valid` · `cpf.IsValid` ·
-  `CPFUtils.valid?` · `brutils:is_valid_cpf/1` · `Cpf.IsValid`).
-- **Same behaviour**: the contract carries shared test vectors that run, unchanged, against
-  every lib — here through a thin runner per language, and inside each lib as a JSON
-  conformance suite (`api-contract/`) its own small harness runs with its own test command.
-  Differential testing feeds the same mined inputs to all libs and fails on any new
-  disagreement.
-- **In sync**: CI in each lib fails on regressions and on public API added outside the
-  contract; merging a new function opens an issue with a porting brief in every lib that
-  lacks it (and a merged bug-fix vector, in every lib that fails it), closed automatically
-  once done, and a bot PR whenever its copy of the suite changes.
+- **Same API**: one language-agnostic contract (`contract/*.json`) declares every function
+  with its inputs and outputs. Each language adapter extracts the real API and checks it
+  against the contract in the idiom of that language (`cpf.isValid` → `isValidCpf` ·
+  `cpf.is_valid` · `cpf.IsValid` · `CPFUtils.valid?` · `brutils:is_valid_cpf/1` ·
+  `Cpf.IsValid`).
+- **Same behavior**: the contract holds shared test cases. They run, unchanged, against every
+  library in two places. Here, a thin runner per language runs them. Inside each library, a
+  JSON conformance suite (`api-contract/`) runs them through a small harness and the normal
+  test command of the library. Differential testing gives the same mined inputs to all
+  libraries and fails on any new disagreement.
+- **In sync**: CI in each library fails on regressions and on public API added outside the
+  contract. When someone merges a new function, the pipeline opens an issue with a porting brief
+  in every library that does not have it. A merged bug-fix case opens an issue in every
+  library that fails it. The pipeline closes these issues automatically when the work is
+  done. A bot also opens a PR in a library when its copy of the suite changes.
 - **Documented once**: the docs site ([`site/`](site), Starlight, English and Portuguese) is
-  built from the contract: one page per utility with the spec, each operation's signature,
-  its status in every lib, a usage tab per lib (from each lib's `docs/usage/<util>.md`) and
-  the shared cases. Each lib has a status page, which its README badge links to: how it
-  compares with the others, what it is missing, what fails and why.
+  built from the contract. It has one page per utility with the spec, the signature of each
+  function, its status in every library, a usage tab per library (from the
+  `docs/usage/<util>.md` file of each library) and the shared cases. The `summary` and
+  `description` of a contract function can be English only (a string) or bilingual
+  (`{ "en": ..., "pt-BR": ... }`). `site/scripts/check-i18n.mjs --strict` requires both
+  languages. Each library has a status page, and the README badge of the library links to it.
+  The status page shows how the library compares with the others, what it does not have yet,
+  what fails and why.
 
-See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
-**[docs/findings.md](docs/findings.md)** for what the first run found and
-**[docs/roadmap.md](docs/roadmap.md)** for the plan.
+For more information, read these pages:
+
+- **[docs/workflow.md](docs/workflow.md)**: the maintenance workflow.
+- **[docs/findings.md](docs/findings.md)**: what the first run found.
+- **[docs/roadmap.md](docs/roadmap.md)**: the plan.
 
 ## Quick start
 
@@ -38,33 +46,34 @@ npx tsx src/cli.ts site-data       # results for the docs site (status, badges, 
 (cd site && npm ci && npm run dev) # the docs site at http://localhost:4321
 ```
 
-Running the shared tests needs each lib's toolchain (and dependencies) installed; libs whose
-toolchain is missing are still checked for API.
+To run the shared tests, install the toolchain and the dependencies of each library. When the
+toolchain of a library is missing, the validator still checks its API.
 
 ## Commands
 
-`npx tsx src/cli.ts <command>` (or `npm run api-validator -- <command>`). Most take
-`-l/--lib <names...>` (full name, short name like `python`, or language).
+Run `npx tsx src/cli.ts <command>` (or `npm run api-validator -- <command>`). Most commands
+take `-l/--lib <names...>`. The value can be the full name, a short name like `python`, or the
+language.
 
 | Command | What it does |
 |---|---|
-| `sync` | Clone or update the libs listed in `libs/` into `.repos/` |
-| `check [--tests] [-v]` | Compare libs with the contract; writes `output/` (dashboard, per-lib markdown and JSON) and `snapshots/`. Exits non-zero on regressions vs `baselines/` (`--fail-on regression\|error\|never`) |
-| `todo -l <lib>` | Markdown TODO list of a lib, most important first |
-| `brief <fn> -l <lib>` | Porting brief: idiomatic name, signature, acceptance tests, reference source, links to every implementation |
-| `issues [--since ref] [--backfill core\|all] [--apply]` | One GitHub issue per function per lib: `Implement <fn>` for functions the contract gained since `ref`, `Fix <fn>` for new/changed cases a lib fails; refreshes open ones and closes the done ones (the pipeline runs it on every merge) |
-| `cases` | Write the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
-| `export-cases -l <lib> [--path .] [--check]` | Vendor the suite into a lib (`api-contract/`, with the lib's `skip.json`); `--check` fails when it is behind |
-| `site-data [--out site]` | Export the latest reports for the docs site: `site/.generated/status.json` (status per lib and function, failing cases, usage), badges, the JSON suite |
-| `usage [--scaffold] [--materialize] [--path .] [--strict]` | Which implemented functions each lib documents (its usage files and reference page, else `site/fixtures/usage/<lib>/`); `--scaffold` writes the missing sections from the cases the lib passes, `--materialize` writes a reference page out as usage files |
-| `diff [--fn 'cpf.*']` | Differential testing across libs; `--baseline` records today's splits, `--fail-on-new` fails only on new ones; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
-| `changelog [--from ref] [--to ref]` | Contract changes between git refs (new functions, signature changes, new/changed vectors) as markdown |
-| `doctor` | Toolchains every configured lib needs, and what is missing |
-| `probe <fn> <args...>` | Call one function with the same args in every lib, side by side |
-| `baseline [--tests]` | Record what conforms now; CI then fails only when it stops conforming |
-| `extract` | Write `snapshots/<lib>.api.json` (public API as extracted) |
-| `suggest -l <lib>` | JSON bindings for symbols that look like contract functions under other names |
-| `lint [--strict]` / `fmt [--check]` | Validate / canonically format the contract and lib configs; lists functions without test vectors (`--strict` fails on them) |
+| `sync` | Clones or updates the libraries listed in `libs/` into `.repos/` |
+| `check [--tests] [-v]` | Compares libraries with the contract. Writes `output/` (dashboard, markdown and JSON per library) and `snapshots/`. Exits non-zero on regressions against `baselines/` (`--fail-on regression\|error\|never`) |
+| `todo -l <lib>` | Writes a markdown TODO list for a library, most important first |
+| `brief <fn> -l <lib>` | Writes a porting brief: idiomatic name, signature, acceptance tests, reference source, links to every implementation |
+| `issues [--since ref] [--backfill core\|all] [--apply]` | Opens one GitHub issue per function per library: `Implement <fn>` for functions the contract got after `ref`, `Fix <fn>` for new or changed cases a library fails. Updates the open issues and closes the ones that are done. The pipeline runs it on every merge |
+| `cases` | Writes the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
+| `export-cases -l <lib> [--path .] [--check]` | Copies the suite into a library (`api-contract/`, with the `skip.json` of the library). `--check` fails when the copy is behind |
+| `site-data [--out site]` | Exports the latest reports for the docs site: `site/.generated/status.json` (status per library and function, failing cases, usage), badges, the JSON suite |
+| `usage [--scaffold] [--materialize] [--path .] [--strict]` | Shows which implemented functions each library documents (its usage files and reference page, else `site/fixtures/usage/<lib>/`). `--scaffold` writes the missing sections from the cases the library passes. `--materialize` writes a reference page out as usage files |
+| `diff [--fn 'cpf.*']` | Runs differential testing across libraries. `--baseline` records the current splits. `--fail-on-new` fails only on new splits. `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
+| `changelog [--from ref] [--to ref]` | Writes the contract changes between git refs (new functions, signature changes, new or changed cases) as markdown |
+| `doctor` | Lists the toolchains that every configured library needs, and what is missing |
+| `probe <fn> <args...>` | Calls one function with the same arguments in every library and shows the results side by side |
+| `baseline [--tests]` | Records what conforms now. CI then fails only when something stops conforming |
+| `extract` | Writes `snapshots/<lib>.api.json` (the public API as extracted) |
+| `suggest -l <lib>` | Writes JSON bindings for symbols that look like contract functions under other names |
+| `lint [--strict]` / `fmt [--check]` | Validates or formats (canonical form) the contract and the library configs. Lists functions without test cases (`--strict` fails on them) |
 
 ```console
 $ npx tsx src/cli.ts probe cpf.format 123
@@ -77,10 +86,10 @@ brazilian-utils-rust         null   cpf.format_cpf(cpf: &str) -> Option<String>
 2 different answers
 ```
 
-## Using it in a lib's CI
+## Use the validator in the CI of a library
 
-Ready-to-copy workflows for each lib are in [`templates/lib-ci/`](templates/lib-ci): they set
-up the language and call this repository's Action:
+[`templates/lib-ci/`](templates/lib-ci) has ready-to-copy workflows for each library. They set
+up the language and call the Action of this repository:
 
 ```yaml
       - uses: brazilian-utils/api-validator@main
@@ -90,18 +99,22 @@ up the language and call this repository's Action:
           # fail-on: regression             # regression | error | never
 ```
 
-The job summary shows the lib's TODO list. It fails when something in the lib's baseline
-stops conforming, or when a new public function appears that the contract does not know.
-It also warns (`cases: check` to fail) when the lib's vendored conformance suite is behind
-the contract.
+The job summary shows the TODO list of the library. The job fails in two cases:
 
-### The shared cases inside the lib
+- Something in the baseline of the library stops conforming.
+- A new public function appears that the contract does not know.
 
-Each lib keeps a copy of the JSON suite in `api-contract/` (refreshed by a nightly bot PR) and a
-**harness**: one test file, written once in the lib's language, with a registry from contract
-function id to the lib's function. Its normal test command runs every case; missing functions
-are skipped as "not implemented", cases the lib does not pass yet are skipped with the reason
-(`skip.json`). Spec: [docs/harness.md](docs/harness.md); ready harnesses for every lib:
+The job also warns when the conformance suite copied into the library is behind the contract.
+Set `cases: check` to make it fail instead.
+
+### Shared cases inside the library
+
+Each library keeps a copy of the JSON suite in `api-contract/`. A nightly bot PR updates this
+copy. Each library also has a **harness**: one test file, written once in the language of the
+library, with a registry from contract function id to the function of the library. The normal
+test command of the library runs every case. It skips missing functions as "not implemented".
+It skips cases that the library does not pass yet, with the reason (`skip.json`). For the
+spec, read [docs/harness.md](docs/harness.md). For ready harnesses for every library, see
 [templates/harness/](templates/harness).
 
 | Lib | Harness | Run with |
@@ -114,28 +127,31 @@ are skipped as "not implemented", cases the lib does not pass yet are skipped wi
 | Erlang | `test/brutils_api_contract_tests.erl` | `rebar3 eunit --module=brutils_api_contract_tests` |
 | .NET | `BrazilianUtils.Tests/ApiContractTests.fs` | `dotnet test --filter FullyQualifiedName~ApiContractTests` |
 
-Adding a function to a lib = implement it + one registry line. Why the cases run both here and
-in the lib: [docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libs-too).
+To add a function to a library, implement it and add one registry line. To learn why the cases
+run both here and in the library, read
+[docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libraries).
 
 ### Status page and badge
 
-The pipeline publishes the docs site (`vars.PUBLISH_SITE`), with a status page per lib. Each lib's README:
+The pipeline publishes the docs site (`vars.PUBLISH_SITE`), with a status page per library.
+Add this badge to the README of each library:
 
 ```markdown
 [![API contract](https://brazilian-utils.github.io/api-validator/badges/python.svg)](https://brazilian-utils.github.io/api-validator/libs/python/)
 ```
 
-Usage examples for the site live in the lib (`docs/usage/<util>.md`, one `## <operation>`
-section per contract function); `api-validator usage --lib python --path . --scaffold` writes
-the missing ones from the cases the lib passes. Format: the site's
-[usage files](site/src/content/docs/contributing/usage-files.mdx) page.
+Each library keeps the usage examples for the site (`docs/usage/<util>.md`, one
+`## <operation>` section per contract function).
+`api-validator usage --lib python --path . --scaffold` writes the missing sections from the
+cases the library passes. For the format, read the
+[usage files](site/src/content/docs/contributing/usage-files.mdx) page of the site.
 
-Locally, from a lib checkout: `npx tsx /path/to/api-validator/src/cli.ts check --lib
+To run the check locally from a library checkout, use `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
 
 [`templates/lib-ci/port-with-claude.yml`](templates/lib-ci/port-with-claude.yml) is an optional
-workflow that hands the porting brief of the chosen functions to a coding agent, which
-implements them, iterates until the shared tests pass and opens a PR for review.
+workflow. It gives the porting brief of the selected functions to a coding agent. The agent
+implements them, changes the code until the shared tests pass and opens a PR for review.
 
 
 ## How it works
@@ -147,32 +163,34 @@ libs/*.json ──────┤         ▲
 lib checkout ─► adapter.extract (native parser / reflection / scanner)
 ```
 
-Each language is read with its own ecosystem's standard tooling — the compiler's or
-runtime's view of the public API, never a parser written here. Without the toolchain the
-check fails with the install instruction instead of guessing.
+The validator reads each language with the standard tooling of its own ecosystem. This is the
+view of the public API from the compiler or the runtime, never a parser written here. When the
+toolchain is missing, the check fails and shows the install instruction. It does not guess.
 
 | Language | API extraction (source of truth) | Types from | Shared tests |
 |---|---|---|---|
 | TypeScript | TypeScript compiler API / type checker ([ts-morph](https://github.com/dsherret/ts-morph)) | declarations, inferred | ✅ Node (tsx) |
 | Python | [griffe](https://github.com/mkdocstrings/griffe) (mkdocstrings) + [griffe-warnings-deprecated](https://github.com/mkdocstrings/griffe-warnings-deprecated) for PEP 702 | annotations | ✅ |
-| Go | [`go/packages`](https://pkg.go.dev/golang.org/x/tools/go/packages) + `go/types` (build constraints honoured) | type-checked signatures | ✅ generated program in a `go.work` |
+| Go | [`go/packages`](https://pkg.go.dev/golang.org/x/tools/go/packages) + `go/types` (build constraints honored) | type-checked signatures | ✅ generated program in a `go.work` |
 | Rust | rustdoc JSON (nightly), cross-checked against [cargo-public-api](https://github.com/cargo-public-api/cargo-public-api) | signatures | ✅ generated crate |
 | Ruby | runtime reflection (what is actually callable) + [YARD](https://yardoc.org) for `@param`/`@return`/`@deprecated` | YARD tags | ✅ |
 | Erlang | compiled `.beam`: `module_info(exports)` + `beam_lib` abstract code (specs, types) | `-spec` | ✅ `erlc` + escript |
 | .NET (F#, C#) | reflection on the compiled assembly, `NullabilityInfoContext`, portable PDB for lines | real types, incl. F#-inferred and C# `?` | ✅ generated F# project |
 
-Types travel structured end to end: each extractor converts the type objects its tool
-already has (rustdoc JSON, `go/types`, the TypeScript checker, griffe expressions, YARD's type
-parser, Erlang abstract forms, `System.Type`) into one shared tree, which the adapters map to
-canonical types and the runners use to build typed arguments. No type text is parsed.
-Build metadata comes from the tools too (`cargo metadata`, `go mod edit -json`,
-`dotnet msbuild -getProperty`, `cargo build --message-format=json`).
+Types stay structured from start to end. Each extractor converts the type objects that its tool
+already has into one shared tree. These objects come from rustdoc JSON, `go/types`, the
+TypeScript checker, griffe expressions, the type parser of YARD, Erlang abstract forms and
+`System.Type`. The adapters map the tree to canonical types, and the runners use it to make
+typed arguments. The validator parses no type text. Build metadata also comes from the tools
+(`cargo metadata`, `go mod edit -json`, `dotnet msbuild -getProperty`,
+`cargo build --message-format=json`).
 
-Tools the adapters need beyond the language itself (griffe, YARD, x/tools) are pinned and
-installed into the work dir, never into the lib's environment.
+Some adapters need tools in addition to the language itself (griffe, YARD, x/tools). The
+validator pins these tools and installs them into the work dir, never into the environment of
+the library.
 
-Adding a language is one adapter file: [docs/adding-a-language.md](docs/adding-a-language.md).
-Contract and lib config format: [docs/contract.md](docs/contract.md).
+To add a language, write one adapter file: [docs/adding-a-language.md](docs/adding-a-language.md).
+For the contract and library config format, read [docs/contract.md](docs/contract.md).
 
 ## Layout
 

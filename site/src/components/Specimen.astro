@@ -54,7 +54,22 @@ const first = kinds.find((k) => k.domain === 'cpf');
 </section>
 
 <script>
-  import { formatCep, formatCnh, formatCnpj, formatCpf, formatLicensePlate, formatPis, formatVoterId, isValidCep, isValidCnh, isValidCnpj, isValidCpf, isValidLicensePlate, isValidPis, isValidVoterId } from '@brazilian-utils/brazilian-utils';
+  // One entry point per function, so the page loads these 14 functions and not the whole package
+  // (the try-it box loads the whole package, only when opened).
+  import { formatCep } from '@brazilian-utils/brazilian-utils/format-cep';
+  import { formatCnh } from '@brazilian-utils/brazilian-utils/format-cnh';
+  import { formatCnpj } from '@brazilian-utils/brazilian-utils/format-cnpj';
+  import { formatCpf } from '@brazilian-utils/brazilian-utils/format-cpf';
+  import { formatLicensePlate } from '@brazilian-utils/brazilian-utils/format-license-plate';
+  import { formatPis } from '@brazilian-utils/brazilian-utils/format-pis';
+  import { formatVoterId } from '@brazilian-utils/brazilian-utils/format-voter-id';
+  import { isValidCep } from '@brazilian-utils/brazilian-utils/is-valid-cep';
+  import { isValidCnh } from '@brazilian-utils/brazilian-utils/is-valid-cnh';
+  import { isValidCnpj } from '@brazilian-utils/brazilian-utils/is-valid-cnpj';
+  import { isValidCpf } from '@brazilian-utils/brazilian-utils/is-valid-cpf';
+  import { isValidLicensePlate } from '@brazilian-utils/brazilian-utils/is-valid-license-plate';
+  import { isValidPis } from '@brazilian-utils/brazilian-utils/is-valid-pis';
+  import { isValidVoterId } from '@brazilian-utils/brazilian-utils/is-valid-voter-id';
 
   type Kind = { domain: string; check: number; title: string; href: string; names: Array<{ lib: string; symbol: string }> };
   // `mask`: the written format of the document. A value typed with a mask says which document the

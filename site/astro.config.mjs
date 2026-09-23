@@ -32,6 +32,9 @@ export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
   trailingSlash: 'always',
+  // The try-it box loads the whole reference library (about 600 KB) when a reader opens it. It is
+  // the one large chunk, on purpose: a bigger one is a regression the warning should still show.
+  vite: { build: { chunkSizeWarningLimit: 650 } },
   integrations: [
     baseLinks(BASE_PATH),
     starlight({

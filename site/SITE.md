@@ -1,11 +1,12 @@
 # O site (Starlight)
 
-O site de documentação das brazilian-utils, que mora no api-validator: as páginas saem do
-contrato (`../contract`), das bibliotecas (`../libs/*.json`, bloco `site`), dos arquivos de uso
-de cada biblioteca e dos resultados da última execução do validador. Nada de conteúdo de
-utilitário é escrito aqui à mão. O `plan.md` guarda a pesquisa que levou ao desenho (histórico).
+Use esta página para rodar, montar e publicar o site de documentação das brazilian-utils. O site
+mora no api-validator. As páginas saem do contrato (`../contract`), das bibliotecas
+(`../libs/*.json`, bloco `site`), dos arquivos de uso de cada biblioteca e dos resultados da
+última execução do validador. Ninguém escreve aqui à mão o conteúdo de um utilitário. O
+`plan.md` guarda a pesquisa que levou ao desenho (histórico).
 
-## Rodando localmente
+## Rodar localmente
 
 Requer **Node 22.12 ou mais novo** (exigência do Astro 7) e npm 10.9+.
 
@@ -18,12 +19,12 @@ npm run check:i18n
 npm audit         # precisa sair limpo; o CI falha em qualquer severidade
 ```
 
-Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`;
-`USAGE_SOURCE=local` lê os checkouts em `../.repos/` (os que o validador usou), com guias e demos.
-Com `GITHUB_TOKEN` no ambiente o limite da API do GitHub sobe (opcional).
+Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`.
+`USAGE_SOURCE=local` lê os checkouts em `../.repos/` (os que o validador usou), com guias e
+demos. Com `GITHUB_TOKEN` no ambiente, o limite da API do GitHub sobe (opcional).
 
-Situação por biblioteca (chips, páginas `/libs/<lib>/`, matriz de paridade, badges): rode o
-validador antes, na raiz do repositório:
+Para ver a situação por biblioteca (chips, páginas `/libs/<lib>/`, matriz de paridade, badges),
+rode antes o validador na raiz do repositório:
 
 ```bash
 npx tsx src/cli.ts check --tests   # output/<lib>.report.json
@@ -31,26 +32,26 @@ npx tsx src/cli.ts diff            # output/diff.json (opcional: divergências)
 npx tsx src/cli.ts site-data       # site/.generated/status.json, public/badges/, public/cases/
 ```
 
-Sem isso o site compila igual, só sem situação.
+Sem esses passos, o site compila do mesmo jeito, só que sem a situação.
 
 ## Dependências e segurança
 
-Só três dependências diretas, todas em versão exata (sem `^`), escolhidas em 2026-09-09
-depois de conferir o GitHub Advisory Database e a proveniência no npm:
+O site tem só três dependências diretas, todas em versão exata (sem `^`). Nós as escolhemos em
+2026-09-09, depois de conferir o GitHub Advisory Database e a proveniência no npm:
 
 | Pacote | Versão | Proveniência | Advisories na versão |
 | --- | --- | --- | --- |
-| `astro` | 7.3.2 | SLSA (GitHub Actions do repo `withastro/astro`) | nenhuma; a 7.3.2 corrige o RCE via AVIF da 7.2.x |
+| `astro` | 7.3.2 | SLSA (GitHub Actions do repo `withastro/astro`) | nenhuma. A 7.3.2 corrige o RCE via AVIF da 7.2.x |
 | `@astrojs/starlight` | 0.42.0 | SLSA (GitHub Actions do repo `withastro/starlight`) | nenhuma |
-| `sharp` | 0.35.4 | SLSA | nenhuma; toda 0.34.x tem duas advisories high (libheif, libvips) |
+| `sharp` | 0.35.4 | SLSA | nenhuma. Toda 0.34.x tem duas advisories high (libheif, libvips) |
 
-Recomendado um `.npmrc` na raiz com `ignore-scripts=true`, `save-exact=true`, `audit=true`,
-`audit-level=low` e `fund=false`: nenhuma dependência executa código no `npm ci`. `sharp` e
-`esbuild` funcionam assim porque trazem binários prontos em `optionalDependencies`. Por isso os
-scripts `dev` e `build` chamam `prepare:content` explicitamente em vez de usar hooks `pre*`, que
-o npm também pula com `ignore-scripts`.
+Recomendamos um `.npmrc` na raiz com `ignore-scripts=true`, `save-exact=true`, `audit=true`,
+`audit-level=low` e `fund=false`. Assim, nenhuma dependência executa código no `npm ci`. `sharp`
+e `esbuild` funcionam assim porque trazem binários prontos em `optionalDependencies`. Por isso,
+os scripts `dev` e `build` chamam `prepare:content` de forma explícita. Eles não usam hooks
+`pre*`, porque o npm também pula esses hooks com `ignore-scripts`.
 
-Os workflows usam actions pinadas por SHA de commit, com a tag no comentário. Para atualizar:
+Os workflows usam actions fixadas por SHA de commit, com a tag no comentário. Para atualizar:
 
 ```bash
 gh api repos/actions/checkout/commits/<tag> --jq .sha
@@ -78,48 +79,80 @@ src/content/docs/            páginas escritas à mão (home, primeiros passos, 
 src/content/i18n/            strings da interface dos componentes
 ```
 
-Uma página de utilitário é: `UtilHeader` (resumo, situação por lib, relacionados) → `SpecBody`
-(o spec.*.md, quando existe) → **Uso**, uma seção por operação: assinatura, `OpStatus` (chip por
-lib), descrição do contrato, `OpNotes` (rede, depreciada), `Usage` (uma aba por lib,
-sincronizadas no site todo), `TryIt` (roda a implementação de referência no navegador) e `Cases` (os casos compartilhados com o resultado de cada lib) →
-**Fontes oficiais** (`References`).
+Uma página de utilitário tem estas partes, nesta ordem:
 
-Um guia é: `GuideHeader` (de qual lib, que funções do contrato usa) → o texto do guia → cada
-grupo de exemplos em abas (framework → variante → arquivo, sincronizadas no site) com a
-`LiveDemo` acima dos arquivos. As páginas de utilitário listam os guias que chamam suas funções.
+1. `UtilHeader`: resumo, situação por biblioteca, relacionados.
+2. `SpecBody`: o spec.*.md, quando existe.
+3. **Uso**: uma seção por função, com estes componentes:
+   - a assinatura
+   - `OpStatus`: um chip por biblioteca
+   - a descrição do contrato
+   - `OpNotes`: rede, depreciada
+   - `Usage`: uma aba por biblioteca, sincronizadas no site todo
+   - `TryIt`: roda a implementação de referência no navegador
+   - `Cases`: os casos compartilhados com o resultado de cada biblioteca
+4. **Fontes oficiais** (`References`).
 
-Adicionar um utilitário ao site = adicionar o domínio ao contrato. Adicionar uma biblioteca =
-`../libs/<lib>.json` com o bloco `site`. Os títulos `##` dos arquivos de uso são os ids de operação
-do contrato (`isValid`, `format`, …).
+Um guia tem estas partes, nesta ordem:
+
+1. `GuideHeader`: de qual biblioteca é o guia e que funções do contrato ele usa.
+2. O texto do guia.
+3. Cada grupo de exemplos em abas (framework → variante → arquivo, sincronizadas no site), com
+   a `LiveDemo` acima dos arquivos.
+
+As páginas de utilitário listam os guias que chamam as suas funções.
+
+Para adicionar um utilitário ao site, adicione o domínio ao contrato. Para adicionar uma
+biblioteca, crie `../libs/<lib>.json` com o bloco `site`. Os títulos `##` dos arquivos de uso
+são os ids das funções do contrato (`isValid`, `format`, …).
 
 ## Idiomas
 
-Inglês na raiz (`/`), português em `/pt-br/`. Na primeira visita, se o navegador prefere
-português e não existe escolha salva, a página em inglês redireciona para a mesma página em
-`/pt-br/` e grava a preferência (`localStorage["bu:lang"]`). O seletor de idioma do Starlight
-também grava a escolha, e a escolha sempre vence a detecção. Implementado em
-`src/components/Head.astro`.
+O inglês fica na raiz (`/`) e o português em `/pt-br/`. Na primeira visita, a página em inglês
+pode redirecionar para a mesma página em `/pt-br/`. Isso acontece quando o navegador prefere
+português e não existe escolha salva. O redirecionamento grava a preferência
+(`localStorage["bu:lang"]`). O seletor de idioma do Starlight também grava a escolha, e a
+escolha sempre vence a detecção. A implementação fica em `src/components/Head.astro`.
 
-Página ou domínio sem tradução cai para o outro idioma com um aviso. `npm run check:i18n -- --strict`
-falha no CI quando falta a versão de um idioma.
+Uma página ou um domínio sem tradução cai para o outro idioma com um aviso.
+
+O `summary` e a `description` de uma função do contrato aceitam duas formas:
+
+- uma string: só inglês
+- um objeto bilíngue: `{ "en": ..., "pt-BR": ... }`
+
+O validador usa sempre o texto em inglês. O site mostra o texto no idioma da página e, se ele
+faltar, mostra o inglês.
+
+`npm run check:i18n` (`scripts/check-i18n.mjs`) lista o que falta em cada idioma:
+
+- o título e o resumo de cada domínio
+- o `summary` e a `description` de cada função, nos dois idiomas (uma string conta só como
+  inglês)
+- o par `spec.en.md` e `spec.pt-BR.md`, quando um domínio tem spec longa
+- a versão em `pt-br/` de cada página escrita à mão
+
+Com `--strict` (`npm run check:i18n -- --strict`), o script falha no CI quando falta a versão de
+um idioma.
 
 ## Deploy
 
-Um pipeline só: `.github/workflows/conformance.yml` roda o validador (check, diff, issues),
-`site-data`, e o build do site, e publica no GitHub Pages quando `vars.PUBLISH_SITE == 'true'`.
-Roda a cada merge em `main` (contrato, libs, site), uma vez por dia, e quando uma biblioteca
-manda `repository_dispatch` com `event_type=lib-released` na release. `SITE_URL` é a URL
-pública com o caminho (padrão `https://<org>.github.io/api-validator`); o caminho vira o `base`
-do Astro. `site-check.yml` roda `npm audit`, `check:i18n --strict` e o build (com os fixtures) em
-todo PR que toca `contract/`, `libs/` ou `site/`.
+Um pipeline só faz tudo: `.github/workflows/conformance.yml`. Ele roda o validador (check, diff,
+issues), o `site-data` e o build do site. Ele publica no GitHub Pages quando
+`vars.PUBLISH_SITE == 'true'`. Ele roda a cada merge em `main` (contrato, libs, site), uma vez
+por dia, e quando uma biblioteca manda `repository_dispatch` com `event_type=lib-released` na
+release. `SITE_URL` é a URL pública com o caminho (padrão
+`https://<org>.github.io/api-validator`). O caminho vira o `base` do Astro. `site-check.yml`
+roda `npm audit`, `check:i18n --strict` e o build (com os fixtures) em todo PR que toca
+`contract/`, `libs/` ou `site/`.
 
 ## Pendências conhecidas
 
-- Os PDFs de referência (`contract/<domínio>/references/*.pdf`) ainda não foram trazidos do
-  repositório `docs`; `References` já lista os que existirem.
-- O `brand` não tem ícone para Erlang; as outras abas usam os ícones do Starlight.
-- JavaScript entra com o que já tem: `docs/utilities.md` (en e pt-br) vira as abas de uso e as
-  convenções da página da lib, e `docs/guides/` vira os guias com demo ao vivo (lidos de `main`,
-  como o site atual da lib). As outras libs ainda não têm `docs/usage/`: o site usa
-  `fixtures/usage/`. Adotar é copiar a pasta.
-- Guias e demos dependem da CDN (jsDelivr, esm.sh), como no site atual da lib JavaScript.
+- Ainda não trouxemos do repositório `docs` os PDFs de referência
+  (`contract/<domínio>/references/*.pdf`). `References` já lista os que existirem.
+- O `brand` não tem ícone para Erlang. As outras abas usam os ícones do Starlight.
+- JavaScript entra com o que já tem. `docs/utilities.md` (en e pt-br) vira as abas de uso e as
+  convenções da página da biblioteca. `docs/guides/` vira os guias com demo ao vivo (lidos de
+  `main`, como no site atual da biblioteca). As outras bibliotecas ainda não têm `docs/usage/`,
+  então o site usa `fixtures/usage/`. Para adotar, basta copiar a pasta.
+- Guias e demos dependem da CDN (jsDelivr, esm.sh), como no site atual da biblioteca JavaScript.

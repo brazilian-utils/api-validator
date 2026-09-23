@@ -1,41 +1,44 @@
 # Findings from the first full run (2026-09-22)
 
-Produced by `api-validator check --tests` and `api-validator diff` against the default
-branch of every lib (JS `ce2df9c`, Python `330627e`, Go `ea155a8`, Rust `a60585f`,
-Ruby `a54d408`, Erlang `48dd38d`, .NET `8d8846d`). All seven languages have runners, so
-every lib is checked for both API and behaviour.
+Use this page to see where the libraries disagree and which decisions are open.
+`api-validator check --tests` and `api-validator diff` made these results. They ran against the
+default branch of every library (JS `ce2df9c`, Python `330627e`, Go `ea155a8`, Rust `a60585f`,
+Ruby `a54d408`, Erlang `48dd38d`, .NET `8d8846d`). All seven languages have runners, so the
+validator checks both the API and the behavior of every library.
 
-`diff` compared 742 calls (same mined input, every lib) and found 234 divergent inputs in
-29 functions. They fall into three groups.
+`diff` compared 742 calls (the same mined input in every library). It found 234 divergent
+inputs in 29 functions. They fall into three groups.
 
-## 1. Vectors in the contract that some libs fail
+## 1. Cases in the contract that some libraries fail
 
-| Vector | Contract says | Libs that disagree | Status |
+| Case | Contract says | Libraries that disagree | Status |
 |---|---|---|---|
-| `pis.isValid("00000000000")`, `("99999999999")` | `false` | Go, Python, Ruby, Rust, Erlang, .NET (6 of 7) | **Confirm.** JS rejects repeated-digit PIS as reserved numbers (its docs cite the eSocial manual); the others only check the check digit, which such numbers satisfy. The same rule already holds for CPF/CNPJ in all libs. If you agree with JS, six libs need a one-line fix; if not, flip the vector and JS changes. |
-| `cnh.isValid("75206264506")` | `true` | Python, Erlang | **Confirm.** Go, JS, Ruby and Rust accept it; Python implements the 2022 CNH algorithm (`brutils/cnh.py`) and Erlang looks ported from it. Decide which rule the contract follows. |
-| `licensePlate.getFormat("ABC1D23")` | `"LLLNLNN"` | Erlang returns `mercosul` / `old_format` | Everyone else returns the pattern: Erlang API choice to align (or the contract adopts named formats). |
+| `pis.isValid("00000000000")`, `("99999999999")` | `false` | Go, Python, Ruby, Rust, Erlang, .NET (6 of 7) | **Confirm.** JS rejects repeated-digit PIS as reserved numbers (its docs cite the eSocial manual). The others only check the check digit, and such numbers pass it. The same rule already applies to CPF/CNPJ in all libraries. If you agree with JS, six libraries need a one-line fix. If not, flip the case and JS changes. |
+| `cnh.isValid("75206264506")` | `true` | Python, Erlang | **Confirm.** Go, JS, Ruby and Rust accept it. Python implements the 2022 CNH algorithm (`brutils/cnh.py`), and Erlang looks ported from it. Decide which rule the contract follows. |
+| `licensePlate.getFormat("ABC1D23")` | `"LLLNLNN"` | Erlang returns `mercosul` / `old_format` | All the other libraries return the pattern. Erlang must align its API choice (or the contract adopts named formats). |
 
-## 1b. Found by the 506 vectors added from the JS reference tests
+## 1b. Found by the 506 cases added from the JS reference tests
 
-Vectors taken from the reference lib's own assertions (88 functions that had none). Where
-several libs agree against JS, the vector may be what should change — each is a decision.
+These cases come from the assertions of the reference library (88 functions that had no cases).
+Where several libraries agree against JS, maybe the case is what should change. Each one is a
+decision.
 
-| Function | Libs that fail | What they do instead |
+| Function | Libraries that fail | What they do instead |
 |---|---|---|
-| `currency.convertToWords` (12 vectors) | .NET, Go, Python, Ruby | capitalised ("Um real"); .NET/Go/Python also add a comma ("Mil, quinhentos e…") |
-| `currency.convertToWords(1000230)`, `(1.999)` | Rust | "um milhão duzentos e trinta **de** reais"; rounds 1.999 to "um real e cem centavos" (bug) |
-| `currency.format` | .NET, Go, Python, Ruby, Rust | prefix "R$ " (JS: no symbol by default) — decision; Python/Ruby also reject string input |
-| `legalNature.list` | Go, Python, Ruby | 60 entries from an older table instead of 92 (40 current codes missing, 8 retired present); Rust matches JS |
+| `currency.convertToWords` (12 cases) | .NET, Go, Python, Ruby | capitalized ("Um real"). .NET/Go/Python also add a comma ("Mil, quinhentos e…") |
+| `currency.convertToWords(1000230)`, `(1.999)` | Rust | "um milhão duzentos e trinta **de** reais". Rounds 1.999 to "um real e cem centavos" (bug) |
+| `currency.format` | .NET, Go, Python, Ruby, Rust | prefix "R$ " (JS: no symbol by default), a decision. Python/Ruby also reject string input |
+| `legalNature.list` | Go, Python, Ruby | 60 entries from an older table instead of 92 (40 current codes missing, 8 retired codes present). Rust matches JS |
 | `licensePlate.convertToMercosul("ABC-1234")` | .NET, Erlang, Python, Rust (`null`), Go (`""`) | JS accepts the hyphen mask → `"ABC1C34"` |
 | `phone.format` of a subscriber number / landline | Erlang, Go, Python, Ruby, Rust | the default-mask decision (#4 below) |
-| `passport.isValid` / `format` (lowercase, masked) | Erlang, Python | strict uppercase only; the contract summary says case-insensitive |
-| `date.convertToWords` | Go, Ruby | capitalised; ISO strings (`"2024-12-25"`) not parsed |
+| `passport.isValid` / `format` (lowercase, masked) | Erlang, Python | uppercase only. The contract summary says case-insensitive |
+| `date.convertToWords` | Go, Ruby | capitalized. ISO strings (`"2024-12-25"`) not parsed |
 
-## 2. Decisions needed (not encoded yet — pick one answer, add the vector)
+## 2. Decisions needed (not encoded yet)
 
-Each row is a behaviour where the libs split into camps. Once decided, add the vector to
-the contract; the libs on the other side get a `Fix <fn>` issue automatically.
+To close a decision, pick one answer and add the case to the contract. Each row is a behavior
+where the libraries split into camps. After you add the case, the pipeline automatically opens
+a `Fix <fn>` issue in each library on the other side.
 
 | # | Question | Camp A | Camp B | Where |
 |---|---|---|---|---|
@@ -45,20 +48,23 @@ the contract; the libs on the other side get a `Fix <fn>` issue automatically.
 | 4 | Default phone mask | JS: `"98765-4321"` (no area code unless `mask: "auto"`) | the others: `"(11)99402-9275"` (no space) | `phone.format` |
 | 5 | Converting a plate that is already Mercosul | JS, Go: `""` | Python, Ruby, Rust, Erlang, .NET: `null` | `licensePlate.convertToMercosul` |
 | 6 | Unknown legal nature code | Go: `""` | Python, Ruby, Rust: `null` | `legalNature.getDescription` |
-| 7 | Legal process numbers generated by JS (year 2026) | JS: valid | Go, Python, Ruby, Rust: invalid | `legalProcess.isValid` — check segment/tribunal rules |
+| 7 | Legal process numbers generated by JS (year 2026) | JS: valid | Go, Python, Ruby, Rust: invalid | `legalProcess.isValid`: check segment/tribunal rules |
 | 8 | Lowercase passport (`"lh961596"`) | JS: valid | Python: invalid | `passport.isValid` |
 | 9 | Empty/garbage input to `currency.format` / `date.convertToWords` | JS: `"0,00"` / `""` | Python, Ruby: `null` | |
 
-The API also diverges in shape; each lib's report lists every case. Most common:
-`isValid`/`format` taking an options object in JS only (`does not support optional
-parameter "options"`), `generate` taking a required argument in Go/Rust
-(`cnpj.Generate(branch)`), `isHoliday`/`getCepInfoByAddress` taking an object in JS and
-positional arguments elsewhere, and `format` returning `string?` in Python/Ruby/Rust vs
-`string` in the contract (a consequence of decision 2).
+The API also diverges in shape. The report of each library lists every case. These are the
+most common differences:
 
-## 3. Coverage snapshot (after the 506 new vectors)
+- `isValid`/`format` take an options object in JS only (`does not support optional
+  parameter "options"`).
+- `generate` takes a required argument in Go/Rust (`cnpj.Generate(branch)`).
+- `isHoliday`/`getCepInfoByAddress` take an object in JS and positional arguments elsewhere.
+- `format` returns `string?` in Python/Ruby/Rust and `string` in the contract (a consequence
+  of decision 2).
 
-| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Lib's own harness (pass / skipped) |
+## 3. Coverage snapshot (after the 506 new cases)
+
+| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Library's own harness (pass / skipped) |
 |---|---|---|---|---|
 | javascript | 92.5% | 80.4% | 697 / 0 / 0 | 697 / 0 (vitest) |
 | python | 25.2% | 71.7% | 288 / 38 / 1 | 288 / 39 (unittest) |
@@ -68,20 +74,21 @@ positional arguments elsewhere, and `format` returning `string?` in Python/Ruby/
 | erlang | 19.7% | 58.7% | 239 / 26 / 0 | 239 / 26 (EUnit) |
 | dotnet | 17% | 54.3% | 198 / 22 / 5 | 198 / 27 (xUnit) |
 
-Core coverage went *down* because core functions now have vectors that several libs fail
-(currency, phone, license plate, legal nature): those were untested before, not correct.
-Each lib's harness passes natively exactly the cases the validator passes; its skips are
-the failures above plus the calls the validator's runner cannot make, each with its reason in
-`skip.json`, until the lib is fixed. With `API_CONTRACT_NO_SKIP=1`, the harnesses fail exactly
-the validator's failures — and, in the typed libs, a few more cases the runner could only skip
-(e.g. `currency.format` with a string argument where the lib takes a number, or
+Core coverage went *down* because core functions now have cases that several libraries fail
+(currency, phone, license plate, legal nature). Those functions were untested before, not
+correct. The harness of each library natively passes exactly the cases that the validator
+passes. Its skips are the failures above plus the calls that the runner of the validator cannot
+make. Each skip has its reason in `skip.json` until the library is fixed. With
+`API_CONTRACT_NO_SKIP=1`, the harnesses fail exactly the failures of the validator. In the
+typed libraries, they also fail a few more cases that the runner could only skip (for example,
+`currency.format` with a string argument where the library takes a number, or
 `legalNature.list` in Rust).
 
-`diff` now compares 1138 calls; 390 divergent inputs fall into 59 known splits, recorded in
-`baselines/_divergences.json` — the nightly fails only on a split that is not there.
+`diff` now compares 1138 calls. 390 divergent inputs fall into 59 known splits, recorded in
+`baselines/_divergences.json`. The nightly fails only on a split that is not in that file.
 
-"Core" = implemented by at least 4 of the 7 libs when the contract was bootstrapped (46
-functions). The contract has 147 functions in 42 domains and 804 vectors; 14 functions still
-have none (object or date parameters, date-valued results, no reference implementation).
-Skipped tests are calls a runner cannot express (e.g. Go/Rust functions that require an
-argument the contract makes optional).
+"Core" means implemented by at least 4 of the 7 libraries when the contract was bootstrapped
+(46 functions). The contract has 147 functions in 42 domains and 804 cases. 14 functions still
+have no cases (object or date parameters, date-valued results, no reference implementation).
+Skipped tests are calls that a runner cannot express (for example, Go/Rust functions that
+require an argument that the contract makes optional).

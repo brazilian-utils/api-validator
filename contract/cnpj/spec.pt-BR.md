@@ -7,29 +7,29 @@ references:
   - in-rfb-2229-2024
 ---
 
-# CNPJ — Cadastro Nacional da Pessoa Jurídica
+# CNPJ: Cadastro Nacional da Pessoa Jurídica
 
 ## Resumo
 
-O CNPJ é um número de identificação único emitido pela Receita Federal para registrar empresas, órgãos públicos e outras entidades no Brasil. Ele possui 14 caracteres, sendo 8 da raiz, 4 da ordem do estabelecimento e 2 dígitos verificadores. Os CNPJs emitidos antes da implementação do formato alfanumérico utilizam apenas dígitos numéricos. Desde julho de 2026, novas inscrições podem conter letras maiúsculas e dígitos nos 12 primeiros caracteres, mantendo os 2 dígitos verificadores exclusivamente numéricos.
+O CNPJ é um número de identificação único que a Receita Federal emite. Ele registra empresas, órgãos públicos e outras entidades no Brasil. Ele tem 14 caracteres: 8 da raiz, 4 da ordem do estabelecimento e 2 dígitos verificadores. Os CNPJs emitidos antes do início do formato alfanumérico usam apenas dígitos numéricos. Desde julho de 2026, novas inscrições podem conter letras maiúsculas e dígitos nos 12 primeiros caracteres. Os 2 dígitos verificadores continuam apenas numéricos.
 
-## Operações
+## Funções
 
 - **Validação**: Verificar se um CNPJ sem formatação é válido conforme as regras oficiais.
-- **Formatação**: Apresentar o CNPJ no formato `XX.XXX.XXX/XXXX-DV`, onde:
-    - `X` – Caractere alfanumérico (algarismos de 0 a 9 e letras maiúsculas de A a Z).
-    - `DV` – Dígitos verificadores calculados pelo algoritmo do módulo 11.
-- **Remoção de símbolos**: Remover os caracteres `.`, `/` e `-`, mantendo apenas os caracteres alfanuméricos.
-- **Geração**: Gera uma string de CNPJ válida aleatória.
+- **Formatação**: Mostrar o CNPJ no formato `XX.XXX.XXX/XXXX-DV`, onde:
+    - `X`: caractere alfanumérico (algarismos de `0` a `9` e letras maiúsculas de `A` a `Z`).
+    - `DV`: dígitos verificadores calculados pelo algoritmo do módulo 11.
+- **Remoção de símbolos**: Remover os caracteres `.`, `/` e `-` e manter apenas os caracteres alfanuméricos.
+- **Geração**: Gerar uma string de CNPJ válida e aleatória.
 
 ## Regras de validação
 
 1. A entrada deve conter exatamente 14 caracteres.
 2. Os 12 primeiros caracteres podem conter dígitos de `0` a `9` e letras maiúsculas de `A` a `Z`.
-3. Os 2 últimos caracteres correspondem aos dígitos verificadores e devem ser numéricos.
-4. Os dígitos verificadores devem ser calculados pelo algoritmo do módulo 11.
-5. Para o cálculo dos dígitos verificadores, os 12 primeiros caracteres devem ser convertidos em valores numéricos utilizando seu código ASCII decimal, subtraindo `48` do valor correspondente.
-   
+3. Os 2 últimos caracteres são os dígitos verificadores e devem ser numéricos.
+4. Os dígitos verificadores devem vir do algoritmo do módulo 11.
+5. Para calcular os dígitos verificadores, converta os 12 primeiros caracteres em valores numéricos. Use o código ASCII decimal de cada caractere e subtraia `48`.
+
    Exemplos:
    - `0` → `48 - 48 = 0`
    - `9` → `57 - 48 = 9`
@@ -37,24 +37,24 @@ O CNPJ é um número de identificação único emitido pela Receita Federal para
    - `B` → `66 - 48 = 18`
    - `Z` → `90 - 48 = 42`
 
-## Algoritmo detalhado
+## Algoritmo
 
-1. Verificar se a entrada possui exatamente 14 caracteres.
+1. Verificar se a entrada tem exatamente 14 caracteres.
 2. Verificar se os 12 primeiros caracteres são alfanuméricos e os 2 últimos são numéricos.
 3. Converter os caracteres alfanuméricos em valores numéricos:
-   - Caracteres numéricos mantêm seu valor.
-   - Letras são convertidas utilizando o valor ASCII decimal subtraído de `48`.
+   - Os dígitos numéricos mantêm o seu valor.
+   - As letras passam a valer o seu código ASCII decimal menos `48`.
 4. Calcular o primeiro dígito verificador (DV1):
-   - Para os 12 primeiros caracteres, distribuir os pesos de `2` a `9` da direita para a esquerda, reiniciando em `2` após o peso `9`. 
-   - Multiplicar cada valor pelo peso correspondente e somar os resultados.
+   - Para os 12 primeiros caracteres, distribuir os pesos de `2` a `9` da direita para a esquerda. Recomeçar em `2` após o peso `9`.
+   - Multiplicar cada valor pelo seu peso e somar os resultados.
    - Calcular o resto da divisão da soma por `11`.
-   - Se o resto for `0` ou `1`, o DV1 será `0`; caso contrário, será `11 - resto`.
+   - Se o resto for `0` ou `1`, o DV1 é `0`. Se não, o DV1 é `11 - resto`.
 5. Calcular o segundo dígito verificador (DV2):
-   - Para os 13 caracteres, adicionar o DV1 à sequência e distribuir novamente os pesos de `2` a `9` da direita para a esquerda.
-   - Multiplicar cada valor pelo peso correspondente e somar os resultados.
+   - Adicionar o DV1 ao fim da sequência. Para esses 13 caracteres, distribuir os pesos de `2` a `9` da direita para a esquerda.
+   - Multiplicar cada valor pelo seu peso e somar os resultados.
    - Calcular o resto da divisão da soma por `11`.
-   - Se o resto for `0` ou `1`, o DV2 será `0`; caso contrário, será `11 - resto`.
-6. Comparar os dígitos verificadores calculados com os dois últimos caracteres do CNPJ.
+   - Se o resto for `0` ou `1`, o DV2 é `0`. Se não, o DV2 é `11 - resto`.
+6. Comparar os dígitos verificadores calculados com os 2 últimos caracteres do CNPJ.
 
 ## Regex
 
