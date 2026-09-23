@@ -12,8 +12,8 @@
   "functions": {
     "getInfo": {
       "summary": {
-        "en": "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code.",
-        "pt-BR": "Identifica uma chave Pix e a normaliza para a forma canônica que o DICT espera dentro de um BR Code."
+        "en": "Identifies the type of a Pix key and returns the key in canonical form.",
+        "pt-BR": "Identifica o tipo de uma chave Pix e retorna a chave na forma canônica."
       },
       "description": {
         "en": [
@@ -51,7 +51,7 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a Pix key (chave Pix) against the DICT key formats.",
+        "en": "Validates a Pix key against the DICT key formats.",
         "pt-BR": "Valida uma chave Pix de acordo com os formatos de chave do DICT."
       },
       "description": {

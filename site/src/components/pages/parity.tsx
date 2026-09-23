@@ -32,8 +32,8 @@ export function ParityPage({ locale }: { locale: Locale }) {
         <p>
           {L(
             locale,
-            'Each cell shows how many functions of the utility the library implements. The icon shows their state. Point to a cell to see each function, or open a library for the details.',
-            'Cada célula mostra quantas funções do utilitário a biblioteca implementa. O ícone mostra a situação delas. Aponte para uma célula para ver cada função, ou abra uma biblioteca para os detalhes.',
+            'Each cell shows how many functions of the utility the library implements. The icon shows their state. Hover over or tap a cell to see each function, or open a library for the details.',
+            'Cada célula mostra quantas funções do utilitário a biblioteca implementa. O ícone mostra a situação delas. Passe o mouse ou toque numa célula para ver cada função, ou abra uma biblioteca para os detalhes.',
           )}
         </p>
         <p className="not-prose flex flex-wrap gap-x-5 gap-y-2 text-sm">
@@ -98,7 +98,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
         </p>
         <p>
           {L(locale, 'To fill an empty cell, read ', 'Para preencher uma célula vazia, leia ')}
-          <Link href={`${p}/contributing/new-language/`}>{L(locale, 'port to a new language', 'porte para uma nova linguagem')}</Link>.
+          <Link href={`${p}/contributing/new-language/`}>{L(locale, 'Port to a new language', 'Implemente em outra linguagem')}</Link>.
         </p>
       </DocsBody>
     </DocsPage>

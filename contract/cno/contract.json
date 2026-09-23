@@ -3,8 +3,8 @@
   "domain": "cno",
   "title": { "en": "CNO", "pt-BR": "CNO" },
   "summary": {
-    "en": "Registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).",
-    "pt-BR": "Cadastro de obras de construção civil na Receita Federal (substituiu o CEI para elas, com a mesma numeração)."
+    "en": "Cadastro Nacional de Obras, the registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).",
+    "pt-BR": "Cadastro Nacional de Obras, o cadastro de obras de construção civil na Receita Federal (substituiu o CEI para elas, com a mesma numeração)."
   },
   "category": "companies",
   "order": 7,
@@ -12,8 +12,8 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a CNO (Cadastro Nacional de Obras) number with the official mask.",
-        "pt-BR": "Formata um número CNO (Cadastro Nacional de Obras) com a máscara oficial."
+        "en": "Formats a CNO number with the official mask.",
+        "pt-BR": "Formata um número CNO com a máscara oficial."
       },
       "description": {
         "en": [
@@ -42,8 +42,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a CNO (Cadastro Nacional de Obras) number, the registration of a construction work with the Receita Federal.",
-        "pt-BR": "Valida um número CNO (Cadastro Nacional de Obras), o registro de uma obra de construção civil na Receita Federal."
+        "en": "Validates a CNO number, the registration of a construction work with the Receita Federal.",
+        "pt-BR": "Valida um número CNO, o registro de uma obra de construção civil na Receita Federal."
       },
       "description": {
         "en": [
@@ -75,11 +75,11 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CNO (Cadastro Nacional de Obras) formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNO (Cadastro Nacional de Obras) e retorna somente os dígitos."
+        "en": "Removes CNO formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CNO e retorna somente os dígitos."
       },
       "description": {
-        "en": ["Removes CNO formatting and keeps only digits, capped to 12 digits."],
+        "en": ["Removes CNO formatting and keeps only digits, capped at 12 digits."],
         "pt-BR": ["Remove a formatação do CNO e mantém somente os dígitos, limitados a 12 dígitos."]
       },
       "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],

@@ -3,29 +3,29 @@
   "domain": "pis",
   "title": { "en": "PIS/PASEP", "pt-BR": "PIS/PASEP" },
   "summary": {
-    "en": "The PIS/PASEP/NIT worker registration number.",
-    "pt-BR": "O número PIS/PASEP/NIT de inscrição do trabalhador."
+    "en": "The PIS/PASEP/NIT worker registration number (PIS: Programa de Integração Social).",
+    "pt-BR": "O número PIS/PASEP/NIT de inscrição do trabalhador (PIS: Programa de Integração Social)."
   },
   "category": "documents",
   "order": 4,
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a PIS (Programa de Integração Social) number with the specified pattern.",
-        "pt-BR": "Formata um número de PIS (Programa de Integração Social) com o padrão especificado."
+        "en": "Formats a PIS number with the specified pattern.",
+        "pt-BR": "Formata um número de PIS com o padrão especificado."
       },
       "description": {
         "en": [
           "Formats a PIS as `000.00000.00-0`.",
           "",
           "- `options.pad` left-pads the value with zeros to 11 digits first.",
-          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input. Other libraries return null."
+          "- Pending decision (findings §2 #2, #3): the reference (JS) formats only the characters an incomplete value has and returns an empty string for empty or invalid input. Other libraries return null."
         ],
         "pt-BR": [
           "Formata um PIS como `000.00000.00-0`.",
           "",
           "- `options.pad` primeiro completa o valor com zeros à esquerda até 11 dígitos.",
-          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) formata só os caracteres que um valor incompleto tem e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
         ]
       },
       "references": [
@@ -48,8 +48,8 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a valid random Brazilian PIS (Programa de Integração Social) number.",
-        "pt-BR": "Gera um número de PIS (Programa de Integração Social) aleatório e válido."
+        "en": "Generates a valid random Brazilian PIS number.",
+        "pt-BR": "Gera um número de PIS aleatório e válido."
       },
       "description": {
         "en": ["Generates a valid random PIS: 11 digits, unformatted."],
@@ -69,21 +69,21 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a Brazilian PIS (Programa de Integração Social) number. Accepts the usual mask characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
-        "pt-BR": "Valida um número de PIS (Programa de Integração Social). Aceita os caracteres usuais de máscara (`.`, `-`, `/`, `(`, `)`, `,`, `*`) e espaços em branco."
+        "en": "Validates a Brazilian PIS number. Accepts the usual formatting characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
+        "pt-BR": "Valida um número de PIS. Aceita os caracteres de formatação usuais (`.`, `-`, `/`, `(`, `)`, `,`, `*`) e espaços em branco."
       },
       "description": {
         "en": [
           "Validates a PIS/PASEP/NIT: 10 base digits and a modulus 11 check digit.",
           "",
           "- Pending decision (findings §1): the reference (JS) rejects a value whose digits are all the same as a reserved number. Six libraries accept them when the check digit matches.",
-          "- Pending decision (findings §2 #1): the reference (JS) ignores the usual mask characters and whitespace. Other libraries accept digits only."
+          "- Pending decision (findings §2 #1): the reference (JS) ignores the usual formatting characters and whitespace. Other libraries accept digits only."
         ],
         "pt-BR": [
           "Valida um PIS/PASEP/NIT: 10 dígitos base e um dígito verificador por módulo 11.",
           "",
           "- Decisão pendente (findings §1): a referência (JS) rejeita como número reservado um valor com todos os dígitos iguais. Seis bibliotecas aceitam esses valores quando o dígito verificador confere.",
-          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres usuais de máscara e os espaços em branco. Outras bibliotecas aceitam apenas dígitos."
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres de formatação usuais e os espaços em branco. Outras bibliotecas aceitam apenas dígitos."
         ]
       },
       "references": [
@@ -114,7 +114,7 @@
         "pt-BR": "Remove os caracteres de formatação do PIS e retorna apenas os dígitos."
       },
       "description": {
-        "en": ["Removes PIS formatting and keeps only digits, capped to 11 digits."],
+        "en": ["Removes PIS formatting and keeps only digits, capped at 11 digits."],
         "pt-BR": ["Remove a formatação do PIS e mantém apenas os dígitos, com no máximo 11 dígitos."]
       },
       "references": [
@@ -134,8 +134,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],

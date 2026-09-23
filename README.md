@@ -1,8 +1,8 @@
 # API Validator
 
-Use this repository to keep the [brazilian-utils](https://github.com/brazilian-utils)
-implementations in JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang and .NET working as
-one library in seven languages.
+This repository keeps the seven [brazilian-utils](https://github.com/brazilian-utils) libraries
+(JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang, .NET) in step: same functions, same
+behavior.
 
 - **Same API**: one language-agnostic contract (`contract/<domain>/contract.json`) declares every function
   with its inputs and outputs. Each language adapter extracts the real API and checks it
@@ -25,8 +25,9 @@ one library in seven languages.
   `docs/usage/<util>.md` file of each library) and the shared cases. The `summary` and
   `description` of a contract function can be English only (a string) or bilingual
   (`{ "en": ..., "pt-BR": ... }`). `site/scripts/check-i18n.mjs --strict` requires both
-  languages. Each library has a status page, and the README badge of the library links to it.
-  The status page shows how the library compares with the others, what it does not have yet,
+  languages.
+- **Status pages**: each library has a status page, and the README badge of the library links
+  to it. The page shows how the library compares with the others, what it does not have yet,
   what fails and why.
 
 For more information, read these pages:

@@ -1,6 +1,6 @@
 # O site (Next.js + Fumadocs)
 
-Use esta página para rodar, montar e publicar o site de documentação das brazilian-utils. O site
+Use esta página para rodar, montar e publicar o site de documentação do Brazilian Utils. O site
 mora no api-validator. As páginas saem do contrato (`../contract`), das bibliotecas
 (`../libs/*.json`, bloco `site`), dos arquivos de uso de cada biblioteca e dos resultados da
 última execução do validador. Ninguém escreve aqui à mão o conteúdo de um utilitário. O
@@ -61,7 +61,7 @@ Todas as dependências estão em versão exata (sem `^`). As principais:
 | `tailwindcss`, `@tailwindcss/postcss` | estilos (o tema do Fumadocs é Tailwind) |
 | `shiki`, `unified`, `remark-*`, `hast-util-to-jsx-runtime` | Markdown do contrato e das bibliotecas, com destaque de código |
 | `geist`, `simple-icons`, `lucide-react` | fontes e ícones, sem CDN |
-| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (home, "Testar") |
+| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (home, caixa "Teste") |
 
 `npm audit --audit-level=low` roda no CI e precisa sair limpo.
 

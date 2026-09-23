@@ -3,16 +3,16 @@
   "domain": "cfop",
   "title": { "en": "CFOP", "pt-BR": "CFOP" },
   "summary": {
-    "en": "Fiscal operation codes of Anexo II of Convênio SINIEF s/nº 1970.",
-    "pt-BR": "Códigos fiscais de operações e prestações do Anexo II do Convênio SINIEF s/nº 1970."
+    "en": "Código Fiscal de Operações e Prestações: the fiscal operation codes of Anexo II of Convênio SINIEF s/nº 1970.",
+    "pt-BR": "Código Fiscal de Operações e Prestações: os códigos do Anexo II do Convênio SINIEF s/nº 1970."
   },
   "category": "tax",
   "order": 2,
   "functions": {
     "get": {
       "summary": {
-        "en": "Looks up a CFOP (Código Fiscal de Operações e Prestações) code in the official table.",
-        "pt-BR": "Consulta um código CFOP (Código Fiscal de Operações e Prestações) na tabela oficial."
+        "en": "Looks up a CFOP code in the official table.",
+        "pt-BR": "Consulta um código CFOP na tabela oficial."
       },
       "description": {
         "en": [
@@ -44,8 +44,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a CFOP (Código Fiscal de Operações e Prestações) code exists in the official table.",
-        "pt-BR": "Verifica se um código CFOP (Código Fiscal de Operações e Prestações) existe na tabela oficial."
+        "en": "Checks whether a CFOP code exists in the official table.",
+        "pt-BR": "Verifica se um código CFOP existe na tabela oficial."
       },
       "description": {
         "en": [
@@ -84,12 +84,12 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CFOP (Código Fiscal de Operações e Prestações) formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação de um CFOP (Código Fiscal de Operações e Prestações) e retorna apenas os dígitos."
+        "en": "Removes CFOP formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CFOP e retorna apenas os dígitos."
       },
       "description": {
         "en": [
-          "Removes CFOP formatting and keeps only digits, capped to 4 digits.",
+          "Removes CFOP formatting and keeps only digits, capped at 4 digits.",
           "",
           "- The function does not pad the result."
         ],

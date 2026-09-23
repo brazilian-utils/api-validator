@@ -16,7 +16,6 @@ import crypto from "node:crypto";
 import type { Baseline } from "./baseline.js";
 import { knownFailure } from "./conformance.js";
 import type { Contract, ContractFunction, ContractTest, LibConfig } from "./model.js";
-import { slugOf } from "../../site/src/lib/usage-format.mjs";
 
 const CASES_FORMAT = 1;
 
@@ -133,7 +132,7 @@ function indexJson(files: Map<string, DomainJson>) {
     functions: fns.length,
     cases: fns.reduce((n, f) => n + f.cases.length, 0),
     domains: [...files.keys()],
-    files: [...files.keys()].map((d) => `${slugOf(d)}.json`),
+    files: [...files.keys()].map((d) => `${d}.json`),
     comparison: COMPARISON_RULES
   };
 }
@@ -234,7 +233,9 @@ export function suiteFiles(contract: Contract): Map<string, unknown> {
   out.set("cases.schema.json", CASES_SCHEMA);
   out.set("cases/index.json", indexJson(files));
   out.set("cases/equality.json", EQUALITY_SELF_TEST);
-  for (const [d, json] of files) out.set(`cases/${slugOf(d)}.json`, json);
+  // Named by domain id (cases/licensePlate.json), not kebab-case like this repo's files: the
+  // harnesses already vendored in the libraries open `cases/<domain>.json` for each index domain.
+  for (const [d, json] of files) out.set(`cases/${d}.json`, json);
   return out;
 }
 

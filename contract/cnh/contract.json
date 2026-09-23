@@ -3,17 +3,14 @@
   "domain": "cnh",
   "title": { "en": "Driver's license (CNH)", "pt-BR": "CNH" },
   "summary": {
-    "en": "The Brazilian driver's license registry number.",
+    "en": "Carteira Nacional de Habilitação, the Brazilian driver's license registry number.",
     "pt-BR": "O número de registro da Carteira Nacional de Habilitação."
   },
   "category": "documents",
   "order": 2,
   "functions": {
     "format": {
-      "summary": {
-        "en": "Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.",
-        "pt-BR": "Formata um número de CNH (Carteira Nacional de Habilitação)."
-      },
+      "summary": { "en": "Formats a Brazilian CNH number.", "pt-BR": "Formata um número de CNH." },
       "description": {
         "en": [
           "Formats a CNH number as `000000000-00` (9 digits, hyphen, 2 check digits).",
@@ -42,13 +39,10 @@
       ]
     },
     "generate": {
-      "summary": {
-        "en": "Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).",
-        "pt-BR": "Gera um número de CNH (Carteira Nacional de Habilitação, o número da carteira de motorista brasileira) aleatório e válido."
-      },
+      "summary": { "en": "Generates a valid random CNH.", "pt-BR": "Gera um número de CNH aleatório e válido." },
       "description": {
-        "en": ["Generates a valid random CNH number: 11 digits, unformatted, that pass `cnh.isValid`."],
-        "pt-BR": ["Gera um número de CNH aleatório e válido: 11 dígitos, sem máscara, que passam em `cnh.isValid`."]
+        "en": ["Generates a valid random CNH number: 11 digits, unformatted, accepted by `cnh.isValid`."],
+        "pt-BR": ["Gera um número de CNH aleatório e válido: 11 dígitos, sem máscara, que `cnh.isValid` aceita."]
       },
       "references": [
         "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
@@ -60,10 +54,7 @@
       ]
     },
     "isValid": {
-      "summary": {
-        "en": "Checks if a CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number) is valid.",
-        "pt-BR": "Verifica se um número de CNH (Carteira Nacional de Habilitação, o número da carteira de motorista brasileira) é válido."
-      },
+      "summary": { "en": "Checks whether a CNH is valid.", "pt-BR": "Verifica se um número de CNH é válido." },
       "description": {
         "en": [
           "Validates a CNH registry number: 9 digits plus 2 check digits (Resolução CONTRAN nº 886/2021, art. 4º).",
@@ -105,11 +96,11 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the CNH (Carteira Nacional de Habilitação) formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação da CNH (Carteira Nacional de Habilitação) e retorna apenas os dígitos."
+        "en": "Removes the CNH formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação da CNH e retorna apenas os dígitos."
       },
       "description": {
-        "en": ["Removes CNH formatting and keeps only digits, capped to 11 digits."],
+        "en": ["Removes CNH formatting and keeps only digits, capped at 11 digits."],
         "pt-BR": ["Remove a formatação da CNH e mantém apenas os dígitos, com no máximo 11 dígitos."]
       },
       "references": [

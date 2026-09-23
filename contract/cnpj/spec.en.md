@@ -11,7 +11,7 @@ references:
 
 ## Summary
 
-The CNPJ is a unique identification number that the Brazilian Federal Revenue Service issues. It registers companies, public agencies and other entities in Brazil. It has 14 characters: 8 for the root, 4 for the order of the establishment and 2 check digits. CNPJs issued before the alphanumeric format started contain only numeric digits. Since July 2026, new registrations can contain uppercase letters and digits in the first 12 characters. The 2 check digits stay numeric only.
+The CNPJ is a unique identification number that the Brazilian Federal Revenue Service issues. It registers companies, public agencies and other entities in Brazil. It has 14 characters: 8 for the root, 4 for the order of the establishment and 2 check digits. CNPJs issued before the alphanumeric format started contain only digits. Since July 2026, new registrations can contain uppercase letters and digits in the first 12 characters. The 2 check digits stay numeric only.
 
 ## Functions
 
@@ -20,12 +20,12 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
     - `X`: alphanumeric character (digits `0` to `9` and uppercase letters `A` to `Z`).
     - `DV`: check digits calculated with the modulo 11 algorithm.
 - **Symbol removal**: Remove the `.`, `/` and `-` characters and keep only the alphanumeric characters.
-- **Generation**: Make a random valid CNPJ string.
+- **Generation**: Generate a random valid CNPJ string.
 
 ## Validation rules
 
 1. The input must contain exactly 14 characters.
-2. The first 12 characters can contain digits from `0` to `9` and uppercase letters from `A` to `Z`.
+2. The first 12 characters can contain digits from `0` to `9` and letters from `A` to `Z`. With `version: 2`, validation reads lowercase letters as uppercase.
 3. The last 2 characters are the check digits and must be numeric.
 4. The check digits must come from the modulo 11 algorithm.
 5. To calculate the check digits, convert the first 12 characters into numeric values. Use the decimal ASCII code of each character and subtract 48.
@@ -42,7 +42,7 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
 1. Check that the input contains exactly 14 characters.
 2. Check that the first 12 characters are alphanumeric and the last 2 are numeric.
 3. Convert the alphanumeric characters to numeric values:
-   - Numeric digits keep their original values.
+   - Digits keep their original values.
    - Letters become their decimal ASCII values minus `48`.
 4. Calculate the first check digit (DV1):
    - For the first 12 characters, give weights from `2` to `9` from right to left. Start again at `2` after weight `9`.
@@ -68,6 +68,5 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
 - Invalid: `03.560.714/0001-42` (validation accepts only unformatted CNPJs)
 - Invalid: `00111222000133` (invalid check digits)
 - Invalid: `12ABC34501DE3X` (the check digits must be numeric)
-- Invalid: `12abc34501DE35` (lowercase letters are not allowed)
 - Invalid: `12ABC34501DE3` (must contain exactly 14 characters)
 - Invalid: `12ABC34501DE345` (must contain exactly 14 characters)

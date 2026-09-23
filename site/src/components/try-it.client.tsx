@@ -52,15 +52,31 @@ export function TryItForm({ symbol, fields, cases, text }: { symbol: string; fie
     }
   };
 
+  // Closed, the box loads nothing: the library comes in when the reader opens it.
+  const form = useRef<HTMLFormElement>(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const details = form.current?.closest('details');
+    const sync = () => setOpen(details ? details.open : true);
+    const frame = requestAnimationFrame(sync);
+    details?.addEventListener('toggle', sync);
+    return () => {
+      cancelAnimationFrame(frame);
+      details?.removeEventListener('toggle', sync);
+    };
+  }, []);
+
   // A playground, not a form: it answers as you type.
   useEffect(() => {
+    if (!open) return;
     const id = setTimeout(run, 250);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values]);
+  }, [values, open]);
 
   return (
     <form
+      ref={form}
       className="not-prose flex flex-col gap-3"
       onSubmit={(e) => {
         e.preventDefault();

@@ -14,19 +14,19 @@ The CEP is a numeric code of eight digits. The postal service assigns these code
 
 ## Functions
 
-- **Validation**: Check whether an unformatted CEP contains exactly `8` numeric digits.
+- **Validation**: Check whether an unformatted CEP contains exactly `8` digits.
 - **Formatting**: Show the CEP in the standard format `XXXXX-XXX`.
 - **Symbol removal**: Remove the `.` and `-` characters from the input.
-- **Generation**: Make a random CEP of `8` digits.
+- **Generation**: Generate a random CEP of `8` digits.
 
 ## Validation rules
 
-1. The input must contain exactly `8` numeric digits.
+1. The input must contain exactly `8` digits.
 
 ## Algorithm
 
 1. Check that the input contains exactly `8` characters.
-2. Check that all characters are numeric digits.
+2. Check that all characters are digits.
 3. If both conditions are true, return valid. If not, return invalid.
 
 ## Regex
@@ -40,4 +40,4 @@ The CEP is a numeric code of eight digits. The postal service assigns these code
 - Invalid: `01310-200` (validation accepts only unformatted CEPs)
 - Invalid: `12345` (must contain exactly `8` characters)
 - Invalid: `123456789` (must contain exactly `8` characters)
-- Invalid: `abcdefgh` (must contain only numeric digits)
+- Invalid: `abcdefgh` (must contain only digits)

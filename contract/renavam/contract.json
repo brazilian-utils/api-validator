@@ -3,7 +3,7 @@
   "domain": "renavam",
   "title": { "en": "RENAVAM", "pt-BR": "RENAVAM" },
   "summary": {
-    "en": "The Brazilian vehicle registry number.",
+    "en": "Registro Nacional de Veículos Automotores, the Brazilian vehicle registry number.",
     "pt-BR": "O número do Registro Nacional de Veículos Automotores."
   },
   "category": "vehicles",
@@ -12,8 +12,8 @@
   "functions": {
     "generate": {
       "summary": {
-        "en": "Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.",
-        "pt-BR": "Gera um número RENAVAM (Registro Nacional de Veículos Automotores) aleatório e válido."
+        "en": "Generates a valid random RENAVAM number.",
+        "pt-BR": "Gera um número RENAVAM aleatório e válido."
       },
       "description": {
         "en": ["Generates a valid random RENAVAM in the 11-digit form: 10 base digits plus the check digit."],
@@ -29,10 +29,7 @@
       ]
     },
     "isValid": {
-      "summary": {
-        "en": "Checks whether a RENAVAM (Registro Nacional de Veículos Automotores) is valid.",
-        "pt-BR": "Verifica se um RENAVAM (Registro Nacional de Veículos Automotores) é válido."
-      },
+      "summary": { "en": "Checks whether a RENAVAM is valid.", "pt-BR": "Verifica se um RENAVAM é válido." },
       "description": {
         "en": [
           "Validates a RENAVAM: the old format (9 digits, left-padded to 11) or the new format (11 digits), with a modulus 11 check digit.",

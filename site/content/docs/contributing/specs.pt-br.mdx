@@ -3,7 +3,7 @@ title: Escreva uma spec
 description: Adicione ou mude uma função no contrato compartilhado. Todas as páginas deste site e todas as bibliotecas seguem o contrato.
 ---
 
-A spec de cada utilitário é o contrato no [api-validator](https://github.com/brazilian-utils/api-validator). O contrato tem uma pasta por domínio, com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra, cada biblioteca que não tem a função nova recebe uma issue.
+A spec de cada utilitário é o contrato no [api-validator](https://github.com/brazilian-utils/api-validator). O contrato tem uma pasta por domínio, com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra na main, cada biblioteca que não tem a função nova recebe uma issue.
 
 ## Arquivos de um domínio
 
@@ -55,13 +55,13 @@ Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar
 
 <Steps>
 
-1. Adicione a função em `contract/<domínio>/contract.json`, ou crie a pasta de um domínio novo. Dê à função uma assinatura e **casos de teste**. Os casos de teste são a spec que toda biblioteca precisa passar. Inclua os exemplos da regra oficial e os casos de borda: entrada vazia, entrada formatada, dígito verificador errado.
+1. Adicione a função em `contract/<domínio>/contract.json`, ou crie a pasta de um domínio novo. Dê à função uma assinatura e **casos de teste**. Os casos de teste são a spec que toda biblioteca precisa cumprir. Inclua os exemplos da regra oficial e os casos de borda: entrada vazia, entrada formatada, dígito verificador errado.
 
-2. Um domínio novo pode precisar de mais texto que as descrições das funções, por exemplo um algoritmo ou uma expressão regular. Escreva esse texto em `spec.en.md` e `spec.pt-br.md`. Liste as fontes oficiais em `references.md`.
+2. Um domínio novo pode precisar de mais texto do que as descrições das funções, por exemplo um algoritmo ou uma expressão regular. Escreva esse texto em `spec.en.md` e `spec.pt-br.md`. Liste as fontes oficiais em `references.md`.
 
 3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run api-validator fmt` corrige o formato.
 
-4. Rode `npm run check -- --tests` para ver quais bibliotecas já passam nos casos novos.
+4. Rode `npm run check -- --tests` para ver em quais bibliotecas os casos novos já passam.
 
 5. Abra o pull request. O pipeline adiciona ao pull request o changelog do contrato e a lista de issues que vai abrir. Depois do merge, cada biblioteca sem a função recebe uma issue `implement`, e a função aparece neste site.
 

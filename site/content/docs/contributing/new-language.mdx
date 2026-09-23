@@ -27,7 +27,7 @@ The [parity matrix](/reference/parity/) shows every gap. The page of each librar
 
 1. Ask the organization for a repository at `brazilian-utils/<language>`.
 
-2. In api-validator, add a language adapter and `libs/brazilian-utils-<language>.json`. The adapter reads the API and runs the tests. Its `site` block has the label, the icon, the install command and the registry link. [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md) shows each step.
+2. In api-validator, add a language adapter and `libs/brazilian-utils-<language>.json`. The adapter reads the API and runs the tests. The JSON file has a `site` block with the label, the icon, the install command and the registry link. [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md) shows each step.
 
 3. Start with the core functions. `api-validator issues --backfill core --lib <language> --apply` opens one issue for each missing core function.
 
@@ -36,5 +36,5 @@ The [parity matrix](/reference/parity/) shows every gap. The page of each librar
 </Steps>
 
 <Callout type="idea">
-Do not document a difference from the other libraries. If an implementation does not match the contract, fix the failing case, or propose a change to the contract.
+Do not document behavior that differs from the other libraries. If an implementation does not match the contract, fix the failing case, or propose a change to the contract.
 </Callout>

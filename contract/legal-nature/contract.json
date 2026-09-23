@@ -11,10 +11,7 @@
   "related": ["cnpj"],
   "functions": {
     "format": {
-      "summary": {
-        "en": "Formats a Brazilian legal nature (natureza jurídica) code.",
-        "pt-BR": "Formata um código de natureza jurídica."
-      },
+      "summary": { "en": "Formats a Brazilian legal nature code.", "pt-BR": "Formata um código de natureza jurídica." },
       "description": {
         "en": [
           "Formats a legal nature code as `NNN-N`. Use `legalNature.isValid` to check the code.",
@@ -45,7 +42,7 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a random valid Brazilian legal nature (natureza jurídica) code.",
+        "en": "Generates a random valid Brazilian legal nature code.",
         "pt-BR": "Gera um código de natureza jurídica aleatório e válido."
       },
       "description": {
@@ -68,7 +65,7 @@
     },
     "get": {
       "summary": {
-        "en": "Looks up a Brazilian legal nature (natureza jurídica) code.",
+        "en": "Looks up a Brazilian legal nature code.",
         "pt-BR": "Consulta um código de natureza jurídica."
       },
       "description": {
@@ -115,7 +112,7 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a Brazilian legal nature (natureza jurídica) code exists.",
+        "en": "Checks whether a Brazilian legal nature code exists.",
         "pt-BR": "Verifica se um código de natureza jurídica existe."
       },
       "description": {
@@ -156,7 +153,7 @@
     },
     "list": {
       "summary": {
-        "en": "Returns every Brazilian legal nature (natureza jurídica) that CONCLA publishes.",
+        "en": "Returns every Brazilian legal nature that CONCLA publishes.",
         "pt-BR": "Retorna todas as naturezas jurídicas que a CONCLA publica."
       },
       "description": {
@@ -286,7 +283,7 @@
     },
     "listByCategory": {
       "summary": {
-        "en": "Gets every Brazilian legal nature (natureza jurídica) of a CONCLA category.",
+        "en": "Gets every Brazilian legal nature of a CONCLA category.",
         "pt-BR": "Obtém todas as naturezas jurídicas de uma categoria CONCLA."
       },
       "description": {
@@ -432,11 +429,11 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes legal nature (natureza jurídica) formatting characters and returns only digits.",
+        "en": "Removes legal nature formatting characters and returns only digits.",
         "pt-BR": "Remove os caracteres de formatação da natureza jurídica e retorna somente os dígitos."
       },
       "description": {
-        "en": ["Removes legal nature formatting and keeps only digits, capped to 4 digits."],
+        "en": ["Removes legal nature formatting and keeps only digits, capped at 4 digits."],
         "pt-BR": ["Remove a formatação da natureza jurídica e mantém somente os dígitos, limitados a 4 dígitos."]
       },
       "references": [

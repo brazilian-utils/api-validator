@@ -11,8 +11,8 @@ const SearchDialog = dynamic(() => import('./search'), { ssr: false });
 
 // Fumadocs' own interface strings, in Portuguese.
 const PT: Record<string, string> = {
-  'Search(search trigger)': 'Pesquisar',
-  'Search(search dialog)': 'Pesquisar',
+  'Search(search trigger)': 'Buscar',
+  'Search(search dialog)': 'Buscar',
   'No results found(search dialog)': 'Nenhum resultado',
   'On this page(table of contents)': 'Nesta página',
   'No Headings(table of contents)': 'Sem títulos',

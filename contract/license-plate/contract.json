@@ -3,7 +3,7 @@
   "domain": "licensePlate",
   "title": { "en": "License plate", "pt-BR": "Placa de veículo" },
   "summary": {
-    "en": "Brazilian vehicle license plates, in the Mercosur (LLLNLNN) and pre-Mercosur (LLLNNNN) patterns.",
+    "en": "Brazilian vehicle license plates, in the Mercosul (LLLNLNN) and pre-Mercosul (LLLNNNN) patterns.",
     "pt-BR": "Placas de identificação veicular, nos padrões Mercosul (LLLNLNN) e pré-Mercosul (LLLNNNN)."
   },
   "category": "vehicles",
@@ -49,10 +49,7 @@
       ]
     },
     "format": {
-      "summary": {
-        "en": "Formats a Brazilian license plate (placa de carro ou moto).",
-        "pt-BR": "Formata uma placa de carro ou moto."
-      },
+      "summary": { "en": "Formats a Brazilian license plate.", "pt-BR": "Formata uma placa de veículo." },
       "description": {
         "en": [
           "Formats a license plate in upper case. Old-format plates (`LLLNNNN`) get a hyphen (`ABC-1234`). Mercosul plates (`LLLNLNN`) have no separator.",
@@ -86,8 +83,8 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a valid random Brazilian license plate (placa de carro ou moto).",
-        "pt-BR": "Gera uma placa de carro ou moto aleatória e válida."
+        "en": "Generates a valid random Brazilian license plate.",
+        "pt-BR": "Gera uma placa de veículo aleatória e válida."
       },
       "description": {
         "en": [
@@ -114,8 +111,8 @@
     },
     "getFormat": {
       "summary": {
-        "en": "Identifies the format of a Brazilian license plate (placa de carro ou moto).",
-        "pt-BR": "Identifica o formato de uma placa de carro ou moto."
+        "en": "Identifies the format of a Brazilian license plate.",
+        "pt-BR": "Identifica o formato de uma placa de veículo."
       },
       "description": {
         "en": [
@@ -154,8 +151,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a Brazilian license plate (placa de carro ou moto) is valid.",
-        "pt-BR": "Verifica se uma placa de carro ou moto é válida."
+        "en": "Checks whether a Brazilian license plate is valid.",
+        "pt-BR": "Verifica se uma placa de veículo é válida."
       },
       "description": {
         "en": [
@@ -194,7 +191,7 @@
     "parse": {
       "summary": {
         "en": "Removes license plate formatting characters and returns only upper-case letters and digits.",
-        "pt-BR": "Remove os caracteres de máscara da placa e retorna só letras maiúsculas e dígitos."
+        "pt-BR": "Remove os caracteres de formatação da placa e retorna só letras maiúsculas e dígitos."
       },
       "description": {
         "en": ["Removes separators from a license plate, upper-cases it and caps it at 7 characters."],
@@ -214,8 +211,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de máscara (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],

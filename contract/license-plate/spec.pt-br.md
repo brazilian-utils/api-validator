@@ -10,23 +10,23 @@ references:
 
 ## Resumo
 
-Placas de identificação veicular são as chapas dianteira e traseira fixadas no veículo. Uma placa contém 7 caracteres alfanuméricos individualizados.
+Placas de identificação veicular são as chapas dianteira e traseira fixadas no veículo. Uma placa tem 7 letras e dígitos.
 
 ## Funções
 
 - **Validação**: Verificar se a placa de identificação veicular é válida conforme as regras oficiais.
-- **Formatação**: Mostrar a placa no formato padrão `LLLNLNN` ou `LLLNNNN`. `L` é uma letra e `N` é um algarismo.
+- **Formatação**: Converter a placa para maiúsculas e adicionar um hífen às placas no formato antigo (`ABC-1234`). Placas Mercosul (`ABC1D23`) não têm separador. `L` é uma letra e `N` é um algarismo.
 - **Geração**: Gerar uma placa válida no formato indicado. Se você não indicar um formato, a função retorna uma placa no formato Mercosul.
 
 ## Regras de validação
 
 ### Padrão Mercosul
-1. A placa deve ter 7 (sete) caracteres alfanuméricos na sequência `LLLNLNN`.
+1. A placa tem 7 letras e dígitos na sequência `LLLNLNN`.
 
 ### Padrão pré-Mercosul
-1. A placa deve conter 7 (sete) caracteres alfanuméricos individualizados na sequência `LLLNNNN`, em dois grupos:
-   - O primeiro grupo tem 3 (três) caracteres. Ele resulta do arranjo, com repetição, de 26 (vinte e seis) letras, tomadas três a três.
-   - O segundo grupo tem 4 (quatro) caracteres. Ele resulta do arranjo, com repetição, de 10 (dez) algarismos, tomados quatro a quatro.
+1. A placa tem 7 letras e dígitos na sequência `LLLNNNN`, em dois grupos:
+   - O primeiro grupo tem 3 letras (`A` a `Z`).
+   - O segundo grupo tem 4 dígitos.
 
 ## Algoritmo
 

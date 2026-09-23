@@ -103,7 +103,7 @@
       },
       "description": {
         "en": [
-          "Parses a BRL amount string (e.g. `R$ 1.234,56`) into a number.",
+          "Parses a BRL amount string (such as `R$ 1.234,56`) into a number.",
           "",
           "- The last `,` or `.` followed by 1 to 2 digits (up to `options.precision`, when larger) is the decimal separator. Every other `,` or `.` is a thousands separator.",
           "- The function reads a value without any separator as cents (divided by 10 to the power of the precision, default 2).",

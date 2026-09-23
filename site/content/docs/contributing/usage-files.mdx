@@ -5,9 +5,9 @@ description: How a library shows its examples on this site. Plain usage files, a
 
 Each utility page shows the spec, the signature and the test cases from the contract in [api-validator](https://github.com/brazilian-utils/api-validator). The code examples in the tabs come from the libraries. Each library writes its own examples in its own repository. Whoever changes the API updates the examples in the same pull request. This site only reads them.
 
-A library can publish its examples in three ways. It can use one, two or all three:
+A library can publish its examples in three ways. It can combine them:
 
-| Way | Use it for | Where |
+| Option | Use it for | Where |
 | --- | --- | --- |
 | Usage files | one short example for each function | `docs/usage/<util>.md` |
 | Reference page | a page that the library already has, with one heading for each of its functions | any file, declared in `libs/<lib>.json` |
@@ -68,7 +68,7 @@ Many libraries already document all functions on one page, with one heading for 
 
 The site finds each heading that is a function name of the library, such as `### isValidCpf`. It links that heading to the contract function that the validator matched to the name. A section is all the text down to the next heading: prose, options, edge cases and examples. The site skips other headings, such as `## Conventions` or `## CPF`. The text before the first function goes on the library's page, as its **API conventions**.
 
-If a library has both, its usage files win for the functions that they document. `api-validator usage --lib <lib> --materialize` writes a reference page as usage files. Use it to move a library to usage files, or to update the site's offline copy.
+If a library has both, its usage files win for the functions that they document. `api-validator usage --lib <lib> --materialize` converts a reference page into usage files. Use it to move a library to usage files, or to update the site's offline copy.
 
 ## Guides with live demos
 
@@ -83,7 +83,7 @@ Some tasks need more than one call: a form field that masks and validates while 
 }
 ```
 
-In a guide, mark each example with these tags. Put each tag on its own line. docsify shows the same markup, so a library can use the same files for its own site.
+In a guide, mark each example with these tags. Put each tag on its own line. docsify renders the same markup, so a library can use the same files for its own site.
 
 ````markdown
 <div class="example" data-name="React">
@@ -113,7 +113,7 @@ Links between guides stay on this site. A link to the reference page with a func
 
 ## Try it
 
-Each function of the JavaScript library gets a **Try it** box. Nobody writes it. The box has one input for each parameter in the contract, with the first shared test case as the start value. It runs the published JavaScript package in the browser. If the inputs match a shared test case, the box tells if the result is the one that the contract expects.
+Each function of the JavaScript library gets a **Try it** box. The site builds it from the contract. The box has one input for each parameter in the contract, with the first shared test case as the start value. It runs the published JavaScript package in the browser. If the inputs match a shared test case, the box tells you whether the result is the one that the contract expects.
 
 ## Generate the first examples
 
@@ -125,7 +125,7 @@ npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
 npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
 ```
 
-The command does not change sections that exist. It adds the new sections at the end of the file. Each result in a comment is the value that the contract expects, for a case that the library passes. The examples are correct when the command writes them. You can edit them after that.
+The command does not change sections that exist. It adds the new sections at the end of the file. The result in each comment is the value the contract expects, taken from a case the library passes. The examples are correct when the command writes them. You can edit them after that.
 
 Without `--scaffold`, `api-validator usage` shows what is documented, what is missing and what is wrong. With `--strict`, the command fails when something is missing or wrong. A library can use it in its CI.
 
@@ -133,7 +133,7 @@ Without `--scaffold`, `api-validator usage` shows what is documented, what is mi
 
 The site reads the files at `usage.ref`. The default is the library's **latest GitHub release**, so the site matches the package that readers install. A repository without releases uses its default branch. If the library's own documentation follows its main branch, set `"ref": "main"`.
 
-A library without `docs/usage/` uses the copies in `site/fixtures/usage/<lib>/` of api-validator. These copies have the same format, so you can copy them into the library as they are.
+A library without `docs/usage/` uses the copies in api-validator's `site/fixtures/usage/<lib>/`. These copies have the same format, so you can copy them into the library as they are.
 
 ## Update the site on each release
 

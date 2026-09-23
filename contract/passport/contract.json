@@ -16,7 +16,7 @@
       },
       "description": {
         "en": [
-          "Formats a passport number: upper-cased, without symbols, capped to 8 characters (the same operation as `passport.parse`).",
+          "Formats a passport number: upper-cased, without symbols, capped at 8 characters (the same operation as `passport.parse`).",
           "",
           "- Pending decision (findings §1b, §2 #8): the reference (JS) upper-cases lowercase and masked input. Erlang and Python accept only the strict uppercase form."
         ],
@@ -62,8 +62,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks if a Brazilian passport number is valid. The sanitized input must contain exactly two letters followed by exactly six digits. The check is case-insensitive. It ignores any non-alphanumeric characters (spaces, dots, hyphens, etc.), with the same sanitization as `formatPassport`/`parsePassport`. This function does not check if the input is a real passport number, because the Brazilian passport has no checksum. The function accepts a number for symmetry with `formatPassport`/`parsePassport`, but a number is never valid. The decimal form of a number never starts with the two letters that a passport number needs.",
-        "pt-BR": "Verifica se um número de passaporte brasileiro é válido. A entrada sanitizada deve conter exatamente duas letras seguidas de exatamente seis dígitos. A verificação não diferencia maiúsculas de minúsculas. Ela ignora qualquer caractere não alfanumérico (espaços, pontos, hífens etc.), com a mesma sanitização de `formatPassport`/`parsePassport`. Esta função não verifica se a entrada é um número de passaporte real, porque o passaporte brasileiro não tem dígito verificador. A função aceita um valor numérico por simetria com `formatPassport`/`parsePassport`, mas um valor numérico nunca é válido. A forma decimal de um número nunca começa com as duas letras que um número de passaporte exige."
+        "en": "Checks whether a Brazilian passport number is valid: 2 letters followed by 6 digits.",
+        "pt-BR": "Verifica se um número de passaporte brasileiro é válido: 2 letras seguidas de 6 dígitos."
       },
       "description": {
         "en": [
@@ -127,8 +127,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string"

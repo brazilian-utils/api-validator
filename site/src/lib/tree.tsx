@@ -58,7 +58,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Guides', 'Guias'),
-    description: L(locale, 'Forms and components, with live demos', 'Formulários e componentes, com demos'),
+    description: L(locale, 'Forms and components, with live demos', 'Formulários e componentes, com exemplos interativos'),
     icon: <Compass />,
     children: guides.map((g: any) => page(pick(g.title, locale), `/guides/${g.lib}/${g.slug}/`)),
   };
@@ -67,7 +67,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     $id: `${locale}:contributing`,
     type: 'folder',
     root: true,
-    name: L(locale, 'Contributing', 'Contribuindo'),
+    name: L(locale, 'Contributing', 'Como contribuir'),
     description: L(locale, 'Specs, usage files, new languages', 'Specs, arquivos de uso, novas linguagens'),
     icon: <GitPullRequest />,
     // The .mdx files of content/docs/contributing/, in the order of its meta.json.

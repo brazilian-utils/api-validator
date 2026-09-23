@@ -3,17 +3,14 @@
   "domain": "ncm",
   "title": { "en": "NCM", "pt-BR": "NCM" },
   "summary": {
-    "en": "Goods classification codes of the NCM table published by Siscomex.",
-    "pt-BR": "Códigos de classificação de mercadorias da tabela NCM publicada pelo Siscomex."
+    "en": "Nomenclatura Comum do Mercosul: the goods classification codes published by Siscomex.",
+    "pt-BR": "Nomenclatura Comum do Mercosul: os códigos de classificação de mercadorias publicados pelo Siscomex."
   },
   "category": "tax",
   "order": 3,
   "functions": {
     "format": {
-      "summary": {
-        "en": "Formats an NCM (Nomenclatura Comum do Mercosul) code.",
-        "pt-BR": "Formata um código NCM (Nomenclatura Comum do Mercosul)."
-      },
+      "summary": { "en": "Formats an NCM code.", "pt-BR": "Formata um código NCM." },
       "description": {
         "en": [
           "Formats an NCM code with the mask `NNNN.NN.NN`. Only the structure changes (use `ncm.isValid` to check the code).",
@@ -41,8 +38,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether an NCM (Nomenclatura Comum do Mercosul) code exists in the official table.",
-        "pt-BR": "Verifica se um código NCM (Nomenclatura Comum do Mercosul) existe na tabela oficial."
+        "en": "Checks whether an NCM code exists in the official table.",
+        "pt-BR": "Verifica se um código NCM existe na tabela oficial."
       },
       "description": {
         "en": [
@@ -71,12 +68,12 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes NCM (Nomenclatura Comum do Mercosul) formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação de um NCM (Nomenclatura Comum do Mercosul) e retorna apenas os dígitos."
+        "en": "Removes NCM formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação de um NCM e retorna apenas os dígitos."
       },
       "description": {
         "en": [
-          "Removes NCM formatting and keeps only digits, capped to 8 digits.",
+          "Removes NCM formatting and keeps only digits, capped at 8 digits.",
           "",
           "- The function does not left-pad the value. It keeps a partial code as written."
         ],

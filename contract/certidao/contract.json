@@ -128,7 +128,7 @@
         "pt-BR": "Remove a formatação da matrícula de uma certidão de registro civil e retorna apenas os dígitos."
       },
       "description": {
-        "en": ["Removes the formatting of a certidão matrícula and keeps only digits, capped to 32 digits."],
+        "en": ["Removes the formatting of a certidão matrícula and keeps only digits, capped at 32 digits."],
         "pt-BR": [
           "Remove a formatação da matrícula de uma certidão e mantém apenas os dígitos, com no máximo 32 dígitos."
         ]

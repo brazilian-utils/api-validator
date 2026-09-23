@@ -11,7 +11,7 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a Brazilian voter ID (título de eleitor) for display.",
+        "en": "Formats a Brazilian voter ID for display.",
         "pt-BR": "Formata um título de eleitor para exibição."
       },
       "description": {
@@ -20,14 +20,14 @@
           "",
           "- The 13-digit grouping `0000 0000 0 00 00` applies only to a value with more than 12 digits. Its UF code (10th and 11th digits) must also be `01` (SP) or `02` (MG).",
           "- The function drops the digits after the last slot of the pattern.",
-          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input. Other libraries return null."
+          "- Pending decision (findings §2 #2, #3): the reference (JS) formats only the characters an incomplete value has and returns an empty string for empty or invalid input. Other libraries return null."
         ],
         "pt-BR": [
           "Formata um título de eleitor com o agrupamento `0000 0000 00 00`.",
           "",
           "- O agrupamento de 13 dígitos `0000 0000 0 00 00` vale apenas para um valor com mais de 12 dígitos. O código da UF (10º e 11º dígitos) também tem de ser `01` (SP) ou `02` (MG).",
           "- A função descarta os dígitos além da última posição do padrão.",
-          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) formata só os caracteres que um valor incompleto tem e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
         ]
       },
       "references": [
@@ -44,7 +44,7 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a valid random Brazilian voter ID (título de eleitor).",
+        "en": "Generates a valid random Brazilian voter ID.",
         "pt-BR": "Gera um título de eleitor aleatório e válido."
       },
       "description": {
@@ -71,7 +71,7 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks if a Brazilian voter ID (título de eleitor) is valid.",
+        "en": "Checks whether a Brazilian voter ID is valid.",
         "pt-BR": "Verifica se um título de eleitor é válido."
       },
       "description": {
@@ -107,12 +107,12 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the voter ID (título de eleitor) formatting characters and returns only the digits.",
+        "en": "Removes the voter ID formatting characters and returns only the digits.",
         "pt-BR": "Remove os caracteres de formatação do título de eleitor e retorna apenas os dígitos."
       },
       "description": {
         "en": [
-          "Removes voter ID formatting and keeps only digits, capped to 12 digits (13 when the UF digits are SP or MG)."
+          "Removes voter ID formatting and keeps only digits, capped at 12 digits (13 when the UF digits are SP or MG)."
         ],
         "pt-BR": [
           "Remove a formatação do título de eleitor e mantém apenas os dígitos, com no máximo 12 dígitos (13 quando os dígitos da UF são de SP ou MG)."
@@ -132,8 +132,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string"

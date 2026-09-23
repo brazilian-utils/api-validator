@@ -17,7 +17,7 @@
       },
       "description": {
         "en": [
-          "Writes an integer in Brazilian Portuguese cardinal words (\"por extenso\"), e.g. 1235 is \"mil duzentos e trinta e cinco\".",
+          "Writes an integer in Brazilian Portuguese cardinal words (\"por extenso\"): for example, 1235 is \"mil duzentos e trinta e cinco\".",
           "",
           "- Accepts integers from -999 999 999 999 999 to 999 999 999 999 999. The function truncates a non-integer toward zero and puts \"menos\" before a negative number.",
           "- `options` selects the grammatical gender (default masculine). The gender applies to \"um/uma\", \"dois/duas\" and the hundreds.",

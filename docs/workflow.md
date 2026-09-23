@@ -8,17 +8,17 @@ into one repo only, and nobody knows what is missing where.
 
 This approach is **contract-first**. People write the libraries by hand, in the idiom of each
 language. But every change goes through one shared, executable definition of the API. The
-contract is the single source of truth. The tooling makes drift impossible to miss and cheap
+contract defines the API, and the libraries follow it. The tooling makes drift impossible to miss and cheap
 to fix.
 
 ```
                     ┌──────────────────────────────────────────────┐
                     │ api-validator (this repo)                    │
                     │  contract/*/contract.json = names, in/out    │
-                    │                     + shared test vectors    │
+                    │                     + shared test cases      │
                     └───────┬───────────────────────────▲──────────┘
              contract change│ merged                    │ PR: new function,
-                            ▼                           │ new vector (bug fix)
+                            ▼                           │ new case (bug fix)
       ┌──────────────────────────────────┐              │
       │ Conformance workflow             │              │
       │  check --tests (all 7 libs)      │      ┌───────┴────────┐
@@ -30,8 +30,6 @@ to fix.
                                                 │ the contract   │
                                                 └────────────────┘
 ```
-
-In this diagram, "test vectors" are the shared test cases.
 
 ## The three guarantees
 

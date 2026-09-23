@@ -3,8 +3,8 @@
   "domain": "cns",
   "title": { "en": "CNS (SUS card)", "pt-BR": "CNS (Cartão SUS)" },
   "summary": {
-    "en": "The SUS identifier of a user, health professional or health facility.",
-    "pt-BR": "O identificador do SUS para usuários, profissionais e estabelecimentos de saúde."
+    "en": "Cartão Nacional de Saúde, the SUS identifier of a user, health professional or health facility.",
+    "pt-BR": "Cartão Nacional de Saúde, o identificador do SUS para usuários, profissionais e estabelecimentos de saúde."
   },
   "category": "documents",
   "order": 6,
@@ -12,8 +12,8 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.",
-        "pt-BR": "Formata um número do CNS (Cartão Nacional de Saúde) nos grupos usuais de exibição de 3-4-4-4 dígitos separados por espaços."
+        "en": "Formats a CNS number into the common display groups of 3-4-4-4 digits separated by spaces.",
+        "pt-BR": "Formata um número do CNS nos grupos usuais de exibição de 3-4-4-4 dígitos separados por espaços."
       },
       "description": {
         "en": [
@@ -42,8 +42,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a CNS (Cartão Nacional de Saúde) number, the unique identifier of a SUS (Sistema Único de Saúde) user, health professional or health facility.",
-        "pt-BR": "Valida um número do CNS (Cartão Nacional de Saúde), o identificador único de um usuário, profissional de saúde ou estabelecimento de saúde do SUS (Sistema Único de Saúde)."
+        "en": "Validates a CNS number, the unique identifier of a SUS (Sistema Único de Saúde) user, health professional or health facility.",
+        "pt-BR": "Valida um número do CNS, o identificador único de um usuário, profissional de saúde ou estabelecimento de saúde do SUS (Sistema Único de Saúde)."
       },
       "description": {
         "en": [
@@ -77,11 +77,11 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the CNS (Cartão Nacional de Saúde) formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNS (Cartão Nacional de Saúde) e retorna apenas os dígitos."
+        "en": "Removes the CNS formatting characters and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação do CNS e retorna apenas os dígitos."
       },
       "description": {
-        "en": ["Removes CNS formatting and keeps only digits, capped to 15 digits."],
+        "en": ["Removes CNS formatting and keeps only digits, capped at 15 digits."],
         "pt-BR": ["Remove a formatação do CNS e mantém apenas os dígitos, com no máximo 15 dígitos."]
       },
       "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],

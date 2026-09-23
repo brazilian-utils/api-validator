@@ -3,7 +3,7 @@
   "domain": "cbo",
   "title": { "en": "CBO", "pt-BR": "CBO" },
   "summary": {
-    "en": "Occupation codes of the official CBO 2002 table.",
+    "en": "Classificação Brasileira de Ocupações: the occupation codes of the official CBO 2002 table.",
     "pt-BR": "Códigos de ocupação da Classificação Brasileira de Ocupações (CBO 2002)."
   },
   "category": "companies",
@@ -11,8 +11,8 @@
   "functions": {
     "get": {
       "summary": {
-        "en": "Looks up a CBO (Classificação Brasileira de Ocupações) code in the official CBO 2002 table.",
-        "pt-BR": "Consulta um código CBO (Classificação Brasileira de Ocupações) na tabela oficial CBO 2002."
+        "en": "Looks up a CBO code in the official CBO 2002 table.",
+        "pt-BR": "Consulta um código CBO na tabela oficial CBO 2002."
       },
       "description": {
         "en": [
@@ -42,8 +42,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a CBO (Classificação Brasileira de Ocupações) code exists in the official CBO 2002 table.",
-        "pt-BR": "Verifica se um código CBO (Classificação Brasileira de Ocupações) existe na tabela oficial CBO 2002."
+        "en": "Checks whether a CBO code exists in the official CBO 2002 table.",
+        "pt-BR": "Verifica se um código CBO existe na tabela oficial CBO 2002."
       },
       "description": {
         "en": [
@@ -77,12 +77,12 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CBO (Classificação Brasileira de Ocupações) formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CBO (Classificação Brasileira de Ocupações) e retorna somente os dígitos."
+        "en": "Removes CBO formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CBO e retorna somente os dígitos."
       },
       "description": {
         "en": [
-          "Removes CBO formatting and keeps only digits, capped to 6 digits.",
+          "Removes CBO formatting and keeps only digits, capped at 6 digits.",
           "",
           "- It does not left-pad anything. A leading zero must be written out."
         ],

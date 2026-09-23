@@ -57,7 +57,7 @@ function Content({ node, demoText, code }: { node: any; demoText: DemoText; code
 
 /** A group of examples as tabs. Framework and variant tabs stay in sync across the site. */
 function Examples({ list, group, demoText, code }: { list: any[]; group: string; demoText: DemoText; code?: boolean }) {
-  return <FlatTabs groupId={group} persist items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
+  return <FlatTabs groupId={group} persist variant={group === 'guide-variant' ? 'compact' : 'line'} items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
 }
 
 /**
@@ -85,27 +85,32 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
     <DocsPage tableOfContent={{ enabled: false }}>
       <DocsTitle>{guide.title}</DocsTitle>
       <DocsDescription className="mb-0">{guide.description}</DocsDescription>
-      <div className="not-prose flex flex-col gap-3 rounded-xl border bg-fd-card p-4 text-sm">
+      <div className="not-prose flex flex-col gap-1.5 text-sm text-fd-muted-foreground">
         <p>
           {t('guide.from', { lib: library?.label ?? lib })}{' '}
-          <a href={guide.source} className="underline underline-offset-4">{t('guide.source')}</a>
+          <a href={guide.source} className="text-fd-foreground underline underline-offset-4">{t('guide.source')}</a>
         </p>
         {uses.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="me-1 text-fd-muted-foreground">{t('guide.uses')}</span>
-            {uses.map((u: any) => (
-              <Link key={u.href} href={u.href} className="rounded-full border bg-fd-background px-2.5 py-0.5 text-xs hover:bg-fd-accent">
-                {u.label}
-              </Link>
+          <p>
+            {t('guide.uses')}{' '}
+            {uses.map((u: any, i: number) => (
+              <span key={u.href}>
+                {i > 0 && ', '}
+                <Link href={u.href} className="text-fd-foreground underline underline-offset-4 hover:text-fd-primary">
+                  {u.label}
+                </Link>
+              </span>
             ))}
-          </div>
+          </p>
         )}
       </div>
       {guide.locale !== locale && <Note type="info">{t('guide.englishOnly')}</Note>}
       <DocsBody>
         {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" demoText={demoText} code />))}
       </DocsBody>
-      <EditOnGitHub href={guide.source.replace('/blob/', '/edit/')} />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <EditOnGitHub href={guide.source.replace('/blob/', '/edit/')} />
+      </div>
     </DocsPage>
   );
 }

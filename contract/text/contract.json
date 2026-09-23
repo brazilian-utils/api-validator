@@ -4,7 +4,7 @@
   "title": { "en": "Text", "pt-BR": "Texto" },
   "summary": {
     "en": "Text helpers for Brazilian names, company names and addresses.",
-    "pt-BR": "Ajudantes de texto para nomes de pessoas, empresas e endereços."
+    "pt-BR": "Funções de texto para nomes de pessoas, empresas e endereços."
   },
   "category": "text-and-dates",
   "order": 3,

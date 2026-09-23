@@ -1,17 +1,17 @@
 ---
 title: Arquivos de uso
-description: Como uma biblioteca mostra os exemplos dela neste site. Arquivos de uso, uma página de referência que já existe, e guias com demo ao vivo.
+description: Como uma biblioteca publica seus exemplos neste site. Arquivos de uso, uma página de referência que já existe e guias com exemplos interativos.
 ---
 
 Cada página de utilitário mostra a spec, a assinatura e os casos de teste do contrato no [api-validator](https://github.com/brazilian-utils/api-validator). Os exemplos de código nas abas vêm das bibliotecas. Cada biblioteca escreve os próprios exemplos, no próprio repositório. Quem muda a API atualiza os exemplos no mesmo pull request. Este site só lê.
 
-Uma biblioteca pode publicar os exemplos de três jeitos. Ela pode usar um, dois ou os três:
+Uma biblioteca pode publicar os exemplos de três formas, que podem ser combinadas:
 
-| Jeito | Use para | Onde |
+| Opção | Use para | Onde |
 | --- | --- | --- |
 | Arquivos de uso | um exemplo curto para cada função | `docs/usage/<util>.md` |
 | Página de referência | uma página que a biblioteca já tem, com um título para cada função | qualquer arquivo, declarado em `libs/<lib>.json` |
-| Guias | exemplos maiores, como um campo de formulário, com abas por framework e demo ao vivo | uma pasta, declarada em `libs/<lib>.json` |
+| Guias | exemplos maiores, como um campo de formulário, com abas por framework e exemplo interativo | uma pasta, declarada em `libs/<lib>.json` |
 
 ## Arquivos de uso
 
@@ -50,7 +50,7 @@ Regras:
 
 - **O título é o nome da função**: `isValid`, `format`, `parse`, `removeSymbols`, `generate`, `getInfo`. O site também aceita `remove-symbols`, o título padrão (`Validate`) e o nome antigo `validate`. O `api-validator usage` aponta um título que não corresponde a nenhuma função, e o build o ignora.
 - **Cada seção mostra a chamada.** Mostre o import, a chamada e o resultado. Uma linha de texto pode ajudar, por exemplo "Esta função chama o ViaCEP". Não explique a regra. A spec na mesma página explica.
-- **O exemplo chama a função da biblioteca.** O validador sabe o nome nativo de cada função. Ele aponta uma seção que não usa esse nome.
+- **O exemplo chama a função da biblioteca.** O validador sabe o nome nativo de cada função. O validador aponta uma seção que não usa esse nome.
 - **Escreva código e comentários em inglês.** Para texto em português, adicione `cpf.pt-br.md` ao lado de `cpf.md`. As páginas em português usam esse arquivo.
 - **`since` é opcional.** Coloque `since: 2.1.0` no front matter para mostrar a primeira versão com o utilitário.
 - **Uma função sem seção tem a aba vazia.** A aba então diz que a biblioteca não tem a função, ou que tem a função mas não tem exemplo.
@@ -66,13 +66,13 @@ Muitas bibliotecas já documentam todas as funções numa página só, com um t�
 }
 ```
 
-O site encontra cada título que é um nome de função da biblioteca, como `### isValidCpf`. Ele liga esse título à função do contrato que o validador associou ao nome. Uma seção é todo o texto até o próximo título: texto, opções, casos de borda e exemplos. O site ignora outros títulos, como `## Conventions` ou `## CPF`. O texto antes da primeira função vai para a página da biblioteca, como **convenções da API**.
+O site encontra cada título que é um nome de função da biblioteca, como `### isValidCpf`. O site liga esse título à função do contrato que o validador associou ao nome. Uma seção é todo o texto até o próximo título: texto, opções, casos de borda e exemplos. O site ignora outros títulos, como `## Conventions` ou `## CPF`. O texto antes da primeira função vai para a página da biblioteca, como **convenções da API**.
 
-Se uma biblioteca tem os dois, os arquivos de uso vencem nas funções que eles documentam. `api-validator usage --lib <lib> --materialize` escreve uma página de referência como arquivos de uso. Use o comando para passar uma biblioteca para arquivos de uso, ou para atualizar a cópia offline do site.
+Se uma biblioteca tem os dois, os arquivos de uso têm prioridade nas funções que eles documentam. `api-validator usage --lib <lib> --materialize` converte uma página de referência em arquivos de uso. Use o comando para passar uma biblioteca para arquivos de uso, ou para atualizar a cópia offline do site.
 
-## Guias com demo ao vivo
+## Guias com exemplos interativos
 
-Algumas tarefas precisam de mais que uma chamada: um campo que aplica máscara e valida enquanto você digita, um formulário de endereço que o CEP preenche, uma lista de estados e cidades. Quem faz front-end precisa ver isso funcionando. Uma biblioteca pode publicar **guias**, que são páginas Markdown com exemplos em abas. Existe uma aba para cada framework, uma segunda fileira de abas para cada variante, e uma aba para cada arquivo. Cada exemplo pode ter uma demo ao vivo.
+Algumas tarefas precisam de mais de uma chamada: um campo que aplica máscara e valida enquanto você digita, um formulário de endereço que o CEP preenche, uma lista de estados e cidades. Quem faz front-end precisa ver isso funcionando. Uma biblioteca pode publicar **guias**, que são páginas Markdown com exemplos em abas. Existe uma aba para cada framework, uma segunda fileira de abas para cada variante, e uma aba para cada arquivo. Cada exemplo pode ter uma versão interativa.
 
 ```json
 "usage": {
@@ -83,7 +83,7 @@ Algumas tarefas precisam de mais que uma chamada: um campo que aplica máscara e
 }
 ```
 
-Num guia, marque cada exemplo com estas tags. Coloque cada tag numa linha própria. O docsify mostra a mesma marcação, então uma biblioteca pode usar os mesmos arquivos no próprio site.
+Num guia, marque cada exemplo com estas tags. Coloque cada tag numa linha própria. O docsify também entende essa marcação, então uma biblioteca pode usar os mesmos arquivos no próprio site.
 
 ````markdown
 <div class="example" data-name="React">
@@ -106,18 +106,18 @@ Texto sobre a versão React.
 - `example` é uma aba de framework (React, Angular, Vue, Vanilla) ou de biblioteca (Zod, Valibot). O leitor escolhe uma aba uma vez, e todo guia abre nessa aba.
 - `variant` é uma segunda fileira de abas, opcional, por exemplo CPF, CNPJ, CEP e Telefone.
 - `file` é um arquivo do exemplo. Use um link `:include` para o arquivo no repositório, ou um bloco de código.
-- `data-demo` é uma página da biblioteca que roda o exemplo. O caminho começa em `root`. O site mostra a demo acima dos arquivos. O site copia as pastas de `assets` sem mudanças, então a demo roda o mesmo código que a página mostra. A demo manda a própria altura com `parent.postMessage({ type: 'example-height', height }, location.origin)`.
-- `prepare` é um comando que o site roda nos arquivos da biblioteca antes de ler esses arquivos. Use se a biblioteca gera os exemplos. O comando roda sem shell e sem segredos.
+- `data-demo` é uma página da biblioteca que roda o exemplo. O caminho começa em `root`. O site mostra a versão interativa acima dos arquivos. O site copia as pastas de `assets` sem mudanças, então a versão interativa roda o mesmo código que a página mostra. A página envia a própria altura com `parent.postMessage({ type: 'example-height', height }, location.origin)`.
+- `prepare` é um comando que o site roda nos arquivos da biblioteca antes de ler esses arquivos. Use quando a biblioteca gera os próprios exemplos. O comando roda sem shell e sem segredos.
 
 Links entre guias ficam neste site. Um link para a página de referência com âncora de função, como `utilities.md#formatcpf`, vai para aquela função neste site. O site encontra as funções do contrato que cada guia chama, e lista o guia nas páginas desses utilitários.
 
-## Teste
+## A caixa Teste
 
-Cada função da biblioteca JavaScript ganha uma caixa **Teste**. Ninguém escreve essa caixa. Ela tem uma entrada para cada parâmetro do contrato, com o primeiro caso de teste compartilhado como valor inicial. Ela roda o pacote JavaScript publicado no navegador. Se as entradas são de um caso de teste compartilhado, a caixa diz se o resultado é o que o contrato espera.
+Cada função da biblioteca JavaScript ganha uma caixa **Teste**. O site gera essa caixa a partir do contrato. Ela tem uma entrada para cada parâmetro do contrato, com o primeiro caso de teste compartilhado como valor inicial. Ela roda o pacote JavaScript publicado no navegador. Se as entradas forem as de um caso de teste compartilhado, a caixa diz se o resultado é o que o contrato espera.
 
 ## Gere os primeiros exemplos
 
-Você não precisa escrever os primeiros exemplos na mão. O validador sabe quais funções a biblioteca implementa e quais casos de teste compartilhados ela passa. A partir desses casos, ele escreve uma seção para cada função sem exemplo, na linguagem da biblioteca:
+Você não precisa escrever os primeiros exemplos à mão. O validador sabe quais funções a biblioteca implementa e em quais casos de teste compartilhados ela passa. A partir desses casos, ele escreve uma seção para cada função sem exemplo, na linguagem da biblioteca:
 
 ```sh
 # no repositório da biblioteca, depois do `check --tests` gerar o relatório
@@ -125,7 +125,7 @@ npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
 npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
 ```
 
-O comando não muda seções que existem. Ele adiciona as seções novas no fim do arquivo. Cada resultado num comentário é o valor que o contrato espera, para um caso que a biblioteca passa. Os exemplos estão corretos quando o comando os escreve. Você pode editar depois.
+O comando não muda seções que existem e adiciona as seções novas no fim do arquivo. O resultado em cada comentário é o valor que o contrato espera, tirado de um caso que já passa na biblioteca. Os exemplos estão corretos quando o comando os escreve. Você pode editar depois.
 
 Sem `--scaffold`, o `api-validator usage` mostra o que está documentado, o que falta e o que está errado. Com `--strict`, o comando falha quando falta algo ou algo está errado. Uma biblioteca pode usar isso na CI.
 
@@ -159,10 +159,10 @@ Sem esse passo, o site é gerado de novo todo dia e depois de cada mudança no c
 
 3. Deixe o README menor: mantenha a instalação, um ou dois exemplos e um link para este site.
 
-4. Faça merge e release. O próximo build do site lê os arquivos da biblioteca.
+4. Faça o merge e publique uma release. O próximo build do site lê os arquivos da biblioteca.
 
 </Steps>
 
 <Callout type="info">
-O site não roda os exemplos. Mas os resultados dos exemplos gerados vêm de casos que os próprios testes da biblioteca rodam. Se você escreve um exemplo na mão, use entradas dos casos de teste do contrato. O exemplo então continua correto pelo mesmo motivo.
+O site não roda os exemplos. Mas os resultados dos exemplos gerados vêm de casos que os próprios testes da biblioteca rodam. Se você escrever um exemplo à mão, use entradas dos casos de teste do contrato. O exemplo então continua correto pelo mesmo motivo.
 </Callout>

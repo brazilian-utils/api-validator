@@ -15,7 +15,7 @@ api-contract/
   cases/index.json         domains, counts, digest, the comparison rules (text)
   cases/equality.json      self-test for the harness's comparison function
   cases/<domain>.json      { domain, functions: [{ id, level, summary, params, returns, network?, cases: [...] }] }
-  skip.json                { "<case id>": "reason" } — cases this lib does not pass yet
+  skip.json                { "<case id>": "reason" }: cases this library does not pass yet
 ```
 
 A case looks like this:
@@ -51,7 +51,7 @@ A case looks like this:
    | Variable | Effect |
    |---|---|
    | `API_CONTRACT_NETWORK=1` | also run functions marked `network: true` |
-   | `API_CONTRACT_NO_SKIP=1` | ignore `skip.json` (see what a fix unlocked, or check parity) |
+   | `API_CONTRACT_NO_SKIP=1` | ignore `skip.json` (see which cases a fix now passes, or check parity) |
    | `API_CONTRACT_DIR=<path>` | use another copy of `api-contract/` |
 
 Some frameworks have no native skip (EUnit). They report a skipped case as an empty group with

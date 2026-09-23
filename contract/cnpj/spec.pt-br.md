@@ -11,7 +11,7 @@ references:
 
 ## Resumo
 
-O CNPJ é um número de identificação único que a Receita Federal emite. Ele registra empresas, órgãos públicos e outras entidades no Brasil. Ele tem 14 caracteres: 8 da raiz, 4 da ordem do estabelecimento e 2 dígitos verificadores. Os CNPJs emitidos antes do início do formato alfanumérico usam apenas dígitos numéricos. Desde julho de 2026, novas inscrições podem conter letras maiúsculas e dígitos nos 12 primeiros caracteres. Os 2 dígitos verificadores continuam apenas numéricos.
+O CNPJ é o número de identificação que a Receita Federal atribui a empresas, órgãos públicos e outras entidades no Brasil. Tem 14 caracteres: 8 da raiz, 4 da ordem do estabelecimento e 2 dígitos verificadores. Os CNPJs emitidos antes do início do formato alfanumérico usam apenas dígitos. Desde julho de 2026, novas inscrições podem conter letras maiúsculas e dígitos nos 12 primeiros caracteres. Os 2 dígitos verificadores continuam apenas numéricos.
 
 ## Funções
 
@@ -25,7 +25,7 @@ O CNPJ é um número de identificação único que a Receita Federal emite. Ele 
 ## Regras de validação
 
 1. A entrada deve conter exatamente 14 caracteres.
-2. Os 12 primeiros caracteres podem conter dígitos de `0` a `9` e letras maiúsculas de `A` a `Z`.
+2. Os 12 primeiros caracteres podem conter dígitos de `0` a `9` e letras de `A` a `Z`. Com `version: 2`, a validação lê letras minúsculas como maiúsculas.
 3. Os 2 últimos caracteres são os dígitos verificadores e devem ser numéricos.
 4. Os dígitos verificadores devem vir do algoritmo do módulo 11.
 5. Para calcular os dígitos verificadores, converta os 12 primeiros caracteres em valores numéricos. Use o código ASCII decimal de cada caractere e subtraia `48`.
@@ -42,7 +42,7 @@ O CNPJ é um número de identificação único que a Receita Federal emite. Ele 
 1. Verificar se a entrada tem exatamente 14 caracteres.
 2. Verificar se os 12 primeiros caracteres são alfanuméricos e os 2 últimos são numéricos.
 3. Converter os caracteres alfanuméricos em valores numéricos:
-   - Os dígitos numéricos mantêm o seu valor.
+   - Os dígitos mantêm o seu valor.
    - As letras passam a valer o seu código ASCII decimal menos `48`.
 4. Calcular o primeiro dígito verificador (DV1):
    - Para os 12 primeiros caracteres, distribuir os pesos de `2` a `9` da direita para a esquerda. Recomeçar em `2` após o peso `9`.
@@ -68,6 +68,5 @@ O CNPJ é um número de identificação único que a Receita Federal emite. Ele 
 - Inválido: `03.560.714/0001-42` (a validação aceita apenas CNPJs sem formatação)
 - Inválido: `00111222000133` (dígitos verificadores inválidos)
 - Inválido: `12ABC34501DE3X` (os dígitos verificadores devem ser numéricos)
-- Inválido: `12abc34501DE35` (letras minúsculas não são permitidas)
 - Inválido: `12ABC34501DE3` (deve conter exatamente 14 caracteres)
 - Inválido: `12ABC34501DE345` (deve conter exatamente 14 caracteres)

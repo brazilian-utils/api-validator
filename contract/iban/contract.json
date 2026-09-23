@@ -3,8 +3,8 @@
   "domain": "iban",
   "title": { "en": "IBAN", "pt-BR": "IBAN" },
   "summary": {
-    "en": "Brazilian IBANs (country code BR): validation, formatting, parsing and decoding.",
-    "pt-BR": "IBANs brasileiros (código de país BR): validação, formatação, leitura e decodificação."
+    "en": "Brazilian IBANs (International Bank Account Number, country code BR): validation, formatting, parsing and decoding.",
+    "pt-BR": "IBANs (International Bank Account Number) brasileiros, com código de país BR: validação, formatação, leitura e decodificação."
   },
   "category": "finance",
   "order": 7,
@@ -42,8 +42,8 @@
     },
     "getInfo": {
       "summary": {
-        "en": "Parses a Brazilian IBAN (International Bank Account Number) into its fields.",
-        "pt-BR": "Decompõe um IBAN (International Bank Account Number) brasileiro em seus campos."
+        "en": "Parses a Brazilian IBAN into its fields.",
+        "pt-BR": "Decompõe um IBAN brasileiro em seus campos."
       },
       "description": {
         "en": [
@@ -76,10 +76,7 @@
       ]
     },
     "isValid": {
-      "summary": {
-        "en": "Validates a Brazilian IBAN (International Bank Account Number).",
-        "pt-BR": "Valida um IBAN (International Bank Account Number) brasileiro."
-      },
+      "summary": { "en": "Validates a Brazilian IBAN.", "pt-BR": "Valida um IBAN brasileiro." },
       "description": {
         "en": [
           "Validates a Brazilian IBAN. Any other country is invalid.",
@@ -118,7 +115,7 @@
         "pt-BR": "Remove os caracteres de formatação de um IBAN, converte o resultado para maiúsculas e retorna o IBAN compacto."
       },
       "description": {
-        "en": ["Removes IBAN formatting and keeps letters and digits upper-cased, capped to 29 characters."],
+        "en": ["Removes IBAN formatting and keeps letters and digits upper-cased, capped at 29 characters."],
         "pt-BR": ["Remove a formatação do IBAN e mantém letras e dígitos em maiúsculas, limitados a 29 caracteres."]
       },
       "references": [

@@ -4,8 +4,8 @@
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
 
-/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent. Brand colors only mark state and
-   the check digits. Text colors meet WCAG 2.1 AA on their backgrounds in both themes. */
+/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent; ok/fail/warn mark state. Text
+   colors meet WCAG 2.1 AA on their backgrounds in both themes. */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -26,9 +26,6 @@
   --color-fd-primary-foreground: #fffcf0;
   --color-fd-ring: #24837b;
   --color-header: #f2f0e5;
-  --color-brand-green: #009c3b;
-  --color-brand-yellow: #ffdf00;
-  --color-brand-blue: #3e4095;
   --color-ok: #3d6a07;
   --color-fail: #af3029;
   --color-warn: #8c5a00;
@@ -67,14 +64,6 @@
   font-weight: 400;
 }
 
-/* The check digits of a document number: the brand yellow, ink text on it in both themes. */
-mark.check {
-  background: var(--color-brand-yellow);
-  color: #1d1f3d;
-  border-radius: 0.2em;
-  padding: 0 0.08em;
-}
-
 html {
   scrollbar-gutter: stable;
 }
@@ -88,9 +77,18 @@ html {
   border-bottom: 1px solid var(--color-fd-border);
 }
 
-/* Code blocks sit on the page's paper, where every syntax color meets AA. */
+/* Code blocks: on the page's paper, where every syntax color meets AA, and one surface with no
+   drop shadow (a border already draws the edge). The copy button gets its own paper and the code
+   room for it, so on a phone it never sits on top of the code. */
 figure.shiki {
   background-color: var(--color-fd-background);
+  box-shadow: none;
+}
+figure.shiki button {
+  background: var(--color-fd-background);
+}
+figure.shiki:has(button) pre {
+  padding-inline-end: 2.75rem;
 }
 
 /* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */
@@ -112,14 +110,10 @@ a {
   outline-offset: 2px;
 }
 
-/* Running text keeps a readable measure; tables and code keep the full column. */
-#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *) {
+/* Running text keeps a readable measure; tables, code and the page's own controls (pager,
+   not-prose rows) keep the full column. */
+#nd-page .prose :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, .not-prose *) {
   max-width: 62ch;
-}
-
-/* Code blocks: one surface, no drop shadow (a border already draws the edge). */
-figure.shiki {
-  box-shadow: none;
 }
 
 /* Full-width bands of the home page: the header's paper tone, a rule between bands. */
@@ -131,8 +125,15 @@ figure.shiki {
   border-top: 1px solid var(--color-fd-border);
 }
 
-/* Prose tables fit a phone: code in a cell wraps instead of pushing the table sideways. */
+/* Code in a table cell wraps between words; on a phone it may break anywhere, so the table fits
+   instead of pushing sideways. (Breaking anywhere on a wide screen lets the table squeeze a
+   column down to one character.) */
 #nd-page .prose td code {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   white-space: normal;
+}
+@media (max-width: 640px) {
+  #nd-page .prose td code {
+    overflow-wrap: anywhere;
+  }
 }

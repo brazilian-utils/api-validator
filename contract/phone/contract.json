@@ -12,8 +12,8 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a phone number according to Brazilian phone number patterns.",
-        "pt-BR": "Formata um número de telefone de acordo com os padrões brasileiros."
+        "en": "Formats a Brazilian phone number with one of several masks.",
+        "pt-BR": "Formata um número de telefone brasileiro com uma de várias máscaras."
       },
       "description": {
         "en": [
@@ -50,8 +50,8 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a random, structurally valid Brazilian phone number (DDD + subscriber number). The function applies no formatting or mask. Use `formatPhone` to format the result.",
-        "pt-BR": "Gera um número de telefone aleatório e estruturalmente válido (DDD + número do assinante). A função não aplica máscara. Use `formatPhone` para formatar o resultado."
+        "en": "Generates a random, structurally valid Brazilian phone number (DDD + subscriber number). The result is unformatted. Use `phone.format` to format it.",
+        "pt-BR": "Gera um número de telefone aleatório e estruturalmente válido (DDD + número do assinante). O resultado vem sem máscara. Use `phone.format` para formatá-lo."
       },
       "description": {
         "en": [
@@ -187,7 +187,7 @@
           "",
           "- Códigos Não Geográficos `0300`, `0303`, `0500`, `0800` and `0900` followed by 7 digits.",
           "- The abbreviated `300X`/`400X` numbers (8 digits). Other carrier prefixes are rejected.",
-          "- The 3-digit public utility codes designated by Anatel (e.g. `190`, `192`). `112` and `911` are rejected."
+          "- The 3-digit public utility codes designated by Anatel (such as `190` and `192`). `112` and `911` are rejected."
         ],
         "pt-BR": [
           "Valida um número de serviço brasileiro, discado sem DDD. A função verifica só a estrutura.",
@@ -217,7 +217,7 @@
     "parse": {
       "summary": {
         "en": "Removes phone formatting characters, returns only digits, and caps the result at 11 digits.",
-        "pt-BR": "Remove os caracteres de máscara do telefone, retorna só os dígitos e limita o resultado a 11 dígitos."
+        "pt-BR": "Remove os caracteres de formatação do telefone, retorna só os dígitos e limita o resultado a 11 dígitos."
       },
       "description": {
         "en": [
@@ -226,7 +226,7 @@
           "- The function strips a country code (`+55`, `0055` or a bare `55`) only when 10 or 11 digits are left. This way, area code 55 is not mistaken for a country code."
         ],
         "pt-BR": [
-          "Remove a máscara do telefone e mantém só os dígitos, limitados a 11.",
+          "Remove a formatação do telefone e mantém só os dígitos, limitados a 11.",
           "",
           "- A função remove um código de país (`+55`, `0055` ou só `55`) apenas quando restam 10 ou 11 dígitos. Assim, o DDD 55 não é confundido com o código de país."
         ]
@@ -250,7 +250,7 @@
       ]
     },
     "removeInternationalDialingCode": {
-      "summary": { "en": "Removes a leading +55 / 55.", "pt-BR": "Remove um +55 / 55 no início." },
+      "summary": { "en": "Removes a leading `+55` or `55`.", "pt-BR": "Remove um `+55` ou `55` do início." },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],
       "returns": "string",
@@ -273,8 +273,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de máscara (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],

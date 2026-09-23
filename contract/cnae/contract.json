@@ -3,18 +3,15 @@
   "domain": "cnae",
   "title": { "en": "CNAE", "pt-BR": "CNAE" },
   "summary": {
-    "en": "Economic activity subclass codes of the CNAE-Subclasses 2.3 table.",
-    "pt-BR": "Códigos de subclasse de atividade econômica da tabela CNAE-Subclasses 2.3."
+    "en": "Classificação Nacional de Atividades Econômicas: the economic activity subclass codes of the CNAE-Subclasses 2.3 table.",
+    "pt-BR": "Classificação Nacional de Atividades Econômicas: os códigos de subclasse da tabela CNAE-Subclasses 2.3."
   },
   "category": "companies",
   "order": 4,
   "related": ["cnpj"],
   "functions": {
     "format": {
-      "summary": {
-        "en": "Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.",
-        "pt-BR": "Formata um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas)."
-      },
+      "summary": { "en": "Formats a CNAE subclass code.", "pt-BR": "Formata um código de subclasse CNAE." },
       "description": {
         "en": [
           "Formats a CNAE subclass code with the mask `NNNN-N/NN`. Only the structure changes (use `cnae.isValid` to check the code).",
@@ -46,8 +43,8 @@
     },
     "get": {
       "summary": {
-        "en": "Looks up a CNAE (Classificação Nacional de Atividades Econômicas) subclass code in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
-        "pt-BR": "Consulta um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas) na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+        "en": "Looks up a CNAE subclass code in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
+        "pt-BR": "Consulta um código de subclasse CNAE na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
       },
       "description": {
         "en": [
@@ -80,8 +77,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a CNAE (Classificação Nacional de Atividades Econômicas) subclass code exists in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
-        "pt-BR": "Verifica se um código de subclasse CNAE (Classificação Nacional de Atividades Econômicas) existe na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+        "en": "Checks whether a CNAE subclass code exists in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
+        "pt-BR": "Verifica se um código de subclasse CNAE existe na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
       },
       "description": {
         "en": [
@@ -114,12 +111,12 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CNAE (Classificação Nacional de Atividades Econômicas) formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNAE (Classificação Nacional de Atividades Econômicas) e retorna somente os dígitos."
+        "en": "Removes CNAE formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CNAE e retorna somente os dígitos."
       },
       "description": {
         "en": [
-          "Removes CNAE formatting and keeps only digits, capped to 7 digits.",
+          "Removes CNAE formatting and keeps only digits, capped at 7 digits.",
           "",
           "- It does not left-pad anything. A partial code stays as written."
         ],

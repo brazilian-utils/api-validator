@@ -120,7 +120,7 @@
       },
       "description": {
         "en": [
-          "Returns the IANA time zone (tzdata zone) of a state: the zone of its capital, e.g. `America/Sao_Paulo`.",
+          "Returns the IANA time zone (tzdata zone) of a state: the zone of its capital, such as `America/Sao_Paulo`.",
           "",
           "- The match ignores case and surrounding whitespace.",
           "- Returns null when no state matches."

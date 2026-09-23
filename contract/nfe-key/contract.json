@@ -131,7 +131,7 @@
       },
       "description": {
         "en": [
-          "Removes the formatting of a DF-e access key and keeps only digits, capped to 44 digits.",
+          "Removes the formatting of a DF-e access key and keeps only digits, capped at 44 digits.",
           "",
           "- The function first strips the XML `Id` prefixes (`NFe`, `CTe`, `MDFe`, `BPe`, `NF3e`, `NFCom`)."
         ],

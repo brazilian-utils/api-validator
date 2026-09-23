@@ -48,7 +48,7 @@
       },
       "description": {
         "en": [
-          "Writes a date in Brazilian Portuguese words (\"por extenso\"), e.g. \"primeiro de janeiro de dois mil e vinte e quatro\".",
+          "Writes a date in Brazilian Portuguese words (\"por extenso\"), such as \"primeiro de janeiro de dois mil e vinte e quatro\".",
           "",
           "- `value` is a date (its local calendar date) or a string `dd/mm/yyyy` or ISO `yyyy-mm-dd`.",
           "- Day 1 is \"primeiro\". `options` can spell out only the month (digits for day and year, day 1 as `1º`) and add the weekday in front.",

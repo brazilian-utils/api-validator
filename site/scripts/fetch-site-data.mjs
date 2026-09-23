@@ -1,5 +1,6 @@
 /**
- * Builds that did not run the validator (Vercel review deployments, a fresh clone) take the
+ * Runs before fetch-libs.mjs, which needs the status (reference pages, guide functions). Builds
+ * that did not run the validator (Vercel review deployments, a fresh clone) take the
  * status of the last run from the published site: /status.json and the badges. The GitHub
  * Actions pipeline runs the validator and writes these files itself (`api-validator site-data`),
  * so this step does nothing there.
@@ -18,8 +19,10 @@ const BADGES = path.join('public', 'badges');
 const from = (process.env.SITE_DATA_URL || process.env.SITE_URL || 'https://brazilian-utils.github.io/api-validator').replace(/\/$/, '');
 
 if (process.env.SITE_DATA === 'skip' || process.env.USAGE_SOURCE === 'fixtures') process.exit(0);
-if (fs.existsSync(STATUS)) {
-  console.log(`status ${STATUS} already there (validator run); nothing to fetch`);
+// A validator run wrote the file (no `fetchedFrom`): keep it. A copy fetched earlier is refreshed.
+const existing = fs.existsSync(STATUS) ? JSON.parse(fs.readFileSync(STATUS, 'utf8')) : null;
+if (existing && !existing.fetchedFrom) {
+  console.log(`status ${STATUS} written by a validator run; nothing to fetch`);
   process.exit(0);
 }
 
@@ -31,9 +34,10 @@ const get = async (url) => {
 
 try {
   const status = await (await get(`${from}/status.json`)).json();
-  if (typeof status !== 'object' || !status?.libs) throw new Error('not a status file');
+  // A site built without a validator run publishes `{ libs: {} }`: that is no status at all.
+  if (typeof status !== 'object' || !status?.libs || !Object.keys(status.libs).length) throw new Error('no status in it');
   fs.mkdirSync(path.dirname(STATUS), { recursive: true });
-  fs.writeFileSync(STATUS, JSON.stringify(status));
+  fs.writeFileSync(STATUS, JSON.stringify({ ...status, fetchedFrom: `${from}/status.json` }));
   fs.mkdirSync(BADGES, { recursive: true });
   let badges = 0;
   for (const lib of loadLibs()) {

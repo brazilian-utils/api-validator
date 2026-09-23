@@ -17,13 +17,13 @@
           "Formats a CEP as `00000-000`.",
           "",
           "- `options.pad` left-pads the value with zeros to 8 digits first. Otherwise, a CEP that starts with `0` and comes as a number loses that zero.",
-          "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes. It returns an empty string for empty or garbage input. Other libraries return null."
+          "- Pending decision (findings §2 #2, #3): the reference (JS) formats only the characters an incomplete value has. It returns an empty string for empty or invalid input. Other libraries return null."
         ],
         "pt-BR": [
           "Formata um CEP como `00000-000`.",
           "",
           "- `options.pad` primeiro completa o valor com zeros à esquerda até 8 dígitos. Sem isso, um CEP que começa com `0` e chega como número perde esse zero.",
-          "- Decisão pendente (findings §2 #2, #3): a referência (JS) aplica a máscara a um valor incompleto até onde ele vai. Ela retorna uma string vazia para entrada vazia ou inválida. As outras bibliotecas retornam null."
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) formata só os caracteres que um valor incompleto tem. Ela retorna uma string vazia para entrada vazia ou inválida. As outras bibliotecas retornam null."
         ]
       },
       "references": [
@@ -47,7 +47,7 @@
       ]
     },
     "generate": {
-      "summary": { "en": "Generates a random Brazilian CEP (postal code).", "pt-BR": "Gera um CEP aleatório." },
+      "summary": { "en": "Generates a random Brazilian CEP.", "pt-BR": "Gera um CEP aleatório." },
       "description": {
         "en": [
           "Generates a random CEP: 8 digits, unformatted.",
@@ -139,10 +139,7 @@
       "returns": "CepAddressInfo[]"
     },
     "isValid": {
-      "summary": {
-        "en": "Checks whether a CEP (Brazilian postal code) is valid.",
-        "pt-BR": "Verifica se um CEP é válido."
-      },
+      "summary": { "en": "Checks whether a CEP is valid.", "pt-BR": "Verifica se um CEP é válido." },
       "description": {
         "en": [
           "Validates a CEP: exactly 8 digits.",
@@ -182,11 +179,11 @@
     "parse": {
       "summary": {
         "en": "Removes CEP formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de máscara do CEP e retorna só os dígitos."
+        "pt-BR": "Remove os caracteres de formatação do CEP e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CEP formatting and keeps only digits, capped at 8 digits."],
-        "pt-BR": ["Remove a máscara do CEP e mantém só os dígitos, limitados a 8."]
+        "pt-BR": ["Remove a formatação do CEP e mantém só os dígitos, limitados a 8."]
       },
       "references": [
         "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
@@ -204,8 +201,8 @@
     },
     "removeSymbols": {
       "summary": {
-        "en": "Removes the formatting symbols (keeps everything else).",
-        "pt-BR": "Remove os símbolos de máscara (mantém todo o resto)."
+        "en": "Removes the formatting characters and keeps everything else.",
+        "pt-BR": "Remove os caracteres de formatação e mantém todo o resto."
       },
       "level": "core",
       "params": [{ "name": "value", "type": "string" }],

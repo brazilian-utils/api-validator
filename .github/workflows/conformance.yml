@@ -37,9 +37,13 @@ concurrency:
 jobs:
   conformance:
     runs-on: ubuntu-latest
+    # The job runs the libraries' own code (their tests, installs, `prepare`): its token only reads.
+    permissions:
+      contents: read
     env:
-      # Token with issues:write on the lib repos, used by the issue sync step (skipped when unset).
-      GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
+      # LIBS_TOKEN (write access to the lib repos) reaches only the two steps that need it, never
+      # the steps that run library code; this flag says whether it is set.
+      HAS_LIBS_TOKEN: ${{ secrets.LIBS_TOKEN != '' }}
       SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
       - uses: actions/checkout@v4
@@ -107,8 +111,9 @@ jobs:
       # case the merge added or changed. Every run also refreshes open issues and closes the
       # ones the lib has done. Needs issues:write on the lib repos (LIBS_TOKEN).
       - name: Open, refresh and close issues in the lib repositories
-        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.HAS_LIBS_TOKEN == 'true'
         env:
+          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
           SINCE: ${{ github.event_name == 'push' && github.event.before || inputs.since }}
           BACKFILL: ${{ inputs.backfill }}
         run: |
@@ -120,7 +125,9 @@ jobs:
       # current: refresh it in a fresh clone and open/update an "api-contract/cases" PR when
       # it changed. Needs contents:write + pull-requests:write on the lib repos (LIBS_TOKEN).
       - name: Sync the conformance suite into the lib repositories
-        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.HAS_LIBS_TOKEN == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
         run: |
           git config --global user.name "api-validator[bot]"
           git config --global user.email "api-validator@users.noreply.github.com"
@@ -170,7 +177,7 @@ jobs:
         if: always()
         working-directory: site
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # fetch-usage: the libs' docs/usage/ at their latest release
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # fetch-libs: the libs' docs/usage/ at their latest release
         run: |
           npm ci
           npm audit --audit-level=low

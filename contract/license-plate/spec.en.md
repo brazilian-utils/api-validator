@@ -10,23 +10,23 @@ references:
 
 ## Summary
 
-Vehicle license plates are the front and rear plates fixed to a vehicle. A plate contains 7 unique alphanumeric characters.
+Vehicle license plates are the front and rear plates fixed to a vehicle. A plate has 7 letters and digits.
 
 ## Functions
 
 - **Validation**: Check that the vehicle license plate is valid according to the official rules.
-- **Formatting**: Show the license plate in the standard format `LLLNLNN` or `LLLNNNN`. `L` is a letter and `N` is a digit.
-- **Generation**: Make a valid license plate in the given format. If you give no format, the function returns a license plate in the Mercosul format.
+- **Formatting**: Upper-case the plate and add a hyphen to old-format plates (`ABC-1234`). Mercosul plates (`ABC1D23`) have no separator. `L` is a letter and `N` is a digit.
+- **Generation**: Generate a valid license plate in the given format. If you give no format, the function returns a license plate in the Mercosul format.
 
 ## Validation rules
 
 ### Mercosul standard
-1. The plate must have 7 (seven) alphanumeric characters in the `LLLNLNN` pattern.
+1. The plate has 7 letters and digits in the `LLLNLNN` pattern.
 
 ### Pre-Mercosul standard
-1. The plate must contain 7 (seven) unique alphanumeric characters in the `LLLNNNN` pattern, in two groups:
-   - The first group has 3 (three) characters. It comes from the permutation, with repetition, of 26 (twenty-six) letters, taken three at a time.
-   - The second group has 4 (four) characters. It comes from the permutation, with repetition, of 10 (ten) digits, taken four at a time.
+1. The plate has 7 letters and digits in the `LLLNNNN` pattern, in two groups:
+   - The first group is 3 letters (`A` to `Z`).
+   - The second group is 4 digits.
 
 ## Algorithm
 

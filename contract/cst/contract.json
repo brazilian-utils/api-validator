@@ -3,8 +3,8 @@
   "domain": "cst",
   "title": { "en": "CST", "pt-BR": "CST" },
   "summary": {
-    "en": "Tax situation codes of ICMS, IPI, PIS and COFINS.",
-    "pt-BR": "Códigos de situação tributária de ICMS, IPI, PIS e COFINS."
+    "en": "Código de Situação Tributária: the tax situation codes of ICMS, IPI, PIS and COFINS.",
+    "pt-BR": "Código de Situação Tributária de ICMS, IPI, PIS e COFINS."
   },
   "category": "tax",
   "order": 4,
@@ -12,8 +12,8 @@
   "functions": {
     "isValid": {
       "summary": {
-        "en": "Checks whether a CST (Código de Situação Tributária) code is valid for a given tax.",
-        "pt-BR": "Verifica se um código CST (Código de Situação Tributária) é válido para um tributo."
+        "en": "Checks whether a CST code is valid for a given tax.",
+        "pt-BR": "Verifica se um código CST é válido para um tributo."
       },
       "description": {
         "en": [

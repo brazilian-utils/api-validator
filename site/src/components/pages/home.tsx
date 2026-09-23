@@ -36,10 +36,10 @@ export function HomePage({ locale }: { locale: Locale }) {
   });
 
   const steps = [
-    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in this repository.', 'Cada função, a assinatura e os casos de teste ficam escritos uma vez, em JSON, neste repositório.')],
+    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in this repository.', 'Cada função, com a assinatura e os casos de teste, é escrita uma vez em JSON neste repositório.')],
     [L(locale, 'An issue per gap', 'Uma issue por lacuna'), L(locale, 'A library that lacks a function, or fails a case, gets an issue with the reference code.', 'Uma biblioteca sem a função, ou que falha num caso, recebe uma issue com o código de referência.')],
     [L(locale, 'The same tests', 'Os mesmos testes'), L(locale, 'Every library runs the shared cases in its own test suite, on every change.', 'Cada biblioteca roda os casos compartilhados na própria suíte de testes, a cada mudança.')],
-    [L(locale, 'This site', 'Este site'), L(locale, 'Built from the contract and the last run: what each library has, and how to call it.', 'Montado a partir do contrato e da última execução: o que cada biblioteca tem, e como chamar.')],
+    [L(locale, 'This site', 'Este site'), L(locale, 'Built from the contract and the last run: what each library has and how to call each function.', 'Gerado a partir do contrato e da última execução: o que cada biblioteca tem e como chamar cada função.')],
   ];
 
   return (
@@ -50,7 +50,7 @@ export function HomePage({ locale }: { locale: Locale }) {
           <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
             <div>
               <h1 className="text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:leading-[1.05]">
-                {L(locale, 'Validate Brazilian documents in any language.', 'Valide documentos brasileiros em qualquer linguagem.')}
+                {L(locale, 'Validate Brazilian documents in seven languages.', 'Valide documentos brasileiros em sete linguagens.')}
               </h1>
               <p className="mt-5 max-w-[34rem] text-lg text-fd-muted-foreground text-pretty">
                 {L(
@@ -122,7 +122,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="band band-top">
           <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
-            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How seven libraries stay the same', 'Como sete bibliotecas ficam iguais')}</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How seven libraries stay the same', 'Como as sete bibliotecas se mantêm iguais')}</h2>
             <ol className="grid gap-x-10 gap-y-8 sm:grid-cols-2 [counter-reset:step]">
               {steps.map(([title, body]) => (
                 <li key={title} className="[counter-increment:step] before:mb-2 before:block before:font-mono before:text-sm before:text-fd-primary before:content-[counter(step)]">
@@ -136,7 +136,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">{L(locale, 'Every utility', 'Todos os utilitários')}</h2>
-          <p className="mt-3 text-fd-muted-foreground">{L(locale, 'Next to each one: how many of the seven libraries have it.', 'Ao lado de cada um: quantas das sete bibliotecas o têm.')}</p>
+          <p className="mt-3 text-fd-muted-foreground">{L(locale, 'Next to each one: how many of the seven libraries have it.', 'Ao lado de cada um: quantas das sete bibliotecas o implementam.')}</p>
           <div className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {CATEGORIES.map((c: any) => {
               const items = specs.filter((s: any) => s.category === c.id);
@@ -170,7 +170,7 @@ export function HomePage({ locale }: { locale: Locale }) {
             <p>Brazilian Utils</p>
             <nav aria-label={L(locale, 'Footer', 'Rodapé')} className="flex gap-5">
               <Link href={`${p}/reference/parity/`} className="hover:text-fd-foreground">{L(locale, 'Parity matrix', 'Matriz de paridade')}</Link>
-              <Link href={`${p}/contributing/specs/`} className="hover:text-fd-foreground">{L(locale, 'Contributing', 'Contribuindo')}</Link>
+              <Link href={`${p}/contributing/specs/`} className="hover:text-fd-foreground">{L(locale, 'Contributing', 'Como contribuir')}</Link>
               <a href="https://github.com/brazilian-utils" className="hover:text-fd-foreground">GitHub</a>
             </nav>
           </div>
