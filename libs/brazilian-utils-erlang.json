@@ -5,6 +5,7 @@
   "repo": "https://github.com/brazilian-utils/erlang",
   "entry": "src",
   "options": { "app": "brutils" },
+  "ignore": ["*remove*symbols*"],
   "site": {
     "label": "Erlang",
     "order": 7,

@@ -4,7 +4,7 @@
   "language": "dotnet",
   "repo": "https://github.com/brazilian-utils/dotnet",
   "entry": "BrazilianUtils",
-  "ignore": ["Helpers.*"],
+  "ignore": ["Helpers.*", "*remove*symbols*"],
   "site": {
     "label": ".NET",
     "order": 6,

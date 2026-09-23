@@ -10,7 +10,8 @@
     "*.compute_checksum",
     "*.checksum",
     "*.calculate_checksum",
-    "voter_id.calculate_vd*"
+    "voter_id.calculate_vd*",
+    "*remove*symbols*"
   ],
   "site": {
     "label": "Rust",

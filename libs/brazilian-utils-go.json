@@ -4,7 +4,7 @@
   "language": "go",
   "repo": "https://github.com/brazilian-utils/go",
   "entry": ".",
-  "ignore": ["helpers.*"],
+  "ignore": ["helpers.*", "*remove*symbols*"],
   "site": {
     "label": "Go",
     "order": 3,

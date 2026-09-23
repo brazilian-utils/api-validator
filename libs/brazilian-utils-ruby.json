@@ -5,7 +5,7 @@
   "repo": "https://github.com/brazilian-utils/ruby",
   "entry": "lib",
   "options": { "namespace": "BrazilianUtils" },
-  "ignore": ["*.sieve", "*.display", "*.validate", "Months.*"],
+  "ignore": ["*.sieve", "*.display", "*.validate", "Months.*", "*remove*symbols*"],
   "site": {
     "label": "Ruby",
     "order": 4,
