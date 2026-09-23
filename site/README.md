@@ -195,7 +195,7 @@ revisão na Vercel, com o link no PR. A configuração está no repositório:
 Na Vercel o site fica na raiz do domínio (sem `basePath`). As URLs canônicas continuam apontando
 para `SITE_URL`, e o `robots.txt` dos deploys de revisão bloqueia a indexação. A Vercel não roda
 o validador (precisaria das sete linguagens), então o build baixa a situação da última execução
-publicada. O `ignoreCommand` pula o build quando o commit não mexe em nada que o site usa. Não
+publicada. O `ignoreCommand` pula o build quando nada que o site usa mudou desde o último deploy. Não
 precisa de variável de ambiente. As opcionais são `SITE_URL`, `SITE_DATA_URL` e `GITHUB_TOKEN`
 (sem token, a versão de cada lib sai da tag mais nova, lida com `git ls-remote`).
 
