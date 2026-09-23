@@ -21,8 +21,8 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
       │ Conformance workflow             │              │
       │  check --tests (all 7 libs)      │      ┌───────┴────────┐
       │  diff (differential testing)     │      │ any lib repo   │
-      │  issue --lib X → "api-contract"  │─────▶│ CI: the Action │
-      │  issue in every lib repo         │      │ fails on       │
+      │  issues: one per function per    │─────▶│ CI: the Action │
+      │  lib (implement / fix), auto-close│     │ fails on       │
       └──────────────────────────────────┘      │ regressions &  │
                                                 │ API outside    │
                                                 │ the contract   │
@@ -35,7 +35,7 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
 |---|---|---|
 | Same API everywhere: names, inputs, outputs, in each language's idiom | The contract declares `domain.operation` + canonical types; each language adapter maps them to its idiom (`cpf.isValid` → `isValidCpf` / `cpf.is_valid` / `cpf.IsValid` / `CPFUtils.valid?`...) and checks the real signature extracted from source | `check` |
 | Same logic everywhere | Shared test cases in the contract run unchanged in every language through a thin per-language runner, **and** inside every lib as a JSON suite its own harness runs; `diff` feeds the same mined inputs to all libs and fails on any *new* disagreement | `check --tests`, `export-cases`, `diff --fail-on-new` |
-| Libs stay in sync (same functions, fixes propagated) | Contract-first rule enforced by CI + an auto-maintained "api-contract" issue in every repo with a porting brief per missing/failing item | Action, `issue`, `brief` |
+| Libs stay in sync (same functions, fixes propagated) | Contract-first rule enforced by CI + one auto-opened, auto-closed issue per function per lib with a porting brief | Action, `issue`, `brief` |
 
 ## The flows
 
@@ -44,17 +44,19 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
 1. **Contract PR** (this repo): add the function to `contract/<domain>.json` with its
    signature and test vectors. Run `api-validator diff --fn '<domain>.*'` if other libs
    already have something similar, to see how they behave today.
-2. The PR's Conformance run shows which libs have it (usually none yet). Nothing breaks:
-   missing functions are TODOs, not failures.
-3. On merge, every lib's `api-contract` issue gains an item with a **porting brief**:
-   idiomatic name for that language, signature, the acceptance tests, links to every
-   existing implementation and the reference source inline.
+2. The PR's Conformance run shows which libs have it (usually none yet) and **lists the
+   issues the merge will open**. Nothing breaks: missing functions are TODOs, not failures.
+3. On merge, the pipeline opens an **`[api-contract] Implement <fn>` issue in every lib
+   that does not have it**, with a porting brief: idiomatic name for that language,
+   signature, the acceptance tests, links to the function's status page, to every existing
+   implementation, and the reference source inline.
 4. Each lib implements it (a person, or a coding agent handed the brief: the shared tests
    are the objective acceptance criterion, so the agent does not need to "understand" the
    other codebase). The lib's CI (the Action) shows it passing.
 5. `api-validator baseline` in this repo locks it in: from now on, breaking it in any lib
    fails that lib's CI. The next nightly refreshes each lib's `api-contract/` (bot PR), and
-   its harness runs the new cases.
+   its harness runs the new cases. The run that sees the function implemented **closes the
+   lib's issue** with a comment saying so.
 
 The first lib to implement it can also start the flow: its CI fails with
 "public but not in the contract" (see rule below), which is the prompt to open the
@@ -67,8 +69,9 @@ the same source). So:
 
 1. Write the failing case as a **contract test vector** first (contract PR). That single
    vector now runs against all seven libs.
-2. The Conformance run shows exactly which libs have the bug. On merge, each affected
-   lib's issue lists the failing vector with expected vs actual.
+2. The Conformance run shows exactly which libs have the bug. On merge, each affected lib
+   gets an **`[api-contract] Fix <fn>` issue** with the failing cases (expected vs actual);
+   it closes itself when every case of the function passes there.
 3. Fix in each lib; the vector keeps all of them honest forever: it is in every lib's own
    test suite too (vendored, skipped until that lib is fixed).
 
@@ -120,12 +123,13 @@ a fix drops the entry and the case runs from then on.
 
 | When | What | Fails on |
 |---|---|---|
-| Contract / lib-config PR here | `lint`, `fmt --check`, `check --tests` on all libs, `diff --fail-on-new`, contract `changelog` in the job summary | regressions, new divergences, invalid contract |
-| Nightly here | all of the above on every lib's default branch, then: publish the status site (a page per lib and per function, badges, the JSON suite), sync the `api-contract` issue in every lib, and open/update an `api-contract/cases` PR in every lib whose `api-contract/` changed | regressions, new divergences |
+| Contract / lib-config PR here | `lint`, `fmt --check`, `check --tests` on all libs, `diff --fail-on-new`; the job summary shows the contract `changelog` and the issues the merge will open | regressions, new divergences, invalid contract |
+| Merge to main here | the same run on the merged contract, then: an `Implement <fn>` issue in every lib missing a function the merge added, a `Fix <fn>` issue in every lib failing a case it added or changed | regressions, new divergences |
+| Nightly here | all of the above on every lib's default branch, then: publish the status site (a page per lib and per function, badges, the JSON suite), open `Fix` issues for new failures, refresh open issues and close the done ones, and open/update an `api-contract/cases` PR in every lib whose `api-contract/` changed | regressions, new divergences |
 | Every lib push/PR | the Action: `check --tests` against the baseline + `export-cases --check`; the lib's own test job runs its harness | regressions, public API outside the contract, (optionally) a stale suite copy |
 
 Nothing needs a person to remember a step: a merged contract change reaches every lib as an
-issue item (what to implement or fix, with a brief), as a PR (the new cases), and on its
+issue per function (what to implement or fix, with a brief), as a PR (the new cases), and on its
 status page.
 
 ## Where a lib sees how it stands
@@ -162,7 +166,7 @@ the same data is in `api/libs/<lib>.json` for scripts.
 
 | Who | Does |
 |---|---|
-| Lib maintainer | Works from the `api-contract` issue; the lib CI (Action) shows progress in the job summary |
+| Lib maintainer | Works from the `api-contract` issues (one per function) and the lib's status page; the lib CI (Action) shows progress in the job summary |
 | Contract maintainer | Reviews contract PRs; runs `diff` for new domains; decides behaviour questions |
 | Anyone | `api-validator brief <fn> --lib <lib>` before porting something |
 | Nightly job | Syncs all libs, runs `check --tests` + `diff`, publishes the status site, refreshes issues, opens suite-refresh PRs |
@@ -173,7 +177,7 @@ the same data is in `api/libs/<lib>.json` for scripts.
 The brief is written to be sufficient on its own: expected name, signature, test vectors,
 reference source. A good loop per lib:
 
-1. Give the agent the lib's `api-contract` issue (or `api-validator brief <fn> --lib <lib>`).
+1. Give the agent one `api-contract` issue (or `api-validator brief <fn> --lib <lib>`).
 2. Ask it to implement idiomatically, add the vectors to the lib's own test suite, and run
    `api-validator check --lib <lib> --path . --tests --only '<fn>'` until it is ok.
 3. Review like any PR. The shared tests, not the reviewer's memory of the other six

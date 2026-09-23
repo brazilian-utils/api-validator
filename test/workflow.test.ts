@@ -11,6 +11,7 @@ import { diffDivergences, divergenceBaseline, partition, type DiffRow } from "..
 import type { LibConfig, LibReport } from "../src/core/model.js";
 import { summarize } from "../src/core/analyze.js";
 import { badgeSvg, buildSite } from "../src/reporters/site.js";
+import { closeReason, keyOf, marker, scopeFrom, wantedIssues } from "../src/core/issues.js";
 
 const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
   name: "brazilian-utils-demo",
@@ -207,3 +208,55 @@ describe("divergence baseline", () => {
   });
 });
 
+
+describe("per-function issues", () => {
+  const contract = contractFrom(CPF);
+  const report = (statuses: Record<string, LibReport["functions"][number]["status"]>, failing: string[] = []): LibReport => {
+    const functions = [...contract.functions.values()].map((f) => ({
+      id: f.id,
+      level: f.level,
+      status: statuses[f.id] ?? ("missing" as const),
+      symbol: statuses[f.id] ? `sym_${f.operation}` : undefined,
+      issues: [],
+      suggestions: [],
+      tests: f.tests.map((t) => ({ id: t.id, status: failing.includes(t.id) ? ("fail" as const) : ("pass" as const) }))
+    }));
+    return { library: "x", language: "python", functions, unmapped: [], configIssues: [], testsRan: true, summary: summarize(functions) };
+  };
+
+  it("opens 'implement' only for functions the change added, 'fix' only for cases it added or changed", () => {
+    const r = report({ "cpf.isValid": "ok", "cpf.format": "failing" }, ['cpf.format#["1"]']);
+    const none = wantedIssues(contract, r, { added: new Set(), cases: new Set() });
+    assert.deepEqual(none, []);
+    const wanted = wantedIssues(contract, r, { added: new Set(["cpf.generate"]), cases: new Set(['cpf.format#["1"]']) });
+    assert.deepEqual(wanted.map((w) => w.title), ["[api-contract] Fix cpf.format: 1 failing case", "[api-contract] Implement cpf.generate"]);
+  });
+
+  it("backfill covers what was already missing or failing; waived and signature-mismatch are left alone", () => {
+    const r = report({ "cpf.isValid": "signature", "cpf.format": "waived" });
+    assert.deepEqual(wantedIssues(contract, r, { added: new Set(), cases: new Set() }, "core").map((w) => w.key), ["implement:cpf.generate"]);
+  });
+
+  it("closes issues once done, with the reason; keeps the rest", () => {
+    const done = report({ "cpf.isValid": "ok", "cpf.generate": "ok", "cpf.format": "failing" }, ['cpf.format#["1"]']);
+    assert.match(closeReason("implement:cpf.generate", contract, done)!, /implemented as `sym_generate`, and every shared case passes/);
+    assert.match(closeReason("implement:cpf.format", contract, done)!, /some cases still fail/);
+    assert.equal(closeReason("fix:cpf.format", contract, done), undefined);
+    assert.match(closeReason("fix:cpf.isValid", contract, done)!, /passes now/);
+    assert.match(closeReason("implement:cpf.gone", contract, done)!, /no longer in the contract/);
+  });
+
+  it("finds its issues again by the marker in the body", () => {
+    assert.equal(keyOf(`${marker("implement:cpf.isValid")}\nbody`), "implement:cpf.isValid");
+    assert.equal(keyOf("an issue someone wrote by hand"), undefined);
+  });
+
+  it("scope comes from the contract changelog", () => {
+    const changed: Domain = structuredClone(CPF);
+    (changed.functions.isValid.tests as unknown[]).push({ args: ["9"], returns: false });
+    changed.functions.isMasked = { params: string, returns: "boolean", tests: [{ args: ["1"], returns: false }] };
+    const scope = scopeFrom(changelog(contract, contractFrom(changed)));
+    assert.deepEqual([...scope.added], ["cpf.isMasked"]);
+    assert.deepEqual([...scope.cases].sort(), ['cpf.isMasked#["1"]', 'cpf.isValid#["9"]']);
+  });
+});

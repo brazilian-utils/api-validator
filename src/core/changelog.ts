@@ -16,7 +16,7 @@ export function contractAt(repo: string, dir: string, ref: string): Contract {
   const rel = path.relative(repo, dir);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-contract-"));
   try {
-    const files = runOrThrow("git", ["ls-tree", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n").filter((f) => /\.ya?ml$/.test(f));
+    const files = runOrThrow("git", ["ls-tree", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n").filter((f) => f.endsWith(".json"));
     for (const f of files) fs.writeFileSync(path.join(tmp, f), runOrThrow("git", ["show", `${ref}:${rel}/${f}`], { cwd: repo }));
     return loadContract(tmp);
   } finally {

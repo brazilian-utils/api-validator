@@ -7,6 +7,7 @@ import { analyzeLib, bindLib, extractSurface } from "./core/analyze.js";
 import { json, skipsFor, suiteFiles, type Outcomes } from "./core/cases.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
 import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
+import { LABEL, closeReason, keyOf, marker, scopeFrom, wantedIssues, type Scope } from "./core/issues.js";
 import { loadContract } from "./core/contract.js";
 import { formatContractDir, formatDir, schemaFiles } from "./core/format-contract.js";
 import { formatJson, orderDomain } from "./core/jsonfmt.js";
@@ -487,42 +488,96 @@ program
   });
 
 program
-  .command("issue")
-  .description("Body of the sync issue for a lib: TODO list plus a porting brief per item (for the sync workflow)")
-  .requiredOption("-l, --lib <name>", "lib")
-  .option("-p, --path <dir>", "checkout of that lib")
-  .option("-t, --tests", "run the shared tests")
-  .option("--reference <lib>", "lib whose source is embedded", "brazilian-utils-javascript")
-  .option("--max-briefs <n>", "limit briefs (GitHub issues are capped at 65k chars)", "15")
+  .command("issues")
+  .description("One GitHub issue per function per lib: open 'implement' / 'fix' issues for what a contract change introduced, refresh them, close the done ones")
+  .option("-l, --lib <names...>", "only these libs")
+  .option("--since <ref>", "open issues for what changed in the contract since this git ref (e.g. the commit before a merge)")
+  .addOption(new Option("--backfill <level>", "also open issues for everything already missing or failing").choices(["core", "all"]))
+  .option("--apply", "create/update/close the issues with the gh CLI (needs GH_TOKEN); default: print the plan")
+  .option("--bodies", "with the plan, print each issue's body too")
+  .option("--reference <lib>", "lib whose source is embedded in the briefs", REFERENCE_LIB)
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const { mine, others, adapter } = await allImpls(contract, opts.lib, opts);
-    const todo = libMarkdown(mine.report, contract, diffBaseline(mine.report, loadBaseline(BASELINES_DIR, mine.lib.name)));
-    const rank = (f: LibReport["functions"][number]) =>
-      ({ failing: 0, signature: 1, missing: f.level === "core" ? 2 : 3, ok: 9, waived: 9 })[f.status];
-    const work = mine.report.functions.filter((f) => rank(f) < 9).sort((a, b) => rank(a) - rank(b) || a.id.localeCompare(b.id));
-    const parts = [
-      "<!-- api-validator:sync-issue -->",
-      "This issue is maintained by [api-validator](https://github.com/brazilian-utils/api-validator): it lists what this lib still needs to match the shared contract. It is rewritten on every contract change; close it only when it is empty.",
-      "",
-      todo,
-      "## Porting briefs",
-      ""
-    ];
-    let size = parts.join("\n").length;
-    let shown = 0;
-    for (const f of work) {
-      if (shown >= Number(opts.maxBriefs)) break;
-      const b = briefMarkdown(contract.functions.get(f.id)!, mine, adapter, others, opts.reference);
-      if (size + b.length > 60_000) break;
-      parts.push(b);
-      size += b.length;
-      shown++;
+    const scope: Scope = opts.since
+      ? scopeFrom(changelog(contractAt(path.dirname(CONTRACT_DIR), CONTRACT_DIR, opts.since), contract))
+      : { added: new Set(), cases: new Set() };
+    if (opts.since) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
+    // Reports from the last `check --tests` (the pipeline runs it right before).
+    const refs: ImplRef[] = [];
+    for (const lib of loadLibConfigs(LIBS_DIR)) {
+      const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
+      if (fs.existsSync(file)) refs.push({ lib, report: JSON.parse(fs.readFileSync(file, "utf8")) as LibReport, root: path.join(REPOS_DIR, lib.name) });
     }
-    if (work.length > shown) parts.push(`_…and ${work.length - shown} more: run \`api-validator brief <function> --lib ${mine.lib.name}\`._`);
-    const body = parts.join("\n");
-    writeFile(path.join(OUTPUT_DIR, `${mine.lib.name}.issue.md`), body);
-    console.log(body);
+    const site = process.env.SITE_URL?.replace(/\/$/, "");
+    for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
+      const mine = refs.find((r) => r.lib.name === lib.name);
+      if (!mine) {
+        console.log(c.yellow(`${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), skipped`));
+        continue;
+      }
+      const adapter = getAdapter(lib.language);
+      const others = refs.filter((r) => r !== mine);
+      const body = (key: string, fnId: string, kind: string) =>
+        [
+          marker(key),
+          kind === "implement"
+            ? `\`${fnId}\` is in the [shared contract](https://github.com/brazilian-utils/api-validator) and this lib does not implement it yet.`
+            : `Shared cases of \`${fnId}\` fail in this lib.`,
+          site ? `Spec, every implementation and results: ${site}/functions/${fnId}/ · this lib: ${site}/libs/${lib.name.replace(/^brazilian-utils-/, "")}/` : "",
+          "",
+          briefMarkdown(contract.functions.get(fnId)!, mine, adapter, others, opts.reference),
+          "Add the function to the harness registry; its cases then run with this repo's own tests. This issue closes automatically once the api-validator run sees it done.",
+          "",
+          "_Maintained by [api-validator](https://github.com/brazilian-utils/api-validator): opened, refreshed and closed automatically._"
+        ].join("\n");
+      const wanted = wantedIssues(contract, mine.report, scope, opts.backfill);
+      const slug = lib.repo ? new URL(lib.repo).pathname.replace(/^\/|\.git$/g, "") : undefined;
+      if (!opts.apply || !slug) {
+        console.log(`${c.bold(lib.name)}: ${wanted.length} issues wanted${slug ? "" : " (no repo configured)"}`);
+        for (const w of wanted) {
+          console.log(`  open  ${w.title}`);
+          if (opts.bodies) console.log(`\n${body(w.key, w.fn, w.kind)}\n`);
+        }
+        continue;
+      }
+      const gh = (args: string[]) => {
+        const r = run("gh", args, { timeoutMs: 120_000 });
+        if (r.status !== 0) throw new Error(`gh ${args.slice(0, 3).join(" ")} failed: ${r.stderr.trim()}`);
+        return r.stdout;
+      };
+      gh(["label", "create", LABEL, "-R", slug, "--color", "0E8A16", "--description", "Shared API contract work", "--force"]);
+      const open = (JSON.parse(gh(["issue", "list", "-R", slug, "--label", LABEL, "--state", "open", "--limit", "1000", "--json", "number,body"])) as Array<{ number: number; body: string }>)
+        .map((i) => ({ ...i, key: keyOf(i.body) }))
+        .filter((i): i is { number: number; body: string; key: string } => !!i.key);
+      const tmp = path.join(os.tmpdir(), `api-contract-issue-${process.pid}.md`);
+      let created = 0;
+      let updated = 0;
+      let closed = 0;
+      for (const i of open) {
+        const reason = closeReason(i.key, contract, mine.report);
+        if (reason) {
+          gh(["issue", "close", String(i.number), "-R", slug, "--comment", `Closed by api-validator: ${reason}`]);
+          closed++;
+          continue;
+        }
+        const [kind, fnId] = i.key.split(":");
+        const fresh = body(i.key, fnId, kind);
+        if (fresh.trim() !== i.body.trim()) {
+          fs.writeFileSync(tmp, fresh);
+          gh(["issue", "edit", String(i.number), "-R", slug, "--body-file", tmp]);
+          updated++;
+        }
+      }
+      const have = new Set(open.map((i) => i.key));
+      for (const w of wanted) {
+        if (have.has(w.key)) continue;
+        fs.writeFileSync(tmp, body(w.key, w.fn, w.kind));
+        gh(["issue", "create", "-R", slug, "--title", w.title, "--label", LABEL, "--body-file", tmp]);
+        created++;
+      }
+      fs.rmSync(tmp, { force: true });
+      console.log(`${lib.name}: ${created} opened, ${updated} refreshed, ${closed} closed`);
+    }
   });
 
 program

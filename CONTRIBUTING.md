@@ -21,7 +21,7 @@ The contract is the single source of truth for names, inputs, outputs and behavi
 Then `npx tsx src/cli.ts fmt && npm run lint`, and open the PR. The Conformance job on the PR
 shows which libs are affected and the contract changelog; nothing fails for functions libs
 have not implemented yet. Every function needs vectors: `lint` lists the ones without.
-After merge, the nightly updates every lib's `api-contract` issue, its status page, and opens a
+After merge, the pipeline opens an `Implement`/`Fix` issue in every affected lib, updates the status pages, and opens a
 PR refreshing its `api-contract/` copy of the suite.
 
 ## Changing a lib config

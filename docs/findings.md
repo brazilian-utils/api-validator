@@ -35,7 +35,7 @@ several libs agree against JS, the vector may be what should change — each is 
 ## 2. Decisions needed (not encoded yet — pick one answer, add the vector)
 
 Each row is a behaviour where the libs split into camps. Once decided, add the vector to
-the contract; the libs on the other side get it in their `api-contract` issue.
+the contract; the libs on the other side get a `Fix <fn>` issue automatically.
 
 | # | Question | Camp A | Camp B | Where |
 |---|---|---|---|---|

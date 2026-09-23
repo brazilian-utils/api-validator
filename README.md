@@ -14,8 +14,9 @@ languages.
   Differential testing feeds the same mined inputs to all libs and fails on any new
   disagreement.
 - **In sync**: CI in each lib fails on regressions and on public API added outside the
-  contract; every lib repo gets an auto-maintained issue with a porting brief for each
-  missing or failing function, and a bot PR whenever its copy of the suite changes.
+  contract; merging a new function opens an issue with a porting brief in every lib that
+  lacks it (and a merged bug-fix vector, in every lib that fails it), closed automatically
+  once done, and a bot PR whenever its copy of the suite changes.
 - **Visible**: a status site (a page per lib and per function) that each lib's README badge
   links to: how the lib compares with the others, what it is missing, what fails and why.
 
@@ -47,7 +48,7 @@ toolchain is missing are still checked for API.
 | `check [--tests] [-v]` | Compare libs with the contract; writes `output/` (dashboard, per-lib markdown and JSON) and `snapshots/`. Exits non-zero on regressions vs `baselines/` (`--fail-on regression\|error\|never`) |
 | `todo -l <lib>` | Markdown TODO list of a lib, most important first |
 | `brief <fn> -l <lib>` | Porting brief: idiomatic name, signature, acceptance tests, reference source, links to every implementation |
-| `issue -l <lib>` | Body of the lib's sync issue (TODO + briefs) |
+| `issues [--since ref] [--backfill core\|all] [--apply]` | One GitHub issue per function per lib: `Implement <fn>` for functions the contract gained since `ref`, `Fix <fn>` for new/changed cases a lib fails; refreshes open ones and closes the done ones (the pipeline runs it on every merge) |
 | `cases` | Write the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
 | `export-cases -l <lib> [--path .] [--check]` | Vendor the suite into a lib (`api-contract/`, with the lib's `skip.json`); `--check` fails when it is behind |
 | `site [--base-url url]` | Build the status site from the latest reports: overview, a page per lib and per function, badges, the suite |

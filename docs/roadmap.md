@@ -17,7 +17,7 @@ progress is a number, not an opinion.
 | Record the divergence baseline | maintainers | `api-validator diff --baseline` once; from then on the nightly fails only on *new* ways libs disagree |
 | Optional: agent ports | org admin | secret `ANTHROPIC_API_KEY` in lib repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
-**Done when** all 7 lib repos show the API contract check on their PRs, an `api-contract` issue,
+**Done when** all 7 lib repos show the API contract check on their PRs, the `api-contract` issues flowing,
 a harness running the shared cases in their own test command, and a badge linking to their
 status page.
 
@@ -44,7 +44,7 @@ contract has had a review PR per domain.
 
 ## Phase 2 — close the core gaps (2–6 weeks, parallel per lib)
 
-Each lib works from its `api-contract` issue: missing core functions and failing vectors
+Each lib works from its `api-contract` issues (run the Conformance workflow once with `backfill: core` to open one per missing core function and failing vector): missing core functions and failing vectors
 first, then signature errors. Briefs make each item self-contained, so this parallelises
 across people and agents. `api-validator baseline --tests` after each merge locks gains in.
 
@@ -55,7 +55,7 @@ the badge is green everywhere.
 
 - **Contract-first rule** enforced by CI (new public API outside the contract fails the lib's
   check). New features start as contract PRs; bug fixes start as vectors.
-- **Nightly** Conformance run: sync, `check --tests`, `diff`, dashboard, issues. New
+- **Every merge + nightly** Conformance run: sync, `check --tests`, `diff`, status site, issues opened/refreshed/closed. New
   divergences found by `diff` become decisions, then vectors.
 - **Releases:** tag the contract (`contract-v1.0`, ...) when a set of functions is stable;
   `api-validator changelog --from contract-v1.0 --to contract-v1.1` writes the release notes

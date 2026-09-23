@@ -9,6 +9,15 @@ on:
   schedule:
     - cron: "0 9 * * *"
   workflow_dispatch:
+    inputs:
+      since:
+        description: "Open issues for contract changes since this git ref (e.g. a commit before a merge whose run failed)"
+        required: false
+      backfill:
+        description: "Also open issues for everything already missing or failing"
+        type: choice
+        options: [none, core, all]
+        default: none
   push:
     branches: [main]
     paths: ["contract/**", "libs/**"]
@@ -23,6 +32,8 @@ jobs:
       GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # issues --since compares the contract with the commit before the merge
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -70,24 +81,28 @@ jobs:
         run: |
           git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
           npx tsx src/cli.ts changelog --from FETCH_HEAD --to WORKTREE --out "$GITHUB_STEP_SUMMARY"
-      # Keep one "api-contract" issue per lib repo in sync with what that lib still has to do.
-      # Needs a token with issues:write on the lib repos (secret LIBS_TOKEN); skipped otherwise.
-      - name: Sync issues in the lib repositories
+          {
+            echo "## Issues this merge will open in the libs"
+            echo
+            echo '```'
+            npx tsx src/cli.ts issues --since FETCH_HEAD
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      # One issue per function per lib. On a merge to main: an "Implement <fn>" issue in every
+      # lib missing a function the merge added, and a "Fix <fn>" issue in every lib failing a
+      # case the merge added or changed. Every run also refreshes open issues and closes the
+      # ones the lib has done. Needs issues:write on the lib repos (LIBS_TOKEN).
+      - name: Open, refresh and close issues in the lib repositories
         if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          SINCE: ${{ github.event_name == 'push' && github.event.before || inputs.since }}
+          BACKFILL: ${{ inputs.backfill }}
         run: |
-          mapfile -t libs < <(npx tsx src/cli.ts libs)
-          for entry in "${libs[@]}"; do
-            read -r lib repo <<< "$entry"
-            [ -n "$repo" ] || continue
-            npx tsx src/cli.ts issue --lib "$lib" --tests > /dev/null || continue
-            gh label create api-contract -R "$repo" --color 0E8A16 --description "Shared API contract work" --force
-            number=$(gh issue list -R "$repo" --label api-contract --state open --json number -q '.[0].number')
-            if [ -n "$number" ]; then
-              gh issue edit "$number" -R "$repo" --body-file "output/$lib.issue.md"
-            else
-              gh issue create -R "$repo" --label api-contract --title "API contract: pending work" --body-file "output/$lib.issue.md"
-            fi
-          done
+          args=(issues --apply)
+          if [ -n "$SINCE" ] && [ "$SINCE" != "0000000000000000000000000000000000000000" ]; then args+=(--since "$SINCE"); fi
+          if [ -n "$BACKFILL" ] && [ "$BACKFILL" != "none" ]; then args+=(--backfill "$BACKFILL"); fi
+          npx tsx src/cli.ts "${args[@]}"
       # Keep each lib's vendored conformance suite (api-contract/: JSON cases + its skip list)
       # current: refresh it in a fresh clone and open/update an "api-contract/cases" PR when
       # it changed. Needs contents:write + pull-requests:write on the lib repos (LIBS_TOKEN).
