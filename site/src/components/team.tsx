@@ -2,6 +2,7 @@
 // Vue and VitePress: the picture, the name, the role, where the person comes from, and GitHub.
 import { type Locale, pick } from '@/lib/i18n';
 import { siGithub } from 'simple-icons';
+import { ArrowRight, Plus } from 'lucide-react';
 import team from '@/content/team.json';
 
 type Person = { name: string; login: string; role: { en: string; 'pt-BR': string }; cumbucadev?: boolean };
@@ -41,6 +42,25 @@ export function Team({ locale = 'en' }: { locale?: Locale }) {
           </a>
         </li>
       ))}
+      {/* The last seat is empty: an invitation to take it, pointing to how to join. */}
+      <li>
+        <a
+          href={locale === 'en' ? '#join-the-team' : '#entre-para-o-time'}
+          className="group flex h-full flex-col items-center rounded-xl border-2 border-dashed px-6 pt-8 pb-5 text-center transition-colors hover:border-fd-primary"
+        >
+          <span className="flex size-24 items-center justify-center rounded-full border-2 border-dashed text-fd-muted-foreground transition-colors group-hover:border-fd-primary group-hover:text-fd-primary">
+            <Plus aria-hidden className="size-8" />
+          </span>
+          <span className="mt-4 text-lg font-semibold tracking-[-0.01em]">{locale === 'en' ? 'You?' : 'Você?'}</span>
+          <span className="mt-0.5 text-sm text-fd-muted-foreground text-balance">
+            {locale === 'en' ? 'This seat is saved for whoever sends the next pull request.' : 'Este lugar está guardado para quem mandar o próximo pull request.'}
+          </span>
+          <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-medium text-fd-primary">
+            {locale === 'en' ? 'Join the team' : 'Entre para o time'}
+            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </a>
+      </li>
     </ul>
   );
 }
