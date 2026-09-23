@@ -59,6 +59,64 @@ Rules:
 - **`since` is optional**: a front matter field with the version in which the utility first shipped.
 - **No section, no tab content.** The tab then says the lib does not implement the function, or that it does but has no example yet.
 
+## Already have an API reference page?
+
+Many libraries document every function on one page, one heading per function, named after the function itself. That page works as it is: declare it in `libs/<lib>.json` and the site cuts it into the usage tabs, mapping each heading (`### isValidCpf`) to the contract function the validator bound to that symbol.
+
+```json
+"usage": {
+  "ref": "main",
+  "reference": { "en": "docs/utilities.md", "pt-BR": "docs/pt-br/utilities.md" }
+}
+```
+
+A section is everything down to the next heading: prose, options, edge cases, examples. Headings that are not a contract function (`## Conventions`, `## CPF`) are skipped; the text before the first function goes on the library's page as its **API conventions**. Usage files, when a library has both, win for the functions they cover. `api-validator usage --lib <lib> --materialize` writes a reference page out as usage files (the site's offline fallback, or the first step of a migration).
+
+## Guides: bigger examples, with live demos
+
+Some things are not one call: a form field that masks and validates as you type, an address form filled from the CEP, a state and city picker. Frontend readers need to see them working. A library can publish **guides**: Markdown pages whose examples come in tabs per framework, per variant and per file, each with an optional live demo.
+
+```json
+"usage": {
+  "guides": { "en": "docs/guides", "pt-BR": "docs/pt-br/guides" },
+  "root": "docs",
+  "assets": ["docs/snippets"],
+  "prepare": ["node", "scripts/examples.ts"]
+}
+```
+
+Inside a guide, examples use this markup (the same one docsify renders, so the files can serve the library's own site too), one tag per line:
+
+````markdown
+<div class="example" data-name="React">
+
+Prose about the React version.
+
+<div class="variant" data-variant="CPF" data-demo="/snippets/live/?dir=cpf/react&example=cpf-field.tsx">
+
+<div class="file" data-file="cpf-field.tsx">
+
+[cpf-field.tsx](../snippets/cpf/react/cpf-field.tsx ':include :type=code tsx')
+
+</div>
+
+</div>
+
+</div>
+````
+
+- `example` is a tab (a framework: React, Angular, Vue, Vanilla; or a library: Zod, Valibot). Readers pick one once and every guide follows.
+- `variant` is an optional second row of tabs (CPF, CNPJ, CEP, Phone).
+- `file` is one file of the example: an `:include` link to the file in the repository, or a fenced code block.
+- `data-demo` on an example or variant is a page of the library, relative to `root`, shown running above the files. The folders in `assets` are copied to the site as they are, so the demo loads exactly the code the page shows. It reports its height with `parent.postMessage({ type: 'example-height', height }, location.origin)`.
+- `prepare` runs in the checkout before anything is read (argv, no shell, no secrets), for libraries that generate their examples.
+
+Links between guides stay on this site; a link to the reference page with a function anchor (`utilities.md#formatcpf`) goes to that operation here. The site finds which contract functions each guide calls and lists the guide on those utility pages.
+
+## Try it
+
+Every operation the reference implementation (JavaScript) has gets a **Try it** box, with no work from anyone: one input per contract parameter, prefilled with the first shared case, running the library's latest release in the browser. When the inputs are a shared case, it says whether the answer is the one the contract expects.
+
 ## Scaffolding the examples
 
 Nobody has to write the first version by hand. The validator knows which functions the library implements and which shared cases it passes, and writes one section per undocumented function from those cases, in the library's language:
@@ -75,7 +133,7 @@ Existing sections are never touched; new ones are appended. The results in the c
 
 ## Which version is shown
 
-The site reads the files from the library's **latest GitHub release**, so what readers see matches the package they install. Repositories without releases fall back to the default branch. Until a library has its own `docs/usage/`, the site uses the copies in `site/fixtures/usage/<lib>/` of api-validator, in the same format: moving them into the library is a copy.
+The site reads the files at `usage.ref`: by default the library's **latest GitHub release**, so what readers see matches the package they install (repositories without releases fall back to the default branch). A library whose own docs already follow its main branch can set `"ref": "main"`. Until a library has its own `docs/usage/`, the site uses the copies in `site/fixtures/usage/<lib>/` of api-validator, in the same format: moving them into the library is a copy.
 
 ## Rebuilding the site on release
 

@@ -111,7 +111,23 @@ export interface LibConfig {
   knownFailures: Record<string, string>;
   /** Free-form adapter options. */
   options: Record<string, unknown>;
-  site?: { label: string; icon?: string; order: number; package: string; install: string; registry: string; usage: { ref: string; path: string } };
+  site?: {
+    label: string;
+    icon?: string;
+    order: number;
+    package: string;
+    install: string;
+    registry: string;
+    usage: {
+      ref: string;
+      path: string;
+      reference?: { en: string; "pt-BR"?: string };
+      guides?: { en: string; "pt-BR"?: string };
+      root?: string;
+      assets: string[];
+      prepare?: string[];
+    };
+  };
   source: string;
 }
 

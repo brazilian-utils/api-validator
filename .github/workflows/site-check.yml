@@ -36,7 +36,7 @@ jobs:
         run: npm audit --audit-level=low
       - name: Every domain and page has both languages
         run: npm run check:i18n -- --strict
-      - name: Site builds (usage from the fixtures, no status)
+      - name: Site builds (usage and guides from the libraries, no status)
         run: npm run build
         env:
-          USAGE_SOURCE: fixtures
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -5,7 +5,7 @@
  * domain, named after the site slug (`license-plate.md`) or the domain (`licensePlate.md`).
  * Each `## <operation>` section documents one contract function: `## isValid`, `## format`, …
  * (`is-valid`, `remove-symbols` and the older `validate` resolve too). A `.pt-br.md` twin holds
- * Portuguese prose when the lib has it. The site (site/scripts/fetch-usage.mjs) cuts the files
+ * Portuguese prose when the lib has it. The site (site/scripts/fetch-libs.mjs) cuts the files
  * into one usage tab per lib and operation.
  *
  * This module is the validator's side of that standard:
@@ -85,9 +85,52 @@ export function parseUsageDir(contract: Contract, dir: string): UsageFiles {
   return out;
 }
 
-/** The lib's own usage files when it has them, else the site's fixtures for it. */
-export function usageFilesFor(contract: Contract, lib: LibConfig, root: string | undefined, fixturesDir: string): UsageFiles {
+/**
+ * A reference page: one Markdown file whose `##`/`###` headings are the lib's own symbol names
+ * (`### isValidCpf`), the way many libs already document their API. Each section documents the
+ * contract function the validator bound to that symbol; other headings are ignored. The text
+ * before the first heading (after any front matter title) is returned as `intro`.
+ */
+export function parseReference(report: LibReport, file: string, content: string, locale: "en" | "pt-BR"): { sections: UsageSection[]; intro: string } {
+  const bySymbol = new Map<string, string>();
+  for (const f of report.functions) if (f.symbol) for (const name of new Set([f.symbol, callName(f.symbol)])) if (!bySymbol.has(name)) bySymbol.set(name, f.id);
+  const body = content.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
+  const marks = [...body.matchAll(/^(#{2,3})\s+`?([^`\s]+)`?\s*$/gm)];
+  const sections: UsageSection[] = [];
+  marks.forEach((m, i) => {
+    const fn = bySymbol.get(m[2]);
+    if (!fn) return;
+    const end = marks[i + 1]?.index;
+    sections.push({ file, locale, fn, body: body.slice(m.index! + m[0].length, end).trim() });
+  });
+  const first = marks[0]?.index ?? body.length;
+  return { sections, intro: body.slice(0, first).trim() };
+}
+
+/** The reference pages a lib declares (`site.usage.reference`), per locale. */
+export function referenceFilesFor(lib: LibConfig, root: string, report: LibReport): UsageSection[] {
+  const ref = lib.site?.usage.reference;
+  if (!ref) return [];
+  const out: UsageSection[] = [];
+  for (const [locale, rel] of Object.entries(ref) as Array<["en" | "pt-BR", string]>) {
+    const file = path.join(root, rel);
+    if (fs.existsSync(file)) out.push(...parseReference(report, rel, fs.readFileSync(file, "utf8"), locale).sections);
+  }
+  return out;
+}
+
+/**
+ * The lib's own usage: its usage files, plus its reference page for the functions they do not
+ * cover. Without either, the site's fixtures for it.
+ */
+export function usageFilesFor(contract: Contract, lib: LibConfig, root: string | undefined, fixturesDir: string, report?: LibReport): UsageFiles {
   const own = root && lib.site ? parseUsageDir(contract, path.join(root, lib.site.usage.path)) : undefined;
+  if (own && root && report) {
+    const have = new Set(own.sections.map((s) => `${s.fn}/${s.locale}`));
+    const fromReference = referenceFilesFor(lib, root, report).filter((s) => !have.has(`${s.fn}/${s.locale}`));
+    if (fromReference.length && !have.size) own.dir = path.join(root, lib.site!.usage.reference!.en);
+    own.sections.push(...fromReference);
+  }
   if (own && own.sections.length) return own;
   const fixtures = parseUsageDir(contract, path.join(fixturesDir, shortName(lib)));
   return fixtures.sections.length || fixtures.warnings.length ? fixtures : { sections: [], warnings: [] };
@@ -344,6 +387,8 @@ export interface ScaffoldInput {
   /** Native return and parameter types by symbol (from the API snapshot). */
   natives: Map<string, { returns?: string; params: Array<{ type?: string }> }>;
   existing: UsageFiles;
+  /** Sections documented elsewhere (the lib's reference page): no scaffold for them. */
+  alsoDocumented?: UsageSection[];
 }
 
 /**
@@ -355,7 +400,7 @@ export function scaffoldUsage(input: ScaffoldInput, read: (file: string) => stri
   const renderer = RENDERERS[input.lib.language];
   const out = new Map<string, string>();
   if (!renderer) return out;
-  const documented = new Set(input.existing.sections.filter((s) => s.locale === "en").map((s) => s.fn));
+  const documented = new Set([...input.existing.sections, ...(input.alsoDocumented ?? [])].filter((s) => s.locale === "en").map((s) => s.fn));
   const byDomain = new Map<string, string[]>();
   const order = (id: string) => {
     const i = OP_ORDER.indexOf(input.contract.functions.get(id)?.operation ?? "");
@@ -393,3 +438,29 @@ export function scaffoldUsage(input: ScaffoldInput, read: (file: string) => stri
 export const SCAFFOLD_HEADER =
   "<!-- Usage examples for the brazilian-utils docs site: one `## <operation>` section per contract function.\n" +
   "     Sections were scaffolded by `api-validator usage --scaffold` from the shared cases this lib passes; edit them freely. -->";
+
+/**
+ * A lib's usage sections (from its usage files, its reference page, or both) written out in the
+ * usage-file format: `<slug>.md` and `<slug>.pt-br.md`, one `## <operation>` section each, in
+ * the order the site shows them. Used to keep the site's fixtures current and to move a lib from
+ * a reference page to usage files.
+ */
+export function materializeUsage(contract: Contract, sections: UsageSection[], source: string): Map<string, string> {
+  const rank = (op: string) => (OP_ORDER.includes(op) ? OP_ORDER.indexOf(op) : OP_ORDER.length);
+  const groups = new Map<string, UsageSection[]>();
+  for (const s of sections) {
+    const fn = contract.functions.get(s.fn);
+    if (!fn) continue;
+    const file = `${slugOf(fn.domain)}${s.locale === "pt-BR" ? ".pt-br" : ""}.md`;
+    const list = groups.get(file) ?? [];
+    if (!list.some((x) => x.fn === s.fn)) list.push(s);
+    groups.set(file, list);
+  }
+  const out = new Map<string, string>();
+  for (const [file, list] of [...groups].sort(([a], [b]) => a.localeCompare(b))) {
+    const op = (s: UsageSection) => contract.functions.get(s.fn)!.operation;
+    list.sort((a, b) => rank(op(a)) - rank(op(b)) || op(a).localeCompare(op(b)));
+    out.set(file, [`<!-- Generated by \`api-validator usage --materialize\` from ${source}. -->`, "", ...list.map((s) => `## ${op(s)}\n\n${s.body}\n`)].join("\n"));
+  }
+  return out;
+}

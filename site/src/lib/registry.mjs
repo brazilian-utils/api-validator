@@ -20,6 +20,11 @@ export const REPO_ROOT = path.resolve(process.env.API_VALIDATOR_ROOT || path.joi
 export const CONTRACT_DIR = path.join(REPO_ROOT, 'contract');
 export const LIBS_DIR = path.join(REPO_ROOT, 'libs');
 export const CACHE_DIR = path.join(ROOT, '.cache', 'usage');
+export const GUIDES_DIR = path.join(ROOT, '.cache', 'guides');
+export const REPOS_CACHE = path.join(ROOT, '.cache', 'repos');
+export const LOCAL_REPOS = path.join(REPO_ROOT, '.repos');
+/** Files the libraries' live demos load, served at <base>/lib-assets/<lib>/. */
+export const LIB_ASSETS_DIR = path.join(ROOT, 'public', 'lib-assets');
 export const FIXTURES_DIR = path.join(ROOT, 'fixtures', 'usage');
 export const DOCS_DIR = path.join(ROOT, 'src', 'content', 'docs');
 export const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
@@ -148,6 +153,11 @@ export function loadLibs() {
       repo: new URL(lib.repo).pathname.replace(/^\/|\.git$/g, ''),
       ref: lib.site.usage?.ref ?? 'latest-release',
       path: lib.site.usage?.path ?? 'docs/usage',
+      reference: lib.site.usage?.reference,
+      guides: lib.site.usage?.guides,
+      root: lib.site.usage?.root ?? '.',
+      assets: lib.site.usage?.assets ?? [],
+      prepare: lib.site.usage?.prepare,
       package: lib.site.package,
       install: lib.site.install,
       registry: lib.site.registry,
@@ -188,7 +198,27 @@ export function loadReferenceFiles(id) {
     .map((f) => ({ name: f, repoPath: `contract/${spec.domain}/references/${f}` }));
 }
 
-/** Manifest written by scripts/fetch-usage.mjs. Null before the first fetch. */
+/**
+ * Guides fetched from the libraries (scripts/fetch-libs.mjs), [] before the first fetch.
+ * @returns {Array<{lib:string,slug:string,title:{en:string,'pt-BR'?:string},description:{en:string,'pt-BR'?:string},fns:string[],source:string}>}
+ */
+export function loadGuides() {
+  const file = path.join(GUIDES_DIR, 'manifest.json');
+  if (!fs.existsSync(file)) return [];
+  const libs = loadLibs().map((l) => l.id);
+  return readJson(file).guides.sort((a, b) => libs.indexOf(a.lib) - libs.indexOf(b.lib) || a.order - b.order);
+}
+
+/** One guide's content for a language (falls back to English), or null. */
+export function loadGuide(lib, slug, locale) {
+  for (const l of [locale, 'en']) {
+    const file = path.join(GUIDES_DIR, lib, `${slug}.${l}.json`);
+    if (fs.existsSync(file)) return { ...readJson(file), locale: l };
+  }
+  return null;
+}
+
+/** Manifest written by scripts/fetch-libs.mjs. Null before the first fetch. */
 export function loadUsageManifest() {
   const file = path.join(CACHE_DIR, 'manifest.json');
   if (!fs.existsSync(file)) return null;

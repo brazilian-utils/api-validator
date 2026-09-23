@@ -6,7 +6,7 @@
  */
 import { getCollection } from 'astro:content';
 import { Badge } from '@astrojs/starlight/components';
-import { loadLibs, loadSpec, loadSpecs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
+import { loadGuides, loadLibs, loadSpec, loadSpecs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
 
 interface Props {
   util: string;
@@ -41,6 +41,10 @@ const availability = libs.map((lib) => {
 });
 
 const related = (meta?.related ?? []).map((id) => allSpecs.find((s) => s.id === id)).filter(Boolean);
+// Library guides that call one of this utility's functions.
+const fnIds = new Set((meta?.operations ?? []).map((op) => op.fnId));
+const guides = loadGuides().filter((g) => g.fns.some((fn: string) => fnIds.has(fn)));
+const libLabel = (id: string) => libs.find((l) => l.id === id)?.label ?? id;
 ---
 
 {meta && (
@@ -64,6 +68,17 @@ const related = (meta?.related ?? []).map((id) => allSpecs.find((s) => s.id === 
         ))}
       </ul>
     </div>
+
+    {guides.length > 0 && (
+      <p class="related">
+        <span class="label">{t('util.guides')}</span>
+        {guides.map((g, i) => (
+          <>
+            <a href={`${prefix}/guides/${g.lib}/${g.slug}/`}>{g.title[locale] ?? g.title.en}</a> <Badge text={libLabel(g.lib)} size="small" />{i < guides.length - 1 ? ' ' : ''}
+          </>
+        ))}
+      </p>
+    )}
 
     {related.length > 0 && (
       <p class="related">

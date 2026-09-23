@@ -84,6 +84,18 @@ export const collections = {
           'lib.undocumentedIntro': z.string(),
           'lib.outsideTitle': z.string(),
           'lib.outsideIntro': z.string(),
+          'guide.liveDemo': z.string(),
+          'guide.openDemo': z.string(),
+          'guide.from': z.string(),
+          'guide.englishOnly': z.string(),
+          'guide.uses': z.string(),
+          'util.guides': z.string(),
+          'try.title': z.string(),
+          'try.run': z.string(),
+          'try.hint': z.string(),
+          'try.note': z.string(),
+          'try.matches': z.string(),
+          'try.differs': z.string(),
         })
         .partial(),
     }),
@@ -108,7 +120,7 @@ export const collections = {
     }),
   }),
 
-  // Usage snippets downloaded from each library repo by scripts/fetch-usage.mjs.
+  // Usage snippets downloaded from each library repo by scripts/fetch-libs.mjs.
   // One entry per (lib, util, operation[, locale]).
   usage: defineCollection({
     loader: glob({ pattern: '**/*.md', base: './.cache/usage' }),

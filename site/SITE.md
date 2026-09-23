@@ -18,7 +18,8 @@ npm run check:i18n
 npm audit         # precisa sair limpo; o CI falha em qualquer severidade
 ```
 
-Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`.
+Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`;
+`USAGE_SOURCE=local` lê os checkouts em `../.repos/` (os que o validador usou), com guias e demos.
 Com `GITHUB_TOKEN` no ambiente o limite da API do GitHub sobe (opcional).
 
 Situação por biblioteca (chips, páginas `/libs/<lib>/`, matriz de paridade, badges): rode o
@@ -65,11 +66,13 @@ gh api repos/actions/checkout/commits/<tag> --jq .sha
 .generated/status.json       escrito por `api-validator site-data`: situação por lib e função
 fixtures/usage/<lib>/        arquivos de uso até cada lib ter docs/usage/ no próprio repo
                              (gerados por `api-validator usage --scaffold` a partir dos casos que a lib passa)
-scripts/fetch-usage          baixa <repo>/docs/usage/<util>.md da última release de cada lib e quebra por operação
-scripts/generate-pages       gera src/content/docs/[pt-br/]utils/<slug>.mdx e libs/<lib>.mdx
+scripts/fetch-libs           clona cada lib no `usage.ref`, roda o `prepare`, lê arquivos de uso, página de
+                             referência e guias, e copia os assets das demos para public/lib-assets/<lib>/
+scripts/generate-pages       gera src/content/docs/[pt-br/]utils/<slug>.mdx, libs/<lib>.mdx e guides/<lib>/<guia>.mdx
 src/lib/registry.mjs         único lugar que sabe ler tudo isso
+src/lib/guides.mjs           parser dos guias (example → variant → file, demos, links); testado em ../test/site.test.ts
 src/components/              UtilHeader, SpecBody, OpsIntro, OpStatus, OpNotes, Usage, Cases,
-                             References, LibStatus, ParityMatrix, LibCards, Head
+                             TryIt, References, LibStatus, ParityMatrix, LibCards, GuideHeader, LiveDemo, Head
 src/integrations/            base-links: prefixa o base path nos links das páginas escritas à mão
 src/content/docs/            páginas escritas à mão (home, primeiros passos, contribuindo, paridade), en na raiz e pt-br/
 src/content/i18n/            strings da interface dos componentes
@@ -78,8 +81,12 @@ src/content/i18n/            strings da interface dos componentes
 Uma página de utilitário é: `UtilHeader` (resumo, situação por lib, relacionados) → `SpecBody`
 (o spec.*.md, quando existe) → **Uso**, uma seção por operação: assinatura, `OpStatus` (chip por
 lib), descrição do contrato, `OpNotes` (rede, depreciada), `Usage` (uma aba por lib,
-sincronizadas no site todo) e `Cases` (os casos compartilhados com o resultado de cada lib) →
+sincronizadas no site todo), `TryIt` (roda a implementação de referência no navegador) e `Cases` (os casos compartilhados com o resultado de cada lib) →
 **Fontes oficiais** (`References`).
+
+Um guia é: `GuideHeader` (de qual lib, que funções do contrato usa) → o texto do guia → cada
+grupo de exemplos em abas (framework → variante → arquivo, sincronizadas no site) com a
+`LiveDemo` acima dos arquivos. As páginas de utilitário listam os guias que chamam suas funções.
 
 Adicionar um utilitário ao site = adicionar o domínio ao contrato. Adicionar uma biblioteca =
 `../libs/<lib>.json` com o bloco `site`. Os títulos `##` dos arquivos de uso são os ids de operação
@@ -111,4 +118,8 @@ todo PR que toca `contract/`, `libs/` ou `site/`.
 - Os PDFs de referência (`contract/<domínio>/references/*.pdf`) ainda não foram trazidos do
   repositório `docs`; `References` já lista os que existirem.
 - O `brand` não tem ícone para Erlang; as outras abas usam os ícones do Starlight.
-- As bibliotecas ainda não têm `docs/usage/`: o site usa `fixtures/usage/`. Adotar é copiar a pasta.
+- JavaScript entra com o que já tem: `docs/utilities.md` (en e pt-br) vira as abas de uso e as
+  convenções da página da lib, e `docs/guides/` vira os guias com demo ao vivo (lidos de `main`,
+  como o site atual da lib). As outras libs ainda não têm `docs/usage/`: o site usa
+  `fixtures/usage/`. Adotar é copiar a pasta.
+- Guias e demos dependem da CDN (jsDelivr, esm.sh), como no site atual da lib JavaScript.

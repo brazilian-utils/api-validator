@@ -4,7 +4,7 @@
  * tab from libs/*.json), synced across the whole site with syncKey="lang".
  *
  * Tab content is the `## <operation>` section of `<lib repo>/docs/usage/<util>.md`, fetched at
- * build time into .cache/usage/ by scripts/fetch-usage.mjs.
+ * build time into .cache/usage/ by scripts/fetch-libs.mjs.
  */
 import { getCollection, render } from 'astro:content';
 import { Tabs, TabItem } from '@astrojs/starlight/components';

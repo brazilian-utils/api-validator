@@ -59,6 +59,64 @@ Regras:
 - **`since` é opcional**: um campo de front matter com a versão em que o utilitário saiu.
 - **Sem seção, aba sem conteúdo.** A aba então diz que a lib não implementa a função, ou que implementa mas ainda não tem exemplo.
 
+## Já tem uma página de referência da API?
+
+Muitas bibliotecas documentam todas as funções numa página só, um título por função, com o nome da própria função. Essa página serve do jeito que está: declare em `libs/<lib>.json` e o site a corta nas abas de uso, ligando cada título (`### isValidCpf`) à função do contrato que o validador associou àquele símbolo.
+
+```json
+"usage": {
+  "ref": "main",
+  "reference": { "en": "docs/utilities.md", "pt-BR": "docs/pt-br/utilities.md" }
+}
+```
+
+Uma seção é tudo até o próximo título: texto, opções, casos de borda, exemplos. Títulos que não são função do contrato (`## Conventions`, `## CPF`) são ignorados; o texto antes da primeira função vai para a página da biblioteca como **convenções da API**. Quando a biblioteca tem os dois, os arquivos de uso vencem nas funções que cobrem. `api-validator usage --lib <lib> --materialize` escreve a página de referência como arquivos de uso (o fallback offline do site, ou o primeiro passo de uma migração).
+
+## Guias: exemplos maiores, com demo ao vivo
+
+Algumas coisas não são uma chamada só: um campo que aplica máscara e valida enquanto se digita, um formulário de endereço preenchido pelo CEP, um seletor de estado e cidade. Quem faz front precisa ver funcionando. Uma biblioteca pode publicar **guias**: páginas Markdown cujos exemplos vêm em abas por framework, por variante e por arquivo, cada um com uma demo ao vivo opcional.
+
+```json
+"usage": {
+  "guides": { "en": "docs/guides", "pt-BR": "docs/pt-br/guides" },
+  "root": "docs",
+  "assets": ["docs/snippets"],
+  "prepare": ["node", "scripts/examples.ts"]
+}
+```
+
+Dentro de um guia, os exemplos usam esta marcação (a mesma que o docsify renderiza, então os arquivos também servem ao site da própria biblioteca), uma tag por linha:
+
+````markdown
+<div class="example" data-name="React">
+
+Texto sobre a versão React.
+
+<div class="variant" data-variant="CPF" data-demo="/snippets/live/?dir=cpf/react&example=cpf-field.tsx">
+
+<div class="file" data-file="cpf-field.tsx">
+
+[cpf-field.tsx](../snippets/cpf/react/cpf-field.tsx ':include :type=code tsx')
+
+</div>
+
+</div>
+
+</div>
+````
+
+- `example` é uma aba (um framework: React, Angular, Vue, Vanilla; ou uma biblioteca: Zod, Valibot). O leitor escolhe uma vez e todos os guias seguem.
+- `variant` é uma segunda fileira de abas, opcional (CPF, CNPJ, CEP, Telefone).
+- `file` é um arquivo do exemplo: um link `:include` para o arquivo no repositório, ou um bloco de código.
+- `data-demo` num exemplo ou variante é uma página da biblioteca, relativa a `root`, mostrada rodando acima dos arquivos. As pastas em `assets` são copiadas para o site como estão, então a demo carrega exatamente o código que a página mostra. Ela informa a altura com `parent.postMessage({ type: 'example-height', height }, location.origin)`.
+- `prepare` roda no checkout antes de tudo ser lido (argv, sem shell, sem segredos), para bibliotecas que geram os exemplos.
+
+Links entre guias ficam neste site; um link para a página de referência com âncora de função (`utilities.md#formatcpf`) vai para aquela operação aqui. O site descobre quais funções do contrato cada guia chama e lista o guia nas páginas desses utilitários.
+
+## Teste
+
+Toda operação que a implementação de referência (JavaScript) tem ganha uma caixa **Teste com JavaScript**, sem trabalho de ninguém: uma entrada por parâmetro do contrato, preenchida com o primeiro caso compartilhado, rodando a última release da biblioteca no navegador. Quando as entradas são de um caso compartilhado, ela diz se a resposta é a que o contrato espera.
+
 ## Gerando os exemplos
 
 Ninguém precisa escrever a primeira versão na mão. O validador sabe quais funções a biblioteca implementa e quais casos compartilhados ela passa, e escreve uma seção por função sem documentação a partir desses casos, na linguagem da biblioteca:
@@ -75,7 +133,7 @@ Seções existentes nunca são tocadas; as novas vão para o fim do arquivo. Os 
 
 ## Qual versão aparece
 
-O site lê os arquivos da **última release no GitHub** da biblioteca, então o que se lê bate com o pacote instalado. Repositórios sem release usam a branch padrão. Enquanto uma biblioteca não tem o próprio `docs/usage/`, o site usa as cópias em `site/fixtures/usage/<lib>/` do api-validator, no mesmo formato: levar para a biblioteca é copiar.
+O site lê os arquivos em `usage.ref`: por padrão a **última release no GitHub** da biblioteca, então o que se lê bate com o pacote instalado (repositórios sem release usam a branch padrão). Uma biblioteca cuja própria documentação já segue a branch principal pode usar `"ref": "main"`. Enquanto uma biblioteca não tem o próprio `docs/usage/`, o site usa as cópias em `site/fixtures/usage/<lib>/` do api-validator, no mesmo formato: levar para a biblioteca é copiar.
 
 ## Rebuild do site a cada release
 

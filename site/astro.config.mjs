@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import { CATEGORIES, loadLibs, loadSpecs } from './src/lib/registry.mjs';
+import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './src/lib/registry.mjs';
 
 import baseLinks from './src/integrations/base-links.mjs';
 
@@ -64,6 +64,21 @@ export default defineConfig({
           ],
         },
         ...utilityGroups,
+        // Longer, library-specific pages (a form field, an address form…), from each library's guides.
+        ...(loadGuides().length
+          ? [
+              {
+                label: 'Guides',
+                translations: { 'pt-BR': 'Guias' },
+                items: loadGuides().map((g) => ({
+                  slug: `guides/${g.lib}/${g.slug}`,
+                  label: g.title.en ?? Object.values(g.title)[0],
+                  translations: g.title['pt-BR'] ? { 'pt-BR': g.title['pt-BR'] } : {},
+                  badge: { text: loadLibs().find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' },
+                })),
+              },
+            ]
+          : []),
         {
           label: 'Libraries',
           translations: { 'pt-BR': 'Bibliotecas' },

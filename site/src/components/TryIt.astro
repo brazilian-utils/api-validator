@@ -1,0 +1,200 @@
+---
+/**
+ * "Try it": runs one contract operation in the browser with the reference library (JavaScript,
+ * loaded from the CDN only when the box is opened), one input per contract parameter, prefilled
+ * with the first shared case. When the inputs are those of a shared case, the answer is compared
+ * with what the contract expects. Built from the contract and the last validator run (the
+ * library's symbol), so every operation the reference implements gets one without writing it.
+ */
+import { loadLibs, loadSpec, loadStatus } from '@lib/registry.mjs';
+
+interface Props {
+  util: string;
+  op: string;
+}
+const { util, op: opId } = Astro.props;
+const t = Astro.locals.t;
+const LIB = 'javascript';
+const lib = loadLibs().find((l) => l.id === LIB);
+const op = loadSpec(util)?.operations.find((o) => o.id === opId);
+const fn = op && loadStatus()?.libs?.[LIB]?.functions?.[op.fnId];
+const usable = lib && op && fn?.symbol && ['ok', 'failing'].includes(fn.status);
+
+const kind = (type: string) => {
+  const parts = type.split('|').map((s) => s.trim());
+  if (parts.includes('string')) return 'string';
+  if (parts.includes('number')) return 'number';
+  if (parts.includes('date')) return 'date';
+  if (parts.includes('boolean')) return 'boolean';
+  return 'json';
+};
+const first = op?.tests.find((c: any) => Array.isArray(c.args)) ?? { args: [] };
+const params = (op?.params ?? []).map((p: any, i: number) => {
+  const k = kind(p.type);
+  const v = first.args[i];
+  const value = v === undefined ? '' : k === 'json' ? JSON.stringify(v) : String(v);
+  return { ...p, kind: k, value };
+});
+// Shared cases with a fixed answer, to say whether the answer shown is the contract's.
+const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) => ({ args: c.args, returns: c.returns }));
+const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
+---
+
+{usable && (
+  <details class="try-it not-content" data-cdn={cdn} data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
+    <summary>{t('try.title', { lib: lib!.label })} <code>{fn.symbol}</code></summary>
+    <form>
+      {params.map((p: any) => (
+        <label>
+          <span>{p.name}{p.optional ? '?' : ''} <small>{p.type}</small></span>
+          {p.kind === 'boolean' ? (
+            <input name={p.name} type="checkbox" checked={p.value === 'true'} />
+          ) : (
+            <input name={p.name} type={p.kind === 'number' ? 'number' : 'text'} step="any" value={p.value} placeholder={p.kind === 'json' ? '{ } JSON' : p.kind === 'date' ? '2026-01-31' : ''} autocomplete="off" spellcheck="false" />
+          )}
+        </label>
+      ))}
+      <button type="submit">{t('try.run')}</button>
+    </form>
+    <output aria-live="polite"><span class="muted">{t('try.hint')}</span></output>
+    <p class="note">{t('try.note', { lib: lib!.label })}</p>
+  </details>
+)}
+
+<script>
+  const load = new Map<string, Promise<any>>();
+  const text = (v: unknown) => (v === undefined ? 'undefined' : typeof v === 'string' ? JSON.stringify(v) : JSON.stringify(v, (_, x) => (x instanceof Date ? x.toISOString() : x)));
+
+  for (const box of document.querySelectorAll<HTMLDetailsElement>('details.try-it')) {
+    const form = box.querySelector('form')!;
+    const out = box.querySelector('output')!;
+    const kinds: string[] = JSON.parse(box.dataset.kinds!);
+    const cases: Array<{ args: unknown[]; returns: unknown }> = JSON.parse(box.dataset.cases!);
+    const inputs = [...form.querySelectorAll('input')];
+
+    const args = () => {
+      const list = inputs.map((input, i) => {
+        const kind = kinds[i];
+        if (kind === 'boolean') return (input as HTMLInputElement).checked;
+        const v = input.value;
+        if (v === '') return undefined;
+        if (kind === 'number') return Number(v);
+        if (kind === 'date') return new Date(v);
+        if (kind === 'json') return JSON.parse(v);
+        return v;
+      });
+      while (list.length && list[list.length - 1] === undefined) list.pop();
+      return list;
+    };
+
+    const run = async () => {
+      const cdn = box.dataset.cdn!;
+      if (!load.has(cdn)) load.set(cdn, import(/* @vite-ignore */ cdn));
+      out.textContent = '…';
+      try {
+        const mod = await load.get(cdn);
+        const input = args();
+        const result = await mod[box.dataset.symbol!](...input);
+        const known = cases.find((c) => JSON.stringify(c.args) === JSON.stringify(input));
+        out.innerHTML = '';
+        const code = document.createElement('code');
+        code.textContent = text(result);
+        out.append(code);
+        if (known) {
+          const same = JSON.stringify(known.returns) === JSON.stringify(result ?? null);
+          const tag = document.createElement('span');
+          tag.className = same ? 'ok' : 'differs';
+          tag.textContent = same ? box.dataset.msgOk! : `${box.dataset.msgDiffers!} ${text(known.returns)}`;
+          out.append(tag);
+        }
+      } catch (error) {
+        out.innerHTML = '';
+        const e = document.createElement('span');
+        e.className = 'differs';
+        e.textContent = String((error as Error)?.message ?? error);
+        out.append(e);
+      }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      run();
+    });
+    // Answers as you type once the box is open: it is a playground, not a form.
+    let timer: number | undefined;
+    form.addEventListener('input', () => {
+      clearTimeout(timer);
+      timer = window.setTimeout(run, 250);
+    });
+    box.addEventListener('toggle', () => box.open && run(), { once: true });
+  }
+</script>
+
+<style>
+  .try-it {
+    margin: 1rem 0;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    background: var(--sl-color-bg-nav);
+  }
+  summary {
+    cursor: pointer;
+    padding: 0.55rem 0.9rem;
+    font-weight: 600;
+    font-size: var(--sl-text-sm);
+  }
+  summary code { font-weight: 400; margin-inline-start: 0.25rem; }
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: end;
+    padding: 0 0.9rem 0.75rem;
+  }
+  label {
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    flex: 1 1 12rem;
+  }
+  small { opacity: 0.8; font-family: var(--sl-font-mono); }
+  input[type='text'],
+  input[type='number'] {
+    font: inherit;
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-sm);
+    padding: 0.4rem 0.55rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.35rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+  }
+  button {
+    font: inherit;
+    font-size: var(--sl-text-sm);
+    padding: 0.4rem 0.9rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    cursor: pointer;
+  }
+  output {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin: 0 0.9rem 0.6rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.35rem;
+    background: var(--sl-color-bg);
+    font-size: var(--sl-text-sm);
+    min-height: 2.4rem;
+  }
+  output :global(.ok) { color: var(--sl-color-green); font-size: var(--sl-text-xs); }
+  output :global(.differs) { color: var(--sl-color-orange); font-size: var(--sl-text-xs); }
+  .muted,
+  .note { color: var(--sl-color-gray-3); }
+  .note { font-size: var(--sl-text-xs); margin: 0 0.9rem 0.7rem; }
+</style>

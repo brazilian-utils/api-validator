@@ -13,6 +13,14 @@
     "package": "@brazilian-utils/brazilian-utils",
     "install": "npm install @brazilian-utils/brazilian-utils",
     "registry": "https://www.npmjs.com/package/@brazilian-utils/brazilian-utils",
-    "usage": { "ref": "latest-release", "path": "docs/usage" }
+    "usage": {
+      "ref": "main",
+      "path": "docs/usage",
+      "reference": { "en": "docs/utilities.md", "pt-BR": "docs/pt-br/utilities.md" },
+      "guides": { "en": "docs/guides", "pt-BR": "docs/pt-br/guides" },
+      "root": "docs",
+      "assets": ["docs/snippets"],
+      "prepare": ["node", "scripts/examples.ts"]
+    }
   }
 }

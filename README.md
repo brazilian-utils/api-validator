@@ -56,7 +56,7 @@ toolchain is missing are still checked for API.
 | `cases` | Write the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
 | `export-cases -l <lib> [--path .] [--check]` | Vendor the suite into a lib (`api-contract/`, with the lib's `skip.json`); `--check` fails when it is behind |
 | `site-data [--out site]` | Export the latest reports for the docs site: `site/.generated/status.json` (status per lib and function, failing cases, usage), badges, the JSON suite |
-| `usage [--scaffold] [--path .] [--strict]` | Which implemented functions each lib documents in its usage files (`docs/usage/`, else `site/fixtures/usage/<lib>/`); `--scaffold` writes the missing sections from the cases the lib passes |
+| `usage [--scaffold] [--materialize] [--path .] [--strict]` | Which implemented functions each lib documents (its usage files and reference page, else `site/fixtures/usage/<lib>/`); `--scaffold` writes the missing sections from the cases the lib passes, `--materialize` writes a reference page out as usage files |
 | `diff [--fn 'cpf.*']` | Differential testing across libs; `--baseline` records today's splits, `--fail-on-new` fails only on new ones; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
 | `changelog [--from ref] [--to ref]` | Contract changes between git refs (new functions, signature changes, new/changed vectors) as markdown |
 | `doctor` | Toolchains every configured lib needs, and what is missing |

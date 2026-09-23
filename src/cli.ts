@@ -24,7 +24,7 @@ import type { Tool } from "./languages/types.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
 import { siteDataFiles, type SiteDataLib } from "./reporters/sitedata.js";
-import { parseUsageDir, scaffoldUsage, shortName, slugOf, summarizeUsage, usageFilesFor, usageStatus } from "./core/usage.js";
+import { materializeUsage, parseUsageDir, referenceFilesFor, scaffoldUsage, shortName, slugOf, summarizeUsage, usageFilesFor, usageStatus } from "./core/usage.js";
 import { briefMarkdown, sourceBlock, type ImplRef } from "./reporters/brief.js";
 import { libMarkdown, overviewMarkdown } from "./reporters/markdown.js";
 
@@ -289,7 +289,7 @@ program
       const diff = diffBaseline(report, loadBaseline(BASELINES_DIR, report.library));
       console.log(consoleSummary(report, diff, opts.verbose || results.length === 1));
       // Usage examples for the docs site: the lib's own docs/usage/, else the site fixtures.
-      const usage = usageStatus(contract, report, usageFilesFor(contract, lib, root, USAGE_FIXTURES));
+      const usage = usageStatus(contract, report, usageFilesFor(contract, lib, root, USAGE_FIXTURES, report));
       writeFile(path.join(OUTPUT_DIR, `${report.library}.report.json`), JSON.stringify({ ...report, baseline: diff, usage }, null, 2));
       const md = libMarkdown(report, contract, diff);
       writeFile(path.join(OUTPUT_DIR, `${report.library}.md`), md);
@@ -310,6 +310,8 @@ program
   .option("-l, --lib <names...>", "only these libs")
   .option("-p, --path <dir>", "lib checkout: read and write its own usage files (<site.usage.path>) instead of the site fixtures")
   .option("--scaffold", "append a section for every implemented function without one, from the shared cases the lib passes")
+  .option("--materialize", "write the lib's own usage (its usage files and reference page, from its checkout) as usage files in the site fixtures (or --out)")
+  .option("-o, --out <dir>", "with --materialize: where to write (default: site/fixtures/usage/<lib>/)")
   .option("--strict", "exit non-zero when an implemented function has no usage section or a section has problems")
   .action((opts) => {
     const contract = loadContract(CONTRACT_DIR);
@@ -325,18 +327,32 @@ program
       if (!lib.site) continue;
       const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
       const dir = opts.path ? path.join(opts.path, lib.site.usage.path) : path.join(USAGE_FIXTURES, shortName(lib));
+      if (opts.materialize) {
+        const root = opts.path ?? path.join(REPOS_DIR, lib.name);
+        const own = parseUsageDir(contract, path.join(root, lib.site.usage.path)).sections;
+        const have = new Set(own.map((s) => `${s.fn}/${s.locale}`));
+        const sections = [...own, ...referenceFilesFor(lib, root, report).filter((s) => !have.has(`${s.fn}/${s.locale}`))];
+        const out = opts.out ?? path.join(USAGE_FIXTURES, shortName(lib));
+        if (sections.length) {
+          fs.rmSync(out, { recursive: true, force: true });
+          const files = materializeUsage(contract, sections, `${lib.repo ?? lib.name}@${report.revision?.slice(0, 7) ?? "?"}`);
+          for (const [name, content] of files) writeFile(path.join(out, name), content);
+          console.log(c.dim(`${lib.name}: materialized ${sections.length} sections into ${files.size} file(s) in ${path.relative(process.cwd(), out)}`));
+        } else console.log(c.dim(`${lib.name}: no usage files or reference page in ${path.relative(process.cwd(), root)}`));
+      }
       if (opts.scaffold) {
         const snapshot = path.join(SNAPSHOTS_DIR, `${lib.name}.api.json`);
         const natives = new Map(
           (fs.existsSync(snapshot) ? (JSON.parse(fs.readFileSync(snapshot, "utf8")) as ApiSurface).symbols : []).map((s) => [s.name, { returns: s.returns, params: s.params }])
         );
-        const files = scaffoldUsage({ contract, lib, report, natives, existing: parseUsageDir(contract, dir) }, (f) =>
+        const alsoDocumented = opts.path ? referenceFilesFor(lib, opts.path, report) : [];
+        const files = scaffoldUsage({ contract, lib, report, natives, existing: parseUsageDir(contract, dir), alsoDocumented }, (f) =>
           fs.existsSync(path.join(dir, f)) ? fs.readFileSync(path.join(dir, f), "utf8") : undefined
         );
         for (const [name, content] of files) writeFile(path.join(dir, name), content);
         console.log(c.dim(`${lib.name}: scaffolded ${files.size} file(s) in ${path.relative(process.cwd(), dir)}`));
       }
-      const files = opts.path ? parseUsageDir(contract, dir) : usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES);
+      const files = opts.path ? parseUsageDir(contract, dir) : usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES, report);
       const usage = usageStatus(contract, report, files);
       const sum = summarizeUsage(report, usage);
       const where = files.dir ? path.relative(process.cwd(), files.dir) : "no usage files";
@@ -375,7 +391,7 @@ program
       }
       const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
       // Recomputed rather than read from the report, so edits to the usage fixtures show up.
-      const usage = usageStatus(contract, report, usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES));
+      const usage = usageStatus(contract, report, usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES, report));
       libs.push({ lib, report, usage });
     }
     const diffFile = path.join(OUTPUT_DIR, "diff.json");

@@ -1,0 +1,69 @@
+---
+/**
+ * Top of a library guide: which library it is from, a note when it is shown in English because
+ * the library has no translation, the contract functions it uses (links to their operations),
+ * and the source file.
+ */
+import { Badge } from '@astrojs/starlight/components';
+import { loadGuides, loadLibs, loadSpecs, LANG_PREFIX } from '@lib/registry.mjs';
+import { headingSlug } from '@lib/text.mjs';
+
+interface Props {
+  lib: string;
+  slug: string;
+  shown: string;
+}
+const { lib: libId, slug, shown } = Astro.props;
+const { lang } = Astro.locals.starlightRoute;
+const t = Astro.locals.t;
+const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
+const lib = loadLibs().find((l) => l.id === libId)!;
+const guide = loadGuides().find((g) => g.lib === libId && g.slug === slug)!;
+const specs = loadSpecs();
+const uses = guide.fns
+  .map((fnId: string) => {
+    const spec = specs.find((s) => fnId.startsWith(`${s.domain}.`));
+    const op = spec?.operations.find((o) => o.fnId === fnId);
+    return spec && op ? { spec, op } : null;
+  })
+  .filter(Boolean) as Array<{ spec: any; op: any }>;
+---
+
+<div class="guide-header not-content">
+  <p>
+    <Badge text={lib.label} variant="note" />
+    <span>{t('guide.from', { lib: lib.label })}</span>
+    <a href={guide.source}>{t('usage.source')}</a>
+  </p>
+  {shown !== locale && <p class="fallback">{t('guide.englishOnly')}</p>}
+  {uses.length > 0 && (
+    <p class="uses">
+      <span class="label">{t('guide.uses')}</span>
+      <span class="list">{uses.map(({ spec, op }) => <span><a href={`${prefix}/utils/${spec.id}/#${headingSlug(op.label[locale])}`}>{`${spec.title[locale]} · ${op.label[locale]}`}</a></span>)}</span>
+    </p>
+  )}
+</div>
+
+<style>
+  .guide-header {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  .guide-header p { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .guide-header a { color: var(--sl-color-text-accent); }
+  .fallback { font-style: italic; }
+  .list > span:not(:last-child)::after { content: ','; color: var(--sl-color-gray-3); margin-inline-end: 0.35rem; }
+  .label {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+  }
+</style>

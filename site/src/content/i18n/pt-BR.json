@@ -68,5 +68,17 @@
   "status.short.missing": "faltando",
   "status.short.waived": "dispensada",
   "status.failedCases_one": "{{count}} caso falhando",
-  "status.failedCases_other": "{{count}} casos falhando"
+  "status.failedCases_other": "{{count}} casos falhando",
+  "guide.liveDemo": "Demo ao vivo",
+  "guide.openDemo": "Abrir em outra aba",
+  "guide.from": "Um guia da biblioteca {{lib}}.",
+  "guide.englishOnly": "Este guia ainda não tem tradução; está em inglês.",
+  "guide.uses": "Usa",
+  "util.guides": "Guias",
+  "try.title": "Teste com {{lib}}",
+  "try.run": "Rodar",
+  "try.hint": "Roda o primeiro caso compartilhado; mude as entradas e a resposta acompanha.",
+  "try.note": "Roda a última release de {{lib}} no seu navegador, pela CDN.",
+  "try.matches": "✓ o que o contrato espera",
+  "try.differs": "✕ o contrato espera"
 }

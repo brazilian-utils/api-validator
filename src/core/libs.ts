@@ -3,6 +3,9 @@ import path from "node:path";
 import { z } from "zod";
 import type { Contract, Issue, LibConfig } from "./model.js";
 
+/** A path per site language; `en` is required, other languages fall back to it. */
+const localizedPath = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1).optional() }).strict();
+
 export const LibSchema = z
   .object({
     $schema: z.string().optional(),
@@ -27,7 +30,28 @@ export const LibSchema = z
         package: z.string().min(1),
         install: z.string().min(1),
         registry: z.string().url(),
-        usage: z.object({ ref: z.string().default("latest-release"), path: z.string().default("docs/usage") }).strict().default({ ref: "latest-release", path: "docs/usage" })
+        /**
+         * Where the lib documents how to use it, read by the site at `ref` (see
+         * site/src/content/docs/contributing/usage-files.mdx):
+         *   path       one file per utility, one `## <operation id>` section per function
+         *   reference  a page (per locale) whose `##`/`###` headings are the lib's own symbol names
+         *   guides     a folder (per locale) of guides: prose plus framework / variant / file examples
+         *   root       the folder absolute demo URLs in the guides are relative to
+         *   assets     folders the guides' live demos load, copied to the site as they are
+         *   prepare    a command (argv, no shell) run in the checkout first, e.g. to generate examples
+         */
+        usage: z
+          .object({
+            ref: z.string().default("latest-release"),
+            path: z.string().default("docs/usage"),
+            reference: localizedPath.optional(),
+            guides: localizedPath.optional(),
+            root: z.string().optional(),
+            assets: z.array(z.string()).default([]),
+            prepare: z.array(z.string()).min(1).optional()
+          })
+          .strict()
+          .default({ ref: "latest-release", path: "docs/usage", assets: [] })
       })
       .strict()
       .optional()

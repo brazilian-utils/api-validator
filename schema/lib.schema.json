@@ -41,11 +41,32 @@
         "install": { "type": "string", "minLength": 1 },
         "registry": { "type": "string", "format": "uri" },
         "usage": {
-          "default": { "ref": "latest-release", "path": "docs/usage" },
+          "default": { "ref": "latest-release", "path": "docs/usage", "assets": [] },
           "type": "object",
           "properties": {
             "ref": { "default": "latest-release", "type": "string" },
-            "path": { "default": "docs/usage", "type": "string" }
+            "path": { "default": "docs/usage", "type": "string" },
+            "reference": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en"],
+              "additionalProperties": false
+            },
+            "guides": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en"],
+              "additionalProperties": false
+            },
+            "root": { "type": "string" },
+            "assets": { "default": [], "type": "array", "items": { "type": "string" } },
+            "prepare": { "minItems": 1, "type": "array", "items": { "type": "string" } }
           },
           "additionalProperties": false
         }

@@ -68,5 +68,17 @@
   "status.short.missing": "missing",
   "status.short.waived": "waived",
   "status.failedCases_one": "{{count}} failing case",
-  "status.failedCases_other": "{{count}} failing cases"
+  "status.failedCases_other": "{{count}} failing cases",
+  "guide.liveDemo": "Live demo",
+  "guide.openDemo": "Open in a new tab",
+  "guide.from": "A guide from the {{lib}} library.",
+  "guide.englishOnly": "This guide has no translation yet; it is shown in English.",
+  "guide.uses": "Uses",
+  "util.guides": "Guides",
+  "try.title": "Try it with {{lib}}",
+  "try.run": "Run",
+  "try.hint": "Runs the first shared case; change the inputs and the answer follows.",
+  "try.note": "Runs the latest {{lib}} release in your browser, from the CDN.",
+  "try.matches": "✓ what the contract expects",
+  "try.differs": "✕ the contract expects"
 }
