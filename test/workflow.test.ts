@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { EQUALITY_SELF_TEST, domainFiles, skipsFor, suiteFiles } from "../src/core/cases.js";
-import { changelog, changelogMarkdown } from "../src/core/changelog.js";
+import { changelog, changelogMarkdown, contractAt } from "../src/core/changelog.js";
 import { valuesEqual } from "../src/core/conformance.js";
 import { loadContract } from "../src/core/contract.js";
 import { diffDivergences, divergenceBaseline, partition, type DiffRow } from "../src/core/differential.js";
@@ -72,6 +72,29 @@ const CPF: Domain = {
   }
 };
 
+
+describe("contract at a git ref", () => {
+  const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, stdio: "ignore" });
+  const repo = () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract-repo-"));
+    git(dir, "init", "-q");
+    git(dir, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "before the contract");
+    return dir;
+  };
+  it("is empty at a ref without contract/ (a base branch from before the contract)", () => {
+    const dir = repo();
+    const at = contractAt(dir, path.join(dir, "contract"), "HEAD");
+    assert.equal(at.functions.size, 0);
+  });
+  it("reads the old flat layout (<domain>.json) into today's folders", () => {
+    const dir = repo();
+    fs.mkdirSync(path.join(dir, "contract"));
+    fs.writeFileSync(path.join(dir, "contract", "licensePlate.json"), JSON.stringify({ domain: "licensePlate", functions: { isValid: { params: [{ name: "v", type: "string" }], returns: "boolean" } } }));
+    git(dir, "add", ".");
+    git(dir, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "flat");
+    assert.ok(contractAt(dir, path.join(dir, "contract"), "HEAD").functions.has("licensePlate.isValid"));
+  });
+});
 
 describe("JSON conformance suite", () => {
   const contract = contractFrom(CPF);

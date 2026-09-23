@@ -9,13 +9,15 @@ import path from "node:path";
 import { CONTRACT_FILE, loadContract } from "./contract.js";
 import { slugOf } from "../../site/src/lib/usage-format.mjs";
 import type { Contract, ContractFunction, ContractTest } from "./model.js";
-import { runOrThrow } from "./shell.js";
+import { run, runOrThrow } from "./shell.js";
 import { paramList } from "./signature.js";
 
 /** Load the contract as it was at a git ref (`WORKTREE` = files on disk). */
 export function contractAt(repo: string, dir: string, ref: string): Contract {
   if (ref === "WORKTREE") return loadContract(dir);
   const rel = path.relative(repo, dir);
+  // A ref from before the contract existed (a base branch without contract/): nothing was there.
+  if (run("git", ["cat-file", "-e", `${ref}:${rel}`], { cwd: repo }).status !== 0) return { functions: new Map(), domains: new Map() };
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-contract-"));
   try {
     const files = runOrThrow("git", ["ls-tree", "-r", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n");
