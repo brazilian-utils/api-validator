@@ -1,0 +1,45 @@
+---
+/**
+ * Renders specs/<util>/spec.md (pt-BR) or spec_en.md (en) as-is.
+ * The spec is the single place where the rule is written; this component never adds to it.
+ * Falls back to the other language with a notice when the translation does not exist yet.
+ */
+import { getEntry, render } from 'astro:content';
+import { Aside } from '@astrojs/starlight/components';
+
+interface Props {
+  util: string;
+}
+
+const { util } = Astro.props;
+const { lang } = Astro.locals.starlightRoute;
+const t = Astro.locals.t;
+
+const wanted = lang === 'pt-BR' ? 'pt-BR' : 'en';
+const other = wanted === 'en' ? 'pt-BR' : 'en';
+
+let entry = await getEntry('specs', `${util}/${wanted}`);
+let isFallback = false;
+if (!entry) {
+  entry = await getEntry('specs', `${util}/${other}`);
+  isFallback = Boolean(entry);
+}
+const Content = entry ? (await render(entry)).Content : null;
+---
+
+{isFallback && <Aside type="caution">{t('spec.fallback')}</Aside>}
+
+{Content ? (
+  <div class="spec-body">
+    <Content />
+  </div>
+) : (
+  <Aside type="note">{t('spec.missing')}</Aside>
+)}
+
+<style is:global>
+  /* The spec file starts with its own H1; the page already has one. */
+  .spec-body > h1:first-child {
+    display: none;
+  }
+</style>

@@ -1,0 +1,71 @@
+/*
+ * Brazilian Utils brand on top of Starlight.
+ * Palette from github.com/brazilian-utils/brand (palette/README.md):
+ *   green  #009C3B   yellow #FFDF00   blue #3E4095   white #FFFFFF
+ * Green is the accent. Yellow is reserved for small highlights, never for text.
+ */
+
+@font-face {
+  font-family: 'Samba';
+  src: url('/fonts/Samba.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* dark theme (Starlight default) */
+  --sl-color-accent-low: #0b3d22;
+  --sl-color-accent: #1fa85a;
+  --sl-color-accent-high: #8fe3b4;
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #e8eeeb;
+  --sl-color-gray-2: #bcc6c1;
+  --sl-color-gray-3: #85938c;
+  --sl-color-gray-4: #536159;
+  --sl-color-gray-5: #333f39;
+  --sl-color-gray-6: #222c27;
+  --sl-color-black: #151c18;
+
+  --bu-yellow: #ffdf00;
+  --bu-blue: #3e4095;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d5f2e1;
+  --sl-color-accent: #009c3b;
+  --sl-color-accent-high: #0a4a25;
+  --sl-color-white: #151c18;
+  --sl-color-gray-1: #222c27;
+  --sl-color-gray-2: #333f39;
+  --sl-color-gray-3: #536159;
+  --sl-color-gray-4: #85938c;
+  --sl-color-gray-5: #c9d3ce;
+  --sl-color-gray-6: #eef3f0;
+  --sl-color-gray-7: #f6f9f7;
+  --sl-color-black: #ffffff;
+}
+
+/* Site title and page titles use the brand display face. Body text stays on the system sans. */
+.site-title,
+.hero h1,
+.content-panel h1 {
+  font-family: 'Samba', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* A thin brand stripe under the header: green / yellow / blue. */
+header.header {
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, #009c3b 0 60%, var(--bu-yellow) 60% 80%, var(--bu-blue) 80% 100%) 1;
+}
+
+/* Language tabs: keep every group looking the same across the site. */
+starlight-tabs .tablist-wrapper {
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+/* Tables inside utility pages (test cases) breathe a little more. */
+.sl-markdown-content table code {
+  white-space: nowrap;
+}

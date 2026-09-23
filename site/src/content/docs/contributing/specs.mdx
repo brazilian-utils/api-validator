@@ -1,0 +1,73 @@
+---
+title: Writing a spec
+description: How to add or change a canonical spec in the docs repository.
+---
+
+import { FileTree, Steps, Aside } from '@astrojs/starlight/components';
+
+A spec is the single description of a Brazilian identifier or format that every library follows. It lives in the [docs repository](https://github.com/brazilian-utils/docs) and is licensed CC BY 4.0.
+
+## Anatomy of a spec
+
+<FileTree>
+- specs
+  - cpf
+    - spec.md the rule, in Portuguese
+    - spec_en.md the same rule, in English
+    - meta.yaml what the site needs: category, titles, operations
+    - test-cases.json inputs and expected outputs per operation
+    - references
+      - references.md links to the official documents
+      - lei-14534-2023.pdf local copies of those documents
+</FileTree>
+
+`spec.md` and `spec_en.md` always have the same sections, in this order: **Summary**, **Operations**, **Validation rules**, **Algorithm**, **Regex**, **Examples**. Look at [`specs/cpf`](https://github.com/brazilian-utils/docs/tree/main/specs/cpf) for a complete one.
+
+## meta.yaml
+
+```yaml
+category: documents          # one of: documents, companies, address, vehicles, finance, telecom, text-and-dates
+order: 1                     # position inside the category (optional)
+title:
+  en: CPF
+  pt-BR: CPF
+summary:
+  en: One sentence shown under the page title.
+  pt-BR: Uma frase mostrada abaixo do título.
+operations:                  # the `## headings` libraries use in their usage files
+  - id: validate
+    label: { en: Validate, pt-BR: Validar }
+  - id: format
+    label: { en: Format, pt-BR: Formatar }
+  - id: remove-symbols
+    label: { en: Remove symbols, pt-BR: Remover símbolos }
+  - id: generate
+    label: { en: Generate, pt-BR: Gerar }
+related: [cnpj]              # other spec ids (optional)
+```
+
+Operation ids are lowercase, hyphen-separated, and stable: renaming one breaks every library's usage file.
+
+## Adding a new spec
+
+<Steps>
+
+1. Open an issue in the docs repository named `adicionar specs/<id>` and comment "bora!" to get it assigned.
+
+2. Create `specs/<id>/` with the files above. Write `spec.md` first (the official sources are in Portuguese), then `spec_en.md` in the same PR.
+
+3. Download every official document you cite into `references/` and link it from `references.md`. Government pages disappear; the PDF in the repo is what survives.
+
+4. Add `test-cases.json` with at least the examples from the spec. These are what the library adapters run.
+
+5. Run `npm run check:i18n` and `npm run build`. The site picks the new spec up from `meta.yaml`; no page needs to be written by hand.
+
+</Steps>
+
+<Aside type="caution" title="Spec and test cases must agree">
+If the spec says formatted input is invalid, `test-cases.json` cannot expect it to be valid. The build does not check this for you yet; reviewers do.
+</Aside>
+
+## Changing a spec
+
+Behaviour changes affect every library. Open an issue first, describe the change and which libraries it touches, and only then open the PR. Keep `spec.md`, `spec_en.md` and `test-cases.json` in sync in the same PR.

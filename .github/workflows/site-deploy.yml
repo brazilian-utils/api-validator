@@ -1,0 +1,66 @@
+# Builds the Starlight site and publishes it to GitHub Pages.
+#
+# Runs on: every push to main, once a day (to pick up new library releases),
+# a `lib-released` repository_dispatch sent by a library's release workflow, and by hand.
+#
+# Every action is pinned to a commit SHA (the tag is in the comment) so a moved tag
+# cannot change what runs here. Bump them deliberately.
+name: site / deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+  repository_dispatch:
+    types: [lib-released]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: site
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm audit --audit-level=low
+      - name: Build (fetches usage files from the library repos)
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Uncomment while the site is served from <org>.github.io/docs instead of the custom domain:
+          # SITE_URL: https://brazilian-utils.github.io
+          # BASE_PATH: /docs/
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
