@@ -1,25 +1,25 @@
 ---
 title: Porting to a new language
-description: How to implement a utility in a language that does not have it yet, or start a whole new library.
+description: How to implement a utility in a library that does not have it yet, or start a whole new library.
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-The [parity matrix](/reference/parity/) shows every gap. Each one is a self-contained contribution: the rule is already written, the test cases already exist, and the site already has a tab waiting.
+The [parity matrix](/reference/parity/) shows every gap, and each [library page](/libs/python/) lists what that library is missing. Each gap is a self-contained contribution: the rule is written, the test cases exist, and in most cases an `implement` issue is already open in the library repository with the reference implementation and the cases inline.
 
 ## Adding a utility to an existing library
 
 <Steps>
 
-1. **Read the spec.** Open the utility page on this site. The "Rules and algorithm" section is the whole behaviour; the "Test cases" section is what you must pass.
+1. **Read the utility page.** The spec and the test cases are the whole behaviour. Other libraries' tabs show how they did it.
 
-2. **Implement it in the library repo**, following that repository's `CONTRIBUTING.md` for naming, tests and changelog. Name the functions the way the language expects (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); the spec does not dictate names.
+2. **Implement it** following the library's `CONTRIBUTING.md`. Name functions the way the language expects (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); the contract does not dictate names, the validator matches them by convention or by a binding in `libs/<lib>.json`.
 
-3. **Pass the test cases.** Copy `specs/<util>/test-cases.json` into your test suite, or point the adapter in the docs repo at your library.
+3. **Register it in the library's harness.** The harness reads the vendored `api-contract/cases/*.json` and runs every case of every function it knows with the library's own test command.
 
-4. **Add `docs/usage/<util>.md`** in the library repo, following the [usage files](/contributing/usage-files/) contract.
+4. **Add the usage section** in `docs/usage/<util>.md` ([usage files](/contributing/usage-files/)); `api-validator usage --scaffold` writes it from the cases you now pass.
 
-5. **Release.** The next site build shows your tab.
+5. **Release.** The issue closes by itself on the next api-validator run; the next site build shows your tab and status.
 
 </Steps>
 
@@ -27,18 +27,16 @@ The [parity matrix](/reference/parity/) shows every gap. Each one is a self-cont
 
 <Steps>
 
-1. Open a discussion in the [organization](https://github.com/brazilian-utils/.github) or email `cumbucadev@brazilian-utils.com.br` to get a repository created under `brazilian-utils/<language>`.
+1. Ask the organization for a repository under `brazilian-utils/<language>`.
 
-2. Start with the same first four utilities every library has: CPF, CNPJ, CEP and license plate. Their specs and test cases are complete.
+2. In api-validator, add a language adapter (API extraction and a test runner) and `libs/brazilian-utils-<language>.json` with its `site` block (label, icon, install line, registry link). The guide is [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md).
 
-3. Follow the repository conventions of an existing library (the Python one has the most detailed `CONTRIBUTING.md`).
+3. Start with the core functions: `api-validator issues --backfill core --lib <language> --apply` opens one issue per missing core function.
 
-4. Ship `docs/usage/` from the first release.
-
-5. Open a PR in the docs repository adding your library to `libs.yaml` (id, label, icon, repo, install command, registry link). That is the only change the site needs.
+4. Adopt the harness ([docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md)) and ship `docs/usage/` from the first release.
 
 </Steps>
 
 <Aside type="tip">
-Do not document differences from other libraries. If your implementation behaves differently from the spec, that is a bug to fix, not a note to write.
+Do not document differences from other libraries. If an implementation disagrees with the contract, that is a failing case to fix (or a contract change to propose), not a note to write.
 </Aside>

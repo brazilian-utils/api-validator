@@ -53,7 +53,7 @@ const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stri
 ---
 
 <p class="links not-content">
-  <a href={`https://github.com/${lib.repo}`}>github.com/{lib.repo}</a> · <a href={lib.registry}>{lib.package}</a>
+  <a href={`https://github.com/${lib.repo}`}>github.com/{lib.repo}</a> · <a href={lib.registry}>{lib.registry.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>
   {mine?.revision && <> · <code>{mine.revision.slice(0, 7)}</code></>}
   {' · '}<img src={`${base}/badges/${lib.id}.svg`} alt="API contract badge" height="20" />
 </p>

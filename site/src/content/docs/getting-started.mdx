@@ -15,13 +15,11 @@ Every utility has **one page**, no matter how many languages implement it. Each 
 
 <Steps>
 
-1. **What it is and how it works.** The identifier, its rules, the validation algorithm and the regexes. This is the canonical spec, shared by every library.
+1. **What it is and how it works.** The identifier, its rules, the algorithm and the regexes, when the utility has a long-form spec. This part, like everything below, comes from the shared contract in [api-validator](https://github.com/brazilian-utils/api-validator), not from any single library.
 
-2. **Official sources.** The law, decree or agency document the rule comes from, with a copy kept in the repository in case the original goes offline.
+2. **Usage.** One section per operation (validate, format, generate…): its signature, which libraries implement it and whether they pass every case, the contract's description, one tab per language with the example, and the test cases. Pick JavaScript, Python, Go, Ruby, Rust, .NET or Erlang once and every page follows.
 
-3. **Usage.** One block per operation (validate, format, remove symbols, generate…), with one tab per language. Pick JavaScript, Python, Go, Ruby, Rust, .NET or Erlang once and every page follows.
-
-4. **Test cases.** The inputs and expected outputs every implementation must satisfy.
+3. **Official sources.** The law, decree or agency document the rule comes from.
 
 </Steps>
 
@@ -50,5 +48,5 @@ The libraries validate **structure**: length, allowed characters, check digits. 
 ## Where to go next
 
 - Browse the utilities in the sidebar, grouped by category.
-- Check the [parity matrix](/reference/parity/) to see which language implements what.
+- Check the [parity matrix](/reference/parity/) to see which language implements what, or a library's own page (for example [Python](/libs/python/)) for what it is missing.
 - Want to contribute? Start with [writing a spec](/contributing/specs/) or [porting to a new language](/contributing/new-language/).

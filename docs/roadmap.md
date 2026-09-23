@@ -10,9 +10,10 @@ progress is a number, not an opinion.
 | Step | Who | How |
 |---|---|---|
 | Merge this repository's PR | maintainers | CI runs typecheck, tests with all 7 toolchains, contract lint |
-| Publish the status site | org admin | enable GitHub Pages (source: GitHub Actions), set repository variables `PUBLISH_DASHBOARD=true` and `SITE_URL` |
+| Publish the docs site | org admin | enable GitHub Pages (source: GitHub Actions), set repository variable `PUBLISH_SITE=true` (and `SITE_URL` when it is served from a custom domain) |
 | Turn on issue + test sync | org admin | a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 lib repos, saved as secret `LIBS_TOKEN` |
 | Add the Action to every lib | one PR per lib | copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`; add the badge to the README |
+| Add usage files to every lib | one PR per lib | copy `site/fixtures/usage/<lib>/` (scaffolded from the cases each lib passes) to `docs/usage/`, trim the README to a link to the site |
 | Add the suite + harness to every lib | one PR per lib | `api-validator export-cases --lib <lib> --path .` vendors `api-contract/`; copy the lib's harness from `templates/harness/<lang>/` (already written and verified for all 7 libs) |
 | Record the divergence baseline | maintainers | `api-validator diff --baseline` once; from then on the nightly fails only on *new* ways libs disagree |
 | Optional: agent ports | org admin | secret `ANTHROPIC_API_KEY` in lib repos that adopt `templates/lib-ci/port-with-claude.yml` |
@@ -55,7 +56,7 @@ the badge is green everywhere.
 
 - **Contract-first rule** enforced by CI (new public API outside the contract fails the lib's
   check). New features start as contract PRs; bug fixes start as vectors.
-- **Every merge + nightly** Conformance run: sync, `check --tests`, `diff`, status site, issues opened/refreshed/closed. New
+- **Every merge + nightly** Conformance run: sync, `check --tests`, `diff`, docs site, issues opened/refreshed/closed. New
   divergences found by `diff` become decisions, then vectors.
 - **Releases:** tag the contract (`contract-v1.0`, ...) when a set of functions is stable;
   `api-validator changelog --from contract-v1.0 --to contract-v1.1` writes the release notes

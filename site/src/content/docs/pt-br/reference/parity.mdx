@@ -1,12 +1,12 @@
 ---
 title: Matriz de paridade
-description: Qual biblioteca implementa qual utilitário, e o quanto. Gerada a partir dos arquivos de uso que cada biblioteca publica.
+description: Qual biblioteca implementa qual utilitário, e o quanto, segundo a última execução do api-validator.
 tableOfContents: false
 ---
 
 import ParityMatrix from '@components/ParityMatrix.astro';
 
-Cada célula conta quantas operações da spec a biblioteca documenta no seu arquivo de uso. Passe o mouse sobre uma célula para ver as operações uma a uma.
+Cada célula conta quantas operações do utilitário a biblioteca implementa: ● todas, passando em todos os casos compartilhados; ◐ algumas; ✕ ao menos uma falha num caso; ○ nenhuma. Passe o mouse sobre uma célula para ver as operações uma a uma, ou abra a página de uma biblioteca para os detalhes.
 
 <ParityMatrix />
 

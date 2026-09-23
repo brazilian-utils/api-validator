@@ -8,6 +8,8 @@
 @font-face {
   font-family: 'Samba';
   src: url('/fonts/Samba.ttf') format('truetype');
+  /* Samba has no accented letters: those fall back to the next font instead of rendering blank. */
+  unicode-range: U+0020-007E;
   font-weight: 400;
   font-style: normal;
   font-display: swap;

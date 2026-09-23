@@ -3,8 +3,13 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { CATEGORIES, loadLibs, loadSpecs } from './src/lib/registry.mjs';
 
-const SITE_URL = process.env.SITE_URL || 'https://brazilian-utils.com.br';
-const BASE_PATH = process.env.BASE_PATH || '/';
+import baseLinks from './src/integrations/base-links.mjs';
+
+// SITE_URL is the public URL, path included (https://brazilian-utils.github.io/api-validator);
+// the path becomes Astro's base unless BASE_PATH says otherwise.
+const PUBLIC_URL = new URL(process.env.SITE_URL || 'https://brazilian-utils.com.br');
+const SITE_URL = PUBLIC_URL.origin;
+const BASE_PATH = process.env.BASE_PATH || `${PUBLIC_URL.pathname.replace(/\/$/, '')}/`;
 
 // Sidebar entries for every utility that has a spec, grouped by category.
 // Adding a utility = adding a domain to ../contract (with its category). Nothing to edit here.
@@ -26,6 +31,7 @@ export default defineConfig({
   base: BASE_PATH,
   trailingSlash: 'always',
   integrations: [
+    baseLinks(BASE_PATH),
     starlight({
       title: 'Brazilian Utils',
       description: 'Utilities to validate, format and generate Brazilian data, in every language.',

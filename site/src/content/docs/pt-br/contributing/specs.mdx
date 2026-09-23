@@ -1,73 +1,68 @@
 ---
 title: Escrevendo uma spec
-description: Como adicionar ou alterar uma spec canônica no repositório de docs.
+description: Como adicionar ou mudar uma função no contrato compartilhado, que todas as páginas deste site e todas as bibliotecas seguem.
 ---
 
 import { FileTree, Steps, Aside } from '@astrojs/starlight/components';
 
-Uma spec é a descrição única de um identificador ou formato brasileiro que todas as bibliotecas seguem. Ela mora no [repositório docs](https://github.com/brazilian-utils/docs) e é licenciada sob CC BY 4.0.
+A spec de cada utilitário é o contrato no [api-validator](https://github.com/brazilian-utils/api-validator): um arquivo JSON por domínio com as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir dele, e uma mudança mergeada abre uma issue em cada biblioteca que não tem a função.
 
-## Anatomia de uma spec
+## Anatomia
 
 <FileTree>
-- specs
+- contract
+  - _categories.json os grupos da barra lateral
+  - cpf.json título, resumo, categoria, funções e seus casos
   - cpf
-    - spec.md a regra, em português
-    - spec_en.md a mesma regra, em inglês
-    - meta.yaml o que o site precisa: categoria, títulos, operações
-    - test-cases.json entradas e saídas esperadas por operação
-    - references
-      - references.md links para os documentos oficiais
-      - lei-14534-2023.pdf cópias locais desses documentos
+    - spec.en.md regra e algoritmo por extenso, em inglês (opcional)
+    - spec.pt-BR.md o mesmo, em português
+    - references.md links para os documentos oficiais
 </FileTree>
 
-`spec.md` e `spec_en.md` sempre têm as mesmas seções, nesta ordem: **Resumo**, **Operações**, **Regras de validação**, **Algoritmo detalhado**, **Regex**, **Exemplos**. Veja [`specs/cpf`](https://github.com/brazilian-utils/docs/tree/main/specs/cpf) para uma spec completa.
-
-## meta.yaml
-
-```yaml
-category: documents          # uma de: documents, companies, address, vehicles, finance, telecom, text-and-dates
-order: 1                     # posição dentro da categoria (opcional)
-title:
-  en: CPF
-  pt-BR: CPF
-summary:
-  en: One sentence shown under the page title.
-  pt-BR: Uma frase mostrada abaixo do título.
-operations:                  # os `## títulos` que as bibliotecas usam nos arquivos de uso
-  - id: validate
-    label: { en: Validate, pt-BR: Validar }
-  - id: format
-    label: { en: Format, pt-BR: Formatar }
-  - id: remove-symbols
-    label: { en: Remove symbols, pt-BR: Remover símbolos }
-  - id: generate
-    label: { en: Generate, pt-BR: Gerar }
-related: [cnpj]              # ids de outras specs (opcional)
+```json
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cpf",
+  "title": { "en": "CPF", "pt-BR": "CPF" },
+  "summary": { "en": "One sentence under the page title.", "pt-BR": "Uma frase abaixo do título." },
+  "category": "documents",
+  "order": 1,
+  "related": ["cnpj"],
+  "functions": {
+    "isValid": {
+      "level": "core",
+      "summary": "Whether the value is a valid CPF",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["82178537464"], "returns": true },
+        { "args": ["00000000000"], "returns": false, "note": "reserved number" }
+      ]
+    }
+  }
+}
 ```
 
-Ids de operação são minúsculos, separados por hífen e estáveis: renomear um quebra o arquivo de uso de todas as bibliotecas.
+As chaves de `functions` são os ids de operação: os títulos `##` nos [arquivos de uso](/pt-br/contributing/usage-files/) de cada biblioteca, e parte do id da função (`cpf.isValid`) que o validador, as issues e as páginas de situação usam. São estáveis: renomear um quebra todas as bibliotecas. `label` (`{ "en", "pt-BR" }`) troca o nome da operação na página quando o padrão não serve. O formato completo, com todos os campos, está em [docs/contract.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/contract.md).
 
-## Adicionando uma spec nova
+## Adicionando uma função ou um domínio
 
 <Steps>
 
-1. Abra uma issue no repositório docs chamada `adicionar specs/<id>` e comente "bora!" para ela ser atribuída a você.
+1. Adicione a função (ou um `contract/<domínio>.json` novo) com a assinatura e os **casos de teste**: os casos são a spec que toda biblioteca precisa cumprir. Inclua os exemplos da regra oficial e os casos de borda (entrada vazia, entrada formatada, dígito verificador errado).
 
-2. Crie `specs/<id>/` com os arquivos acima. Escreva o `spec.md` primeiro (as fontes oficiais estão em português) e o `spec_en.md` no mesmo PR.
+2. Para um domínio novo, escreva `spec.en.md` e `spec.pt-BR.md` quando a regra precisar de mais que as descrições das funções (o algoritmo, a regex), e liste as fontes oficiais em `references.md`.
 
-3. Baixe todo documento oficial que citar para `references/` e linke a partir de `references.md`. Página de governo some; o PDF no repositório é o que sobrevive.
+3. Rode `npm run lint` (contrato, schemas, formatação; `npm run api-validator fmt` corrige a formatação) e `npm run check -- --tests` para ver quais bibliotecas já passam os casos novos.
 
-4. Adicione `test-cases.json` com pelo menos os exemplos da spec. É o que os adapters das bibliotecas executam.
-
-5. Rode `npm run check:i18n` e `npm run build`. O site descobre a spec nova pelo `meta.yaml`; nenhuma página precisa ser escrita à mão.
+4. Abra o PR. O pipeline comenta o changelog do contrato e as issues que vai abrir. No merge, cada biblioteca sem a função recebe uma issue `implement`, e a página aparece neste site.
 
 </Steps>
 
-<Aside type="caution" title="Spec e casos de teste precisam concordar">
-Se a spec diz que entrada formatada é inválida, o `test-cases.json` não pode esperar que seja válida. O build ainda não checa isso por você; quem revisa checa.
+<Aside type="caution" title="Os casos mandam">
+Se o texto diz que entrada formatada é inválida, um caso precisa esperar `false` para ela. O texto explica; os casos decidem, e são eles que as bibliotecas rodam.
 </Aside>
 
-## Alterando uma spec
+## Mudando comportamento
 
-Mudança de comportamento afeta todas as bibliotecas. Abra uma issue antes, descreva a mudança e quais bibliotecas ela toca, e só então abra o PR. Mantenha `spec.md`, `spec_en.md` e `test-cases.json` em sincronia no mesmo PR.
+Mudar um valor esperado muda todas as bibliotecas. Explique a mudança no PR (a fonte oficial, quais bibliotecas afeta). Bibliotecas que falham nos casos alterados recebem uma issue `fix` automaticamente depois do merge.

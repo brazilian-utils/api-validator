@@ -45,3 +45,13 @@ getFormatLicensePlate('ABC-1234'); // 'LLLNNNN'
 getFormatLicensePlate('ABC1D23'); // 'LLLNLNN'
 getFormatLicensePlate('INVALID'); // null
 ```
+
+## convertToMercosul
+
+```js
+import { convertLicensePlateToMercosul } from '@brazilian-utils/brazilian-utils';
+
+convertLicensePlateToMercosul('ABC1234');  // 'ABC1C34'
+convertLicensePlateToMercosul('ABC0000');  // 'ABC0A00'
+convertLicensePlateToMercosul('ABC9999');  // 'ABC9J99'
+```

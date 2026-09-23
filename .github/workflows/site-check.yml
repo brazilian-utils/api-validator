@@ -1,19 +1,15 @@
-# Pull request checks for the site: dependencies audited, both languages present, site builds.
+# Pull request checks for the docs site: dependencies audited, both languages present, the site
+# builds from the contract and the usage fixtures. The full pipeline (conformance.yml) builds
+# and publishes it with the results of a run.
 name: site / check
 
 on:
   pull_request:
     paths:
-      - 'site/specs/**'
-      - 'site/fixtures/**'
-      - 'site/src/**'
-      - 'site/scripts/**'
-      - 'site/libs.yaml'
-      - 'site/astro.config.mjs'
-      - 'site/package.json'
-      - 'site/package-lock.json'
-      - 'site/.npmrc'
-      - '.github/workflows/site-*.yml'
+      - 'contract/**'
+      - 'libs/**'
+      - 'site/**'
+      - '.github/workflows/site-check.yml'
 
 permissions:
   contents: read
@@ -28,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # check-i18n compares last-commit dates
+          fetch-depth: 0 # check-i18n compares last-commit dates of each language pair
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -38,9 +34,9 @@ jobs:
       - run: npm ci
       - name: No known vulnerabilities, at any severity
         run: npm audit --audit-level=low
-      - name: Every spec and page has both languages
+      - name: Every domain and page has both languages
         run: npm run check:i18n -- --strict
-      - name: Site builds
+      - name: Site builds (usage from the fixtures, no status)
         run: npm run build
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USAGE_SOURCE: fixtures

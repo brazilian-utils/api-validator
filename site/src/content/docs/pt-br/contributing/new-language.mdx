@@ -1,44 +1,42 @@
 ---
 title: Portando para outra linguagem
-description: Como implementar um utilitário em uma linguagem que ainda não o tem, ou começar uma biblioteca nova.
+description: Como implementar um utilitário numa biblioteca que ainda não tem, ou começar uma biblioteca nova.
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-A [matriz de paridade](/pt-br/reference/parity/) mostra cada lacuna. Cada uma é uma contribuição fechada em si: a regra já está escrita, os casos de teste já existem e o site já tem uma aba esperando.
+A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas, e a [página de cada biblioteca](/pt-br/libs/python/) lista o que falta nela. Cada lacuna é uma contribuição fechada: a regra está escrita, os casos de teste existem e, na maioria das vezes, já há uma issue `implement` aberta no repositório da biblioteca com a implementação de referência e os casos.
 
 ## Adicionando um utilitário a uma biblioteca existente
 
 <Steps>
 
-1. **Leia a spec.** Abra a página do utilitário neste site. A seção "Regras e algoritmo" é todo o comportamento; a seção "Casos de teste" é o que você precisa passar.
+1. **Leia a página do utilitário.** A spec e os casos de teste são o comportamento inteiro. As abas das outras bibliotecas mostram como elas fizeram.
 
-2. **Implemente no repositório da biblioteca**, seguindo o `CONTRIBUTING.md` daquele repositório para nomes, testes e changelog. Nomeie as funções do jeito que a linguagem espera (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); a spec não dita nomes.
+2. **Implemente** seguindo o `CONTRIBUTING.md` da biblioteca. Dê nomes do jeito da linguagem (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); o contrato não impõe nomes, o validador os encontra por convenção ou por um binding em `libs/<lib>.json`.
 
-3. **Passe nos casos de teste.** Copie `specs/<util>/test-cases.json` para a sua suíte, ou aponte o adapter do repositório docs para a sua biblioteca.
+3. **Registre no harness da biblioteca.** O harness lê o `api-contract/cases/*.json` vendorizado e roda todos os casos de cada função que conhece, com o comando de teste da própria biblioteca.
 
-4. **Adicione `docs/usage/<util>.md`** no repositório da biblioteca, seguindo o contrato de [arquivos de uso](/pt-br/contributing/usage-files/).
+4. **Adicione a seção de uso** em `docs/usage/<util>.md` ([arquivos de uso](/pt-br/contributing/usage-files/)); `api-validator usage --scaffold` escreve a partir dos casos que você agora passa.
 
-5. **Publique a release.** O próximo build do site mostra a sua aba.
+5. **Faça release.** A issue fecha sozinha na próxima execução do api-validator; o próximo build do site mostra sua aba e situação.
 
 </Steps>
 
-## Começando uma biblioteca em uma linguagem nova
+## Começando uma biblioteca numa linguagem nova
 
 <Steps>
 
-1. Abra uma discussão na [organização](https://github.com/brazilian-utils/.github) ou escreva para `cumbucadev@brazilian-utils.com.br` para criarem o repositório `brazilian-utils/<linguagem>`.
+1. Peça à organização um repositório em `brazilian-utils/<linguagem>`.
 
-2. Comece pelos mesmos quatro utilitários que toda biblioteca tem: CPF, CNPJ, CEP e placa. As specs e os casos de teste deles estão completos.
+2. No api-validator, adicione um adapter de linguagem (extração da API e um runner de testes) e `libs/brazilian-utils-<linguagem>.json` com o bloco `site` (rótulo, ícone, linha de instalação, link do registry). O guia é [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md).
 
-3. Siga as convenções de repositório de uma biblioteca existente (a de Python tem o `CONTRIBUTING.md` mais detalhado).
+3. Comece pelas funções core: `api-validator issues --backfill core --lib <linguagem> --apply` abre uma issue por função core faltando.
 
-4. Publique `docs/usage/` desde a primeira release.
-
-5. Abra um PR no repositório docs adicionando sua biblioteca ao `libs.yaml` (id, label, ícone, repositório, comando de instalação, link do registro). É a única mudança que o site precisa.
+4. Adote o harness ([docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md)) e publique `docs/usage/` desde a primeira release.
 
 </Steps>
 
 <Aside type="tip">
-Não documente diferenças em relação a outras bibliotecas. Se a sua implementação se comporta diferente da spec, isso é um bug para corrigir, não uma nota para escrever.
+Não documente diferenças em relação a outras bibliotecas. Se uma implementação discorda do contrato, é um caso falhando para corrigir (ou uma mudança no contrato para propor), não uma nota para escrever.
 </Aside>

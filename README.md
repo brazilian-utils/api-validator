@@ -17,8 +17,11 @@ languages.
   contract; merging a new function opens an issue with a porting brief in every lib that
   lacks it (and a merged bug-fix vector, in every lib that fails it), closed automatically
   once done, and a bot PR whenever its copy of the suite changes.
-- **Visible**: a status site (a page per lib and per function) that each lib's README badge
-  links to: how the lib compares with the others, what it is missing, what fails and why.
+- **Documented once**: the docs site ([`site/`](site), Starlight, English and Portuguese) is
+  built from the contract: one page per utility with the spec, each operation's signature,
+  its status in every lib, a usage tab per lib (from each lib's `docs/usage/<util>.md`) and
+  the shared cases. Each lib has a status page, which its README badge links to: how it
+  compares with the others, what it is missing, what fails and why.
 
 See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
 **[docs/findings.md](docs/findings.md)** for what the first run found and
@@ -31,7 +34,8 @@ npm ci
 npx tsx src/cli.ts doctor          # which toolchains are installed / missing
 npx tsx src/cli.ts sync            # clone/update every lib into .repos/
 npx tsx src/cli.ts check --tests   # contract + shared tests for all libs
-npx tsx src/cli.ts site            # status site in output/site/ (open index.html)
+npx tsx src/cli.ts site-data       # results for the docs site (status, badges, JSON suite)
+(cd site && npm ci && npm run dev) # the docs site at http://localhost:4321
 ```
 
 Running the shared tests needs each lib's toolchain (and dependencies) installed; libs whose
@@ -51,7 +55,8 @@ toolchain is missing are still checked for API.
 | `issues [--since ref] [--backfill core\|all] [--apply]` | One GitHub issue per function per lib: `Implement <fn>` for functions the contract gained since `ref`, `Fix <fn>` for new/changed cases a lib fails; refreshes open ones and closes the done ones (the pipeline runs it on every merge) |
 | `cases` | Write the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
 | `export-cases -l <lib> [--path .] [--check]` | Vendor the suite into a lib (`api-contract/`, with the lib's `skip.json`); `--check` fails when it is behind |
-| `site [--base-url url]` | Build the status site from the latest reports: overview, a page per lib and per function, badges, the suite |
+| `site-data [--out site]` | Export the latest reports for the docs site: `site/.generated/status.json` (status per lib and function, failing cases, usage), badges, the JSON suite |
+| `usage [--scaffold] [--path .] [--strict]` | Which implemented functions each lib documents in its usage files (`docs/usage/`, else `site/fixtures/usage/<lib>/`); `--scaffold` writes the missing sections from the cases the lib passes |
 | `diff [--fn 'cpf.*']` | Differential testing across libs; `--baseline` records today's splits, `--fail-on-new` fails only on new ones; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
 | `changelog [--from ref] [--to ref]` | Contract changes between git refs (new functions, signature changes, new/changed vectors) as markdown |
 | `doctor` | Toolchains every configured lib needs, and what is missing |
@@ -114,11 +119,16 @@ in the lib: [docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libs-too).
 
 ### Status page and badge
 
-The nightly run publishes the status site. Each lib's README:
+The pipeline publishes the docs site (`vars.PUBLISH_SITE`), with a status page per lib. Each lib's README:
 
 ```markdown
 [![API contract](https://brazilian-utils.github.io/api-validator/badges/python.svg)](https://brazilian-utils.github.io/api-validator/libs/python/)
 ```
+
+Usage examples for the site live in the lib (`docs/usage/<util>.md`, one `## <operation>`
+section per contract function); `api-validator usage --lib python --path . --scaffold` writes
+the missing ones from the cases the lib passes. Format: the site's
+[usage files](site/src/content/docs/contributing/usage-files.mdx) page.
 
 Locally, from a lib checkout: `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.

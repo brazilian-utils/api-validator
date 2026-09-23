@@ -1,73 +1,68 @@
 ---
 title: Writing a spec
-description: How to add or change a canonical spec in the docs repository.
+description: How to add or change a function in the shared contract, which every page of this site and every library follows.
 ---
 
 import { FileTree, Steps, Aside } from '@astrojs/starlight/components';
 
-A spec is the single description of a Brazilian identifier or format that every library follows. It lives in the [docs repository](https://github.com/brazilian-utils/docs) and is licensed CC BY 4.0.
+The spec of every utility is the contract in [api-validator](https://github.com/brazilian-utils/api-validator): one JSON file per domain with the functions, their signatures and the test cases every library runs. This site renders its pages from it, and a merged change opens an issue in every library that lacks the function.
 
-## Anatomy of a spec
+## Anatomy
 
 <FileTree>
-- specs
+- contract
+  - _categories.json the sidebar groups
+  - cpf.json title, summary, category, functions and their cases
   - cpf
-    - spec.md the rule, in Portuguese
-    - spec_en.md the same rule, in English
-    - meta.yaml what the site needs: category, titles, operations
-    - test-cases.json inputs and expected outputs per operation
-    - references
-      - references.md links to the official documents
-      - lei-14534-2023.pdf local copies of those documents
+    - spec.en.md long-form rule and algorithm, in English (optional)
+    - spec.pt-BR.md the same, in Portuguese
+    - references.md links to the official documents
 </FileTree>
 
-`spec.md` and `spec_en.md` always have the same sections, in this order: **Summary**, **Operations**, **Validation rules**, **Algorithm**, **Regex**, **Examples**. Look at [`specs/cpf`](https://github.com/brazilian-utils/docs/tree/main/specs/cpf) for a complete one.
-
-## meta.yaml
-
-```yaml
-category: documents          # one of: documents, companies, address, vehicles, finance, telecom, text-and-dates
-order: 1                     # position inside the category (optional)
-title:
-  en: CPF
-  pt-BR: CPF
-summary:
-  en: One sentence shown under the page title.
-  pt-BR: Uma frase mostrada abaixo do título.
-operations:                  # the `## headings` libraries use in their usage files
-  - id: validate
-    label: { en: Validate, pt-BR: Validar }
-  - id: format
-    label: { en: Format, pt-BR: Formatar }
-  - id: remove-symbols
-    label: { en: Remove symbols, pt-BR: Remover símbolos }
-  - id: generate
-    label: { en: Generate, pt-BR: Gerar }
-related: [cnpj]              # other spec ids (optional)
+```json
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cpf",
+  "title": { "en": "CPF", "pt-BR": "CPF" },
+  "summary": { "en": "One sentence under the page title.", "pt-BR": "Uma frase abaixo do título." },
+  "category": "documents",
+  "order": 1,
+  "related": ["cnpj"],
+  "functions": {
+    "isValid": {
+      "level": "core",
+      "summary": "Whether the value is a valid CPF",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["82178537464"], "returns": true },
+        { "args": ["00000000000"], "returns": false, "note": "reserved number" }
+      ]
+    }
+  }
+}
 ```
 
-Operation ids are lowercase, hyphen-separated, and stable: renaming one breaks every library's usage file.
+The keys of `functions` are the operation ids: the `##` headings in every library's [usage files](/contributing/usage-files/), and part of the function id (`cpf.isValid`) the validator, the issues and the status pages use. They are stable: renaming one is a breaking change for every library. `label` (`{ "en", "pt-BR" }`) overrides the operation name shown on the page when the default one does not fit. The full format, with every field, is in [docs/contract.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/contract.md).
 
-## Adding a new spec
+## Adding a function or a domain
 
 <Steps>
 
-1. Open an issue in the docs repository named `adicionar specs/<id>` and comment "bora!" to get it assigned.
+1. Add the function (or a new `contract/<domain>.json`) with its signature and **test cases**: the cases are the spec every library is held to. Include the examples of the official rule and the edge cases (blank input, formatted input, wrong check digit).
 
-2. Create `specs/<id>/` with the files above. Write `spec.md` first (the official sources are in Portuguese), then `spec_en.md` in the same PR.
+2. For a new domain, write `spec.en.md` and `spec.pt-BR.md` when the rule needs more than the function descriptions (the algorithm, the regex), and list the official sources in `references.md`.
 
-3. Download every official document you cite into `references/` and link it from `references.md`. Government pages disappear; the PDF in the repo is what survives.
+3. Run `npm run lint` (contract, schemas, formatting; `npm run api-validator fmt` fixes the formatting) and `npm run check -- --tests` to see which libraries already pass the new cases.
 
-4. Add `test-cases.json` with at least the examples from the spec. These are what the library adapters run.
-
-5. Run `npm run check:i18n` and `npm run build`. The site picks the new spec up from `meta.yaml`; no page needs to be written by hand.
+4. Open the PR. The pipeline comments the contract changelog and the issues it will open. When it merges, every library missing the function gets an `implement` issue, and the page appears on this site.
 
 </Steps>
 
-<Aside type="caution" title="Spec and test cases must agree">
-If the spec says formatted input is invalid, `test-cases.json` cannot expect it to be valid. The build does not check this for you yet; reviewers do.
+<Aside type="caution" title="Cases are the source of truth">
+If the prose says formatted input is invalid, a case must expect `false` for it. The prose explains; the cases decide, and they are what the libraries run.
 </Aside>
 
-## Changing a spec
+## Changing behaviour
 
-Behaviour changes affect every library. Open an issue first, describe the change and which libraries it touches, and only then open the PR. Keep `spec.md`, `spec_en.md` and `test-cases.json` in sync in the same PR.
+Changing an expected value changes every library. Explain the change in the PR (the official source, which libraries it affects). Libraries that fail the changed cases get a `fix` issue automatically once it merges.

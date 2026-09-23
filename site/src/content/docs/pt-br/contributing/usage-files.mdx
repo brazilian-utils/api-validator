@@ -1,112 +1,108 @@
 ---
 title: Arquivos de uso
-description: O contrato que cada biblioteca segue para seus exemplos aparecerem neste site. Um arquivo Markdown por utilitário, dentro do repositório da biblioteca.
+description: O padrão que cada biblioteca segue para seus exemplos aparecerem neste site. Um arquivo Markdown por utilitário, dentro do repositório da biblioteca.
 ---
 
 import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
 
-A seção "Uso" de cada página de utilitário não é escrita aqui. Ela é puxada, no build, de uma pasta dentro do repositório de cada biblioteca:
+A spec, a assinatura e os casos de teste de cada página vêm do contrato no [api-validator](https://github.com/brazilian-utils/api-validator). Os exemplos de código nas abas, não: cada biblioteca escreve os seus, numa pasta do próprio repositório.
 
 <FileTree>
-- javascript/
+- python/
   - docs/
     - usage/
       - cpf.md
       - cnpj.md
-      - cep.md
       - license-plate.md
       - …
 </FileTree>
 
-A biblioteca é dona desses arquivos. Quem muda a API atualiza o arquivo de uso no mesmo pull request, e os revisores da própria biblioteca aprovam. Este site só lê.
+A biblioteca é dona desses arquivos. Quem muda a API atualiza o arquivo de uso no mesmo pull request. Este site só lê.
 
-## O contrato
+## O formato
 
-Um arquivo por utilitário, com o nome do id da spec (`cpf.md`, `license-plate.md`…). Dentro, um título `##` por operação, usando os ids de operação do `meta.yaml` da spec:
+Um arquivo por utilitário, com o slug da página (`cpf.md`, `license-plate.md`) ou o domínio do contrato (`licensePlate.md`). Dentro, um título `##` por operação, com o **id da operação no contrato** (`contract/<domínio>.json`, as chaves de `functions`):
 
 ````markdown
----
-since: 2.0.0
----
+## isValid
 
-## validate
+```python
+from brutils import is_valid_cpf
 
-```js
-import { isValidCpf } from '@brazilian-utils/brazilian-utils';
-
-isValidCpf('11144477735'); // true
-isValidCpf('00000000000'); // false
+is_valid_cpf('82178537464')  # True
+is_valid_cpf('00011122233')  # False
 ```
 
 ## format
 
-```js
-import { formatCpf } from '@brazilian-utils/brazilian-utils';
+```python
+from brutils import format_cpf
 
-formatCpf('11144477735'); // '111.444.777-35'
-```
-
-## remove-symbols
-
-```js
-import { parseCpf } from '@brazilian-utils/brazilian-utils';
-
-parseCpf('111.444.777-35'); // '11144477735'
+format_cpf('82178537464')  # '821.785.374-64'
 ```
 
 ## generate
 
-```js
-import { generateCpf } from '@brazilian-utils/brazilian-utils';
+```python
+from brutils import generate_cpf
 
-generateCpf(); // um CPF válido aleatório
+generate_cpf()  # random valid value
 ```
 ````
 
 Regras:
 
-- **Títulos são ids de operação.** `validate`, `format`, `remove-symbols`, `generate`, mais o que a spec declarar (`address-lookup`, `detect-format`…). Título desconhecido é ignorado e reportado no log do build.
-- **Cada seção mostra a chamada.** Import, invocação, resultado. Uma ou duas linhas de texto são aceitáveis (por exemplo, "chamada de rede, usa ViaCEP"). Não explique a regra; a spec já faz isso.
-- **Código e comentários em inglês.** O mesmo arquivo serve os dois idiomas do site. Se quiser uma versão em português, adicione `cpf.pt-br.md` ao lado; quando ela não existe, o arquivo em inglês é mostrado também para quem lê em português.
-- **`since` é opcional.** A versão da sua biblioteca em que o utilitário entrou. Vira um badge.
-- **Sem arquivo, sem aba.** Biblioteca sem `docs/usage/<util>.md` aparece como "ainda não disponível" naquele utilitário. Arquivo sem uma dada `## operação` mostra a mesma mensagem só naquela operação.
+- **Títulos são ids de operação do contrato**: `isValid`, `format`, `parse`, `removeSymbols`, `generate`, `getInfo`… Kebab case (`remove-symbols`) e o antigo `validate` também funcionam. Um título que não bate com nada é apontado pelo `api-validator usage` e ignorado no build.
+- **Cada seção mostra a chamada**: import, chamada, resultado. Uma linha de texto ajuda ("chamada de rede, usa ViaCEP"). Não explique a regra; a spec na mesma página já explica.
+- **O exemplo tem que chamar a função da lib.** O validador sabe qual símbolo nativo implementa cada função do contrato e aponta seções que nunca o mencionam.
+- **Código e comentários em inglês.** Um `cpf.pt-br.md` ao lado, quando existe, aparece para quem lê em português.
+- **`since` é opcional**: um campo de front matter com a versão em que o utilitário saiu.
+- **Sem seção, aba sem conteúdo.** A aba então diz que a lib não implementa a função, ou que implementa mas ainda não tem exemplo.
 
-## Qual ref é usada
+## Gerando os exemplos
 
-O site busca os arquivos na **última release do GitHub** da biblioteca, para que o leitor veja o mesmo que instala. Repositório sem release cai para o branch padrão.
+Ninguém precisa escrever a primeira versão na mão. O validador sabe quais funções a biblioteca implementa e quais casos compartilhados ela passa, e escreve uma seção por função sem documentação a partir desses casos, na linguagem da biblioteca:
 
-## Mantendo os exemplos verdadeiros
+```sh
+# no repositório da lib, depois do `check --tests` gerar o relatório
+npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
+npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
+```
 
-O site não executa seus exemplos. Seu repositório deve, com o que sua linguagem usa para isso: `doctest` em Python, testes `Example` em Go, doc-tests em Rust, um arquivo Vitest que importa os mesmos trechos em JavaScript. Regra de bolso: se o exemplo no site está errado, o CI da biblioteca deveria ter ficado vermelho.
+Seções existentes nunca são tocadas; as novas vão para o fim do arquivo. Os resultados nos comentários são os valores esperados pelo contrato em casos que a biblioteca passou, então os exemplos nascem corretos. Depois, edite à vontade.
+
+`api-validator usage` sem `--scaffold` mostra o que está documentado, o que falta e o que está errado; `--strict` faz ele falhar, para uma CI de biblioteca que queira exigir.
+
+## Qual versão aparece
+
+O site lê os arquivos da **última release no GitHub** da biblioteca, então o que se lê bate com o pacote instalado. Repositórios sem release usam a branch padrão. Enquanto uma biblioteca não tem o próprio `docs/usage/`, o site usa as cópias em `site/fixtures/usage/<lib>/` do api-validator, no mesmo formato: levar para a biblioteca é copiar.
 
 ## Rebuild do site a cada release
 
-Adicione um passo no seu workflow de release para o site reconstruir assim que a versão nova sair:
+Adicione um passo ao workflow de release da biblioteca para o site ser reconstruído com a versão nova:
 
 ```yaml
-- name: Notify docs site
+- name: Notify the docs site
   if: success()
-  run: gh api repos/brazilian-utils/docs/dispatches -f event_type=lib-released -f 'client_payload[lib]=javascript'
+  run: gh api repos/brazilian-utils/api-validator/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
   env:
-    GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+    GH_TOKEN: ${{ secrets.API_VALIDATOR_DISPATCH_TOKEN }}
 ```
 
-`DOCS_DISPATCH_TOKEN` é um secret da organização com permissão para disparar workflows no repositório docs. Sem ele o site ainda reconstrói diariamente.
+Sem isso o site ainda é reconstruído todo dia e a cada mudança no contrato.
 
-## Migrando um README existente
+## Adotando numa biblioteca
 
 <Steps>
 
-1. Crie `docs/usage/` no seu repositório.
+1. Copie `site/fixtures/usage/<lib>/` do api-validator para `docs/usage/` da biblioteca (ou rode o comando de scaffold acima).
 
-2. Para cada utilitário que sua biblioteca implementa, crie `<id da spec>.md` e mova os exemplos correspondentes do README para seções `## operação`. É recorte e cola: os exemplos já existem.
+2. Revise os exemplos, acrescente texto onde ajudar e enxugue o README para instalação, um ou dois exemplos e um link para este site.
 
-3. Encurte o README para instalação, três exemplos e um link para este site.
-
-4. Abra o PR. Quando ele for mesclado e a próxima release sair, as abas aparecem aqui automaticamente.
+3. Faça merge e release. O próximo build do site lê os arquivos da biblioteca.
 
 </Steps>
 
 <Aside type="note">
-Enquanto uma biblioteca não adota o contrato, este site monta as abas dela a partir de cópias temporárias guardadas em `fixtures/usage/` no repositório docs. Essas cópias já estão no formato certo; podem ir para o repositório da biblioteca como estão.
+O site não executa os exemplos, mas os valores dos exemplos gerados vêm de casos que o próprio harness da biblioteca roda. Ao escrever um exemplo na mão, use entradas dos casos do contrato e ele continua correto pelo mesmo motivo.
 </Aside>

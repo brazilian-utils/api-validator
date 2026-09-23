@@ -1,9 +1,9 @@
 # O site (Starlight)
 
-Este repositório é, ao mesmo tempo, o repositório de specs canônicas e o site
-que as renderiza em [brazilian-utils.com.br](https://brazilian-utils.com.br).
-Este arquivo explica a parte do site. O `README.md` explica as specs.
-O plano completo, com a pesquisa que levou a estas decisões, está em `plan.md`.
+O site de documentação das brazilian-utils, que mora no api-validator: as páginas saem do
+contrato (`../contract`), das bibliotecas (`../libs/*.json`, bloco `site`), dos arquivos de uso
+de cada biblioteca e dos resultados da última execução do validador. Nada de conteúdo de
+utilitário é escrito aqui à mão. O `plan.md` guarda a pesquisa que levou ao desenho (histórico).
 
 ## Rodando localmente
 
@@ -21,9 +21,20 @@ npm audit         # precisa sair limpo; o CI falha em qualquer severidade
 Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`.
 Com `GITHUB_TOKEN` no ambiente o limite da API do GitHub sobe (opcional).
 
+Situação por biblioteca (chips, páginas `/libs/<lib>/`, matriz de paridade, badges): rode o
+validador antes, na raiz do repositório:
+
+```bash
+npx tsx src/cli.ts check --tests   # output/<lib>.report.json
+npx tsx src/cli.ts diff            # output/diff.json (opcional: divergências)
+npx tsx src/cli.ts site-data       # site/.generated/status.json, public/badges/, public/cases/
+```
+
+Sem isso o site compila igual, só sem situação.
+
 ## Dependências e segurança
 
-Só quatro dependências diretas, todas em versão exata (sem `^`), escolhidas em 2026-09-09
+Só três dependências diretas, todas em versão exata (sem `^`), escolhidas em 2026-09-09
 depois de conferir o GitHub Advisory Database e a proveniência no npm:
 
 | Pacote | Versão | Proveniência | Advisories na versão |
@@ -31,7 +42,6 @@ depois de conferir o GitHub Advisory Database e a proveniência no npm:
 | `astro` | 7.3.2 | SLSA (GitHub Actions do repo `withastro/astro`) | nenhuma; a 7.3.2 corrige o RCE via AVIF da 7.2.x |
 | `@astrojs/starlight` | 0.42.0 | SLSA (GitHub Actions do repo `withastro/starlight`) | nenhuma |
 | `sharp` | 0.35.4 | SLSA | nenhuma; toda 0.34.x tem duas advisories high (libheif, libvips) |
-| `js-yaml` | 4.3.2 | sem atestado (publicado pelo mantenedor) | nenhuma; já está na árvore do Astro e do Starlight, então não adiciona pacote |
 
 Recomendado um `.npmrc` na raiz com `ignore-scripts=true`, `save-exact=true`, `audit=true`,
 `audit-level=low` e `fund=false`: nenhuma dependência executa código no `npm ci`. `sharp` e
@@ -48,24 +58,32 @@ gh api repos/actions/checkout/commits/<tag> --jq .sha
 ## Como o site é montado
 
 ```
-specs/<id>/            regra (spec.md, spec_en.md), meta.yaml, test-cases.json, references/
-libs.yaml              as bibliotecas e de onde puxar o uso de cada uma (hoje: JavaScript e Python)
-fixtures/usage/        cópias temporárias do uso, até cada lib ter docs/usage/ no próprio repo
-scripts/fetch-usage    baixa <repo>/docs/usage/<util>.md de cada lib e quebra por operação em .cache/usage/
-scripts/generate-pages gera src/content/docs/[pt-br/]utils/<id>.mdx a partir de cada meta.yaml
-src/components/        UtilHeader, SpecBody, References, Usage, TestCases, ParityMatrix, LibCards, Head
-src/content/docs/      páginas escritas à mão (home, primeiros passos, contribuindo, paridade), en na raiz e pt-br/
-src/content/i18n/      strings da interface dos componentes
-src/styles/brand.css   paleta e fonte do repositório brand
+../contract/<domínio>.json   título, resumo, categoria, funções, assinaturas e casos (a spec)
+../contract/<domínio>/       spec.en.md, spec.pt-BR.md, references.md (texto longo, opcional)
+../contract/_categories.json grupos da barra lateral
+../libs/<lib>.json           bloco "site": rótulo, ícone, instalação, registry, onde ficam os arquivos de uso
+.generated/status.json       escrito por `api-validator site-data`: situação por lib e função
+fixtures/usage/<lib>/        arquivos de uso até cada lib ter docs/usage/ no próprio repo
+                             (gerados por `api-validator usage --scaffold` a partir dos casos que a lib passa)
+scripts/fetch-usage          baixa <repo>/docs/usage/<util>.md da última release de cada lib e quebra por operação
+scripts/generate-pages       gera src/content/docs/[pt-br/]utils/<slug>.mdx e libs/<lib>.mdx
+src/lib/registry.mjs         único lugar que sabe ler tudo isso
+src/components/              UtilHeader, SpecBody, OpsIntro, OpStatus, OpNotes, Usage, Cases,
+                             References, LibStatus, ParityMatrix, LibCards, Head
+src/integrations/            base-links: prefixa o base path nos links das páginas escritas à mão
+src/content/docs/            páginas escritas à mão (home, primeiros passos, contribuindo, paridade), en na raiz e pt-br/
+src/content/i18n/            strings da interface dos componentes
 ```
 
-Uma página de utilitário é: `UtilHeader` (resumo + badges por lib) → `SpecBody` (o spec.md
-renderizado como está) → `References` (links de references.md) → `Usage` (uma aba por lib em cada
-operação, JavaScript por padrão, sincronizadas no site todo) → `TestCases` (tabela do
-test-cases.json).
+Uma página de utilitário é: `UtilHeader` (resumo, situação por lib, relacionados) → `SpecBody`
+(o spec.*.md, quando existe) → **Uso**, uma seção por operação: assinatura, `OpStatus` (chip por
+lib), descrição do contrato, `OpNotes` (rede, depreciada), `Usage` (uma aba por lib,
+sincronizadas no site todo) e `Cases` (os casos compartilhados com o resultado de cada lib) →
+**Fontes oficiais** (`References`).
 
-Adicionar um utilitário ao site = criar `specs/<id>/` com `meta.yaml`. Adicionar uma linguagem =
-uma entrada em `libs.yaml` (Go, Ruby, Rust, .NET e Erlang entram assim quando for a hora).
+Adicionar um utilitário ao site = adicionar o domínio ao contrato. Adicionar uma biblioteca =
+`../libs/<lib>.json` com o bloco `site`. Os títulos `##` dos arquivos de uso são os ids de operação
+do contrato (`isValid`, `format`, …).
 
 ## Idiomas
 
@@ -75,27 +93,22 @@ português e não existe escolha salva, a página em inglês redireciona para a 
 também grava a escolha, e a escolha sempre vence a detecção. Implementado em
 `src/components/Head.astro`.
 
-Página ou spec sem tradução cai para o outro idioma com um aviso. `npm run check:i18n -- --strict`
+Página ou domínio sem tradução cai para o outro idioma com um aviso. `npm run check:i18n -- --strict`
 falha no CI quando falta a versão de um idioma.
 
 ## Deploy
 
-`.github/workflows/site-deploy.yml` publica no GitHub Pages a cada push em `main`, uma vez por
-dia, e quando uma biblioteca envia `repository_dispatch` com `event_type=lib-released` na
-release (ver a página "Arquivos de uso" do site). `site-check.yml` roda `npm audit`,
-`check:i18n --strict` e o build em todo PR.
-
-Enquanto o domínio ainda aponta para o Pages do repositório `javascript`, publique em
-`brazilian-utils.github.io/docs` definindo `SITE_URL` e `BASE_PATH` no workflow (já está
-comentado lá). Ao mover o CNAME para este repositório, remova as duas variáveis.
+Um pipeline só: `.github/workflows/conformance.yml` roda o validador (check, diff, issues),
+`site-data`, e o build do site, e publica no GitHub Pages quando `vars.PUBLISH_SITE == 'true'`.
+Roda a cada merge em `main` (contrato, libs, site), uma vez por dia, e quando uma biblioteca
+manda `repository_dispatch` com `event_type=lib-released` na release. `SITE_URL` é a URL
+pública com o caminho (padrão `https://<org>.github.io/api-validator`); o caminho vira o `base`
+do Astro. `site-check.yml` roda `npm audit`, `check:i18n --strict` e o build (com os fixtures) em
+todo PR que toca `contract/`, `libs/` ou `site/`.
 
 ## Pendências conhecidas
 
-- `lastUpdated` está desligado no `astro.config.mjs` porque a pasta ainda não é um repositório
-  git; ligar quando estiver no repo `docs`.
-- Os PDFs de `specs/*/references/` não foram copiados para esta pasta; ao mesclar no repositório
-  `docs` eles já existem lá. Os nomes com espaços e acentos funcionam, mas ficam feios na URL.
-- `fixtures/usage/` só tem JavaScript e Python, que são também as únicas libs em `libs.yaml`.
-- O `brand` não tem ícone para Go, Ruby, Rust, .NET e Erlang; os ícones das abas vêm do Starlight.
-- `spec.md` e `test-cases.json` do CPF discordam sobre entrada formatada. Não afeta o site,
-  afeta os adapters.
+- Os PDFs de referência (`contract/<domínio>/references/*.pdf`) ainda não foram trazidos do
+  repositório `docs`; `References` já lista os que existirem.
+- O `brand` não tem ícone para Erlang; as outras abas usam os ícones do Starlight.
+- As bibliotecas ainda não têm `docs/usage/`: o site usa `fixtures/usage/`. Adotar é copiar a pasta.

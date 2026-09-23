@@ -1,8 +1,11 @@
-# Full cross-library run: every lib at its latest default branch, contract + shared tests +
-# differential testing. Fails on regressions against baselines/ and on new divergences. The
-# status site (output/site: a page per lib and per function, badges, the JSON suite) is
-# uploaded as an artifact and, when vars.PUBLISH_DASHBOARD == 'true', published to GitHub
-# Pages (vars.SITE_URL = its public URL, used in README snippets).
+# The one pipeline: every lib at its latest default branch, contract + shared tests +
+# differential testing, issues in the lib repos, the vendored suite PRs, and the docs site
+# (site/, Starlight) built from the contract, the libs' usage files and this run's results.
+# Fails on regressions against baselines/ and on new divergences.
+#
+# Publishing: the site goes to GitHub Pages from main when vars.PUBLISH_SITE == 'true'.
+# vars.SITE_URL is its public URL, path included (default: https://<owner>.github.io/<repo>);
+# the issues link to it and the README badges point at it.
 name: Conformance
 
 on:
@@ -18,11 +21,18 @@ on:
         type: choice
         options: [none, core, all]
         default: none
+  # A lib's release workflow sends this so the site shows the released usage files at once.
+  repository_dispatch:
+    types: [lib-released]
   push:
     branches: [main]
-    paths: ["contract/**", "libs/**"]
+    paths: ["contract/**", "libs/**", "site/**", "src/**", ".github/workflows/conformance.yml"]
   pull_request:
     paths: ["contract/**", "libs/**", "baselines/**", "src/**"]
+
+concurrency:
+  group: conformance-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   conformance:
@@ -30,6 +40,7 @@ jobs:
     env:
       # Token with issues:write on the lib repos, used by the issue sync step (skipped when unset).
       GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
+      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +49,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            site/package-lock.json
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -95,7 +109,6 @@ jobs:
       - name: Open, refresh and close issues in the lib repositories
         if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.GH_TOKEN != ''
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
           SINCE: ${{ github.event_name == 'push' && github.event.before || inputs.since }}
           BACKFILL: ${{ inputs.backfill }}
         run: |
@@ -138,29 +151,51 @@ jobs:
               gh pr create -R "$repo" --head "$branch" --title "test: update API contract cases" --body-file "$RUNNER_TEMP/pr-$lib.md" --label api-contract
             fi
           done
-      - name: Build the status site
+      # Which implemented functions each lib shows on the site (its docs/usage/, else the
+      # fixtures in site/fixtures/usage/); informative, never fails the run.
+      - name: Usage files
         if: always()
+        run: |
+          {
+            echo "## Usage examples on the docs site"
+            echo
+            echo '```'
+            npx tsx src/cli.ts usage || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Docs site data (status per lib and function, badges, JSON suite)
+        if: always()
+        run: npx tsx src/cli.ts site-data
+      - name: Build the docs site
+        if: always()
+        working-directory: site
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
-        run: npx tsx src/cli.ts site --out output/site
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # fetch-usage: the libs' docs/usage/ at their latest release
+        run: |
+          npm ci
+          npm audit --audit-level=low
+          npm run check:i18n -- --strict
+          npm run build
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: conformance-report
           path: output/
       - uses: actions/upload-pages-artifact@v3
-        if: always() && vars.PUBLISH_DASHBOARD == 'true' && github.ref == 'refs/heads/main'
+        if: always() && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
-          path: output/site/
+          path: site/dist/
 
   publish:
     needs: conformance
-    if: always() && vars.PUBLISH_DASHBOARD == 'true' && github.ref == 'refs/heads/main'
+    if: always() && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/deploy-pages@v4
+      - id: deployment
+        uses: actions/deploy-pages@v4

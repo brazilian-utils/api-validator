@@ -13,6 +13,7 @@ import { summarize } from "../src/core/analyze.js";
 import { badgeSvg } from "../src/reporters/badge.js";
 import { siteDataFiles } from "../src/reporters/sitedata.js";
 import { closeReason, keyOf, marker, scopeFrom, wantedIssues } from "../src/core/issues.js";
+import { parseUsageDir, scaffoldUsage, usageStatus } from "../src/core/usage.js";
 
 const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
   name: "brazilian-utils-demo",
@@ -149,6 +150,60 @@ describe("site data", () => {
 
   it("badge is a self-contained SVG", () => {
     assert.match(badgeSvg(libs[0].report), /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"[\s\S]*api contract/);
+  });
+});
+
+describe("usage files", () => {
+  const contract = contractFrom(CPF);
+  const report: LibReport = {
+    library: "brazilian-utils-demo",
+    language: "python",
+    functions: [...contract.functions.values()].map((f) => ({
+      id: f.id,
+      level: f.level,
+      status: f.operation === "format" ? ("missing" as const) : ("ok" as const),
+      symbol: f.operation === "format" ? undefined : `${f.operation === "isValid" ? "is_valid" : "generate"}_cpf`,
+      issues: [],
+      suggestions: [],
+      tests: f.tests.map((t) => ({ id: t.id, status: "pass" as const }))
+    })),
+    unmapped: [],
+    configIssues: [],
+    testsRan: true,
+    summary: summarize([])
+  };
+  const usageDir = (files: Record<string, string>) => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "usage-"));
+    for (const [name, content] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), content);
+    return dir;
+  };
+
+  it("resolves headings to contract functions (op id, kebab case, legacy alias) and reports the rest", () => {
+    const files = parseUsageDir(contract, usageDir({ "cpf.md": "intro\n\n## validate\n\n```py\nis_valid_cpf('1')\n```\n\n## remove-symbols\n\nx\n", "nope.md": "## isValid\n" }));
+    assert.deepEqual(files.sections.map((s) => s.fn), ["cpf.isValid"]);
+    assert.match(files.warnings.join("\n"), /nope\.md: no contract domain/);
+    assert.match(files.warnings.join("\n"), /"## remove-symbols" is not an operation of cpf/);
+  });
+
+  it("flags sections for functions the lib lacks and examples that never call the function", () => {
+    const files = parseUsageDir(contract, usageDir({ "cpf.md": "## isValid\n\n```py\nvalidate('1')\n```\n\n## format\n\n```py\nformat_cpf('1')\n```\n" }));
+    const usage = usageStatus(contract, report, files);
+    assert.equal(usage["cpf.isValid"].documented, true);
+    assert.match(usage["cpf.isValid"].problems[0], /never calls `is_valid_cpf`/);
+    assert.deepEqual(usage["cpf.format"].problems, ["documents a function the lib does not implement"]);
+    assert.equal(usage["cpf.generate"].documented, false);
+  });
+
+  it("scaffolds the missing sections from passing cases, keeping what is there", () => {
+    const dir = usageDir({ "cpf.md": "## isValid\n\n```python\nis_valid_cpf('40364478081')  # True\n```\n" });
+    const out = scaffoldUsage(
+      { contract, lib: lib({ site: { label: "Demo", order: 1, package: "brutils", install: "", registry: "", usage: { ref: "main", path: "docs/usage" } } }), report, natives: new Map(), existing: parseUsageDir(contract, dir) },
+      (f) => fs.readFileSync(path.join(dir, f), "utf8")
+    );
+    const cpf = out.get("cpf.md")!;
+    assert.ok(cpf.startsWith("## isValid\n\n```python\nis_valid_cpf('40364478081')  # True"), "existing content first, untouched");
+    assert.match(cpf, /## generate\n\n```python\nfrom brutils import generate_cpf\n\ngenerate_cpf\(\)  # random valid value\n```/);
+    assert.doesNotMatch(cpf, /## format/, "not implemented: no section");
   });
 });
 

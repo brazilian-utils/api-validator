@@ -1,112 +1,108 @@
 ---
 title: Usage files
-description: The contract each library follows so its examples appear on this site. One Markdown file per utility, inside the library repository.
+description: The standard each library follows so its examples appear on this site. One Markdown file per utility, inside the library repository.
 ---
 
 import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
 
-The "Usage" section of every utility page is not written here. It is pulled, at build time, from a folder inside each library's own repository:
+The spec, the signature and the test cases on every utility page come from the contract in [api-validator](https://github.com/brazilian-utils/api-validator). The code examples in the tabs do not: each library writes its own, in a folder of its repository.
 
 <FileTree>
-- javascript/
+- python/
   - docs/
     - usage/
       - cpf.md
       - cnpj.md
-      - cep.md
       - license-plate.md
       - …
 </FileTree>
 
-The library owns those files. Whoever changes the API updates the usage file in the same pull request, and the library's own reviewers approve it. This site only reads.
+The library owns those files. Whoever changes the API updates the usage file in the same pull request. This site only reads them.
 
-## The contract
+## The format
 
-One file per utility, named after the spec id (`cpf.md`, `license-plate.md`…). Inside, one `##` heading per operation, using the operation ids from the spec's `meta.yaml`:
+One file per utility, named after the page slug (`cpf.md`, `license-plate.md`) or the contract domain (`licensePlate.md`). Inside, one `##` heading per operation, using the **operation id from the contract** (`contract/<domain>.json`, the keys of `functions`):
 
 ````markdown
----
-since: 2.0.0
----
+## isValid
 
-## validate
+```python
+from brutils import is_valid_cpf
 
-```js
-import { isValidCpf } from '@brazilian-utils/brazilian-utils';
-
-isValidCpf('11144477735'); // true
-isValidCpf('00000000000'); // false
+is_valid_cpf('82178537464')  # True
+is_valid_cpf('00011122233')  # False
 ```
 
 ## format
 
-```js
-import { formatCpf } from '@brazilian-utils/brazilian-utils';
+```python
+from brutils import format_cpf
 
-formatCpf('11144477735'); // '111.444.777-35'
-```
-
-## remove-symbols
-
-```js
-import { parseCpf } from '@brazilian-utils/brazilian-utils';
-
-parseCpf('111.444.777-35'); // '11144477735'
+format_cpf('82178537464')  # '821.785.374-64'
 ```
 
 ## generate
 
-```js
-import { generateCpf } from '@brazilian-utils/brazilian-utils';
+```python
+from brutils import generate_cpf
 
-generateCpf(); // a random valid CPF
+generate_cpf()  # random valid value
 ```
 ````
 
 Rules:
 
-- **Headings are operation ids.** `validate`, `format`, `remove-symbols`, `generate`, plus whatever the spec declares (`address-lookup`, `detect-format`…). Unknown headings are ignored and reported in the build log.
-- **Each section shows the call.** Import, invocation, result. One or two lines of prose are fine (for example, "network call, uses ViaCEP"). Do not explain the rule; the spec already does.
-- **Code and comments in English.** The same file serves both languages of the site. If you want a Portuguese version, add `cpf.pt-br.md` next to it; when it does not exist, the English file is shown to Portuguese readers too.
-- **`since` is optional.** The version of your library in which the utility first shipped. Shown as a badge.
-- **No file, no tab.** A library without `docs/usage/<util>.md` appears as "not available yet" for that utility. A file without a given `## operation` shows the same message for that operation only.
+- **Headings are contract operation ids**: `isValid`, `format`, `parse`, `removeSymbols`, `generate`, `getInfo`… Kebab case (`remove-symbols`) and the older `validate` resolve too. A heading that matches nothing is reported by `api-validator usage` and skipped by the build.
+- **Each section shows the call**: import, call, result. A line of prose is fine ("network call, uses ViaCEP"). Do not explain the rule; the spec on the same page already does.
+- **The example must call the lib's function.** The validator knows which native symbol implements each contract function and flags sections that never mention it.
+- **Code and comments in English.** A `cpf.pt-br.md` next to it is shown to Portuguese readers when present.
+- **`since` is optional**: a front matter field with the version in which the utility first shipped.
+- **No section, no tab content.** The tab then says the lib does not implement the function, or that it does but has no example yet.
 
-## Which ref is used
+## Scaffolding the examples
 
-The site fetches the files from the library's **latest GitHub release**, so what readers see matches the package they install. Repositories without releases fall back to the default branch.
+Nobody has to write the first version by hand. The validator knows which functions the library implements and which shared cases it passes, and writes one section per undocumented function from those cases, in the library's language:
 
-## Keeping examples true
-
-The site does not run your examples. Your repository should, with whatever your language uses for that: `doctest` in Python, `Example` tests in Go, doc-tests in Rust, a Vitest file that imports the same snippets in JavaScript. The rule of thumb: if the example on the site is wrong, the library's CI should have been red.
-
-## Rebuilding the site when you release
-
-Add one step to your release workflow so the site rebuilds as soon as the new version is out:
-
-```yaml
-- name: Notify docs site
-  if: success()
-  run: gh api repos/brazilian-utils/docs/dispatches -f event_type=lib-released -f 'client_payload[lib]=javascript'
-  env:
-    GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+```sh
+# in the library repo, after `check --tests` wrote its report
+npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
+npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
 ```
 
-`DOCS_DISPATCH_TOKEN` is an organization secret with permission to trigger workflows on the docs repository. Without it the site still rebuilds daily.
+Existing sections are never touched; new ones are appended. The results in the comments are the contract's expected values for cases the library passed, so the examples are true on the day they are written. Edit them freely afterwards.
 
-## Migrating an existing README
+`api-validator usage` without `--scaffold` prints what is documented, what is missing and what is wrong; `--strict` makes it fail, for a library CI that wants to enforce it.
+
+## Which version is shown
+
+The site reads the files from the library's **latest GitHub release**, so what readers see matches the package they install. Repositories without releases fall back to the default branch. Until a library has its own `docs/usage/`, the site uses the copies in `site/fixtures/usage/<lib>/` of api-validator, in the same format: moving them into the library is a copy.
+
+## Rebuilding the site on release
+
+Add one step to the library's release workflow so the site rebuilds with the new version:
+
+```yaml
+- name: Notify the docs site
+  if: success()
+  run: gh api repos/brazilian-utils/api-validator/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
+  env:
+    GH_TOKEN: ${{ secrets.API_VALIDATOR_DISPATCH_TOKEN }}
+```
+
+Without it the site still rebuilds daily and on every contract change.
+
+## Adopting it in a library
 
 <Steps>
 
-1. Create `docs/usage/` in your repository.
+1. Copy `site/fixtures/usage/<lib>/` from api-validator into `docs/usage/` of the library (or run the scaffold command above).
 
-2. For each utility your library implements, create `<spec id>.md` and move the corresponding examples from your README into `## operation` sections. This is a cut-and-paste job: the examples already exist.
+2. Review the examples, add prose where it helps, and trim the README to installation, a couple of examples and a link to this site.
 
-3. Shorten the README to installation, three examples and a link to this site.
-
-4. Open the PR. When it merges and the next release ships, the tabs appear here automatically.
+3. Merge and release. The next site build reads the files from the library.
 
 </Steps>
 
 <Aside type="note">
-Until a library adopts the contract, this site builds its tabs from temporary copies kept in `fixtures/usage/` in the docs repository. Those copies are already in the right format; they can be moved into the library repo as-is.
+The site does not run the examples, but the values in scaffolded examples come from cases the library's own harness runs. When you write an example by hand, pick inputs from the contract cases and it stays true for the same reason.
 </Aside>

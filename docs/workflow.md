@@ -95,7 +95,7 @@ The contract cases run in two places, on purpose, from one source:
 |---|---|---|
 | Runs | here (nightly, contract PRs) and in the lib's CI through the Action | in the lib's own test command: `npm test`, `python -m unittest`, `go test ./...`, `cargo test`, `rspec`, `rebar3 eunit`, `dotnet test` |
 | Needs this repo | yes | no: a vendored JSON copy + one test file in the lib's language |
-| Good for | the cross-lib view: same answer in all 7 libs, API/signature checks, the status site, issues, differential testing | the developer's inner loop: a case fails in the `test` command they already run, shows up in coverage and mutation testing |
+| Good for | the cross-lib view: same answer in all 7 libs, API/signature checks, the docs site's status pages, issues, differential testing | the developer's inner loop: a case fails in the `test` command they already run, shows up in coverage and mutation testing |
 | Kept honest by | baselines (ratchet) | `export-cases --check` in the Action + a nightly bot PR refreshing `api-contract/` |
 
 **Why JSON + a hand-written harness, not generated test code.** The suite is data — one
@@ -125,27 +125,41 @@ a fix drops the entry and the case runs from then on.
 |---|---|---|
 | Contract / lib-config PR here | `lint`, `fmt --check`, `check --tests` on all libs, `diff --fail-on-new`; the job summary shows the contract `changelog` and the issues the merge will open | regressions, new divergences, invalid contract |
 | Merge to main here | the same run on the merged contract, then: an `Implement <fn>` issue in every lib missing a function the merge added, a `Fix <fn>` issue in every lib failing a case it added or changed | regressions, new divergences |
-| Nightly here | all of the above on every lib's default branch, then: publish the status site (a page per lib and per function, badges, the JSON suite), open `Fix` issues for new failures, refresh open issues and close the done ones, and open/update an `api-contract/cases` PR in every lib whose `api-contract/` changed | regressions, new divergences |
+| Nightly here | all of the above on every lib's default branch, then: build and publish the docs site (a page per utility and per lib, badges, the JSON suite), open `Fix` issues for new failures, refresh open issues and close the done ones, and open/update an `api-contract/cases` PR in every lib whose `api-contract/` changed | regressions, new divergences |
 | Every lib push/PR | the Action: `check --tests` against the baseline + `export-cases --check`; the lib's own test job runs its harness | regressions, public API outside the contract, (optionally) a stale suite copy |
 
 Nothing needs a person to remember a step: a merged contract change reaches every lib as an
-issue per function (what to implement or fix, with a brief), as a PR (the new cases), and on its
-status page.
+issue per function (what to implement or fix, with a brief), as a PR (the new cases), on its
+status page, and as a new section of the docs site (the spec now, each lib's usage tab as it
+lands).
+
+A new function, end to end:
+
+1. A contract PR adds it to `contract/<domain>.json` with its cases (and `spec.*.md` prose if
+   it needs any). The PR's job summary shows the changelog and the issues the merge will open.
+2. The merge opens an `Implement <fn>` issue in every lib that lacks it, with the brief and
+   the usage section to add; the site gains the operation, with every lib's tab saying
+   "not implemented yet".
+3. A lib implements it, registers it in its harness and adds `## <op>` to
+   `docs/usage/<util>.md` (`usage --scaffold` writes it from the passing cases). On the next
+   run the issue closes itself and, after the lib's release (`lib-released` dispatch), its tab
+   shows the example.
 
 ## Where a lib sees how it stands
 
-The status site, linked from the badge in every lib's README:
+The docs site (`site/`), linked from the badge in every lib's README:
 
-- **lib page**: core coverage and cases passing next to every other lib; the work list
-  (failing first, then signatures, then missing core, then extended — ordered by how many libs
-  already have each function); failing cases with expected vs actual; public API outside the
-  contract; inputs where it answers differently from the others.
-- **function page**: the spec (summary, description, references), the implementation in each
-  lib with a link to its source, a case × lib matrix, failures, divergences, and the reference
-  implementation's source.
+- **lib page** (`/libs/<lib>/`): core coverage and cases passing next to every other lib; the
+  work list (failing first, then signatures, then missing core, then extended — ordered by how
+  many libs already have each function); failing cases with expected vs actual; functions it
+  implements without a usage example; public API outside the contract.
+- **utility page** (`/utils/<util>/`): the spec, then per operation its signature, a status chip
+  per lib (implemented, failing, missing), the contract's description, a usage tab per lib and
+  the shared cases with each lib's result.
+- **parity matrix**: utility × lib.
 
-Everything on it is computed from the contract and the nightly reports (`api-validator site`);
-the same data is in `api/libs/<lib>.json` for scripts.
+Everything on it is computed from the contract, the libs' usage files and the latest run
+(`api-validator site-data` writes `site/.generated/status.json`, which scripts can read too).
 
 ## Rules that make it work
 
@@ -169,7 +183,7 @@ the same data is in `api/libs/<lib>.json` for scripts.
 | Lib maintainer | Works from the `api-contract` issues (one per function) and the lib's status page; the lib CI (Action) shows progress in the job summary |
 | Contract maintainer | Reviews contract PRs; runs `diff` for new domains; decides behaviour questions |
 | Anyone | `api-validator brief <fn> --lib <lib>` before porting something |
-| Nightly job | Syncs all libs, runs `check --tests` + `diff`, publishes the status site, refreshes issues, opens suite-refresh PRs |
+| Nightly job | Syncs all libs, runs `check --tests` + `diff`, builds and publishes the docs site, refreshes issues, opens suite-refresh PRs |
 | New machine / new contributor | `api-validator doctor` lists every toolchain the configured libs need and what is missing |
 
 ## Using a coding agent for the ports

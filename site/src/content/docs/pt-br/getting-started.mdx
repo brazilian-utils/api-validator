@@ -15,13 +15,11 @@ Cada utilitário tem **uma página**, não importa quantas linguagens o implemen
 
 <Steps>
 
-1. **O que é e como funciona.** O identificador, suas regras, o algoritmo de validação e os regexes. Essa é a spec canônica, compartilhada por todas as bibliotecas.
+1. **O que é e como funciona.** O identificador, suas regras, o algoritmo e os regexes, quando o utilitário tem uma spec por extenso. Essa parte, como tudo abaixo, vem do contrato compartilhado no [api-validator](https://github.com/brazilian-utils/api-validator), não de uma biblioteca específica.
 
-2. **Fontes oficiais.** A lei, o decreto ou o documento do órgão de onde a regra vem, com cópia guardada no repositório caso o original saia do ar.
+2. **Uso.** Uma seção por operação (validar, formatar, gerar…): a assinatura, quais bibliotecas implementam e se passam em todos os casos, a descrição do contrato, uma aba por linguagem com o exemplo, e os casos de teste. Escolha JavaScript, Python, Go, Ruby, Rust, .NET ou Erlang uma vez e todas as páginas seguem.
 
-3. **Uso.** Um bloco por operação (validar, formatar, remover símbolos, gerar…), com uma aba por linguagem. Escolha JavaScript, Python, Go, Ruby, Rust, .NET ou Erlang uma vez e todas as páginas seguem.
-
-4. **Casos de teste.** As entradas e saídas esperadas que toda implementação precisa satisfazer.
+3. **Fontes oficiais.** A lei, o decreto ou o documento do órgão de onde a regra vem.
 
 </Steps>
 
@@ -50,5 +48,5 @@ As bibliotecas validam **estrutura**: tamanho, caracteres permitidos, dígitos v
 ## Para onde ir agora
 
 - Navegue pelos utilitários na barra lateral, agrupados por categoria.
-- Veja a [matriz de paridade](/pt-br/reference/parity/) para saber qual linguagem implementa o quê.
+- Veja a [matriz de paridade](/pt-br/reference/parity/) para saber qual linguagem implementa o quê, ou a página de uma biblioteca (por exemplo [Python](/pt-br/libs/python/)) para o que falta nela.
 - Quer contribuir? Comece por [escrever uma spec](/pt-br/contributing/specs/) ou [portar para uma nova linguagem](/pt-br/contributing/new-language/).
