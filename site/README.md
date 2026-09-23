@@ -61,11 +61,11 @@ Todas as dependências estão em versão exata (sem `^`). As principais:
 | `tailwindcss`, `@tailwindcss/postcss` | estilos (o tema do Fumadocs é Tailwind) |
 | `shiki`, `unified`, `remark-*`, `hast-util-to-jsx-runtime` | Markdown do contrato e das bibliotecas, com destaque de código |
 | `geist`, `simple-icons`, `lucide-react` | fontes e ícones, sem CDN |
-| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (home, caixa "Teste") |
+| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (caixa "Teste") |
 
 `npm audit --audit-level=low` roda no CI e precisa sair limpo.
 
-Os workflows usam actions fixadas por SHA de commit, com a tag no comentário. Para atualizar:
+O `site-check.yml` usa actions fixadas por SHA de commit, com a tag no comentário. Para atualizar:
 
 ```bash
 gh api repos/actions/checkout/commits/<tag> --jq .sha
@@ -110,7 +110,7 @@ Uma página de utilitário tem estas partes, nesta ordem:
    - a descrição do contrato, e as decisões pendentes como aviso
    - a tabela de parâmetros
    - uma aba por biblioteca, sincronizadas no site todo (a escolha fica salva)
-   - "Testar": roda a biblioteca JavaScript no navegador
+   - a caixa "Teste": roda a biblioteca JavaScript no navegador
    - os casos compartilhados, com o resultado em cada biblioteca
 3. Guias que usam o utilitário.
 4. A especificação longa (`spec.*.md`), quando existe.
@@ -157,8 +157,8 @@ Com `--strict`, o script falha no CI quando falta a versão de um idioma.
   só carregam quando alguém abre a busca.
 - Os links não fazem prefetch: num host estático, cada prefetch é uma requisição, e há páginas
   com centenas de links.
-- O pacote inteiro da biblioteca JavaScript (para o "Testar") só carrega quando a caixa abre. A
-  home carrega só as funções que usa.
+- A biblioteca JavaScript (para a caixa "Teste") só carrega quando a caixa abre. O exemplo da home
+  é o demo do guia "Document field" da própria biblioteca, que carrega dentro do seu quadro.
 - Contraste AA em todo texto, nos dois temas, inclusive nos blocos de código (temas de alto
   contraste do Shiki). `src/components/a11y.client.tsx` completa a marcação do Fumadocs onde o
   axe pede (nomes das regiões de código, sumário como navegação, rolagem por teclado).
@@ -187,21 +187,20 @@ na convenção de cada linguagem.
 ## Deploy de revisão (Vercel)
 
 Cada push e cada PR que mexe no site, no contrato, nas libs ou no schema ganha um deploy de
-revisão na Vercel, com o link no PR. A configuração está no repositório:
-
-- `site/vercel.json` quando o projeto da Vercel usa `site` como Root Directory (recomendado);
-- `vercel.json` na raiz quando o Root Directory é a raiz do repositório.
+revisão na Vercel, com o link no PR. A configuração é o `vercel.json` na raiz do repositório (o
+projeto da Vercel usa a raiz como Root Directory): instala e monta `site/` e publica `site/out/`.
 
 Na Vercel o site fica na raiz do domínio (sem `basePath`). Nenhum deploy da Vercel entra em
 buscador, em três camadas: o header `X-Robots-Tag: noindex, nofollow, noarchive` em toda resposta
 (`vercel.json`), a meta `robots` `noindex, nofollow` em toda página e um `robots.txt` sem sitemap
 (ele deixa o robô entrar, porque só assim ele lê o `noindex`). As URLs canônicas apontam para
-`SITE_URL`. `SITE_INDEXABLE=true` desliga o bloqueio, para o dia em que a Vercel servir o site
-oficial. A Vercel não roda
+`SITE_URL`. Para o dia em que a Vercel servir o site oficial: `SITE_INDEXABLE=true` tira a meta, e
+o header sai do `vercel.json`. A Vercel não roda
 o validador (precisaria das sete linguagens), então o build baixa a situação da última execução
 publicada. O `ignoreCommand` pula o build quando nada que o site usa mudou desde o último deploy. Não
 precisa de variável de ambiente. As opcionais são `SITE_URL`, `SITE_DATA_URL` e `GITHUB_TOKEN`
-(sem token, a versão de cada lib sai da tag mais nova, lida com `git ls-remote`).
+(sem token, a versão de cada lib sai da tag mais nova, lida com `git ls-remote`). `SITE_DATA=skip`
+monta sem a situação. O check de PR (`site-check.yml`) também baixa a situação publicada.
 
 ## Pendências conhecidas
 

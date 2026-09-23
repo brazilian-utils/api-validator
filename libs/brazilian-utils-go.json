@@ -7,7 +7,6 @@
   "ignore": ["helpers.*"],
   "site": {
     "label": "Go",
-    "icon": "seti:go",
     "order": 3,
     "package": "github.com/brazilian-utils/go",
     "install": "go get github.com/brazilian-utils/go",

@@ -1,5 +1,6 @@
-// The home page: what the project does, a document number to try, the same first call in each
-// language, how the libraries stay the same, and every utility by category.
+// The home page: what the project does, the JavaScript library's own document field to try (its
+// guide's live demos), the same first call in each language, how the libraries stay the same, and
+// every utility by category.
 import Link from '@/components/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
@@ -11,7 +12,8 @@ import { baseOptions } from '@/lib/layout';
 import { Markdown } from '@/lib/markdown';
 import { loadUsage } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
-import { GuideDemos, guideEntry } from '@/components/pages/guide';
+import { GuideDemos, guideExamples } from '@/components/pages/guide';
+import { StatusIcon } from '@/components/status';
 import { HomeJsonLd } from '@/components/json-ld';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
@@ -28,6 +30,9 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
   const others = specs.length - 4;
+  // The frameworks of the JavaScript library's document-field guide, as its tabs name them.
+  const names = guideExamples(locale, 'javascript', 'document-field')?.map((e: any) => e.name).filter(Boolean) ?? [];
+  const frameworks = names.length ? new Intl.ListFormat(locale, { type: 'conjunction' }).format(names) : null;
 
   // The same first call in every language: install, then validate a CPF.
   const firstCalls = libs.map((lib: any) => {
@@ -43,7 +48,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, transparentMode: 'top' }} links={[{ text: L(locale, 'Documentation', 'Documentação'), url: `${p}/getting-started/`, active: 'nested-url' }]}>
+    <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, transparentMode: 'top' }} links={[{ text: L(locale, 'Documentation', 'Documentação'), url: `${p}/getting-started/`, active: 'nested-url' }, ...(baseOptions(locale).links ?? [])]}>
       <HomeJsonLd locale={locale} description={L(locale, 'Validate, format and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
       <div className="flex flex-1 flex-col">
         <section className="band">
@@ -68,11 +73,11 @@ export function HomePage({ locale }: { locale: Locale }) {
                 </Link>
               </div>
             </div>
-            {guideEntry('javascript', 'document-field') && (
+            {frameworks && (
               <div className="min-w-0">
                 <GuideDemos locale={locale} lib="javascript" slug="document-field" />
                 <Link href={`${p}/guides/javascript/document-field/`} className="mt-3 inline-flex items-center gap-1 text-sm font-medium hover:underline">
-                  {L(locale, 'The code of this field, in React, Angular, Vue and plain JavaScript', 'O código deste campo, em React, Angular, Vue e JavaScript puro')}
+                  {L(locale, `The code of this field, in ${frameworks}`, `O código deste campo, em ${frameworks}`)}
                   <ArrowRight aria-hidden className="size-3.5" />
                 </Link>
               </div>
@@ -121,11 +126,11 @@ export function HomePage({ locale }: { locale: Locale }) {
         </section>
 
         <section className="band band-top">
-          <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-20">
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How seven libraries stay the same', 'Como as sete bibliotecas se mantêm iguais')}</h2>
-            <ol className="grid gap-x-10 gap-y-8 sm:grid-cols-2 [counter-reset:step]">
+            <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map(([title, body]) => (
-                <li key={title} className="[counter-increment:step] before:mb-2 before:block before:font-mono before:text-sm before:text-fd-primary before:content-[counter(step)]">
+                <li key={title} className="border-t pt-4">
                   <h3 className="font-semibold">{title}</h3>
                   <p className="mt-1.5 text-fd-muted-foreground text-pretty">{body}</p>
                 </li>
@@ -152,8 +157,9 @@ export function HomePage({ locale }: { locale: Locale }) {
                           <Link href={`${p}/utils/${s.id}/`} className="text-fd-muted-foreground transition-colors hover:text-fd-foreground">
                             {pick(s.title, locale)}
                           </Link>
-                          <span className="text-xs text-fd-muted-foreground" aria-label={L(locale, `${done} of ${libs.length} libraries`, `${done} de ${libs.length} bibliotecas`)}>
-                            {done}/{libs.length}
+                          <span className="inline-flex items-center gap-1 text-xs text-fd-muted-foreground">
+                            <StatusIcon status={done === libs.length ? 'full' : done ? 'partial' : 'none'} label={L(locale, `${done} of ${libs.length} libraries`, `${done} de ${libs.length} bibliotecas`)} className="size-3 self-center" />
+                            <span aria-hidden>{done}/{libs.length}</span>
                           </span>
                         </li>
                       );

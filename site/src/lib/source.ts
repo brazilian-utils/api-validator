@@ -8,6 +8,7 @@ import { defineDocs } from 'fumadocs-mdx/macro';
 import { applyMdxPreset } from 'fumadocs-mdx/config';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
 import type { Locale } from './i18n';
+import { DOCS_DIR } from './registry.mjs';
 
 // File names are kebab-case, so the Portuguese suffix is `pt-br`; the rest of the site says `pt-BR`.
 const files = defineI18n({ defaultLanguage: 'en', languages: ['en', 'pt-br'], parser: 'dot' });
@@ -34,7 +35,7 @@ export const source = loader({ baseUrl: '/', source: docs.toFumadocsSource(), i1
  * sidebar entry and its sitemap entry.
  */
 export function folderPages(locale: Locale, folder: string) {
-  const metaFile = path.join(process.cwd(), 'content', 'docs', folder, 'meta.json');
+  const metaFile = path.join(DOCS_DIR, folder, 'meta.json');
   const order: string[] = fs.existsSync(metaFile) ? (JSON.parse(fs.readFileSync(metaFile, 'utf8')).pages ?? []) : [];
   const rank = (slug: string) => (order.includes(slug) ? order.indexOf(slug) : order.length);
   return source

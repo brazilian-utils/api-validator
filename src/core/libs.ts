@@ -31,7 +31,6 @@ export const LibSchema = z
     site: z
       .object({
         label: z.string().min(1),
-        icon: z.string().optional(),
         order: z.number().int(),
         package: z.string().min(1),
         install: z.string().min(1),

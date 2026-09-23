@@ -23,25 +23,27 @@ categories start closed.
 ┌ [dog] Brazilian Utils        [ Search            ⌘K ]           GitHub  文A  ☀/☾ ┐
 │ Utilities   Libraries   Guides   Contributing                                    │
 ├──────────────┬──────────────────────────────────────────────┬──────────────────┤
-│ Getting      │ Personal documents                           │ On this page     │
-│ started      │ CPF                                          │   Validate       │
-│ ▾ Personal   │ Cadastro de Pessoas Físicas, …               │   Format         │
-│   CPF        │ [Contract] [Edit]                            │   …              │
-│   CNH …      │ JS 4/5 │ Py 4/5 │ Go 3/5 │ …  one strip     │   Specification  │
+│ Getting      │ CPF                                          │ On this page     │
+│ started      │ Cadastro de Pessoas Físicas, …               │   Validate       │
+│ ▾ Personal   │ [Contract] [Edit]                            │   Format         │
+│   CPF        │ JS ◐ 4/5  Py ◐ 4/5  Go ◐ 3/5 …  one row      │   …              │
+│   CNH …      │                                              │   Specification  │
 │ ▸ Companies  │                                              │   Official       │
 │ ▸ …          │ Validate  cpf.isValid                        │   sources        │
 │              │ ┌ cpf.isValid(cpf: string): boolean ─────┐   │                  │
 │              │ ✓ JavaScript ✓ Python …                      │                  │
-│              │ description · ⚠ pending decision · params    │                  │
+│              │ description · ⚠ pending decision · (params)  │                  │
 │              │ JS  Py  Go  Ruby  Rust  .NET  Erlang (tabs)  │                  │
 │              │ ─ ▸ Try it ─ ▸ Shared test cases ─           │                  │
 └──────────────┴──────────────────────────────────────────────┴──────────────────┘
 ```
 
-The home page: a two-line headline with the numbers in its sentence, the document specimen (type a
-number, see it formatted with the check digits highlighted, valid or not, and the same function in
-every language), the same first call in each language as tabs (install command and a real usage
-example), the four steps that keep the libraries the same, and every utility by category.
+The home page: a two-line headline with the numbers in its sentence, and next to it the JavaScript
+library's own "Document field" guide, live (a field that masks and validates as you type, in React,
+Angular, Vue or plain JavaScript). Every example on the site comes from the libraries; the site
+writes none of its own. Then the same first call in each language as tabs (install command and a
+real usage example), the four steps that keep the libraries the same, and every utility by
+category with how many libraries have it.
 
 ## Tokens
 
@@ -50,8 +52,8 @@ Color: [Flexoki](https://stephango.com/flexoki), an ink-on-paper palette. Warm p
 accent (`#1c6c66` light, `#3aa99f` dark). The dark theme is Flexoki's black (`#100f0f`).
 
 The brand colors (github.com/brazilian-utils/brand: green `#009c3b`, yellow `#ffdf00`, blue
-`#3e4095`) stay where they mean something: the yellow behind check digits, and the three stripes
-at the bottom of the link preview image.
+`#3e4095`) stay where they mean something: the three stripes at the bottom of the link preview
+image.
 
 State is an icon first and a color second: ✓ all good (green), ◐ some (amber), ✕ a case fails
 (red), ! signature differs (amber), ○ not implemented (muted), - not planned or not run.
@@ -70,8 +72,10 @@ density 5. Impeccable mode: Read (the home page leans Persuade).
 1. Every text meets WCAG 2.1 AA in both themes, code included (Shiki's high-contrast themes).
    `npm run a11y` checks it on every page type, light and dark, desktop and phone.
 2. No card inside a card. Tabs are a row of labels over a rule, with the panel below and no box
-   around it (`flat-tabs.tsx`); "try it" and the test cases are native `<details>` between rules
-   (`disclosure.tsx`). A code block is the only surface in a tab.
+   around it (`flat-tabs.tsx`); a second level of tabs (the variants of a guide example) is
+   `compact`, small labels with no rule, so two levels never look alike. On a phone the labels
+   wrap instead of scrolling out of sight. "Try it" and the test cases are native `<details>`
+   between rules (`disclosure.tsx`). A code block is the only surface in a tab.
 3. Notes are a tinted surface with an icon (`note.tsx`), never a colored side stripe.
 4. No eyebrow labels, no hero metrics, no section numbers, no decorative dots, no progress bars
    with tracks, no gradient text, no em-dashes. Numbers appear in sentences, where they mean

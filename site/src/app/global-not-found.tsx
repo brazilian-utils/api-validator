@@ -2,6 +2,7 @@
 import Link from '@/components/link';
 import { Html } from '@/components/html';
 import { NOINDEX } from '@/lib/meta';
+import { SiteMark } from '@/lib/layout';
 
 export const metadata = { title: 'Page not found · Brazilian Utils', robots: { index: false, follow: !NOINDEX } };
 
@@ -9,7 +10,10 @@ export default function NotFound() {
   return (
     <Html locale="en">
       <main id="main" className="mx-auto flex min-h-screen max-w-xl flex-col items-start justify-center gap-4 px-6">
-        <p className="font-mono text-sm text-fd-primary">404</p>
+        {/* The site's own mark, so the page reads as part of it. */}
+        <Link href="/" className="mb-6 inline-flex items-center gap-2">
+          <SiteMark />
+        </Link>
         <h1 className="text-3xl font-semibold tracking-tight">This page does not exist.</h1>
         <p className="text-fd-muted-foreground">The utility may have another name, or it is not in the contract yet.</p>
         <p lang="pt-BR" className="text-fd-muted-foreground">Esta página não existe. O utilitário pode ter outro nome, ou ainda não está no contrato.</p>

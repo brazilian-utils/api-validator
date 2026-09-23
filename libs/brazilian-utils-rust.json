@@ -14,7 +14,6 @@
   ],
   "site": {
     "label": "Rust",
-    "icon": "seti:rust",
     "order": 5,
     "package": "brazilian_utils",
     "install": "cargo add brazilian_utils",

@@ -1,6 +1,7 @@
 // /llms.txt (llmstxt.org): what the site is and where each page is, for AI tools and agents.
 import { loadGuides, loadLibs, loadSpecs } from '@/lib/data';
 import { SITE_ROOT } from '@/lib/meta';
+import { folderPages } from '@/lib/source';
 
 export const dynamic = 'force-static';
 
@@ -29,9 +30,7 @@ export function GET() {
     '',
     '## Optional',
     '',
-    `- [Write a spec](${SITE_ROOT}/contributing/specs/)`,
-    `- [Usage files](${SITE_ROOT}/contributing/usage-files/)`,
-    `- [Port to a new language](${SITE_ROOT}/contributing/new-language/)`,
+    ...folderPages('en', 'contributing').map((page) => `- [${page.title}](${SITE_ROOT}/contributing/${page.slug}/)`),
     `- [Shared test cases as JSON](${SITE_ROOT}/cases.schema.json)`,
     '',
   ];

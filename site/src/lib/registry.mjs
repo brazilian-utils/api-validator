@@ -142,7 +142,7 @@ function normalize(doc) {
   };
 }
 
-/** @type {() => Array<{id:string,name:string,label:string,icon?:string,repo:string,ref:string,path:string,reference?:Record<string,string>,guides?:Record<string,string>,root:string,assets:string[],prepare?:string[],package:string,install:string,registry:string}>} */
+/** @type {() => Array<{id:string,name:string,label:string,repo:string,ref:string,path:string,reference?:Record<string,string>,guides?:Record<string,string>,root:string,assets:string[],prepare?:string[],package:string,install:string,registry:string}>} */
 export const loadLibs = once(() =>
   fs
     .readdirSync(LIBS_DIR)
@@ -154,7 +154,6 @@ export const loadLibs = once(() =>
       id: shortName(lib.name),
       name: lib.name,
       label: lib.site.label,
-      icon: lib.site.icon,
       repo: repoSlug(lib.repo),
       ref: lib.site.usage?.ref ?? 'latest-release',
       path: lib.site.usage?.path ?? 'docs/usage',

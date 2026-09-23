@@ -8,7 +8,6 @@
   "ignore": ["toStandardSchema"],
   "site": {
     "label": "JavaScript",
-    "icon": "seti:javascript",
     "order": 1,
     "package": "@brazilian-utils/brazilian-utils",
     "install": "npm install @brazilian-utils/brazilian-utils",

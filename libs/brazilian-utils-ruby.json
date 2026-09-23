@@ -8,7 +8,6 @@
   "ignore": ["*.sieve", "*.display", "*.validate", "Months.*"],
   "site": {
     "label": "Ruby",
-    "icon": "seti:ruby",
     "order": 4,
     "package": "br-utils",
     "install": "gem install br-utils",

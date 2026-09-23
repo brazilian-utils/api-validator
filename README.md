@@ -44,7 +44,7 @@ npx tsx src/cli.ts doctor          # which toolchains are installed / missing
 npx tsx src/cli.ts sync            # clone/update every lib into .repos/
 npx tsx src/cli.ts check --tests   # contract + shared tests for all libs
 npx tsx src/cli.ts site-data       # results for the docs site (status, badges, JSON suite)
-(cd site && npm ci && npm run dev) # the docs site at http://localhost:4321
+(cd site && npm ci && npm run dev) # the docs site at http://localhost:3000/api-validator/
 ```
 
 To run the shared tests, install the toolchain and the dependencies of each library. When the
@@ -196,7 +196,8 @@ For the contract and library config format, read [docs/contract.md](docs/contrac
 ## Layout
 
 ```
-contract/        the shared contract, one JSON per domain (+ tests)
+contract/        the shared contract: one folder per domain (kebab-case), contract.json with
+                 functions and test cases, plus optional specs and references
 libs/            one JSON per implementation: repo, language, bindings, ignores, waivers
 baselines/       what conforms today, per lib (CI fails on regressions); _divergences.json = known splits
 snapshots/       extracted public API per lib (API changes show up in PR diffs)
@@ -205,7 +206,9 @@ src/languages/   one adapter per language (+ helper scripts in the language itse
 src/reporters/   console, markdown, brief, HTML dashboard
 test/            unit + integration tests, fixtures per language
 action.yml       GitHub Action for the libs' CI
-templates/       workflows to copy into each lib repo
+templates/       workflows and test harnesses to copy into each lib repo
+site/            the docs site (Next.js + Fumadocs), built from all of the above
+vercel.json      review deployments of the site on Vercel
 ```
 
 ## Development

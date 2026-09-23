@@ -7,7 +7,6 @@
   "ignore": ["Helpers.*"],
   "site": {
     "label": ".NET",
-    "icon": "seti:f-sharp",
     "order": 6,
     "package": "BrazilianUtils",
     "install": "dotnet add package BrazilianUtils",

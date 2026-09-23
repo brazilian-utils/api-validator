@@ -1,6 +1,7 @@
-# Pull request checks for the docs site: dependencies audited, both languages present, the site
-# builds from the contract and the usage fixtures. The full pipeline (conformance.yml) builds
-# and publishes it with the results of a run.
+# Pull request checks for the docs site: dependencies audited, both languages present, lint and
+# types, the site builds (usage and guides cloned from the libraries, the status of the last
+# published run), then accessibility and design checks. The full pipeline (conformance.yml)
+# builds and publishes it with the results of its own run.
 name: site / check
 
 on:
@@ -38,7 +39,7 @@ jobs:
         run: npm run check:i18n -- --strict
       - name: Lint (Next.js, React hooks, jsx-a11y) with no warnings
         run: npm run lint -- --max-warnings 0
-      - name: Site builds (usage and guides from the libraries, no status)
+      - name: Site builds (usage and guides from the libraries, status of the last published run)
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

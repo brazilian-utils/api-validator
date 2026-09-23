@@ -65,10 +65,14 @@ function Examples({ list, group, demoText, code }: { list: any[]; group: string;
  * library's document field this way). Null when the guide was not fetched (offline builds).
  */
 export function GuideDemos({ locale, lib, slug }: { locale: Locale; lib: string; slug: string }) {
+  const examples = guideExamples(locale, lib, slug);
+  return examples ? <Examples list={examples} group="guide-example" demoText={demoTextOf(locale)} /> : null;
+}
+
+/** The first group of examples of a guide (one per framework), or null without the guide. */
+export function guideExamples(locale: Locale, lib: string, slug: string): any[] | null {
   const guide = guideEntry(lib, slug) && loadGuide(lib, slug, locale);
-  const block = guide?.blocks.find((b: any) => b.type !== 'markdown');
-  if (!block) return null;
-  return <Examples list={block.examples} group="guide-example" demoText={demoTextOf(locale)} />;
+  return guide?.blocks.find((b: any) => b.type !== 'markdown')?.examples ?? null;
 }
 
 export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; slug: string }) {
