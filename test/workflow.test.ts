@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { EQUALITY_SELF_TEST, domainFiles, skipsFor, suiteFiles } from "../src/core/cases.js";
-import { changelog, changelogMarkdown, contractAt } from "../src/core/changelog.js";
+import { OldContractError, changelog, changelogMarkdown, contractAt } from "../src/core/changelog.js";
 import { valuesEqual } from "../src/core/conformance.js";
 import { loadContract } from "../src/core/contract.js";
 import { diffDivergences, divergenceBaseline, partition, type DiffRow } from "../src/core/differential.js";
@@ -93,6 +93,18 @@ describe("contract at a git ref", () => {
     git(dir, "add", ".");
     git(dir, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "flat");
     assert.ok(contractAt(dir, path.join(dir, "contract"), "HEAD").functions.has("licensePlate.isValid"));
+  });
+  it("rejects a ref that does not exist instead of reading it as 'no contract'", () => {
+    const dir = repo();
+    assert.throws(() => contractAt(dir, path.join(dir, "contract"), "no-such-ref"), /unknown git ref/);
+  });
+  it("says when an old contract does not fit today's schema", () => {
+    const dir = repo();
+    fs.mkdirSync(path.join(dir, "contract", "cpf"), { recursive: true });
+    fs.writeFileSync(path.join(dir, "contract", "cpf", "contract.json"), JSON.stringify({ domain: "cpf", retired: true, functions: {} }));
+    git(dir, "add", ".");
+    git(dir, "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "old");
+    assert.throws(() => contractAt(dir, path.join(dir, "contract"), "HEAD"), OldContractError);
   });
 });
 

@@ -6,7 +6,7 @@ import { Command, Option } from "commander";
 import { analyzeLib, bindLib, extractSurface } from "./core/analyze.js";
 import { json, skipsFor, suiteFiles, type Outcomes } from "./core/cases.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
-import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
+import { OldContractError, changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { LABEL, closeReason, keyOf, marker, scopeFrom, wantedIssues, type Scope } from "./core/issues.js";
 import { contractFile, loadContract } from "./core/contract.js";
 import { formatDir, schemaFiles } from "./core/format-contract.js";
@@ -553,14 +553,22 @@ program
   .option("--reference <lib>", "lib whose source is embedded in the briefs", REFERENCE_LIB)
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const before = opts.since ? contractAt(path.dirname(CONTRACT_DIR), CONTRACT_DIR, opts.since) : undefined;
+    let before: Contract | undefined;
+    try {
+      before = opts.since ? contractAt(path.dirname(CONTRACT_DIR), CONTRACT_DIR, opts.since) : undefined;
+    } catch (e) {
+      // An older contract today's schema cannot read: say so and open nothing for that change
+      // (the refresh and close below still run). A bad ref is still an error.
+      if (!(e instanceof OldContractError)) throw e;
+      console.log(c.yellow(`since ${opts.since}: ${e.message}; opening no issues for it`));
+    }
     // A ref from before the contract existed (the merge that brings it in) would make every function
     // "new" and open an issue for everything any library lacks. That is a backfill: it is asked for
     // on purpose (--backfill, the workflow's input), never by accident.
     const firstContract = !!before && before.functions.size === 0;
     if (firstContract) console.log(c.yellow(`since ${opts.since}: no contract at that ref; opening no issues for it (use --backfill core|all to open them)`));
     const scope: Scope = before && !firstContract ? scopeFrom(changelog(before, contract)) : { added: new Set(), cases: new Set() };
-    if (opts.since && !firstContract) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
+    if (before && !firstContract) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
     // Reports from the last `check --tests` (the pipeline runs it right before).
     const reference = referenceName(opts.reference);
     const refs: ImplRef[] = [];
@@ -653,12 +661,16 @@ program
     const contract = loadContract(CONTRACT_DIR);
     const fn = contract.functions.get(fnId);
     if (!fn) throw new Error(`Unknown contract function ${fnId}`);
-    const args = rawArgs.map((a) => {
+    // JSON, or a bare string: `probe cpf.format 82178537464` passes the digits as the string the
+    // contract asks for, not as a number.
+    const args = rawArgs.map((a, i) => {
+      let value: unknown;
       try {
-        return JSON.parse(a);
+        value = JSON.parse(a);
       } catch {
-        return a; // bare strings are fine: probe cpf.format 82178537464
+        return a;
       }
+      return fn.params[i]?.type === "string" && typeof value !== "string" ? a : value;
     });
     // Answers compared by value (like `diff`), not by how they print.
     const NO_ANSWER = ["not implemented", "no runner"];

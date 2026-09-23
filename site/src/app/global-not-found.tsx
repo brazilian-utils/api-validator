@@ -1,10 +1,10 @@
 // 404 for every path (GitHub Pages serves 404.html): both languages, links back into the site.
 import Link from '@/components/link';
 import { Html } from '@/components/html';
-import { NOINDEX } from '@/lib/meta';
 import { SiteMark } from '@/lib/layout';
 
-export const metadata = { title: 'Page not found · Brazilian Utils', robots: { index: false, follow: !NOINDEX } };
+// Next.js marks this page noindex itself.
+export const metadata = { title: 'Page not found · Brazilian Utils' };
 
 export default function NotFound() {
   return (
@@ -12,7 +12,7 @@ export default function NotFound() {
       <main id="main" className="mx-auto flex min-h-screen max-w-xl flex-col items-start justify-center gap-4 px-6">
         {/* The site's own mark, so the page reads as part of it. */}
         <Link href="/" className="mb-6 inline-flex items-center gap-2">
-          <SiteMark />
+          <SiteMark className="h-20" />
         </Link>
         <h1 className="text-3xl font-semibold tracking-tight">This page does not exist.</h1>
         <p className="text-fd-muted-foreground">The utility may have another name, or it is not in the contract yet.</p>

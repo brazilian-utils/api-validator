@@ -189,6 +189,11 @@ function copyAssets(lib, dir) {
     const to = path.join(LIB_ASSETS_DIR, lib.id, path.relative(path.join(dir, lib.root), from));
     fs.cpSync(from, to, { recursive: true, filter: (f) => !f.includes(`${path.sep}node_modules`) });
   }
+  // A demo imports its host's stylesheet from the folder above (docsify's theme, in the lib's own
+  // docs). Here the page around the frame styles the demo, so that file is only a placeholder.
+  if (!lib.assets.length) return;
+  fs.mkdirSync(path.join(LIB_ASSETS_DIR, lib.id), { recursive: true });
+  fs.writeFileSync(path.join(LIB_ASSETS_DIR, lib.id, 'styles.css'), '/* The docs site styles the live demos (src/components/live-demo.client.tsx). */\n');
 }
 
 // ---------------------------------------------------------------------------

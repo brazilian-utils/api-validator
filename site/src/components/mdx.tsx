@@ -29,7 +29,7 @@ function InstallTabs({ label = 'Library' }: { label?: string }) {
             {lib.label}
           </>
         ),
-        content: <Markdown source={'```sh\n' + lib.install + '\n```'} />,
+        content: <Markdown source={'```' + lib.installLang + '\n' + lib.install + '\n```'} />,
       }))}
     />
   );

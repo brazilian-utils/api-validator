@@ -57,7 +57,7 @@ function Content({ node, demoText, code }: { node: any; demoText: DemoText; code
 
 /** A group of examples as tabs. Framework and variant tabs stay in sync across the site. */
 function Examples({ list, group, demoText, code }: { list: any[]; group: string; demoText: DemoText; code?: boolean }) {
-  return <FlatTabs groupId={group} persist variant={group === 'guide-variant' ? 'compact' : 'line'} items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
+  return <FlatTabs groupId={group} persist keepMounted variant={group === 'guide-variant' ? 'compact' : 'line'} items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
 }
 
 /** The first group of examples of a guide (one per framework), or null without the guide. */

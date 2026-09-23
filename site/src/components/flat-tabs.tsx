@@ -13,11 +13,14 @@ export interface FlatTabItem {
 }
 
 const LIST = {
-  line: 'not-prose flex flex-wrap gap-x-1 border-b sm:flex-nowrap sm:overflow-x-auto',
+  // The rule under the labels is a shadow, not a border the labels overlap: a row that scrolls
+  // sideways then has nothing to scroll up and down, so it shows a scrollbar only when the labels
+  // do not fit.
+  line: 'not-prose flex flex-wrap gap-x-1 shadow-[inset_0_-1px_0_var(--color-fd-border)] sm:flex-nowrap sm:overflow-x-auto sm:overflow-y-hidden',
   compact: 'not-prose flex flex-wrap gap-1',
 };
 const TRIGGER = {
-  line: '-mb-px inline-flex shrink-0 items-center gap-1.5 border-b-2 border-transparent px-2.5 pt-1 pb-2 text-sm font-medium whitespace-nowrap text-fd-muted-foreground transition-colors hover:text-fd-foreground data-[state=active]:border-fd-primary data-[state=active]:text-fd-foreground',
+  line: 'inline-flex shrink-0 items-center gap-1.5 border-b-2 border-transparent px-2.5 pt-1 pb-2 text-sm font-medium whitespace-nowrap text-fd-muted-foreground transition-colors hover:text-fd-foreground data-[state=active]:border-fd-primary data-[state=active]:text-fd-foreground',
   compact: 'inline-flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap text-fd-muted-foreground transition-colors hover:text-fd-foreground data-[state=active]:bg-fd-accent data-[state=active]:text-fd-foreground',
 };
 
@@ -28,6 +31,7 @@ export function FlatTabs({
   label,
   className = '',
   variant = 'line',
+  keepMounted,
 }: {
   items: FlatTabItem[];
   groupId?: string;
@@ -35,6 +39,8 @@ export function FlatTabs({
   label?: string;
   className?: string;
   variant?: 'line' | 'compact';
+  /** Keep every panel on the page, hidden when not chosen, so a live demo in one never reloads. */
+  keepMounted?: boolean;
 }) {
   if (items.length === 0) return null;
   return (
@@ -47,7 +53,7 @@ export function FlatTabs({
         ))}
       </TabsList>
       {items.map((item) => (
-        <TabsContent key={item.value} value={item.value} className={`${variant === 'compact' ? 'pt-2' : 'pt-4'} outline-none [&>:first-child]:mt-0 [&>:last-child]:mb-0`}>
+        <TabsContent key={item.value} value={item.value} forceMount={keepMounted || undefined} className={`${variant === 'compact' ? 'pt-2' : 'pt-4'} outline-none data-[state=inactive]:hidden [&>:first-child]:mt-0 [&>:last-child]:mb-0`}>
           {item.content}
         </TabsContent>
       ))}

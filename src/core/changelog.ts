@@ -12,9 +12,14 @@ import type { Contract, ContractFunction, ContractTest } from "./model.js";
 import { run, runOrThrow } from "./shell.js";
 import { paramList } from "./signature.js";
 
+/** The contract at a ref exists but today's schema rejects it (it predates a schema change). */
+export class OldContractError extends Error {}
+
 /** Load the contract as it was at a git ref (`WORKTREE` = files on disk). */
 export function contractAt(repo: string, dir: string, ref: string): Contract {
   if (ref === "WORKTREE") return loadContract(dir);
+  // A mistyped ref is an error, not "a ref without a contract".
+  if (run("git", ["rev-parse", "--verify", "--quiet", `${ref}^{commit}`], { cwd: repo }).status !== 0) throw new Error(`unknown git ref: ${ref}`);
   const rel = path.relative(repo, dir);
   // A ref from before the contract existed (a base branch without contract/): nothing was there.
   if (run("git", ["cat-file", "-e", `${ref}:${rel}`], { cwd: repo }).status !== 0) return { functions: new Map(), domains: new Map() };
@@ -28,7 +33,11 @@ export function contractAt(repo: string, dir: string, ref: string): Contract {
       fs.mkdirSync(path.dirname(path.join(tmp, to)), { recursive: true });
       fs.writeFileSync(path.join(tmp, to), runOrThrow("git", ["show", `${ref}:${rel}/${f}`], { cwd: repo }));
     }
-    return loadContract(tmp);
+    try {
+      return loadContract(tmp);
+    } catch (e) {
+      throw new OldContractError(`the contract at ${ref} does not match today's schema: ${(e as Error).message.split("\n").slice(0, 2).join(" ").replaceAll(path.basename(tmp), "contract").replace(/\s+/g, " ").trim()}`);
+    }
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }

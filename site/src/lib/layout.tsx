@@ -1,17 +1,12 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import icon from '@/assets/icon.png';
+import logo from '@/assets/logo.png';
 import { siGithub } from 'simple-icons';
 import { type Locale, prefixOf } from './i18n';
 
-/** The logo and the wordmark (header, 404 page). */
-export function SiteMark() {
-  return (
-    <>
-      <Image src={icon} alt="" width={28} height={28} priority />
-      <span className="font-samba text-lg tracking-wide">Brazilian Utils</span>
-    </>
-  );
+/** The brand logo, the dog and the wordmark (header, 404 page), from brazilian-utils/brand. */
+export function SiteMark({ className = 'h-11' }: { className?: string }) {
+  return <Image src={logo} alt="Brazilian Utils" height={96} className={`w-auto ${className}`} priority />;
 }
 
 export function baseOptions(locale: Locale): BaseLayoutProps {

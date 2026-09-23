@@ -1,8 +1,9 @@
 'use client';
-// Type a Brazilian document number: the field masks it as you type, the page says which document
-// it is, shows it with the check digits highlighted, and whether it is valid. All of it is the JavaScript library (format*, parse*, isValid*, generate*), one
-// entry point per function so the page stays light; the mask works like the library's "Document
-// field" guide: format what was typed, and format what comes before the caret to place the caret.
+// Pick a document (CPF to start) and type its number: the field masks it as you type, shows it
+// with the check digits highlighted, and whether it is valid. All of it is the
+// JavaScript library (format*, parse*, isValid*, generate*), one entry point per function so the
+// page stays light; the mask works like the library's "Document field" guide: format what was
+// typed, and format what comes before the caret to place the caret.
 import { formatCep } from '@brazilian-utils/brazilian-utils/format-cep';
 import { formatCnh } from '@brazilian-utils/brazilian-utils/format-cnh';
 import { formatCnpj } from '@brazilian-utils/brazilian-utils/format-cnpj';
@@ -50,52 +51,29 @@ type Rule = {
   parse: (v: string) => string;
   valid: (v: string) => boolean;
   generate: () => string;
-  /** Whether what was typed so far (letters and digits only) can still become this document. */
-  fits: (alnum: string) => boolean;
   /** Its own example is a real one: numbers of people get a broken check digit instead. */
   personal?: boolean;
 };
 
 const v2 = { version: 2 } as const;
-const digitsUpTo = (n: number) => (a: string) => new RegExp(`^\\d{0,${n}}$`).test(a);
 const RULES: Record<string, Rule> = {
-  cpf: { format: formatCpf, parse: parseCpf, valid: isValidCpf, generate: generateCpf, fits: digitsUpTo(11), personal: true },
-  pis: { format: formatPis, parse: parsePis, valid: isValidPis, generate: generatePis, fits: digitsUpTo(11), personal: true },
-  cnh: { format: formatCnh, parse: parseCnh, valid: isValidCnh, generate: generateCnh, fits: digitsUpTo(11), personal: true },
+  cpf: { format: formatCpf, parse: parseCpf, valid: isValidCpf, generate: generateCpf, personal: true },
+  pis: { format: formatPis, parse: parsePis, valid: isValidPis, generate: generatePis, personal: true },
+  cnh: { format: formatCnh, parse: parseCnh, valid: isValidCnh, generate: generateCnh, personal: true },
   cnpj: {
     format: (v) => formatCnpj(v, v2),
     parse: (v) => parseCnpj(v, v2),
     valid: (v) => isValidCnpj(v, v2),
     generate: () => generateCnpj(v2),
-    fits: (a) => /^[0-9A-Z]{0,12}$/.test(a) || /^[0-9A-Z]{12}\d{1,2}$/.test(a),
   },
-  voterId: { format: formatVoterId, parse: parseVoterId, valid: isValidVoterId, generate: generateVoterId, fits: digitsUpTo(12), personal: true },
-  cep: { format: formatCep, parse: parseCep, valid: isValidCep, generate: generateCep, fits: digitsUpTo(8) },
+  voterId: { format: formatVoterId, parse: parseVoterId, valid: isValidVoterId, generate: generateVoterId, personal: true },
+  cep: { format: formatCep, parse: parseCep, valid: isValidCep, generate: generateCep },
   licensePlate: {
     format: (v) => formatLicensePlate(v) || v.toUpperCase().replace(/[^0-9A-Z]/g, ''),
     parse: parseLicensePlate,
     valid: isValidLicensePlate,
     generate: generateLicensePlate,
-    fits: (a) => /^[A-Z]{0,3}$/.test(a) || /^[A-Z]{3}\d([A-Z0-9](\d{0,2}))?$/.test(a),
   },
-};
-
-const alnumOf = (v: string) => v.toUpperCase().replace(/[^0-9A-Z]/g, '');
-
-/**
- * The document a value is: the chosen one while the value can still become it, else the first
- * that can (a plate before a CNPJ when it starts with letters). A complete number that fails the chosen document but passes another of the same
- * length (a CPF, a PIS and a CNH all have 11 digits) is the other one.
- */
-const resolve = (kinds: Kind[], chosen: string, alnum: string) => {
-  // Letters first read as a license plate before an alphanumeric CNPJ.
-  const plateFirst = /^[A-Z]/.test(alnum);
-  const fitting = kinds
-    .filter((k) => RULES[k.domain].fits(alnum))
-    .sort((a, b) => (plateFirst ? Number(b.domain === 'licensePlate') - Number(a.domain === 'licensePlate') : 0));
-  const kind = fitting.find((k) => k.domain === chosen) ?? fitting[0];
-  if (!kind || alnum.length < kind.sample.length || RULES[kind.domain].valid(alnum)) return kind;
-  return fitting.find((k) => k.sample.length === alnum.length && RULES[k.domain].valid(alnum)) ?? kind;
 };
 
 /** A well-formed number that fails validation: its last check digit changed. */
@@ -135,7 +113,8 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
   );
   const [chosen, setChosen] = useState(kinds[0]?.domain ?? 'cpf');
   const [alnum, setAlnum] = useState(examples[chosen] ?? '');
-  const kind = resolve(kinds, chosen, alnum);
+  // The document is the one picked below (CPF to start); typing never switches it.
+  const kind = kinds.find((k) => k.domain === chosen) ?? kinds[0];
   const rule = kind && RULES[kind.domain];
   const formatted = rule ? rule.format(alnum) : alnum;
 
@@ -148,10 +127,10 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
       const inputType = (event as InputEvent).inputType ?? '';
       let typed = el.value;
       let position = el.selectionStart ?? typed.length;
-      const format = (v: string) => {
-        const k = resolve(kinds, chosen, alnumOf(typed));
-        return k ? RULES[k.domain].format(alnumOf(v)) : alnumOf(v);
-      };
+      // The library's parse keeps what the document can hold (digits, or letters and digits),
+      // cut to its length; its format masks that.
+      const clean = (v: string) => (rule ? rule.parse(v).slice(0, kind.sample.length) : v);
+      const format = (v: string) => (rule ? rule.format(clean(v)) : v);
       // A deleted separator would come straight back: delete the character next to it.
       if (inputType.startsWith('delete') && format(typed).length > typed.length) {
         if (inputType === 'deleteContentBackward') position -= 1;
@@ -160,11 +139,11 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
       const caret = format(typed.slice(0, position)).length;
       el.value = format(typed);
       el.setSelectionRange(caret, caret);
-      setAlnum(alnumOf(typed));
+      setAlnum(clean(typed));
     };
     el.addEventListener('input', onInput);
     return () => el.removeEventListener('input', onInput);
-  }, [kinds, chosen]);
+  }, [kind, rule]);
 
   // Examples, generated numbers and a new document write the field, masked.
   useEffect(() => {
@@ -214,12 +193,11 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
         {alnum ? head : mask || ' '}
         {digits && <mark className={valid ? 'check' : 'check check-wrong'}>{digits}</mark>}
       </p>
-      <div id={`${id}-result`} aria-live="polite" className="mt-3 min-h-6 text-sm">
+      {/* As tall as its longest answer (two lines, three on a phone), so typing never moves the page. */}
+      <div id={`${id}-result`} aria-live="polite" className="mt-3 min-h-16 text-sm sm:min-h-11">
         {!alnum ? (
           <p className="text-fd-muted-foreground">{text.empty}</p>
-        ) : !kind ? (
-          <p className="text-fd-muted-foreground">{text.unknown}</p>
-        ) : (
+        ) : !kind ? null : (
           <>
             <p className="flex flex-wrap items-center gap-1.5">
               <Link href={kind.href} className="font-medium underline underline-offset-4">

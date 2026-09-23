@@ -26,29 +26,33 @@ on:
     types: [lib-released]
   push:
     branches: [main]
-    paths: ["contract/**", "libs/**", "site/**", "src/**", ".github/workflows/conformance.yml"]
+    paths: ["contract/**", "libs/**", "baselines/**", "schema/**", "site/**", "src/**", "package*.json", ".github/workflows/conformance.yml"]
   pull_request:
-    paths: ["contract/**", "libs/**", "baselines/**", "src/**"]
+    paths: ["contract/**", "libs/**", "baselines/**", "schema/**", "src/**", "package*.json", ".github/workflows/conformance.yml"]
 
+# A push to main is never cancelled or replaced by a later run: its issues step is the only one
+# that opens the issues for that merge. Other runs of a ref queue one at a time; a PR's newer
+# run cancels the older.
 concurrency:
-  group: conformance-${{ github.ref }}
+  group: conformance-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'run' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   conformance:
     runs-on: ubuntu-latest
-    # The job runs the libraries' own code (their tests, installs, `prepare`): its token only reads.
+    # The job runs the libraries' own code (their tests, installs, builds, `prepare`): its token
+    # only reads, and LIBS_TOKEN never reaches it (the lib-repos job below holds it).
     permissions:
       contents: read
+    outputs:
+      site: ${{ steps.site.outputs.built }}
     env:
-      # LIBS_TOKEN (write access to the lib repos) reaches only the two steps that need it, never
-      # the steps that run library code; this flag says whether it is set.
-      HAS_LIBS_TOKEN: ${{ secrets.LIBS_TOKEN != '' }}
       SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # issues --since compares the contract with the commit before the merge
+          fetch-depth: 0 # the PR step compares the contract with the base branch
+          persist-credentials: false # no token left in .git/config for the libraries' code
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -95,9 +99,9 @@ jobs:
           cat output/diff.md >> "$GITHUB_STEP_SUMMARY"
           exit $status
       - name: Contract changes in this PR
-        if: github.event_name == 'pull_request'
+        if: always() && github.event_name == 'pull_request'
         run: |
-          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "${{ github.base_ref }}"
           npx tsx src/cli.ts changelog --from FETCH_HEAD --to WORKTREE --out "$GITHUB_STEP_SUMMARY"
           {
             echo "## Issues this merge will open in the libs"
@@ -106,57 +110,25 @@ jobs:
             npx tsx src/cli.ts issues --since FETCH_HEAD
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
-      # One issue per function per lib. On a merge to main: an "Implement <fn>" issue in every
-      # lib missing a function the merge added, and a "Fix <fn>" issue in every lib failing a
-      # case the merge added or changed. Every run also refreshes open issues and closes the
-      # ones the lib has done. Needs issues:write on the lib repos (LIBS_TOKEN).
-      - name: Open, refresh and close issues in the lib repositories
-        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.HAS_LIBS_TOKEN == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
-          SINCE: ${{ github.event_name == 'push' && github.event.before || inputs.since }}
-          BACKFILL: ${{ inputs.backfill }}
+      # Each lib's vendored conformance suite (api-contract/: JSON cases + its skip list), exported
+      # into a fresh clone. Reading a lib's API builds some of them, so this runs here, without
+      # LIBS_TOKEN; the lib-repos job only applies the resulting patch.
+      - name: Export the conformance suite for each lib
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
-          args=(issues --apply)
-          if [ -n "$SINCE" ] && [ "$SINCE" != "0000000000000000000000000000000000000000" ]; then args+=(--since "$SINCE"); fi
-          if [ -n "$BACKFILL" ] && [ "$BACKFILL" != "none" ]; then args+=(--backfill "$BACKFILL"); fi
-          npx tsx src/cli.ts "${args[@]}"
-      # Keep each lib's vendored conformance suite (api-contract/: JSON cases + its skip list)
-      # current: refresh it in a fresh clone and open/update an "api-contract/cases" PR when
-      # it changed. Needs contents:write + pull-requests:write on the lib repos (LIBS_TOKEN).
-      - name: Sync the conformance suite into the lib repositories
-        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.HAS_LIBS_TOKEN == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
-        run: |
-          git config --global user.name "api-validator[bot]"
-          git config --global user.email "api-validator@users.noreply.github.com"
-          branch=api-contract/cases
+          mkdir -p output/lib-sync
           mapfile -t libs < <(npx tsx src/cli.ts libs)
           for entry in "${libs[@]}"; do
             read -r lib repo <<< "$entry"
             [ -n "$repo" ] || continue
             dir="$RUNNER_TEMP/export/$lib"
             rm -rf "$dir"
-            gh repo clone "$repo" "$dir" -- --depth=1 --quiet || continue
-            npx tsx src/cli.ts export-cases --lib "$lib" --path "$dir" > "$RUNNER_TEMP/export-$lib.log" || { cat "$RUNNER_TEMP/export-$lib.log"; continue; }
+            git clone -q --depth=1 "https://github.com/$repo.git" "$dir" || continue
+            npx tsx src/cli.ts export-cases --lib "$lib" --path "$dir" > "output/lib-sync/$lib.log" 2>&1 || { cat "output/lib-sync/$lib.log"; continue; }
             git -C "$dir" add -A api-contract
             git -C "$dir" diff --cached --quiet && continue
-            {
-              echo "Refreshed by the nightly [api-validator](https://github.com/${{ github.repository }}) run: the shared JSON conformance suite and this lib's skip list."
-              echo
-              echo '```'
-              cat "$RUNNER_TEMP/export-$lib.log"
-              echo '```'
-              echo
-              echo "Entries leave skip.json as the lib fixes them; the harness then runs those cases."
-            } > "$RUNNER_TEMP/pr-$lib.md"
-            git -C "$dir" checkout -q -B "$branch"
-            git -C "$dir" commit -q -m "test: update API contract cases"
-            git -C "$dir" push -q --force origin "$branch"
-            if [ -z "$(gh pr list -R "$repo" --head "$branch" --state open --json number -q '.[0].number')" ]; then
-              gh pr create -R "$repo" --head "$branch" --title "test: update API contract cases" --body-file "$RUNNER_TEMP/pr-$lib.md" --label api-contract
-            fi
+            git -C "$dir" diff --cached --binary > "output/lib-sync/$lib.patch"
+            echo "$repo" > "output/lib-sync/$lib.repo"
           done
       # Which implemented functions each lib shows on the site (its docs/usage/, else the
       # fixtures in site/fixtures/usage/); informative, never fails the run.
@@ -180,7 +152,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # fetch-libs: the libs' docs/usage/ at their latest release
         run: |
           npm ci
-          npm audit --audit-level=low
           npm run check:i18n -- --strict
           npm run lint
           npm run build
@@ -189,14 +160,103 @@ jobs:
         with:
           name: conformance-report
           path: output/
+      # Only a site that built is published: after a failed build the last site stays up.
+      - id: site
+        if: always() && hashFiles('site/out/index.html') != '' && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: echo "built=true" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v3
-        if: always() && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: always() && steps.site.outputs.built == 'true'
         with:
           path: site/out/
 
+  # Everything that writes to the lib repositories, with LIBS_TOKEN, in a job that runs no library
+  # code: a fresh checkout of this repository, the report and patches of the job above, and the
+  # lib repos cloned only to read the reference source the issues embed.
+  lib-repos:
+    needs: conformance
+    if: always() && needs.conformance.result != 'cancelled' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      HAS_LIBS_TOKEN: ${{ secrets.LIBS_TOKEN != '' }}
+      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+    steps:
+      - uses: actions/checkout@v4
+        if: env.HAS_LIBS_TOKEN == 'true'
+        with:
+          fetch-depth: 0 # issues --since compares the contract with the commit before the merge
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        if: env.HAS_LIBS_TOKEN == 'true'
+        with:
+          node-version: 22
+          cache: npm
+      - if: env.HAS_LIBS_TOKEN == 'true'
+        run: npm ci
+      - uses: actions/download-artifact@v4
+        if: env.HAS_LIBS_TOKEN == 'true'
+        with:
+          name: conformance-report
+          path: output/
+      - name: Clone the libs (read only, for the reference source in the issues)
+        if: env.HAS_LIBS_TOKEN == 'true'
+        run: npx tsx src/cli.ts sync
+      # One issue per function per lib. On a merge to main: an "Implement <fn>" issue in every
+      # lib missing a function the merge added, and a "Fix <fn>" issue in every lib failing a
+      # case the merge added or changed. Every run also refreshes open issues and closes the
+      # ones the lib has done. Needs issues:write on the lib repos.
+      - name: Open, refresh and close issues in the lib repositories
+        if: env.HAS_LIBS_TOKEN == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
+          SINCE: ${{ github.event_name == 'push' && github.event.before || inputs.since }}
+          BACKFILL: ${{ inputs.backfill }}
+        run: |
+          args=(issues --apply)
+          if [ -n "$SINCE" ] && [ "$SINCE" != "0000000000000000000000000000000000000000" ]; then args+=(--since "$SINCE"); fi
+          if [ -n "$BACKFILL" ] && [ "$BACKFILL" != "none" ]; then args+=(--backfill "$BACKFILL"); fi
+          npx tsx src/cli.ts "${args[@]}"
+      # The exported suites that changed: pushed to an "api-contract/cases" branch of the lib, with
+      # a PR. Needs contents:write + pull-requests:write on the lib repos.
+      - name: Sync the conformance suite into the lib repositories
+        if: always() && env.HAS_LIBS_TOKEN == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
+        run: |
+          gh auth setup-git # pushes below authenticate with GH_TOKEN
+          git config --global user.name "api-validator[bot]"
+          git config --global user.email "api-validator@users.noreply.github.com"
+          branch=api-contract/cases
+          for patch in output/lib-sync/*.patch; do
+            [ -e "$patch" ] || continue
+            lib=$(basename "$patch" .patch)
+            repo=$(cat "output/lib-sync/$lib.repo")
+            dir="$RUNNER_TEMP/sync/$lib"
+            rm -rf "$dir"
+            gh repo clone "$repo" "$dir" -- --depth=1 --quiet || continue
+            git -C "$dir" apply --index "$GITHUB_WORKSPACE/$patch" || { echo "::warning::$lib: the exported suite does not apply to $repo any more; next run"; continue; }
+            {
+              echo "Refreshed by the nightly [api-validator](https://github.com/${{ github.repository }}) run: the shared JSON conformance suite and this lib's skip list."
+              echo
+              echo '```'
+              cat "output/lib-sync/$lib.log"
+              echo '```'
+              echo
+              echo "Entries leave skip.json as the lib fixes them; the harness then runs those cases."
+            } > "$RUNNER_TEMP/pr-$lib.md"
+            git -C "$dir" checkout -q -B "$branch"
+            git -C "$dir" commit -q -m "test: update API contract cases"
+            git -C "$dir" push -q --force origin "$branch"
+            if [ -z "$(gh pr list -R "$repo" --head "$branch" --state open --json number -q '.[0].number')" ]; then
+              gh label create api-contract -R "$repo" --color 0E8A16 --description "Shared API contract work" --force
+              gh pr create -R "$repo" --head "$branch" --title "test: update API contract cases" --body-file "$RUNNER_TEMP/pr-$lib.md" --label api-contract
+            fi
+          done
+
   publish:
     needs: conformance
-    if: always() && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: always() && needs.conformance.outputs.site == 'true'
     runs-on: ubuntu-latest
     permissions:
       pages: write

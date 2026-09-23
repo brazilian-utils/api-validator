@@ -35,17 +35,34 @@ export function Breakdown({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  // Opened by a click (or a tap, or the keyboard): it stays open when the pointer leaves.
+  const [pinned, setPinned] = useState(false);
   const titleId = useId();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  // Hover opens it after a moment and leaving closes it; a click or a tap toggles it.
+  // Hover opens it after a moment and leaving closes it, unless a click pinned it.
   const hover = (next: boolean) => {
     clearTimeout(timer.current);
+    if (pinned) return;
     timer.current = setTimeout(() => setOpen(next), next ? 150 : 200);
   };
+  const change = (next: boolean) => {
+    setOpen(next);
+    if (!next) setPinned(false);
+  };
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={change}>
       <PopoverTrigger
         aria-label={label}
+        // A click after hovering keeps open what the hover showed; a second click closes it.
+        onClick={(event) => {
+          event.preventDefault();
+          clearTimeout(timer.current);
+          if (open && pinned) change(false);
+          else {
+            setOpen(true);
+            setPinned(true);
+          }
+        }}
         onMouseEnter={() => hover(true)}
         onMouseLeave={() => hover(false)}
         className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
@@ -68,7 +85,10 @@ export function Breakdown({
               <StatusIcon status={item.status} className="mt-0.5 size-4 shrink-0" />
               <span>
                 {item.label}
-                <span className="block text-xs text-fd-muted-foreground">{item.note}</span>
+                <span className="block text-xs text-fd-muted-foreground">
+                  {/* The contract's summaries mark code with backticks. */}
+                  {item.note.split(/`([^`]+)`/).map((part, i) => (i % 2 ? <code key={i} className="font-mono text-fd-foreground">{part}</code> : part))}
+                </span>
               </span>
             </li>
           ))}

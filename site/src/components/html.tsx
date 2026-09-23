@@ -1,13 +1,10 @@
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import localFont from 'next/font/local';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { Provider } from './provider';
 import type { Locale } from '@/lib/i18n';
 import '@/app/global.css';
-
-const samba = localFont({ src: '../app/samba.ttf', variable: '--font-samba', display: 'swap' });
 
 const base = process.env.NEXT_PUBLIC_BASE ?? '';
 
@@ -18,7 +15,7 @@ const detectLanguage = `(function(){try{var K='bu:lang',b=${JSON.stringify(base)
 
 export function Html({ locale, children }: { locale: Locale; children: ReactNode }) {
   return (
-    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable} ${samba.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={`${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <body className="flex flex-col min-h-screen font-sans antialiased">
         {locale === 'en' && (
           // The rule dates from pages/: in the App Router a beforeInteractive script belongs in the

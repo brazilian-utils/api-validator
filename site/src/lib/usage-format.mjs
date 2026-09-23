@@ -29,7 +29,7 @@ export const OP_ALIASES = { validate: 'isValid' };
 export const DEFAULT_LABELS = {
   isValid: { en: 'Validate', 'pt-BR': 'Validar' },
   format: { en: 'Format', 'pt-BR': 'Formatar' },
-  parse: { en: 'Parse', 'pt-BR': 'Extrair' },
+  parse: { en: 'Parse', 'pt-BR': 'Interpretar' },
   generate: { en: 'Generate', 'pt-BR': 'Gerar' },
   getInfo: { en: 'Decode', 'pt-BR': 'Decodificar' },
   get: { en: 'Look up', 'pt-BR': 'Consultar' },

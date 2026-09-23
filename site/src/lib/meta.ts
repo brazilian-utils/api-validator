@@ -22,7 +22,8 @@ export const NOINDEX = Boolean(process.env.VERCEL) && process.env.SITE_INDEXABLE
 export function pageMetadata(locale: Locale, path: string, title: string, description: string): Metadata {
   const url = (l: Locale) => `${SITE.origin}${base}${prefixOf(l)}${path}`;
   return {
-    title,
+    // The home page's title is the site name alone, without the " · Brazilian Utils" suffix.
+    title: title === 'Brazilian Utils' ? { absolute: title } : title,
     description,
     alternates: { canonical: url(locale), languages: { en: url('en'), 'pt-BR': url('pt-BR'), 'x-default': url('en') } },
     openGraph: {

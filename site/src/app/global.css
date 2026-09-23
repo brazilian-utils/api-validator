@@ -61,11 +61,6 @@
   --color-fd-secondary: #282726;
 }
 
-.font-samba {
-  font-family: var(--font-samba), var(--font-sans);
-  font-weight: 400;
-}
-
 /* The check digits of a document number: the brand yellow, ink text on it in both themes. When
    the number fails, its check digits are struck in the fail color instead. */
 mark.check {
@@ -80,17 +75,29 @@ mark.check-wrong {
   text-decoration: line-through 2px;
 }
 
+/* The page keeps the scrollbar's room whether it scrolls or not, so a short page and a long one lay
+   out the same. The strip that room leaves beside the header takes the header's tone. */
 html {
   scrollbar-gutter: stable;
+  background: linear-gradient(var(--color-header) 0 0) top / 100% 3.5rem no-repeat var(--color-fd-background);
+}
+@media (min-width: 64rem) {
+  html {
+    background-size: 100% 6rem;
+  }
 }
 
-/* The header stands apart from the page: its own paper tone and a rule under it. */
+/* The header stands apart from the page: its own paper tone and a rule under each row, from edge
+   to edge of the window. The header itself is a grid cell narrower than the window, so the tone
+   and the rules are painted past its sides with border-image (no layout change). */
 #nd-subnav {
   background: var(--color-header);
+  border-image: conic-gradient(var(--color-header) 0 0) fill 0 / / 0 100vw;
 }
 #nd-subnav > [data-header-body],
 #nd-subnav [data-header-tabs] {
-  border-bottom: 1px solid var(--color-fd-border);
+  border-bottom: 0;
+  border-image: linear-gradient(to top, var(--color-fd-border) 1px, var(--color-header) 1px) fill 0 / / 0 100vw;
 }
 
 /* Code blocks: on the page's paper, where every syntax color meets AA, and one surface with no

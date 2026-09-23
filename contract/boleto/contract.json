@@ -86,7 +86,7 @@
           "- A boleto de arrecadação has no bank code and no due date. It also reports its type, segment, the amount in reais and whether that amount is effective."
         ],
         "pt-BR": [
-          "Extrai o valor, a data de vencimento e o código do banco de um boleto. Retorna null quando a entrada não é um boleto válido.",
+          "Interpreta um boleto e retorna o valor, a data de vencimento e o código do banco. Retorna null quando a entrada não é um boleto válido.",
           "",
           "- O valor está em centavos. O código do banco é o código COMPE de 3 dígitos.",
           "- A data de vencimento é null quando o boleto não traz fator de vencimento (um fator abaixo de 1000).",

@@ -10,7 +10,8 @@
     "label": "Erlang",
     "order": 7,
     "package": "brutils",
-    "install": "{deps, [brutils]}. % rebar.config",
+    "install": "{deps, [brutils]}.  % rebar.config",
+    "installLang": "erlang",
     "registry": "https://hex.pm/packages/brutils",
     "usage": { "ref": "latest-release", "path": "docs/usage" }
   }

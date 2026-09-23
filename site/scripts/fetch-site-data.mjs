@@ -20,7 +20,11 @@ const from = (process.env.SITE_DATA_URL || process.env.SITE_URL || 'https://braz
 
 if (process.env.SITE_DATA === 'skip' || process.env.USAGE_SOURCE === 'fixtures') process.exit(0);
 // A validator run wrote the file (no `fetchedFrom`): keep it. A copy fetched earlier is refreshed.
-const existing = fs.existsSync(STATUS) ? JSON.parse(fs.readFileSync(STATUS, 'utf8')) : null;
+// A file that does not parse (a cut download) counts as absent.
+let existing = null;
+try {
+  existing = JSON.parse(fs.readFileSync(STATUS, 'utf8'));
+} catch {}
 if (existing && !existing.fetchedFrom) {
   console.log(`status ${STATUS} written by a validator run; nothing to fetch`);
   process.exit(0);

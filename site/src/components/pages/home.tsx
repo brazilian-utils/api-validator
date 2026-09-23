@@ -104,7 +104,6 @@ export function HomePage({ locale }: { locale: Locale }) {
                   examples: t('specimen.examples'),
                   valid: t('specimen.valid'),
                   invalid: t('specimen.invalid'),
-                  unknown: t('specimen.unknown'),
                   empty: t('specimen.empty'),
                   generate: t('specimen.generate'),
                   checkOne: t('specimen.checkDigits', { count: 1 }),
@@ -151,7 +150,7 @@ export function HomePage({ locale }: { locale: Locale }) {
               ),
               content: (
                 <>
-                  <Markdown source={'```sh\n' + lib.install + '\n```'} />
+                  <Markdown source={'```' + lib.installLang + '\n' + lib.install + '\n```'} />
                   {code && <Markdown source={code} />}
                   <p className="not-prose flex flex-wrap items-center justify-between gap-2 text-sm text-fd-muted-foreground">
                     {done !== null && <span>{L(locale, `${done} of ${total} contract functions`, `${done} de ${total} funções do contrato`)}</span>}

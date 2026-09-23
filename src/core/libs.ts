@@ -34,6 +34,8 @@ export const LibSchema = z
         order: z.number().int(),
         package: z.string().min(1),
         install: z.string().min(1),
+        /** The language that highlights the install line (default sh): a config line is not a command. */
+        installLang: z.string().min(1).optional(),
         registry: z.string().url(),
         /**
          * Where the lib documents how to use it, read by the site at `ref` (see
