@@ -82,6 +82,15 @@ html {
   background: linear-gradient(var(--color-header) 0 0) top / 100% 3.5rem no-repeat var(--color-fd-background);
 }
 
+/* One column for the whole site: the home page's sections and the documentation (sidebar, page
+   and table of contents) share its width and its edges, so nothing moves from one to the other. */
+:root {
+  --site-width: 80rem;
+}
+#nd-notebook-layout {
+  --fd-layout-width: var(--site-width);
+}
+
 /* The header (site-header.client.tsx) stands apart from the page: its own paper tone, a rule under it. */
 .site-header {
   background: var(--color-header);

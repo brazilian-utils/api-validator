@@ -76,7 +76,7 @@ export function HomePage({ locale }: { locale: Locale }) {
       <HomeJsonLd locale={locale} description={L(locale, 'Validate, format and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
       <div className="flex flex-1 flex-col">
         <section className="band">
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+          <div className="mx-auto grid w-full max-w-(--site-width) items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
             <div>
               <h1 className="text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:leading-[1.05]">
                 {L(locale, 'Validate Brazilian documents in seven languages.', 'Valide documentos brasileiros em sete linguagens.')}
@@ -125,7 +125,7 @@ export function HomePage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <section className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
+        <section className="mx-auto grid w-full max-w-(--site-width) gap-10 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'The same call, in your language', 'A mesma chamada, na sua linguagem')}</h2>
             <p className="mt-4 max-w-[36ch] text-fd-muted-foreground text-pretty">
@@ -166,7 +166,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         </section>
 
         <section className="band band-top">
-          <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-20">
+          <div className="mx-auto w-full max-w-(--site-width) px-4 py-16 sm:px-6 md:py-20">
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How seven libraries stay the same', 'Como as sete bibliotecas se mantêm iguais')}</h2>
             <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map(([title, body]) => (
@@ -179,7 +179,7 @@ export function HomePage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
+        <section className="mx-auto w-full max-w-(--site-width) px-4 py-16 sm:px-6 md:py-24">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">{L(locale, 'Every utility', 'Todos os utilitários')}</h2>
           <p className="mt-3 max-w-[62ch] text-fd-muted-foreground text-pretty">{L(locale, 'Under each one: which libraries have it. Hover over or tap it for each library.', 'Embaixo de cada um: quais bibliotecas o têm. Passe o mouse ou toque para ver cada biblioteca.')}</p>
           <div className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
@@ -220,7 +220,7 @@ export function HomePage({ locale }: { locale: Locale }) {
         </section>
 
         <footer className="band band-top">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-fd-muted-foreground sm:px-6">
+          <div className="mx-auto flex w-full max-w-(--site-width) flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-fd-muted-foreground sm:px-6">
             <p>Brazilian Utils</p>
             <nav aria-label={L(locale, 'Footer', 'Rodapé')} className="flex gap-5">
               <Link href={`${p}/reference/parity/`} className="hover:text-fd-foreground">{L(locale, 'Parity matrix', 'Matriz de paridade')}</Link>

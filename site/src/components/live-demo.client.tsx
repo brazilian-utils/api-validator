@@ -118,7 +118,13 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
       style.id = 'site-demo-style';
       style.textContent = fonts.join('\n') + CSS;
       doc.head.append(style);
-      const measure = () => take(doc.body.scrollHeight);
+      // A framework demo mounts after its code compiles: until it shows something, the frame keeps
+      // its reserved height and stays covered, so it does not shrink to nothing and grow back.
+      const measure = () => {
+        if (!doc.body.innerText.trim()) return;
+        take(doc.body.scrollHeight);
+        setReady(true);
+      };
       new (doc.defaultView as typeof window).ResizeObserver(measure).observe(doc.body);
       measure();
     }
@@ -136,7 +142,7 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
 
   const caption = title ? text.demoOf.replace('{title}', title) : text.demo;
   return (
-    <figure className="not-prose my-4 overflow-hidden rounded-xl border bg-fd-card shadow-sm">
+    <figure className="not-prose my-4 overflow-hidden rounded-xl border bg-fd-card">
       <figcaption className="flex items-center gap-2 border-b px-4 py-2 text-xs text-fd-muted-foreground">
         {caption}
         <a href={src} target="_blank" rel="noopener" className="ms-auto inline-flex items-center gap-1 hover:text-fd-foreground">
@@ -154,12 +160,17 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
           style={{ height }}
           // A same-origin demo gets the page's look before it shows; one from elsewhere shows as it is.
           onLoad={() => {
+            let dressed = false;
             try {
-              dress();
+              dressed = dress();
             } catch {}
-            setReady(true);
+            // A demo from elsewhere cannot be read: it shows once loaded. One that never renders
+            // shows after a while, whatever it has.
+            if (!dressed) setReady(true);
+            else setTimeout(() => setReady(true), 10_000);
           }}
-          className={`block h-40 w-full transition-opacity duration-150 ${ready ? 'opacity-100' : 'opacity-0'}`}
+          // A height that changes (the reserved one to the real one) eases instead of jumping.
+          className={`block h-40 w-full transition-[height,opacity] duration-200 ease-out motion-reduce:transition-none ${ready ? 'opacity-100' : 'opacity-0'}`}
         />
         {!ready && (
           <p role="status" className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-fd-muted-foreground">

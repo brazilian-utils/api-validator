@@ -37,25 +37,29 @@ function HeaderRow({ sections, title, homeUrl, prefix, github, slots, menu, clas
   const pathname = usePathname().replace(/\/$/, '');
   const path = pathname.startsWith(base) ? pathname.slice(base.length) || '/' : pathname;
   const active = sections.findIndex((s) => s.match.some((m) => path === m.replace(/\/$/, '') || path.startsWith(m)));
+  // Laid out like vuejs.org: the logo with search beside it; the sections, then the settings and
+  // GitHub, on the right, each group set off by a thin divider.
+  const divider = <span aria-hidden className="mx-2 h-6 w-px bg-fd-border max-md:hidden" />;
   return (
     <header className={`site-header z-40 flex h-14 items-center gap-2 px-4 md:px-6 ${className}`}>
-      <Link href={homeUrl} className="me-4 inline-flex shrink-0 items-center">
+      <Link href={homeUrl} className="inline-flex shrink-0 items-center">
         {title}
       </Link>
-      <nav aria-label="Sections" className="flex items-center gap-6 max-lg:hidden">
-        {sections.map((s, i) => (
-          <Link
-            key={s.url}
-            href={s.url}
-            aria-current={i === active ? 'page' : undefined}
-            className="text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground aria-[current=page]:text-fd-primary"
-          >
-            {s.title}
-          </Link>
-        ))}
-      </nav>
-      <div className="flex flex-1 items-center justify-end gap-1.5">
-        {slots.searchTrigger && <slots.searchTrigger.full hideIfDisabled className="w-full max-w-60 rounded-full ps-2.5 max-md:hidden" />}
+      {slots.searchTrigger && <slots.searchTrigger.full hideIfDisabled className="ms-4 w-full max-w-56 rounded-full ps-2.5 max-md:hidden" />}
+      <div className="flex flex-1 items-center justify-end gap-1">
+        <nav aria-label="Sections" className="flex items-center gap-6 max-lg:hidden">
+          {sections.map((s, i) => (
+            <Link
+              key={s.url}
+              href={s.url}
+              aria-current={i === active ? 'page' : undefined}
+              className="text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground aria-[current=page]:text-fd-primary"
+            >
+              {s.title}
+            </Link>
+          ))}
+        </nav>
+        <span aria-hidden className="mx-3 h-6 w-px bg-fd-border max-lg:hidden" />
         {slots.searchTrigger && <slots.searchTrigger.sm hideIfDisabled className="p-2 md:hidden" />}
         <div className="flex items-center gap-1.5 max-md:hidden">
           {slots.themeSwitch && <slots.themeSwitch />}
@@ -64,10 +68,11 @@ function HeaderRow({ sections, title, homeUrl, prefix, github, slots, menu, clas
               <Languages className="size-4.5 text-fd-muted-foreground" />
             </slots.languageSelect.root>
           )}
-          <a href={github.url} aria-label={github.label} target="_blank" rel="noopener" className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'text-fd-muted-foreground' })}>
-            {github.icon}
-          </a>
         </div>
+        {divider}
+        <a href={github.url} aria-label={github.label} target="_blank" rel="noopener" className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'text-fd-muted-foreground max-md:hidden' })}>
+          {github.icon}
+        </a>
         {menu}
       </div>
     </header>
@@ -82,7 +87,7 @@ export function DocsHeader(props: HeaderProps) {
     <HeaderRow
       {...props}
       slots={slots}
-      className="sticky top-(--fd-docs-row-1) [grid-area:header] [grid-column:1/-1] layout:[--fd-header-height:--spacing(14)]"
+      className="sticky top-(--fd-docs-row-1) [grid-area:header] [grid-column:1/-1]! layout:[--fd-header-height:--spacing(14)]"
       menu={
         Trigger && (
           <Trigger aria-label={props.menuLabel} className={buttonVariants({ variant: 'ghost', size: 'icon-sm', className: '-me-1.5 p-2 text-fd-muted-foreground lg:hidden' })}>
