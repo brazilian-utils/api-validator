@@ -553,10 +553,14 @@ program
   .option("--reference <lib>", "lib whose source is embedded in the briefs", REFERENCE_LIB)
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const scope: Scope = opts.since
-      ? scopeFrom(changelog(contractAt(path.dirname(CONTRACT_DIR), CONTRACT_DIR, opts.since), contract))
-      : { added: new Set(), cases: new Set() };
-    if (opts.since) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
+    const before = opts.since ? contractAt(path.dirname(CONTRACT_DIR), CONTRACT_DIR, opts.since) : undefined;
+    // A ref from before the contract existed (the merge that brings it in) would make every function
+    // "new" and open an issue for everything any library lacks. That is a backfill: it is asked for
+    // on purpose (--backfill, the workflow's input), never by accident.
+    const firstContract = !!before && before.functions.size === 0;
+    if (firstContract) console.log(c.yellow(`since ${opts.since}: no contract at that ref; opening no issues for it (use --backfill core|all to open them)`));
+    const scope: Scope = before && !firstContract ? scopeFrom(changelog(before, contract)) : { added: new Set(), cases: new Set() };
+    if (opts.since && !firstContract) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
     // Reports from the last `check --tests` (the pipeline runs it right before).
     const reference = referenceName(opts.reference);
     const refs: ImplRef[] = [];
