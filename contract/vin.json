@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "vin",
-  "title": "VIN — Vehicle Identification Number (chassi)",
-  "description": "Vehicle identification numbers, structural and check-digit validation.",
+  "title": { "en": "VIN (chassis)", "pt-BR": "Chassi (VIN)" },
+  "summary": {
+    "en": "Vehicle identification numbers, structural and check-digit validation.",
+    "pt-BR": "Números de identificação veicular (chassi): validação estrutural e do dígito verificador."
+  },
+  "category": "vehicles",
+  "order": 3,
+  "related": ["renavam"],
   "functions": {
     "isValid": {
       "summary": "Validates a VIN (Vehicle Identification Number / chassi).",

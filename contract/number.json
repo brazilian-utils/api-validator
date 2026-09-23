@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "number",
-  "title": "Numbers in words",
-  "description": "Integers written out in Brazilian Portuguese (por extenso).",
+  "title": { "en": "Numbers in words", "pt-BR": "Números por extenso" },
+  "summary": {
+    "en": "Integers written out in Brazilian Portuguese (por extenso).",
+    "pt-BR": "Números inteiros escritos por extenso em português."
+  },
+  "category": "text-and-dates",
+  "order": 2,
+  "related": ["currency"],
   "functions": {
     "convertToWords": {
       "summary": "Formats an integer as its Brazilian Portuguese cardinal number words (\"por extenso\"), e.g. `1235` becomes `\"mil duzentos e trinta e cinco\"`.",

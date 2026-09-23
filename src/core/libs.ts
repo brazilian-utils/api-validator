@@ -17,7 +17,20 @@ export const LibSchema = z
     ignore: z.array(z.string()).default([]),
     waivers: z.record(z.string(), z.string().min(1)).default({}),
     knownFailures: z.record(z.string(), z.string().min(1)).default({}),
-    options: z.record(z.string(), z.unknown()).default({})
+    options: z.record(z.string(), z.unknown()).default({}),
+    /** How the docs site shows this lib: tab label and order, install line, where its usage files live. */
+    site: z
+      .object({
+        label: z.string().min(1),
+        icon: z.string().optional(),
+        order: z.number().int(),
+        package: z.string().min(1),
+        install: z.string().min(1),
+        registry: z.string().url(),
+        usage: z.object({ ref: z.string().default("latest-release"), path: z.string().default("docs/usage") }).strict().default({ ref: "latest-release", path: "docs/usage" })
+      })
+      .strict()
+      .optional()
   })
   .strict();
 

@@ -1,8 +1,10 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "email",
-  "title": "Email",
-  "description": "Email address validation.",
+  "title": { "en": "Email", "pt-BR": "E-mail" },
+  "summary": { "en": "Email address validation.", "pt-BR": "Validação de endereços de e-mail." },
+  "category": "telecom",
+  "order": 3,
   "functions": {
     "isValid": {
       "summary": "Validates if an email address is valid.",

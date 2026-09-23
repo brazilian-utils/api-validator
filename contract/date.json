@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "date",
-  "title": "Dates, holidays and business days",
-  "description": "Brazilian holidays, business days (dias úteis) and dates written out in words.",
+  "title": { "en": "Dates and holidays", "pt-BR": "Datas e feriados" },
+  "summary": {
+    "en": "Brazilian holidays, business days (dias úteis) and dates written out in words.",
+    "pt-BR": "Feriados, dias úteis e datas por extenso."
+  },
+  "category": "text-and-dates",
+  "order": 1,
   "aliases": ["dateUtils"],
   "functions": {
     "addBusinessDays": {

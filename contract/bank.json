@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "bank",
-  "title": "Banks — COMPE / ISPB",
-  "description": "Brazilian banks from the Banco Central do Brasil STR participants list, looked up by COMPE code or ISPB.",
+  "title": { "en": "Banks", "pt-BR": "Bancos" },
+  "summary": {
+    "en": "Brazilian banks from the Banco Central do Brasil STR participants list, looked up by COMPE code or ISPB.",
+    "pt-BR": "Bancos brasileiros da lista de participantes do STR do Banco Central, por código COMPE ou ISPB."
+  },
+  "category": "finance",
+  "order": 5,
+  "related": ["bankAccount", "boleto"],
   "functions": {
     "getByCode": {
       "summary": "Looks up a Brazilian bank by its compensation code (COMPE), published by Banco Central do Brasil in the STR (Sistema de Transferência de Reservas) participants list.",

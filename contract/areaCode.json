@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "areaCode",
-  "title": "DDD — Brazilian area codes",
-  "description": "Telephone area codes (DDD) in use under the Anatel Plano Geral de Numeração, and the states they serve.",
+  "title": { "en": "Area code (DDD)", "pt-BR": "DDD" },
+  "summary": {
+    "en": "Telephone area codes (DDD) in use under the Anatel Plano Geral de Numeração, and the states they serve.",
+    "pt-BR": "Códigos de área (DDD) em uso no Plano Geral de Numeração da Anatel e os estados que atendem."
+  },
+  "category": "telecom",
+  "order": 2,
+  "related": ["phone", "state"],
   "functions": {
     "getInfo": {
       "summary": "Retrieves the state (and its region) a Brazilian DDD (area code) belongs to.",

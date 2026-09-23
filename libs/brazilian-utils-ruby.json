@@ -5,5 +5,14 @@
   "repo": "https://github.com/brazilian-utils/ruby",
   "entry": "lib",
   "options": { "namespace": "BrazilianUtils" },
-  "ignore": ["*.sieve", "*.display", "*.validate", "Months.*"]
+  "ignore": ["*.sieve", "*.display", "*.validate", "Months.*"],
+  "site": {
+    "label": "Ruby",
+    "icon": "seti:ruby",
+    "order": 4,
+    "package": "br-utils",
+    "install": "gem install br-utils",
+    "registry": "https://rubygems.org/gems/br-utils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
 }

@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cpf",
-  "title": "CPF — Cadastro de Pessoas Físicas",
-  "description": "The Brazilian individual taxpayer id.",
+  "title": { "en": "CPF", "pt-BR": "CPF" },
+  "summary": {
+    "en": "Cadastro de Pessoas Físicas, the 11-digit Brazilian individual taxpayer number, ending in two mod-11 check digits.",
+    "pt-BR": "Cadastro de Pessoas Físicas, o número de 11 dígitos do contribuinte pessoa física, terminado em dois dígitos verificadores por módulo 11."
+  },
+  "category": "documents",
+  "order": 1,
+  "related": ["cnpj"],
   "functions": {
     "format": {
       "summary": "Formats a given CPF (Cadastro de Pessoas Físicas) value according to the Brazilian standard.",
@@ -23,7 +29,9 @@
       "tests": [
         { "args": ["83159562131"], "returns": "831.595.621-31", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["02746891972"], "returns": "027.468.919-72", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["52708175602"], "returns": "527.081.756-02", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["52708175602"], "returns": "527.081.756-02", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["12345678909"], "returns": "123.456.789-09", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["11144477735"], "returns": "111.444.777-35", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" }
       ]
     },
     "generate": {
@@ -71,7 +79,11 @@
         { "args": ["52708175603"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["12345678909"], "returns": true, "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["11144477735"], "returns": true, "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["12345678900"], "returns": false, "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["11144477700"], "returns": false, "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" }
       ]
     },
     "parse": {
@@ -106,7 +118,11 @@
         { "args": ["527.081.756-02"], "returns": "52708175602", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["123.456.789-09"], "returns": "12345678909", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["111.444.777-35"], "returns": "11144477735", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["12345678909"], "returns": "12345678909", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" },
+        { "args": ["11144477735"], "returns": "11144477735", "note": "from the CPF spec test cases (formerly brazilian-utils/docs specs/cpf/test-cases.json)" }
       ]
     }
   }

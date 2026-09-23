@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "pixPayload",
-  "title": "Pix payload — BR Code",
-  "description": "The Pix BR Code payload behind a Pix QR Code and \"Pix copia e cola\".",
+  "title": { "en": "Pix payload (BR Code)", "pt-BR": "Pix copia e cola (BR Code)" },
+  "summary": {
+    "en": "The Pix BR Code payload behind a Pix QR Code and \"Pix copia e cola\".",
+    "pt-BR": "O payload BR Code por trás do QR Code Pix e do Pix copia e cola."
+  },
+  "category": "finance",
+  "order": 4,
+  "related": ["pixKey"],
   "functions": {
     "generate": {
       "summary": "Generates the payload of a Pix BR Code, the string behind a Pix QR Code and behind \"Pix copia e cola\".",

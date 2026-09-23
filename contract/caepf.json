@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "caepf",
-  "title": "CAEPF — Cadastro de Atividade Econômica da Pessoa Física",
-  "description": "Registration of individuals who employ workers (replaced the CEI for them).",
+  "title": { "en": "CAEPF", "pt-BR": "CAEPF" },
+  "summary": {
+    "en": "Registration of individuals who employ workers (replaced the CEI for them).",
+    "pt-BR": "Cadastro de pessoas físicas que empregam trabalhadores (substituiu o CEI para elas)."
+  },
+  "category": "companies",
+  "order": 6,
+  "related": ["cei", "cno"],
   "functions": {
     "format": {
       "summary": "Formats a CAEPF (Cadastro de Atividade Econômica da Pessoa Física) number according to the official mask.",

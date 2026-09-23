@@ -42,7 +42,7 @@ export interface DomainJson {
   $schema: string;
   format: number;
   domain: string;
-  title?: string;
+  title?: { en: string; "pt-BR": string };
   functions: FunctionJson[];
 }
 
@@ -177,7 +177,7 @@ export const CASES_SCHEMA = {
     $schema: { type: "string" },
     format: { const: CASES_FORMAT },
     domain: { type: "string" },
-    title: { type: "string" },
+    title: { type: "object", properties: { en: { type: "string" }, "pt-BR": { type: "string" } } },
     functions: {
       type: "array",
       items: {

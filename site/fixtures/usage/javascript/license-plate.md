@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```js
 import { isValidLicensePlate } from '@brazilian-utils/brazilian-utils';
@@ -18,7 +18,7 @@ formatLicensePlate('abc1234'); // 'ABC-1234'
 formatLicensePlate('abc1d23'); // 'ABC1D23'
 ```
 
-## remove-symbols
+## parse
 
 ```js
 import { parseLicensePlate } from '@brazilian-utils/brazilian-utils';
@@ -36,7 +36,7 @@ generateLicensePlate('LLLNNNN'); // 'ABC1234'
 generateLicensePlate('LLLNNLN'); // 'ABC12D3'
 ```
 
-## detect-format
+## getFormat
 
 ```js
 import { getFormatLicensePlate } from '@brazilian-utils/brazilian-utils';

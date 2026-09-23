@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```python
 from brutils import is_valid_cep
@@ -17,7 +17,7 @@ format_cep("01310200")  # '01310-200'
 format_cep("12345")  # None (invalid input)
 ```
 
-## remove-symbols
+## removeSymbols
 
 ```python
 from brutils import remove_symbols_cep
@@ -34,7 +34,7 @@ from brutils import generate_cep
 generate_cep()  # '77520503'
 ```
 
-## address-lookup
+## getAddressInfo
 
 Network call, uses the ViaCEP API. Returns `None` when the CEP is not found unless `raise_exceptions=True`.
 
@@ -46,7 +46,7 @@ get_address_from_cep("01310200")
 #  'localidade': 'São Paulo', 'uf': 'SP', 'ibge': '3550308', 'ddd': '11', ...}
 ```
 
-## cep-lookup
+## getInfoByAddress
 
 Network call, uses the ViaCEP API.
 

@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "licensePlate",
-  "title": "License plate",
-  "description": "Brazilian vehicle license plates, old format (LLLNNNN) and Mercosul (LLLNLNN).",
+  "title": { "en": "License plate", "pt-BR": "Placa de veículo" },
+  "summary": {
+    "en": "Brazilian vehicle license plates, in the Mercosur (LLLNLNN) and pre-Mercosur (LLLNNNN) patterns.",
+    "pt-BR": "Placas de identificação veicular, nos padrões Mercosul (LLLNLNN) e pré-Mercosul (LLLNNNN)."
+  },
+  "category": "vehicles",
+  "order": 1,
+  "related": ["renavam"],
   "functions": {
     "convertToMercosul": {
       "summary": "Converts an old format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\"), following the official conversion table: the digit in the 5th position (the 2nd digit of the 4 digit number) becomes a letter, `0` through `9` mapping to `A` through `J`, and every other character is kept as is.",

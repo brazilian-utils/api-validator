@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cbo",
-  "title": "CBO — Classificação Brasileira de Ocupações",
-  "description": "Occupation codes of the official CBO 2002 table.",
+  "title": { "en": "CBO", "pt-BR": "CBO" },
+  "summary": {
+    "en": "Occupation codes of the official CBO 2002 table.",
+    "pt-BR": "Códigos de ocupação da Classificação Brasileira de Ocupações (CBO 2002)."
+  },
+  "category": "companies",
+  "order": 5,
   "functions": {
     "get": {
       "summary": "Looks a CBO (Classificação Brasileira de Ocupações) code up in the official CBO 2002 table.",

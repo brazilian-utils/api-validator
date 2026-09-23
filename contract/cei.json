@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cei",
-  "title": "CEI — Cadastro Específico do INSS",
-  "description": "Registration of employers without a CNPJ (construction works, rural producers), superseded by the CNO and the CAEPF.",
+  "title": { "en": "CEI", "pt-BR": "CEI" },
+  "summary": {
+    "en": "Registration of employers without a CNPJ (construction works, rural producers), superseded by the CNO and the CAEPF.",
+    "pt-BR": "Cadastro de empregadores sem CNPJ (obras, produtores rurais), substituído pelo CNO e pelo CAEPF."
+  },
+  "category": "companies",
+  "order": 8,
+  "related": ["cno", "caepf"],
   "functions": {
     "format": {
       "summary": "Formats a CEI (Cadastro Específico do INSS) number according to the usual \"00.000.00000/00\" mask, the one the reference implementations of the check digit agree on (the Receita Federal does not print it).",

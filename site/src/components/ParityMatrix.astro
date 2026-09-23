@@ -1,11 +1,11 @@
 ---
 /**
- * Utility × library matrix, derived entirely from the usage files fetched from each repo.
- * A cell is "full" when the library documents every operation of the spec,
- * "partial" when it documents some, and empty otherwise.
+ * Utility × library matrix. With a validator run (.generated/status.json): how many of the
+ * domain's operations each library implements, and whether they pass the shared cases. Without
+ * it: how many operations each library documents in its usage files.
  */
 import { getCollection } from 'astro:content';
-import { loadLibs, loadSpecs, loadUsageManifest, LANG_PREFIX } from '@lib/registry.mjs';
+import { loadLibs, loadSpecs, loadStatus, loadUsageManifest, CATEGORIES, LANG_PREFIX } from '@lib/registry.mjs';
 
 const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
@@ -15,14 +15,28 @@ const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
 
 const libs = loadLibs();
 const specs = loadSpecs();
+const status = loadStatus();
 const manifest = loadUsageManifest();
 const usage = await getCollection('usage');
 
-function cell(utilId: string, libId: string, total: number) {
-  const ops = new Set(usage.filter((e) => e.data.util === utilId && e.data.lib === libId).map((e) => e.data.op));
-  if (ops.size === 0) return { state: 'none', ops };
-  return { state: total > 0 && ops.size >= total ? 'full' : 'partial', ops };
+function cell(spec: any, libId: string) {
+  const total = spec.operations.length;
+  const fns = status?.libs[libId]?.functions;
+  if (fns) {
+    const mine = spec.operations.map((op: any) => ({ op, f: fns[op.fnId] }));
+    const have = mine.filter(({ f }: any) => f && (f.status === 'ok' || f.status === 'failing'));
+    const failing = have.filter(({ f }: any) => f.status === 'failing').length;
+    const state = have.length === 0 ? 'none' : failing ? 'failing' : have.length >= total ? 'full' : 'partial';
+    const detail = mine.map(({ op, f }: any) => `${f?.status === 'ok' ? '✓' : f?.status === 'failing' ? '✕' : '·'} ${op.label[locale]}`).join('\n');
+    return { state, count: have.length, total, detail };
+  }
+  const ops = new Set(usage.filter((e) => e.data.util === spec.id && e.data.lib === libId).map((e) => e.data.op));
+  const state = ops.size === 0 ? 'none' : ops.size >= total ? 'full' : 'partial';
+  return { state, count: ops.size, total, detail: spec.operations.map((op: any) => `${ops.has(op.id) ? '✓' : '·'} ${op.label[locale]}`).join('\n') };
 }
+
+const groups = CATEGORIES.map((c: any) => ({ c, specs: specs.filter((s: any) => s.category === c.id) })).filter((g: any) => g.specs.length);
+const mark: Record<string, string> = { full: '●', partial: '◐', failing: '✕', none: '○' };
 ---
 
 <div class="parity not-content">
@@ -31,28 +45,28 @@ function cell(utilId: string, libId: string, total: number) {
       <thead>
         <tr>
           <th>{t('parity.utility')}</th>
-          {libs.map((lib) => <th>{lib.label}</th>)}
+          {libs.map((lib) => <th><a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a></th>)}
         </tr>
       </thead>
       <tbody>
-        {specs.map((spec) => (
-          <tr>
-            <th scope="row">
-              <a href={`${prefix}/utils/${spec.id}/`}>{spec.title[locale]}</a>
-            </th>
-            {libs.map((lib) => {
-              const c = cell(spec.id, lib.id, spec.operations.length);
-              const opsList = spec.operations.map((op) => `${c.ops.has(op.id) ? '✓' : '✗'} ${op.label[locale]}`).join('\n');
-              return (
-                <td class={`cell cell-${c.state}`} title={opsList}>
-                  <span class="mark" aria-label={t(`parity.${c.state}` as any)}>
-                    {c.state === 'full' ? '●' : c.state === 'partial' ? '◐' : '○'}
-                  </span>
-                  {c.state !== 'none' && <span class="count">{c.ops.size}/{spec.operations.length}</span>}
-                </td>
-              );
-            })}
-          </tr>
+        {groups.map(({ c, specs }: any) => (
+          <>
+            <tr class="group"><th colspan={libs.length + 1}>{c.label[locale]}</th></tr>
+            {specs.map((spec: any) => (
+              <tr>
+                <th scope="row"><a href={`${prefix}/utils/${spec.id}/`}>{spec.title[locale]}</a></th>
+                {libs.map((lib) => {
+                  const x = cell(spec, lib.id);
+                  return (
+                    <td class={`cell cell-${x.state}`} title={x.detail}>
+                      <span class="mark" aria-label={t(`parity.${x.state}` as any)}>{mark[x.state]}</span>
+                      {x.state !== 'none' && <span class="count">{x.count}/{x.total}</span>}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </>
         ))}
       </tbody>
     </table>
@@ -62,59 +76,27 @@ function cell(utilId: string, libId: string, total: number) {
     <strong>{t('parity.legend')}:</strong>
     <span class="cell-full">● {t('parity.full')}</span>
     <span class="cell-partial">◐ {t('parity.partial')}</span>
+    {status && <span class="cell-failing">✕ {t('parity.failing')}</span>}
     <span class="cell-none">○ {t('parity.none')}</span>
   </p>
-
-  {manifest?.fetchedAt && (
-    <p class="fetched">{t('parity.fetchedAt')} {new Date(manifest.fetchedAt).toLocaleString(locale)}.</p>
-  )}
+  <p class="fetched">
+    {status ? t('parity.fromRun', { date: new Date(status.generatedAt).toLocaleString(locale) }) : manifest?.fetchedAt ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.` : ''}
+  </p>
 </div>
 
 <style>
-  .table-wrap {
-    overflow-x: auto;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: var(--sl-text-sm);
-  }
-  th,
-  td {
-    padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid var(--sl-color-hairline);
-    text-align: left;
-    white-space: nowrap;
-  }
-  thead th {
-    font-size: var(--sl-text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--sl-color-gray-3);
-  }
-  .cell {
-    font-variant-numeric: tabular-nums;
-  }
-  .mark {
-    font-size: 1.1em;
-    margin-inline-end: 0.35rem;
-  }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: var(--sl-text-sm); }
+  th, td { padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--sl-color-hairline); text-align: left; white-space: nowrap; }
+  thead th { font-size: var(--sl-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--sl-color-gray-3); }
+  tr.group th { background: var(--sl-color-gray-6); font-size: var(--sl-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--sl-color-gray-2); }
+  .cell { font-variant-numeric: tabular-nums; }
+  .mark { font-size: 1.1em; margin-inline-end: 0.35rem; }
   .cell-full .mark { color: var(--sl-color-green); }
   .cell-partial .mark { color: var(--sl-color-orange); }
+  .cell-failing .mark { color: var(--sl-color-red); }
   .cell-none .mark { color: var(--sl-color-gray-4); }
-  .count {
-    color: var(--sl-color-gray-3);
-    font-size: var(--sl-text-xs);
-  }
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    font-size: var(--sl-text-sm);
-    margin-top: 1rem;
-  }
-  .fetched {
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-gray-4);
-  }
+  .count { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
+  .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: var(--sl-text-sm); margin-top: 1rem; }
+  .fetched { font-size: var(--sl-text-xs); color: var(--sl-color-gray-4); }
 </style>

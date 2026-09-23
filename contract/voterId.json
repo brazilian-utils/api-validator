@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "voterId",
-  "title": "Título de eleitor — voter ID",
-  "description": "The Brazilian voter registration number.",
+  "title": { "en": "Voter ID", "pt-BR": "Título de eleitor" },
+  "summary": {
+    "en": "The Brazilian voter registration number.",
+    "pt-BR": "O número de inscrição eleitoral (título de eleitor)."
+  },
+  "category": "documents",
+  "order": 3,
   "functions": {
     "format": {
       "summary": "Formats a Brazilian voter id (título de eleitor) for display.",

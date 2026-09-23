@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```python
 from brutils import is_valid_cnpj
@@ -17,7 +17,7 @@ format_cnpj("03560714000142")  # '03.560.714/0001-42'
 format_cnpj("98765432100100")  # None (invalid input)
 ```
 
-## remove-symbols
+## removeSymbols
 
 ```python
 from brutils import remove_symbols_cnpj

@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "renavam",
-  "title": "RENAVAM — Registro Nacional de Veículos Automotores",
-  "description": "The Brazilian vehicle registry number.",
+  "title": { "en": "RENAVAM", "pt-BR": "RENAVAM" },
+  "summary": {
+    "en": "The Brazilian vehicle registry number.",
+    "pt-BR": "O número do Registro Nacional de Veículos Automotores."
+  },
+  "category": "vehicles",
+  "order": 2,
+  "related": ["licensePlate", "vin"],
   "functions": {
     "generate": {
       "summary": "Generates a valid random RENAVAM (Registro Nacional de Veículos Automotores) number.",

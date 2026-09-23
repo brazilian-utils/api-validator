@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "pis",
-  "title": "PIS — Programa de Integração Social",
-  "description": "The PIS/PASEP/NIT worker registration number.",
+  "title": { "en": "PIS/PASEP", "pt-BR": "PIS/PASEP" },
+  "summary": {
+    "en": "The PIS/PASEP/NIT worker registration number.",
+    "pt-BR": "O número PIS/PASEP/NIT de inscrição do trabalhador."
+  },
+  "category": "documents",
+  "order": 4,
   "functions": {
     "format": {
       "summary": "Formats a PIS (Programa de Integração Social) number according to the specified pattern.",

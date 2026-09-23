@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "currency",
-  "title": "Currency — Brazilian real (BRL)",
-  "description": "Formatting, parsing and writing out in words amounts in reais.",
+  "title": { "en": "Currency (BRL)", "pt-BR": "Moeda (real)" },
+  "summary": {
+    "en": "Formatting, parsing and writing out in words amounts in reais.",
+    "pt-BR": "Formatação, leitura e escrita por extenso de valores em reais."
+  },
+  "category": "finance",
+  "order": 1,
+  "related": ["number"],
   "functions": {
     "convertToWords": {
       "summary": "Formats a monetary amount in Brazilian Reais as its \"por extenso\" textual representation, the style used to write out the amount by hand on cheques and contracts, e.g. `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",

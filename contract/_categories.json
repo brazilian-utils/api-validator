@@ -1,0 +1,14 @@
+{
+  "$comment": "Sidebar groups of the docs site, in display order. Every domain picks one with \"category\".",
+  "categories": [
+    { "id": "documents", "label": { "en": "Personal documents", "pt-BR": "Documentos pessoais" } },
+    { "id": "companies", "label": { "en": "Companies", "pt-BR": "Empresas" } },
+    { "id": "tax", "label": { "en": "Tax documents", "pt-BR": "Documentos fiscais" } },
+    { "id": "finance", "label": { "en": "Finance", "pt-BR": "Financeiro" } },
+    { "id": "address", "label": { "en": "Address", "pt-BR": "Endereço" } },
+    { "id": "telecom", "label": { "en": "Phone and email", "pt-BR": "Telefone e e-mail" } },
+    { "id": "vehicles", "label": { "en": "Vehicles", "pt-BR": "Veículos" } },
+    { "id": "legal", "label": { "en": "Courts", "pt-BR": "Judiciário" } },
+    { "id": "text-and-dates", "label": { "en": "Text and dates", "pt-BR": "Texto e datas" } }
+  ]
+}

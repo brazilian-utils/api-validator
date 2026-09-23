@@ -37,20 +37,67 @@ export const collections = {
           'parity.partial': z.string(),
           'parity.none': z.string(),
           'parity.fetchedAt': z.string(),
+          'ops.heading': z.string(),
+          'ops.englishOnly': z.string(),
+          'ops.network': z.string(),
+          'ops.deprecated': z.string(),
+          'status.label': z.string(),
+          'status.ok': z.string(),
+          'status.failing': z.string(),
+          'status.signature': z.string(),
+          'status.missing': z.string(),
+          'status.waived': z.string(),
+          'status.short.ok': z.string(),
+          'status.short.failing': z.string(),
+          'status.short.signature': z.string(),
+          'status.short.missing': z.string(),
+          'status.short.waived': z.string(),
+          'status.failedCases_one': z.string(),
+          'status.failedCases_other': z.string(),
+          'cases.summary': z.string(),
+          'cases.notRun': z.string(),
+          'usage.undocumented': z.string(),
+          'parity.failing': z.string(),
+          'parity.fromRun': z.string(),
+          'lib.noStatus': z.string(),
+          'lib.core': z.string(),
+          'lib.implemented': z.string(),
+          'lib.passing': z.string(),
+          'lib.failing': z.string(),
+          'lib.signatures': z.string(),
+          'lib.outside': z.string(),
+          'lib.compare': z.string(),
+          'lib.library': z.string(),
+          'lib.work': z.string(),
+          'lib.workIntro': z.string(),
+          'lib.workDone': z.string(),
+          'lib.function': z.string(),
+          'lib.status': z.string(),
+          'lib.why': z.string(),
+          'lib.implementedBy': z.string(),
+          'lib.nobody': z.string(),
+          'lib.maybe': z.string(),
+          'lib.failures': z.string(),
+          'lib.case': z.string(),
+          'lib.actual': z.string(),
+          'lib.undocumented': z.string(),
+          'lib.undocumentedIntro': z.string(),
+          'lib.outsideTitle': z.string(),
+          'lib.outsideIntro': z.string(),
         })
         .partial(),
     }),
   }),
 
-  // The canonical specs: specs/<util>/spec.md (pt-BR) and specs/<util>/spec_en.md (en).
-  // Entry ids look like "cpf/pt-BR" and "cpf/en".
+  // Long-form specs next to the contract: contract/<domain>/spec.en.md and spec.pt-BR.md.
+  // Entry ids look like "cpf/en" and "licensePlate/pt-BR".
   specs: defineCollection({
     loader: glob({
-      pattern: '*/spec*.md',
-      base: './specs',
+      pattern: '*/spec.*.md',
+      base: '../contract',
       generateId: ({ entry }) => {
-        const [util, file] = entry.split('/');
-        return `${util}/${file === 'spec_en.md' ? 'en' : 'pt-BR'}`;
+        const [domain, file] = entry.split('/');
+        return `${domain}/${file === 'spec.en.md' ? 'en' : 'pt-BR'}`;
       },
     }),
     schema: z.object({

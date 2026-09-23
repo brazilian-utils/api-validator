@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "csosn",
-  "title": "CSOSN — Código de Situação da Operação no Simples Nacional",
-  "description": "Tax situation codes of Simples Nacional operations.",
+  "title": { "en": "CSOSN", "pt-BR": "CSOSN" },
+  "summary": {
+    "en": "Tax situation codes of Simples Nacional operations.",
+    "pt-BR": "Códigos de situação da operação no Simples Nacional."
+  },
+  "category": "tax",
+  "order": 5,
+  "related": ["cst"],
   "functions": {
     "isValid": {
       "summary": "Validates if a CSOSN (Código de Situação da Operação no Simples Nacional) code is valid.",

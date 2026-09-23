@@ -10,7 +10,8 @@ import { loadContract } from "../src/core/contract.js";
 import { diffDivergences, divergenceBaseline, partition, type DiffRow } from "../src/core/differential.js";
 import type { LibConfig, LibReport } from "../src/core/model.js";
 import { summarize } from "../src/core/analyze.js";
-import { badgeSvg, buildSite } from "../src/reporters/site.js";
+import { badgeSvg } from "../src/reporters/badge.js";
+import { siteDataFiles } from "../src/reporters/sitedata.js";
 import { closeReason, keyOf, marker, scopeFrom, wantedIssues } from "../src/core/issues.js";
 
 const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
@@ -110,13 +111,13 @@ describe("JSON conformance suite", () => {
   });
 });
 
-describe("status site", () => {
+describe("site data", () => {
   const contract = contractFrom(CPF);
   const report = (name: string, statuses: Record<string, LibReport["functions"][number]["status"]>): LibReport => {
     const functions = [...contract.functions.values()].map((f) => ({
       id: f.id,
       level: f.level,
-      status: statuses[f.id] ?? "missing",
+      status: statuses[f.id] ?? ("missing" as const),
       symbol: statuses[f.id] && statuses[f.id] !== "missing" ? `sym_${f.operation}` : undefined,
       location: { file: "src/cpf.py", line: 3 },
       issues: [],
@@ -129,37 +130,25 @@ describe("status site", () => {
     { lib: lib({ name: "brazilian-utils-a", repo: "https://github.com/o/a" }), report: report("brazilian-utils-a", { "cpf.isValid": "ok", "cpf.format": "failing", "cpf.generate": "ok" }) },
     { lib: lib({ name: "brazilian-utils-b" }), report: report("brazilian-utils-b", { "cpf.isValid": "ok" }) }
   ];
-  const site = buildSite({ contract, libs, generatedAt: "2026-01-01T00:00:00Z", validatorRepo: "https://github.com/o/v", baseUrl: "https://o.github.io/v/" });
+  const files = siteDataFiles({ contract, libs, generatedAt: "2026-01-01T00:00:00Z" });
 
-  it("has an overview, a page per lib and per function, badges and the suite", () => {
-    for (const f of ["index.html", "site.css", "functions/index.html", "functions/cpf.isValid/index.html", "libs/a/index.html", "libs/b/index.html", "badges/a.svg", "badges/a.json", "api/libs/a.json", "cases/cpf.json", "cases/index.json"]) {
-      assert.ok(site.has(f), f);
-    }
+  it("writes the status for the site, badges and the JSON suite", () => {
+    for (const f of [".generated/status.json", "public/badges/a.svg", "public/badges/a.json", "public/cases/cpf.json", "public/cases/index.json"]) assert.ok(files.has(f), f);
   });
 
-  it("lib page: comparison, work list ordered failing → missing, failures, API outside the contract, badge snippet", () => {
-    const page = site.get("libs/a/index.html")!;
-    assert.match(page, /Compared with the other libs/);
-    assert.ok(page.indexOf("cpf.format") < page.indexOf("Failing cases"));
-    assert.match(page, /cpf\.format#\[&quot;x&quot;\]|cpf\.format#\["x"\]/);
-    assert.match(page, /<code>extra<\/code>/);
-    assert.match(page, /\[!\[API contract\]\(https:\/\/o\.github\.io\/v\/badges\/a\.svg\)\]\(https:\/\/o\.github\.io\/v\/libs\/a\/\)/);
-    const b = site.get("libs/b/index.html")!;
-    assert.match(b, /cpf\.generate[\s\S]*1: a/);
-  });
-
-  it("function page: signature, implementations with source links, case × lib matrix", () => {
-    const page = site.get("functions/cpf.format/index.html")!;
-    assert.match(page, /formatCpf\(cpf: string\) -&gt; string\?/);
-    assert.match(page, /https:\/\/github\.com\/o\/a\/blob\/abc123\/src\/cpf\.py#L3/);
-    assert.match(page, /class="dot bad"/);
-    assert.match(page, /Cases × libs/);
+  it("status: per lib and function, with source links and failing cases", () => {
+    const status = JSON.parse(files.get(".generated/status.json")!);
+    const a = status.libs.a.functions;
+    assert.equal(a["cpf.isValid"].status, "ok");
+    assert.equal(a["cpf.isValid"].source, "https://github.com/o/a/blob/abc123/src/cpf.py#L3");
+    assert.equal(a["cpf.format"].failed, 1);
+    assert.equal(a["cpf.format"].failures[0].id, 'cpf.format#["x"]');
+    assert.equal(status.libs.b.functions["cpf.generate"].status, "missing");
+    assert.deepEqual(status.libs.a.unmapped, [{ symbol: "extra", suggestions: [] }]);
   });
 
   it("badge is a self-contained SVG", () => {
-    const svg = badgeSvg(libs[0].report);
-    assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
-    assert.match(svg, /api contract/);
+    assert.match(badgeSvg(libs[0].report), /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"[\s\S]*api contract/);
   });
 });
 

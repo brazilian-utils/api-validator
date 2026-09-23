@@ -1,13 +1,13 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import { CATEGORIES, loadSpecs } from './src/lib/registry.mjs';
+import { CATEGORIES, loadLibs, loadSpecs } from './src/lib/registry.mjs';
 
 const SITE_URL = process.env.SITE_URL || 'https://brazilian-utils.com.br';
 const BASE_PATH = process.env.BASE_PATH || '/';
 
 // Sidebar entries for every utility that has a spec, grouped by category.
-// Adding a utility = adding specs/<id>/ with a meta.yaml. Nothing to edit here.
+// Adding a utility = adding a domain to ../contract (with its category). Nothing to edit here.
 const specs = loadSpecs();
 const utilityGroups = CATEGORIES.map((category) => ({
   label: category.label.en,
@@ -59,10 +59,11 @@ export default defineConfig({
         },
         ...utilityGroups,
         {
-          label: 'Reference',
-          translations: { 'pt-BR': 'Referência' },
+          label: 'Libraries',
+          translations: { 'pt-BR': 'Bibliotecas' },
           items: [
             { slug: 'reference/parity', label: 'Parity matrix', translations: { 'pt-BR': 'Matriz de paridade' } },
+            ...loadLibs().map((lib) => ({ slug: `libs/${lib.id}`, label: lib.label })),
           ],
         },
         {

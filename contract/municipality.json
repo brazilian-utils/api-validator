@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "municipality",
-  "title": "Municipalities",
-  "description": "Brazilian municipalities and their 7-digit IBGE codes.",
+  "title": { "en": "Municipalities", "pt-BR": "Municípios" },
+  "summary": {
+    "en": "Brazilian municipalities and their 7-digit IBGE codes.",
+    "pt-BR": "Municípios brasileiros e seus códigos de 7 dígitos do IBGE."
+  },
+  "category": "address",
+  "order": 3,
+  "related": ["state", "cep"],
   "functions": {
     "getByCode": {
       "summary": "Looks up a Brazilian municipality by its 7 digit IBGE code, published by the IBGE.",

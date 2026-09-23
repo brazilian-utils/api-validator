@@ -11,5 +11,14 @@
     "*.checksum",
     "*.calculate_checksum",
     "voter_id.calculate_vd*"
-  ]
+  ],
+  "site": {
+    "label": "Rust",
+    "icon": "seti:rust",
+    "order": 5,
+    "package": "brazilian_utils",
+    "install": "cargo add brazilian_utils",
+    "registry": "https://crates.io/crates/brazilian_utils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
 }

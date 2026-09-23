@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```js
 import { isValidCep } from '@brazilian-utils/brazilian-utils';
@@ -14,7 +14,7 @@ import { formatCep } from '@brazilian-utils/brazilian-utils';
 formatCep('92500000'); // '92500-000'
 ```
 
-## remove-symbols
+## parse
 
 ```js
 import { parseCep } from '@brazilian-utils/brazilian-utils';
@@ -30,7 +30,7 @@ import { generateCep } from '@brazilian-utils/brazilian-utils';
 generateCep(); // '92500000'
 ```
 
-## address-lookup
+## getAddressInfo
 
 Network call. Tries several providers (ViaCEP, BrasilAPI) and returns the first answer.
 
@@ -43,7 +43,7 @@ const address = await getAddressInfoByCep('01310100');
 await getAddressInfoByCep('01310-100', { providers: ['viacep', 'brasilapi'] });
 ```
 
-## cep-lookup
+## getInfoByAddress
 
 Network call, uses ViaCEP.
 

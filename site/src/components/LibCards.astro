@@ -1,6 +1,6 @@
 ---
 /**
- * Home page cards: one per library from libs.yaml, with the install command.
+ * Home page cards: one per library in ../libs/*.json, with the install command.
  */
 import { Card, CardGrid } from '@astrojs/starlight/components';
 import { loadLibs } from '@lib/registry.mjs';
@@ -10,7 +10,7 @@ const libs = loadLibs();
 
 <CardGrid>
   {libs.map((lib) => (
-    <Card title={lib.label} icon={lib.icon as any}>
+    <Card title={lib.label} icon={(lib.icon ?? 'seti:default') as any}>
       <pre class="install"><code>{lib.install}</code></pre>
       <p class="links">
         <a href={lib.registry} rel="noopener noreferrer" target="_blank">{lib.package}</a>

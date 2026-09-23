@@ -5,5 +5,14 @@
   "notes": "Reference implementation.",
   "repo": "https://github.com/brazilian-utils/javascript",
   "entry": "src/index.ts",
-  "ignore": ["toStandardSchema"]
+  "ignore": ["toStandardSchema"],
+  "site": {
+    "label": "JavaScript",
+    "icon": "seti:javascript",
+    "order": 1,
+    "package": "@brazilian-utils/brazilian-utils",
+    "install": "npm install @brazilian-utils/brazilian-utils",
+    "registry": "https://www.npmjs.com/package/@brazilian-utils/brazilian-utils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
 }

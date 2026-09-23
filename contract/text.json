@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "text",
-  "title": "Text",
-  "description": "Text helpers for Brazilian names, company names and addresses.",
+  "title": { "en": "Text", "pt-BR": "Texto" },
+  "summary": {
+    "en": "Text helpers for Brazilian names, company names and addresses.",
+    "pt-BR": "Ajudantes de texto para nomes de pessoas, empresas e endereços."
+  },
+  "category": "text-and-dates",
+  "order": 3,
   "functions": {
     "capitalize": {
       "summary": "Capitalizes a given string according to the way a Brazilian name, company name or address is written, with no configuration needed: `\"jose da silva\"` becomes `\"Jose da Silva\"`, `\"empresa ltda\"` becomes `\"Empresa LTDA\"` and `\"santana/rs\"` becomes `\"Santana/RS\"`.",

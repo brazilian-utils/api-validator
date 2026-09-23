@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```python
 from brutils import is_valid_license_plate
@@ -20,7 +20,7 @@ format_license_plate("abc1d23")  # 'ABC1D23' (Mercosur)
 format_license_plate("ABCD123")  # None (invalid input)
 ```
 
-## remove-symbols
+## removeSymbols
 
 ```python
 from brutils import remove_symbols_license_plate
@@ -38,7 +38,7 @@ generate_license_plate(format="LLLNNNN")  # 'ABC1234'
 generate_license_plate(format="invalid")  # None
 ```
 
-## detect-format
+## getFormat
 
 ```python
 from brutils import get_format_license_plate
@@ -48,7 +48,7 @@ get_format_license_plate("abc1d23")  # 'LLLNLNN'
 get_format_license_plate("ABCD123")  # None
 ```
 
-## convert-to-mercosul
+## convertToMercosul
 
 ```python
 from brutils import convert_license_plate_to_mercosul

@@ -8,9 +8,17 @@ dist/
 # usage files fetched from the library repos (regenerated on every build)
 .cache/
 
-# utility pages generated from specs/ (regenerated on every build)
+# pages generated from ../contract and ../libs (regenerated on every build)
 src/content/docs/utils/
 src/content/docs/pt-br/utils/
+src/content/docs/libs/
+src/content/docs/pt-br/libs/
+
+# written by `api-validator site-data` from the last run (status, badges, the JSON suite)
+.generated/
+public/badges/
+public/cases/
+public/cases.schema.json
 
 # environment
 .env

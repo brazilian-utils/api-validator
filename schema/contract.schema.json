@@ -4,8 +4,26 @@
   "properties": {
     "$schema": { "type": "string" },
     "domain": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
-    "title": { "type": "string" },
-    "description": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+    "title": {
+      "anyOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "properties": { "en": { "type": "string", "minLength": 1 }, "pt-BR": { "type": "string", "minLength": 1 } },
+          "required": ["en", "pt-BR"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "properties": { "en": { "type": "string", "minLength": 1 }, "pt-BR": { "type": "string", "minLength": 1 } },
+      "required": ["en", "pt-BR"],
+      "additionalProperties": false
+    },
+    "category": { "type": "string" },
+    "order": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+    "related": { "default": [], "type": "array", "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" } },
     "aliases": { "default": [], "type": "array", "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" } },
     "functions": {
       "type": "object",
@@ -20,6 +38,12 @@
             "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*\\.[a-z][A-Za-z0-9]*$" }
           },
           "summary": { "type": "string" },
+          "label": {
+            "type": "object",
+            "properties": { "en": { "type": "string", "minLength": 1 }, "pt-BR": { "type": "string", "minLength": 1 } },
+            "required": ["en", "pt-BR"],
+            "additionalProperties": false
+          },
           "description": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
           "references": { "default": [], "type": "array", "items": { "type": "string", "format": "uri" } },
           "level": { "default": "extended", "type": "string", "enum": ["core", "extended"] },

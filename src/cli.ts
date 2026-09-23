@@ -16,14 +16,14 @@ import { differential, diffDivergences, partition, divergenceBaseline, proposal,
 import { SymbolIndex, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
-import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
+import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, PACKAGE_ROOT, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
 import { run, which } from "./core/shell.js";
 import { getAdapter } from "./languages/registry.js";
 import type { Tool } from "./languages/types.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
-import { buildSite, type SiteLib } from "./reporters/site.js";
+import { siteDataFiles, type SiteDataLib } from "./reporters/sitedata.js";
 import { briefMarkdown, sourceBlock, type ImplRef } from "./reporters/brief.js";
 import { libMarkdown, overviewMarkdown } from "./reporters/markdown.js";
 
@@ -311,46 +311,30 @@ program
   });
 
 program
-  .command("site")
-  .description("Build the status site (overview, a page per lib and per function, badges, JSON suite) from the latest reports")
-  .option("-o, --out <dir>", "output directory", path.join(OUTPUT_DIR, "site"))
-  .option("--base-url <url>", "absolute URL the site is served from (for README snippets)", process.env.SITE_URL)
+  .command("site-data")
+  .description("Export what the last run found (status per lib and function, badges, JSON suite) for the docs site in site/")
+  .option("-o, --out <dir>", "the Starlight site root", path.join(PACKAGE_ROOT, "site"))
   .action((opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const libs: SiteLib[] = [];
+    const libs: SiteDataLib[] = [];
     for (const lib of loadLibConfigs(LIBS_DIR)) {
       const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
       if (!fs.existsSync(file)) {
-        console.error(c.yellow(`${lib.name}: no report (run check first), left out`));
+        console.error(c.yellow(`${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), shown without status`));
         continue;
       }
-      const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
-      const snap = path.join(SNAPSHOTS_DIR, `${lib.name}.api.json`);
-      const surface = fs.existsSync(snap) ? (JSON.parse(fs.readFileSync(snap, "utf8")) as ApiSurface) : undefined;
-      // The reference lib's source, shown on each function page.
-      const sources = new Map<string, string>();
-      const root = path.join(REPOS_DIR, lib.name);
-      if (lib.name === REFERENCE_LIB && fs.existsSync(root)) {
-        for (const f of report.functions) {
-          const src = f.location ? sourceBlock(path.join(root, f.location.file), f.location.line) : undefined;
-          if (src) sources.set(f.id, src);
-        }
-      }
-      libs.push({ lib, report, surface, sources });
+      const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport & { usage?: SiteDataLib["usage"] };
+      libs.push({ lib, report, usage: report.usage });
     }
     const diffFile = path.join(OUTPUT_DIR, "diff.json");
-    const splitsFile = path.join(BASELINES_DIR, "_divergences.json");
-    const files = buildSite({
+    const files = siteDataFiles({
       contract,
       libs,
       diff: fs.existsSync(diffFile) ? JSON.parse(fs.readFileSync(diffFile, "utf8")) : undefined,
-      knownSplits: fs.existsSync(splitsFile) ? JSON.parse(fs.readFileSync(splitsFile, "utf8")) : undefined,
-      baseUrl: opts.baseUrl ? `${String(opts.baseUrl).replace(/\/$/, "")}/` : undefined,
-      generatedAt: new Date().toISOString().replace(/\.\d+Z$/, "Z"),
-      validatorRepo: "https://github.com/brazilian-utils/api-validator"
+      generatedAt: new Date().toISOString().replace(/\.\d+Z$/, "Z")
     });
     for (const [rel, content] of files) writeFile(path.join(opts.out, rel), content);
-    console.log(`site: ${files.size} files in ${path.relative(process.cwd(), opts.out)} (${libs.length} libs, ${contract.functions.size} function pages)`);
+    console.log(`site-data: ${files.size} files into ${path.relative(process.cwd(), opts.out) || "."} (${libs.length} libs with status)`);
   });
 
 program

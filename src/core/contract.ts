@@ -8,6 +8,9 @@ import type { Contract, ContractFunction, ContractTest, Expectation } from "./mo
 /** Markdown text: a string, or an array of lines (how the formatter writes multi-line text). */
 const markdown = z.union([z.string(), z.array(z.string())]).transform((v) => (Array.isArray(v) ? v.join("\n") : v));
 
+/** Text in the site's languages. */
+const localized = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1) }).strict();
+
 const identifier = z.string().regex(/^[a-z][A-Za-z0-9]*$/, "must be lowerCamelCase");
 
 const TestSchema = z
@@ -46,6 +49,8 @@ const FunctionSchema = z
     flatName: identifier.optional(),
     aliases: z.array(z.string().regex(/^[a-z][A-Za-z0-9]*\.[a-z][A-Za-z0-9]*$/, "must be domain.operation")).default([]),
     summary: z.string().optional(),
+    /** Name of the operation on the docs site (default: derived from the operation id). */
+    label: localized.optional(),
     /** Language-agnostic spec in markdown (a string, or one string per line): rules, edge cases, bad-input behaviour. */
     description: markdown.optional(),
     /** Links to authoritative sources (official specs, manuals). */
@@ -64,8 +69,15 @@ export const DomainFileSchema = z
   .object({
     $schema: z.string().optional(),
     domain: identifier,
-    title: z.string().optional(),
-    description: markdown.optional(),
+    /** Short name, for the sidebar and page title. */
+    title: z.union([z.string(), localized]).optional(),
+    /** One or two sentences: what this is. */
+    summary: localized.optional(),
+    /** Docs site sidebar group (contract/_categories.json) and position in it. */
+    category: z.string().optional(),
+    order: z.number().int().optional(),
+    /** Domains worth linking from this one. */
+    related: z.array(identifier).default([]),
     aliases: z.array(identifier).default([]),
     functions: z.record(identifier, FunctionSchema)
   })
@@ -92,6 +104,10 @@ export function defaultFlatName(domain: string, operation: string): string {
 export function loadContract(dir: string): Contract {
   const problems: string[] = [];
   const contract: Contract = { functions: new Map(), domains: new Map() };
+  const categoriesFile = path.join(dir, "_categories.json");
+  const categories = fs.existsSync(categoriesFile)
+    ? new Set((JSON.parse(fs.readFileSync(categoriesFile, "utf8")) as { categories: Array<{ id: string }> }).categories.map((c) => c.id))
+    : undefined;
   const flatNames = new Map<string, string>();
 
   const files = fs
@@ -119,7 +135,18 @@ export function loadContract(dir: string): Contract {
     const expectedFile = `${doc.domain}.json`;
     if (file !== expectedFile) problems.push(`${rel}: domain "${doc.domain}" must live in ${expectedFile}`);
     if (contract.domains.has(doc.domain)) problems.push(`${rel}: duplicate domain "${doc.domain}"`);
-    contract.domains.set(doc.domain, { title: doc.title, description: doc.description, aliases: doc.aliases, source: rel });
+    const title = typeof doc.title === "string" ? { en: doc.title, "pt-BR": doc.title } : doc.title;
+    if (categories && !doc.category) problems.push(`${rel}: "category" is required (one of ${[...categories].join(", ")})`);
+    if (categories && doc.category && !categories.has(doc.category)) problems.push(`${rel}: unknown category "${doc.category}" (contract/_categories.json has ${[...categories].join(", ")})`);
+    contract.domains.set(doc.domain, {
+      title,
+      summary: doc.summary,
+      category: doc.category,
+      order: doc.order,
+      related: doc.related,
+      aliases: doc.aliases,
+      source: rel
+    });
 
     for (const [operation, fn] of Object.entries(doc.functions)) {
       const id = `${doc.domain}.${operation}`;
@@ -197,6 +224,7 @@ export function loadContract(dir: string): Contract {
         flatName,
         spellings,
         summary: fn.summary,
+        label: fn.label,
         description: fn.description,
         references: fn.references,
         level: fn.level,
@@ -213,6 +241,9 @@ export function loadContract(dir: string): Contract {
   }
 
   // Cross references.
+  for (const [domain, info] of contract.domains) {
+    for (const r of info.related) if (!contract.domains.has(r)) problems.push(`${info.source}: related domain "${r}" does not exist (in ${domain})`);
+  }
   for (const fn of contract.functions.values()) {
     for (const t of fn.tests) {
       if (t.expect.kind !== "satisfies") continue;

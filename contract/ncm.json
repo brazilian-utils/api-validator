@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "ncm",
-  "title": "NCM — Nomenclatura Comum do Mercosul",
-  "description": "Goods classification codes of the NCM table published by Siscomex.",
+  "title": { "en": "NCM", "pt-BR": "NCM" },
+  "summary": {
+    "en": "Goods classification codes of the NCM table published by Siscomex.",
+    "pt-BR": "Códigos de classificação de mercadorias da tabela NCM publicada pelo Siscomex."
+  },
+  "category": "tax",
+  "order": 3,
   "functions": {
     "format": {
       "summary": "Formats a NCM (Nomenclatura Comum do Mercosul) code.",

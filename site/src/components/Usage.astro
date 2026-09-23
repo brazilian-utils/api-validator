@@ -1,87 +1,69 @@
 ---
 /**
- * "Usage" section of a utility page.
+ * How to call one contract operation in each library: one tab per library (order and default
+ * tab from libs/*.json), synced across the whole site with syncKey="lang".
  *
- * For each operation declared in specs/<util>/meta.yaml, renders one tab per library
- * (order and default tab come from libs.yaml). Tab content is the matching section of
- * `<lib repo>/docs/usage/<util>.md`, fetched at build time into .cache/usage/.
- *
- * All tab groups share syncKey="lang", so picking a language once applies to the whole site.
+ * Tab content is the `## <operation>` section of `<lib repo>/docs/usage/<util>.md`, fetched at
+ * build time into .cache/usage/ by scripts/fetch-usage.mjs.
  */
 import { getCollection, render } from 'astro:content';
 import { Tabs, TabItem } from '@astrojs/starlight/components';
-import { loadLibs, loadSpec, LANG_PREFIX } from '@lib/registry.mjs';
+import { loadLibs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
 
 interface Props {
   util: string;
+  op: string;
+  fn: string;
 }
 
-const { util } = Astro.props;
+const { util, op, fn } = Astro.props;
 const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
 const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
-
-const meta = loadSpec(util);
 const libs = loadLibs();
+const status = loadStatus();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
 
-const entries = await getCollection('usage', (entry) => entry.data.util === util);
+const entries = await getCollection('usage', (entry) => entry.data.util === util && entry.data.op === op);
+const pick = (libId: string) => {
+  const mine = entries.filter((e) => e.data.lib === libId);
+  return mine.find((e) => e.data.locale === locale) ?? mine.find((e) => e.data.locale === 'en') ?? mine[0];
+};
 
-// Pick, for each (lib, op), the entry in the page language, else the default (en) one.
-function pick(libId: string, opId: string) {
-  const candidates = entries.filter((e) => e.data.lib === libId && e.data.op === opId);
-  return candidates.find((e) => e.data.locale === locale) ?? candidates.find((e) => e.data.locale === 'en') ?? candidates[0];
-}
-
-const sections = await Promise.all(
-  (meta?.operations ?? []).map(async (op) => ({
-    op,
-    tabs: await Promise.all(
-      libs.map(async (lib) => {
-        const entry = pick(lib.id, op.id);
-        const Content = entry ? (await render(entry)).Content : null;
-        return { lib, entry, Content };
-      }),
-    ),
-  })),
+const tabs = await Promise.all(
+  libs.map(async (lib) => {
+    const entry = pick(lib.id);
+    const Content = entry ? (await render(entry)).Content : null;
+    const implemented = ['ok', 'failing'].includes(status?.libs[lib.id]?.functions?.[fn]?.status);
+    return { lib, entry, Content, implemented };
+  }),
 );
 ---
 
-{sections.map(({ op, tabs }) => (
-  <section class="usage-op">
-    <h3 id={`usage-${op.id}`}>{op.label[locale]}</h3>
-    <Tabs syncKey="lang">
-      {tabs.map(({ lib, entry, Content }) => (
-        <TabItem label={lib.label} icon={lib.icon as any}>
-          {Content ? (
-            <div class="usage-body">
-              <Content />
-              {entry?.data.source && (
-                <p class="usage-source not-content">
-                  <a href={entry.data.source} rel="noopener noreferrer" target="_blank">{t('usage.source')}: {lib.repo}</a>
-                </p>
-              )}
-            </div>
-          ) : (
-            <p class="usage-missing">
-              {t('usage.notAvailable', { lib: lib.label })}{' '}
-              <a href={`${prefix}/contributing/new-language/`}>{t('usage.contribute')}</a>
+<Tabs syncKey="lang">
+  {tabs.map(({ lib, entry, Content, implemented }) => (
+    <TabItem label={lib.label} icon={lib.icon as any}>
+      {Content ? (
+        <div class="usage-body">
+          <Content />
+          {entry?.data.source && (
+            <p class="usage-source not-content">
+              <a href={entry.data.source} rel="noopener noreferrer" target="_blank">{t('usage.source')}: {lib.repo}</a>
             </p>
           )}
-        </TabItem>
-      ))}
-    </Tabs>
-  </section>
-))}
+        </div>
+      ) : (
+        <p class="usage-missing">
+          {implemented ? t('usage.undocumented', { lib: lib.label }) : t('usage.notAvailable', { lib: lib.label })}{' '}
+          <a href={implemented ? `${prefix}/contributing/usage-files/` : `${prefix}/contributing/new-language/`}>{t('usage.contribute')}</a>
+        </p>
+      )}
+    </TabItem>
+  ))}
+</Tabs>
 
 <style>
-  .usage-op + .usage-op {
-    margin-top: 2rem;
-  }
-  .usage-op h3 {
-    margin-bottom: 0.5rem;
-  }
   .usage-missing {
     color: var(--sl-color-gray-3);
     border: 1px dashed var(--sl-color-hairline);
@@ -93,7 +75,5 @@ const sections = await Promise.all(
     color: var(--sl-color-gray-4);
     margin-top: 0.25rem;
   }
-  .usage-source a {
-    color: inherit;
-  }
+  .usage-source a { color: inherit; }
 </style>

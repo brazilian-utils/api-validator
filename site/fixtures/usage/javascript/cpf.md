@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```js
 import { isValidCpf } from '@brazilian-utils/brazilian-utils';
@@ -18,7 +18,7 @@ formatCpf('74650688000'); // '746.506.880-00'
 formatCpf('746506880', { pad: true }); // '007.465.068-80'
 ```
 
-## remove-symbols
+## parse
 
 ```js
 import { parseCpf } from '@brazilian-utils/brazilian-utils';

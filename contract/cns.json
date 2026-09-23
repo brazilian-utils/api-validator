@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cns",
-  "title": "CNS — Cartão Nacional de Saúde",
-  "description": "The SUS identifier of a user, health professional or health facility.",
+  "title": { "en": "CNS (SUS card)", "pt-BR": "CNS (Cartão SUS)" },
+  "summary": {
+    "en": "The SUS identifier of a user, health professional or health facility.",
+    "pt-BR": "O identificador do SUS para usuários, profissionais e estabelecimentos de saúde."
+  },
+  "category": "documents",
+  "order": 6,
+  "related": ["cpf"],
   "functions": {
     "format": {
       "summary": "Formats a CNS (Cartão Nacional de Saúde) number into the common display groups of 3-4-4-4 digits separated by spaces.",

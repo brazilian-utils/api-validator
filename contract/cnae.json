@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cnae",
-  "title": "CNAE — Classificação Nacional de Atividades Econômicas",
-  "description": "Economic activity subclass codes of the CNAE-Subclasses 2.3 table.",
+  "title": { "en": "CNAE", "pt-BR": "CNAE" },
+  "summary": {
+    "en": "Economic activity subclass codes of the CNAE-Subclasses 2.3 table.",
+    "pt-BR": "Códigos de subclasse de atividade econômica da tabela CNAE-Subclasses 2.3."
+  },
+  "category": "companies",
+  "order": 4,
+  "related": ["cnpj"],
   "functions": {
     "format": {
       "summary": "Formats a CNAE (Classificação Nacional de Atividades Econômicas) subclass code.",

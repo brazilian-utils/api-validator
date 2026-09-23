@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "creditCard",
-  "title": "Credit card",
-  "description": "Payment card numbers (credit or debit), Luhn check only.",
+  "title": { "en": "Payment card", "pt-BR": "Cartão de pagamento" },
+  "summary": {
+    "en": "Payment card numbers (credit or debit), Luhn check only.",
+    "pt-BR": "Números de cartão de crédito ou débito, só pelo algoritmo de Luhn."
+  },
+  "category": "finance",
+  "order": 8,
   "functions": {
     "isValid": {
       "summary": "Validates a payment card number (crédito ou débito) using the Luhn algorithm.",

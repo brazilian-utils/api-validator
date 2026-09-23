@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /**
- * Downloads the usage files of every library listed in libs.yaml and splits them into
+ * Downloads the usage files of every library in ../libs/*.json and splits them into
  * one Markdown file per (lib, util, operation) under .cache/usage/.
+ *
+ * A usage file is `<util>.md`, where <util> is the page slug (`license-plate`) or the contract
+ * domain (`licensePlate`); its `## headings` are contract operation ids (`## isValid`,
+ * `## removeSymbols`; `is-valid`, `remove-symbols` and the older `validate` also work).
  *
  * Source of each library's usage: `<repo>/<path>/<util>.md` at `ref`
  * ("latest-release" resolves the newest GitHub release; falls back to the default branch).
@@ -20,7 +24,7 @@
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { CACHE_DIR, FIXTURES_DIR, loadLibs, loadSpecs } from '../src/lib/registry.mjs';
+import { CACHE_DIR, FIXTURES_DIR, keyOf, loadLibs, loadSpecs, resolveOperation } from '../src/lib/registry.mjs';
 
 const OFFLINE = process.env.USAGE_SOURCE === 'fixtures';
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
@@ -32,7 +36,8 @@ const headers = {
 };
 
 const specs = loadSpecs();
-const specById = new Map(specs.map((s) => [s.id, s]));
+// Usage files may be named after the page slug or the contract domain.
+const specByKey = new Map(specs.flatMap((s) => [[keyOf(s.id), s], [keyOf(s.domain), s]]));
 const libs = loadLibs();
 
 const manifest = { fetchedAt: new Date().toISOString(), libs: {} };
@@ -71,24 +76,25 @@ for (const lib of libs) {
     const parsed = parseUsageFile(file.name, file.content);
     if (!parsed) continue;
     const { util, locale, since, sections } = parsed;
-    const spec = specById.get(util);
+    const spec = specByKey.get(keyOf(util));
     if (!spec) {
-      warnings.push(`${lib.id}/${file.name}: no spec named "${util}" (specs/${util}/meta.yaml missing); skipped`);
+      warnings.push(`${lib.id}/${file.name}: no contract domain named "${util}"; skipped`);
       continue;
     }
-    const known = new Set(spec.operations.map((op) => op.id));
     const written = [];
     for (const section of sections) {
-      if (!known.has(section.op)) {
-        warnings.push(`${lib.id}/${file.name}: unknown operation "## ${section.op}" (known: ${[...known].join(', ')}); skipped`);
+      const op = resolveOperation(spec, section.op);
+      if (!op) {
+        warnings.push(`${lib.id}/${file.name}: unknown operation "## ${section.op}" (known: ${spec.operations.map((o) => o.id).join(', ')}); skipped`);
         continue;
       }
-      const target = path.join(CACHE_DIR, lib.id, util, `${section.op}${locale === 'pt-BR' ? '.pt-BR' : ''}.md`);
+      section.op = op;
+      const target = path.join(CACHE_DIR, lib.id, spec.id, `${section.op}${locale === 'pt-BR' ? '.pt-BR' : ''}.md`);
       await fs.mkdir(path.dirname(target), { recursive: true });
       const frontmatter = [
         '---',
         `lib: ${lib.id}`,
-        `util: ${util}`,
+        `util: ${spec.id}`,
         `op: ${section.op}`,
         `locale: ${locale}`,
         since ? `since: "${since}"` : null,
@@ -100,8 +106,8 @@ for (const lib of libs) {
       await fs.writeFile(target, `${frontmatter}\n\n${section.body.trim()}\n`, 'utf8');
       written.push(section.op);
     }
-    result.utils[util] = result.utils[util] ?? {};
-    result.utils[util][locale] = written;
+    result.utils[spec.id] = result.utils[spec.id] ?? {};
+    result.utils[spec.id][locale] = written;
   }
 
   manifest.libs[lib.id] = result;
@@ -180,7 +186,7 @@ async function readFixtures(lib) {
 function parseUsageFile(name, content) {
   const match = /^(.+?)(?:\.(pt-br))?\.md$/i.exec(name);
   if (!match) return null;
-  const util = match[1].toLowerCase();
+  const util = match[1];
   const locale = match[2] ? 'pt-BR' : 'en';
 
   let body = content;
@@ -196,7 +202,7 @@ function parseUsageFile(name, content) {
   const re = /^##\s+(.+?)\s*$/gm;
   let m;
   const marks = [];
-  while ((m = re.exec(body))) marks.push({ op: m[1].trim().toLowerCase(), start: m.index, end: m.index + m[0].length });
+  while ((m = re.exec(body))) marks.push({ op: m[1].trim(), start: m.index, end: m.index + m[0].length });
   for (let i = 0; i < marks.length; i++) {
     const next = marks[i + 1];
     sections.push({ op: marks[i].op, body: body.slice(marks[i].end, next ? next.start : undefined) });

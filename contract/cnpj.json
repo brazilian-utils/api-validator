@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cnpj",
-  "title": "CNPJ — Cadastro Nacional da Pessoa Jurídica",
-  "description": "The Brazilian company tax id, numeric and alphanumeric.",
+  "title": { "en": "CNPJ", "pt-BR": "CNPJ" },
+  "summary": {
+    "en": "Cadastro Nacional da Pessoa Jurídica, the 14-character Brazilian company registration number. Alphanumeric since July 2026, with two numeric mod-11 check digits.",
+    "pt-BR": "Cadastro Nacional da Pessoa Jurídica, o número de 14 caracteres que identifica empresas e entidades. Alfanumérico desde julho de 2026, com dois dígitos verificadores numéricos por módulo 11."
+  },
+  "category": "companies",
+  "order": 1,
+  "related": ["cpf", "ie", "legalNature"],
   "functions": {
     "format": {
       "summary": "Formats a given CNPJ (Cadastro Nacional da Pessoa Jurídica) value according to the specified options.",

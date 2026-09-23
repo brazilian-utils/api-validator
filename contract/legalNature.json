@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "legalNature",
-  "title": "Natureza jurídica — legal nature",
-  "description": "Legal nature codes of the IBGE/CONCLA Natureza Jurídica 2021 table.",
+  "title": { "en": "Legal nature", "pt-BR": "Natureza jurídica" },
+  "summary": {
+    "en": "Legal nature codes of the IBGE/CONCLA Natureza Jurídica 2021 table.",
+    "pt-BR": "Códigos da tabela de Natureza Jurídica 2021 da CONCLA/IBGE."
+  },
+  "category": "companies",
+  "order": 3,
+  "related": ["cnpj"],
   "functions": {
     "format": {
       "summary": "Formats a Brazilian legal nature (natureza jurídica) code.",

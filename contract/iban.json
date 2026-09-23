@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "iban",
-  "title": "IBAN — International Bank Account Number",
-  "description": "Brazilian IBANs (country code BR): validation, formatting, parsing and decoding.",
+  "title": { "en": "IBAN", "pt-BR": "IBAN" },
+  "summary": {
+    "en": "Brazilian IBANs (country code BR): validation, formatting, parsing and decoding.",
+    "pt-BR": "IBANs brasileiros (código de país BR): validação, formatação, leitura e decodificação."
+  },
+  "category": "finance",
+  "order": 7,
+  "related": ["bank"],
   "functions": {
     "format": {
       "summary": "Formats an IBAN in the ISO 13616 print grouping, blocks of 4 characters, the presentation used on statements and bank forms.",

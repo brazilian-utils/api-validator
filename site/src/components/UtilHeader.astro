@@ -1,12 +1,12 @@
 ---
 /**
- * Top of a utility page: one-line summary, one badge per library
- * (available / not yet), and links to related utilities.
- * Availability comes from the usage files fetched from each library repo.
+ * Top of a utility page: one-line summary, one badge per library (how many of the domain's
+ * operations it implements, from the last api-validator run; from the usage files when the
+ * site is built without status), and links to related utilities.
  */
 import { getCollection } from 'astro:content';
 import { Badge } from '@astrojs/starlight/components';
-import { loadLibs, loadSpec, loadSpecs, LANG_PREFIX } from '@lib/registry.mjs';
+import { loadLibs, loadSpec, loadSpecs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
 
 interface Props {
   util: string;
@@ -15,42 +15,51 @@ interface Props {
 const { util } = Astro.props;
 const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
+const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
 const meta = loadSpec(util);
 const libs = loadLibs();
+const status = loadStatus();
 const allSpecs = loadSpecs();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[lang as 'en' | 'pt-BR'] ? `${base}/${LANG_PREFIX[lang as 'en' | 'pt-BR']}` : base;
-
+const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
+const total = meta?.operations.length ?? 0;
 const usage = await getCollection('usage', (entry) => entry.data.util === util);
-const opsTotal = meta?.operations.length ?? 0;
 
 const availability = libs.map((lib) => {
-  const entries = usage.filter((e) => e.data.lib === lib.id);
-  const ops = new Set(entries.map((e) => e.data.op));
-  const since = entries.find((e) => e.data.since)?.data.since;
-  return { lib, count: ops.size, since, available: ops.size > 0, full: opsTotal > 0 && ops.size >= opsTotal };
+  const fns = status?.libs[lib.id]?.functions;
+  let count;
+  let failing = 0;
+  if (fns) {
+    const mine = (meta?.operations ?? []).map((op) => fns[op.fnId]).filter(Boolean);
+    count = mine.filter((f) => f.status === 'ok' || f.status === 'failing').length;
+    failing = mine.filter((f) => f.status === 'failing').length;
+  } else {
+    count = new Set(usage.filter((e) => e.data.lib === lib.id).map((e) => e.data.op)).size;
+  }
+  const since = usage.find((e) => e.data.lib === lib.id && e.data.since)?.data.since;
+  return { lib, count, failing, since };
 });
 
-const related = (meta?.related ?? [])
-  .map((id) => allSpecs.find((s) => s.id === id))
-  .filter(Boolean);
+const related = (meta?.related ?? []).map((id) => allSpecs.find((s) => s.id === id)).filter(Boolean);
 ---
 
 {meta && (
   <div class="util-header not-content">
-    <p class="summary">{meta.summary[lang as 'en' | 'pt-BR']}</p>
+    <p class="summary">{meta.summary[locale]}</p>
 
     <div class="availability">
       <span class="label">{t('util.implementedIn')}</span>
       <ul>
-        {availability.map(({ lib, available, full, since }) => (
+        {availability.map(({ lib, count, failing, since }) => (
           <li>
-            <Badge
-              text={lib.label + (since ? ` · ${t('util.since', { version: since })}` : '')}
-              variant={available ? (full ? 'success' : 'tip') : 'default'}
-              size="medium"
-              class:list={[{ 'is-missing': !available }]}
-            />
+            <a href={`${prefix}/libs/${lib.id}/`}>
+              <Badge
+                text={`${lib.label} ${count}/${total}` + (since ? ` · ${t('util.since', { version: since })}` : '')}
+                variant={count === 0 ? 'default' : failing > 0 ? 'caution' : count >= total ? 'success' : 'tip'}
+                size="medium"
+                class:list={[{ 'is-missing': count === 0 }]}
+              />
+            </a>
           </li>
         ))}
       </ul>
@@ -61,7 +70,7 @@ const related = (meta?.related ?? [])
         <span class="label">{t('util.related')}</span>
         {related.map((spec, i) => (
           <>
-            <a href={`${prefix}/utils/${spec!.id}/`}>{spec!.title[lang as 'en' | 'pt-BR']}</a>{i < related.length - 1 ? ', ' : ''}
+            <a href={`${prefix}/utils/${spec!.id}/`}>{spec!.title[locale]}</a>{i < related.length - 1 ? ', ' : ''}
           </>
         ))}
       </p>
@@ -109,9 +118,8 @@ const related = (meta?.related ?? [])
     padding: 0;
   }
   li { margin: 0; }
+  li a { text-decoration: none; }
   :global(.util-header .is-missing) {
     opacity: 0.55;
-    text-decoration: line-through;
-    text-decoration-thickness: 1px;
   }
 </style>

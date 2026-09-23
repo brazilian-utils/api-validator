@@ -1,0 +1,70 @@
+---
+/**
+ * One chip per library for a contract operation: implemented and passing every shared case,
+ * implemented with failing cases, implemented with a different signature, or missing.
+ * Comes from the last api-validator run (.generated/status.json); renders nothing without it.
+ */
+import { loadLibs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
+import { STATUS_MARK } from '@lib/text.mjs';
+
+interface Props {
+  fn: string;
+}
+
+const { fn } = Astro.props;
+const { lang } = Astro.locals.starlightRoute;
+const t = Astro.locals.t;
+const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
+const status = loadStatus();
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
+const chips = status
+  ? loadLibs().map((lib) => ({ lib, f: status.libs[lib.id]?.functions?.[fn] })).filter(({ f }) => f)
+  : [];
+---
+
+{chips.length > 0 && (
+  <ul class="op-status not-content" aria-label={t('status.label')}>
+    {chips.map(({ lib, f }) => (
+      <li class={`chip s-${f.status}`}>
+        <a href={`${prefix}/libs/${lib.id}/`} title={[t(`status.${f.status}` as any), f.symbol, f.failed ? t('status.failedCases', { count: f.failed }) : ''].filter(Boolean).join(' · ')}>
+          <span class="mark" aria-hidden="true">{STATUS_MARK[f.status as keyof typeof STATUS_MARK]}</span>
+          {lib.label}
+          {f.status === 'failing' && <span class="count">{f.failed}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .op-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 1rem;
+  }
+  .chip {
+    margin: 0;
+  }
+  .chip a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-hairline);
+    font-size: var(--sl-text-xs);
+    text-decoration: none;
+    color: var(--sl-color-gray-2);
+  }
+  .s-ok a { border-color: var(--sl-color-green); }
+  .s-ok .mark { color: var(--sl-color-green); }
+  .s-failing a { border-color: var(--sl-color-red); }
+  .s-failing .mark, .s-failing .count { color: var(--sl-color-red); }
+  .s-signature .mark { color: var(--sl-color-orange); }
+  .s-missing a, .s-waived a { color: var(--sl-color-gray-4); border-style: dashed; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 600; }
+</style>

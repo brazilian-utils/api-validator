@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "legalProcess",
-  "title": "Processo jurídico — legal process number",
-  "description": "Court case numbers in the unified numbering of Resolução CNJ nº 65/2008 (NUP).",
+  "title": { "en": "Court case number", "pt-BR": "Processo judicial" },
+  "summary": {
+    "en": "Court case numbers in the unified numbering of Resolução CNJ nº 65/2008 (NUP).",
+    "pt-BR": "Números de processo na numeração única da Resolução CNJ nº 65/2008."
+  },
+  "category": "legal",
+  "order": 1,
   "aliases": ["processoJuridico"],
   "functions": {
     "format": {

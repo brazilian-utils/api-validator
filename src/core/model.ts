@@ -53,6 +53,7 @@ export interface ContractFunction {
    */
   spellings: Array<{ domain: string; operation: string; flatName: string }>;
   summary?: string;
+  label?: Localized;
   /** Language-agnostic spec (markdown). */
   description?: string;
   references?: string[];
@@ -69,9 +70,24 @@ export interface ContractFunction {
   source: string;
 }
 
+export interface Localized {
+  en: string;
+  "pt-BR": string;
+}
+
+export interface DomainInfo {
+  title?: Localized;
+  summary?: Localized;
+  category?: string;
+  order?: number;
+  related: string[];
+  aliases: string[];
+  source: string;
+}
+
 export interface Contract {
   functions: Map<string, ContractFunction>;
-  domains: Map<string, { title?: string; description?: string; aliases: string[]; source: string }>;
+  domains: Map<string, DomainInfo>;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,6 +111,7 @@ export interface LibConfig {
   knownFailures: Record<string, string>;
   /** Free-form adapter options. */
   options: Record<string, unknown>;
+  site?: { label: string; icon?: string; order: number; package: string; install: string; registry: string; usage: { ref: string; path: string } };
   source: string;
 }
 

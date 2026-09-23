@@ -13,11 +13,11 @@ const ROW_MAX = 400;
 
 /** Key order per object kind; keys not listed keep their relative order, after the listed ones. */
 export const KEY_ORDER = {
-  domain: ["$schema", "domain", "title", "description", "aliases", "functions"],
-  fn: ["summary", "description", "references", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"],
+  domain: ["$schema", "domain", "title", "summary", "category", "order", "related", "aliases", "functions"],
+  fn: ["summary", "label", "description", "references", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"],
   param: ["name", "type", "optional", "description"],
   test: ["name", "args", "returns", "throws", "matches", "satisfies", "repeat", "note"],
-  lib: ["$schema", "name", "language", "notes", "repo", "branch", "entry", "options", "bindings", "ignore", "waivers", "knownFailures"]
+  lib: ["$schema", "name", "language", "notes", "repo", "branch", "entry", "options", "bindings", "ignore", "waivers", "knownFailures", "site"]
 } as const;
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };

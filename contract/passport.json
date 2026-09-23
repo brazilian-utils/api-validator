@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "passport",
-  "title": "Passport",
-  "description": "Brazilian passport numbers (2 letters and 6 digits).",
+  "title": { "en": "Passport", "pt-BR": "Passaporte" },
+  "summary": {
+    "en": "Brazilian passport numbers (2 letters and 6 digits).",
+    "pt-BR": "Números de passaporte brasileiro (2 letras e 6 dígitos)."
+  },
+  "category": "documents",
+  "order": 5,
   "functions": {
     "format": {
       "summary": "Formats a Brazilian passport number for display. Converts to uppercase and removes all non-alphanumeric characters.",

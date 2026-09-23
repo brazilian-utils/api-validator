@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "registroProfissional",
-  "title": "Registro profissional — professional council registration",
-  "description": "Registration numbers of professional councils (OAB, CRM, CRO, CRP, CRC).",
+  "title": { "en": "Professional registration", "pt-BR": "Registro profissional" },
+  "summary": {
+    "en": "Registration numbers of professional councils (OAB, CRM, CRO, CRP, CRC).",
+    "pt-BR": "Números de inscrição em conselhos profissionais (OAB, CRM, CRO, CRP, CRC)."
+  },
+  "category": "documents",
+  "order": 8,
   "functions": {
     "isValid": {
       "summary": "Checks the structure of a professional council registration number (registro/inscrição profissional).",

@@ -1,4 +1,4 @@
-## validate
+## isValid
 
 ```js
 import { isValidCnpj } from '@brazilian-utils/brazilian-utils';
@@ -18,7 +18,7 @@ formatCnpj('245222000174', { pad: true }); // '00.245.222/0001-74'
 formatCnpj('12OUT345000199', { version: 2 }); // '12.OUT.345/0001-99'
 ```
 
-## remove-symbols
+## parse
 
 ```js
 import { parseCnpj } from '@brazilian-utils/brazilian-utils';

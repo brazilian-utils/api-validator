@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "certidao",
-  "title": "Certidão — civil registry certificate",
-  "description": "The 32-digit matrícula of a certidão de registro civil (birth, marriage, death and the other acts of the registro civil das pessoas naturais).",
+  "title": { "en": "Civil registry certificate", "pt-BR": "Certidão" },
+  "summary": {
+    "en": "The 32-digit matrícula of a certidão de registro civil (birth, marriage, death and the other acts of the registro civil das pessoas naturais).",
+    "pt-BR": "A matrícula de 32 dígitos das certidões do registro civil (nascimento, casamento, óbito e demais atos)."
+  },
+  "category": "documents",
+  "order": 7,
   "functions": {
     "format": {
       "summary": "Formats the matrícula of a certidão de registro civil into the printed mask of the norm, the 32 digits grouped as 6 2 2 4 1 5 3 7 2 and separated by spaces.",

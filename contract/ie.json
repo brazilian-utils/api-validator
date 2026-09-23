@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "ie",
-  "title": "IE — Inscrição estadual",
-  "description": "State tax registration numbers, validated per state.",
+  "title": { "en": "State registration (IE)", "pt-BR": "Inscrição estadual" },
+  "summary": {
+    "en": "State tax registration numbers, validated per state.",
+    "pt-BR": "Números de inscrição estadual, validados conforme a regra de cada estado."
+  },
+  "category": "companies",
+  "order": 2,
+  "related": ["cnpj"],
   "functions": {
     "isValid": {
       "summary": "Validates a Brazilian state tax registration number (IE).",

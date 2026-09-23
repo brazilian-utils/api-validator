@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cst",
-  "title": "CST — Código de Situação Tributária",
-  "description": "Tax situation codes of ICMS, IPI, PIS and COFINS.",
+  "title": { "en": "CST", "pt-BR": "CST" },
+  "summary": {
+    "en": "Tax situation codes of ICMS, IPI, PIS and COFINS.",
+    "pt-BR": "Códigos de situação tributária de ICMS, IPI, PIS e COFINS."
+  },
+  "category": "tax",
+  "order": 4,
+  "related": ["csosn"],
   "functions": {
     "isValid": {
       "summary": "Validates if a CST (Código de Situação Tributária) code is valid for a given tax.",

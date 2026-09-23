@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "nfeKey",
-  "title": "NF-e key — DF-e access key (chave de acesso)",
-  "description": "The 44-digit access key of NF-e, NFC-e, CT-e, MDF-e and the other DF-e models.",
+  "title": { "en": "NF-e access key", "pt-BR": "Chave de acesso NF-e" },
+  "summary": {
+    "en": "The 44-digit access key of NF-e, NFC-e, CT-e, MDF-e and the other DF-e models.",
+    "pt-BR": "A chave de acesso de 44 dígitos da NF-e, NFC-e, CT-e, MDF-e e demais documentos fiscais eletrônicos."
+  },
+  "category": "tax",
+  "order": 1,
+  "related": ["cnpj"],
   "functions": {
     "format": {
       "summary": "Formats a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into groups of 4 digits separated by spaces, the form every auxiliary document prints it in: the DANFE of the NF-e and the NFC-e, the DACTE of the CT-e, the CT-e OS and the GTV-e, the DAMDFE of the MDF-e, the DABPE of the BP-e, the DANF3E of the NF3e and the DANFE-COM of the NFCom.",

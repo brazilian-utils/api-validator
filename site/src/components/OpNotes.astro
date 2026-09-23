@@ -1,0 +1,14 @@
+---
+/** Short notes under an operation: calls a remote service, deprecated. */
+import { Aside } from '@astrojs/starlight/components';
+
+interface Props {
+  network?: boolean;
+  deprecated?: boolean;
+}
+const { network, deprecated } = Astro.props;
+const t = Astro.locals.t;
+---
+
+{network && <Aside type="note">{t('ops.network')}</Aside>}
+{deprecated && <Aside type="caution">{t('ops.deprecated')}</Aside>}

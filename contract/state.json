@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "state",
-  "title": "States (UF)",
-  "description": "Brazilian states (unidades federativas): codes, names, IBGE codes and time zones.",
+  "title": { "en": "States (UF)", "pt-BR": "Estados (UF)" },
+  "summary": {
+    "en": "Brazilian states (unidades federativas): codes, names, IBGE codes and time zones.",
+    "pt-BR": "Unidades federativas: siglas, nomes, códigos do IBGE e fusos horários."
+  },
+  "category": "address",
+  "order": 2,
+  "related": ["municipality", "areaCode"],
   "functions": {
     "getByIbgeCode": {
       "summary": "Retrieves the Brazilian state whose 2-digit IBGE code (\"cUF\", the Código da Unidade da Federação) matches the given value.",

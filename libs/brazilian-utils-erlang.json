@@ -4,5 +4,13 @@
   "language": "erlang",
   "repo": "https://github.com/brazilian-utils/erlang",
   "entry": "src",
-  "options": { "app": "brutils" }
+  "options": { "app": "brutils" },
+  "site": {
+    "label": "Erlang",
+    "order": 7,
+    "package": "brutils",
+    "install": "{deps, [brutils]}. % rebar.config",
+    "registry": "https://hex.pm/packages/brutils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
 }

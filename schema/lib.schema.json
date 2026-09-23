@@ -30,7 +30,29 @@
       "propertyNames": { "type": "string" },
       "additionalProperties": { "type": "string", "minLength": 1 }
     },
-    "options": { "default": {}, "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": {} }
+    "options": { "default": {}, "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": {} },
+    "site": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "icon": { "type": "string" },
+        "order": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+        "package": { "type": "string", "minLength": 1 },
+        "install": { "type": "string", "minLength": 1 },
+        "registry": { "type": "string", "format": "uri" },
+        "usage": {
+          "default": { "ref": "latest-release", "path": "docs/usage" },
+          "type": "object",
+          "properties": {
+            "ref": { "default": "latest-release", "type": "string" },
+            "path": { "default": "docs/usage", "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["label", "order", "package", "install", "registry"],
+      "additionalProperties": false
+    }
   },
   "required": ["name", "language"],
   "additionalProperties": false,

@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cfop",
-  "title": "CFOP — Código Fiscal de Operações e Prestações",
-  "description": "Fiscal operation codes of Anexo II of Convênio SINIEF s/nº 1970.",
+  "title": { "en": "CFOP", "pt-BR": "CFOP" },
+  "summary": {
+    "en": "Fiscal operation codes of Anexo II of Convênio SINIEF s/nº 1970.",
+    "pt-BR": "Códigos fiscais de operações e prestações do Anexo II do Convênio SINIEF s/nº 1970."
+  },
+  "category": "tax",
+  "order": 2,
   "functions": {
     "get": {
       "summary": "Looks a CFOP (Código Fiscal de Operações e Prestações) code up in the official table.",

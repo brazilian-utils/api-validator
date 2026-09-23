@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "bankAccount",
-  "title": "Bank accounts",
-  "description": "Brazilian bank account (agência, conta and dígito) check-digit validation, per bank.",
+  "title": { "en": "Bank account", "pt-BR": "Conta bancária" },
+  "summary": {
+    "en": "Brazilian bank account (agência, conta and dígito) check-digit validation, per bank.",
+    "pt-BR": "Validação dos dígitos verificadores de agência e conta, conforme o banco."
+  },
+  "category": "finance",
+  "order": 6,
+  "related": ["bank"],
   "functions": {
     "isValid": {
       "summary": "Validates a Brazilian bank account. The bank code must belong to the Banco Central do Brasil STR participants list, otherwise the account is rejected.",

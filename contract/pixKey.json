@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "pixKey",
-  "title": "Pix key (chave Pix)",
-  "description": "Pix keys in the DICT formats: CPF, CNPJ, email, phone and random (EVP) keys.",
+  "title": { "en": "Pix key", "pt-BR": "Chave Pix" },
+  "summary": {
+    "en": "Pix keys in the DICT formats: CPF, CNPJ, email, phone and random (EVP) keys.",
+    "pt-BR": "Chaves Pix nos formatos do DICT: CPF, CNPJ, e-mail, telefone e chave aleatória (EVP)."
+  },
+  "category": "finance",
+  "order": 3,
+  "related": ["pixPayload", "cpf", "cnpj", "phone", "email"],
   "functions": {
     "getInfo": {
       "summary": "Identifies a Pix key and normalizes it to the canonical form the DICT expects inside a BR Code.",

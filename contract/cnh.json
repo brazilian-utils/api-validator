@@ -1,8 +1,13 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cnh",
-  "title": "CNH — Carteira Nacional de Habilitação",
-  "description": "The Brazilian driver's license registry number.",
+  "title": { "en": "Driver's license (CNH)", "pt-BR": "CNH" },
+  "summary": {
+    "en": "The Brazilian driver's license registry number.",
+    "pt-BR": "O número de registro da Carteira Nacional de Habilitação."
+  },
+  "category": "documents",
+  "order": 2,
   "functions": {
     "format": {
       "summary": "Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.",

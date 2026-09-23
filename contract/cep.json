@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cep",
-  "title": "CEP — Código de Endereçamento Postal",
-  "description": "Brazilian postal codes: validation, formatting and address lookup.",
+  "title": { "en": "CEP", "pt-BR": "CEP" },
+  "summary": {
+    "en": "Código de Endereçamento Postal, the 8-digit Brazilian postal code managed by Correios.",
+    "pt-BR": "Código de Endereçamento Postal, o código postal de 8 dígitos administrado pelos Correios."
+  },
+  "category": "address",
+  "order": 1,
+  "related": ["state", "municipality"],
   "functions": {
     "format": {
       "summary": "Formats a given value as a Brazilian postal code (CEP).",

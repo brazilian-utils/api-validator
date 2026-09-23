@@ -1,0 +1,11 @@
+---
+/** Note at the top of the operations: their descriptions are only in English for now (pt-BR pages). */
+const { lang } = Astro.locals.starlightRoute;
+const t = Astro.locals.t;
+---
+
+{lang === 'pt-BR' && t('ops.englishOnly') && <p class="ops-intro">{t('ops.englishOnly')}</p>}
+
+<style>
+  .ops-intro { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+</style>

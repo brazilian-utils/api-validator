@@ -11,5 +11,14 @@
     "state.getNameByCode": "ibge.uf.convert_uf_to_name",
     "state.getByIbgeCode": "ibge.uf.convert_code_to_uf"
   },
-  "ignore": ["*.sieve", "*.display", "*.validate"]
+  "ignore": ["*.sieve", "*.display", "*.validate"],
+  "site": {
+    "label": "Python",
+    "icon": "seti:python",
+    "order": 2,
+    "package": "brutils",
+    "install": "pip install brutils",
+    "registry": "https://pypi.org/project/brutils/",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
 }

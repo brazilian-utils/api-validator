@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "phone",
-  "title": "Phone",
-  "description": "Brazilian phone numbers: mobile, landline and service numbers.",
+  "title": { "en": "Phone", "pt-BR": "Telefone" },
+  "summary": {
+    "en": "Brazilian phone numbers: mobile, landline and service numbers.",
+    "pt-BR": "Números de telefone brasileiros: celular, fixo e números de serviço."
+  },
+  "category": "telecom",
+  "order": 1,
+  "related": ["areaCode"],
   "functions": {
     "format": {
       "summary": "Formats a phone number according to Brazilian phone number patterns.",

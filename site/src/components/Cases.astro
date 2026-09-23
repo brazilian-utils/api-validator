@@ -1,0 +1,82 @@
+---
+/**
+ * The shared test cases of one contract operation, with each library's result from the last
+ * api-validator run: these are the cases every implementation must pass.
+ */
+import { loadLibs, loadSpec, loadStatus } from '@lib/registry.mjs';
+import { expectation, testIds } from '@lib/text.mjs';
+
+interface Props {
+  util: string;
+  op: string;
+}
+
+const { util, op } = Astro.props;
+const t = Astro.locals.t;
+const spec = loadSpec(util);
+const operation = spec?.operations.find((o) => o.id === op);
+const tests = operation?.tests ?? [];
+const ids = operation ? testIds(operation.fnId, tests) : [];
+const status = loadStatus();
+const libs = status ? loadLibs().filter((lib) => status.libs[lib.id]) : [];
+const MARK: Record<string, string> = { pass: '●', fail: '✕', 'known-failure': '✕', skip: '·' };
+
+function result(libId: string, caseId: string) {
+  const f = status?.libs[libId]?.functions?.[operation!.fnId];
+  if (!f || f.status === 'missing' || f.status === 'waived') return { cls: 'none', mark: '○', title: t('status.missing') };
+  const r = f.results?.[caseId];
+  if (!r) return { cls: 'none', mark: '·', title: t('cases.notRun') };
+  return { cls: r === 'pass' ? 'ok' : r === 'skip' ? 'none' : 'bad', mark: MARK[r] ?? '·', title: r };
+}
+
+const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
+---
+
+{tests.length === 0 ? (
+  <p class="no-cases">{t('testcases.none')}</p>
+) : (
+  <details class="cases">
+    <summary>{t('cases.summary', { count: tests.length })}</summary>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>{t('testcases.input')}</th>
+            <th>{t('testcases.expected')}</th>
+            {libs.map((lib) => <th class="lib">{lib.label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {tests.map((test: any, i: number) => (
+            <tr>
+              <td>
+                <code>{show(test.args)}</code>
+                {test.repeat > 1 && <span class="muted"> ×{test.repeat}</span>}
+                {test.note && <div class="note">{test.note}</div>}
+              </td>
+              <td><code>{expectation(test)}</code></td>
+              {libs.map((lib) => {
+                const r = result(lib.id, ids[i]);
+                return <td class={`dot ${r.cls}`} title={r.title}>{r.mark}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+)}
+
+<style>
+  .cases summary { cursor: pointer; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+  .table-wrap { overflow-x: auto; }
+  table { font-size: var(--sl-text-sm); }
+  .lib { text-align: center; white-space: nowrap; }
+  .dot { text-align: center; }
+  .dot.ok { color: var(--sl-color-green); }
+  .dot.bad { color: var(--sl-color-red); }
+  .dot.none { color: var(--sl-color-gray-4); }
+  .note { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); margin-top: 0.2rem; }
+  .muted { color: var(--sl-color-gray-3); }
+  .no-cases { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+</style>

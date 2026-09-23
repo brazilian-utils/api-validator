@@ -1,8 +1,14 @@
 {
   "$schema": "../schema/contract.schema.json",
   "domain": "cno",
-  "title": "CNO — Cadastro Nacional de Obras",
-  "description": "Registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).",
+  "title": { "en": "CNO", "pt-BR": "CNO" },
+  "summary": {
+    "en": "Registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).",
+    "pt-BR": "Cadastro de obras de construção civil na Receita Federal (substituiu o CEI para elas, com a mesma numeração)."
+  },
+  "category": "companies",
+  "order": 7,
+  "related": ["cei", "caepf"],
   "functions": {
     "format": {
       "summary": "Formats a CNO (Cadastro Nacional de Obras) number according to the official mask.",
