@@ -31,6 +31,7 @@ export function GET() {
     '## Optional',
     '',
     ...folderPages('en', 'contributing').map((page) => `- [${page.title}](${SITE_ROOT}/contributing/${page.slug}/)`),
+    ...folderPages('en', 'about').map((page) => `- [${page.title}](${SITE_ROOT}/about/${page.slug}/)`),
     `- [Shared test cases as JSON](${SITE_ROOT}/cases.schema.json)`,
     '',
   ];

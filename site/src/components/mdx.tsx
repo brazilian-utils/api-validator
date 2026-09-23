@@ -8,6 +8,7 @@ import { FlatTabs } from '@/components/flat-tabs';
 import { LangIcon } from '@/components/lang-icon';
 import { loadLibs } from '@/lib/data';
 import { Markdown } from '@/lib/markdown';
+import { Team } from '@/components/team';
 
 /** A numbered sequence: wraps a Markdown ordered list. */
 function Steps({ children }: { children: ReactNode }) {
@@ -36,5 +37,5 @@ function InstallTabs({ label = 'Library' }: { label?: string }) {
 }
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
-  return { ...defaultMdxComponents, Callout: Note, Files, Folder, File, Steps, InstallTabs, ...components };
+  return { ...defaultMdxComponents, Callout: Note, Files, Folder, File, Steps, InstallTabs, Team, ...components };
 }

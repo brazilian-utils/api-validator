@@ -16,7 +16,7 @@ const PORT = 4398;
 const BASE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/api-validator').pathname.replace(/\/$/, '');
 const PAGES = [
   '/', '/pt-br/', '/getting-started/', '/utils/cpf/', '/utils/license-plate/', '/pt-br/utils/cnpj/',
-  '/libs/javascript/', '/libs/go/', '/reference/parity/', '/contributing/specs/', '/contributing/usage-files/', '/does-not-exist/',
+  '/libs/javascript/', '/libs/go/', '/reference/parity/', '/contributing/specs/', '/contributing/usage-files/', '/about/faq/', '/about/team/', '/does-not-exist/',
 ];
 for (const guide of fs.existsSync('out/guides') ? fs.readdirSync('out/guides') : []) {
   for (const slug of fs.readdirSync(`out/guides/${guide}`).filter((f) => !f.includes('.'))) PAGES.push(`/guides/${guide}/${slug}/`);

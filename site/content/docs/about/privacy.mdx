@@ -1,0 +1,39 @@
+---
+title: Privacy
+description: What this site stores and sends, and what the libraries do with your data.
+---
+
+This site has no accounts, no cookies, no analytics and no ads. It is a set of static pages.
+
+## Where the site is hosted
+
+The site is served by [GitHub Pages](https://pages.github.com/). Like any web server, GitHub receives your IP address and your browser's details when you open a page. The [GitHub Privacy Statement](https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement) covers what GitHub does with them. Preview copies of the site, made for pull requests, are served by [Vercel](https://vercel.com/legal/privacy-policy) and are hidden from search engines.
+
+## What stays in your browser
+
+The site saves a few choices in your browser's local storage, so they are there on your next visit. They never leave your browser:
+
+- the theme (light or dark),
+- the language, when the site picked Portuguese for you or you chose one,
+- the tab you chose in a group of tabs, such as your programming language,
+- the height of each live demo, so the page does not jump when it loads.
+
+Clearing the site's data in your browser removes all of them.
+
+## When the site talks to other services
+
+Most pages load nothing from outside this site. The search runs in your browser, on an index that comes with the site. The "Try it" boxes run the JavaScript library from this site.
+
+A few things load from other services, and only when you open them:
+
+- **Live demos** in the guides load the JavaScript library and the frameworks (React, Vue, Angular) from [jsDelivr](https://www.jsdelivr.com/terms/privacy-policy-jsdelivr) and [esm.sh](https://esm.sh/).
+- **The address demo** sends the CEP you type to public CEP services (ViaCEP, BrasilAPI and WideNet) to find the address. That is what the library's address lookup does.
+- **The Team page** shows profile pictures served by GitHub.
+
+## The libraries
+
+The Brazilian Utils libraries run inside your program and send nothing anywhere. The one exception is the address lookup by CEP (`getAddressInfoByCep` and its equivalents), which sends the CEP to public CEP services, as described above.
+
+## Questions
+
+Write to support@brazilian-utils.com.br, or open an issue in [api-validator](https://github.com/brazilian-utils/api-validator/issues).

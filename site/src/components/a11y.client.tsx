@@ -35,7 +35,7 @@ export function A11yFixes({ code, toc, scroll }: { code: string; toc: string; sc
       }
       // The phone's "On this page" bar is a <header> too: its box becomes the named navigation,
       // the header itself no second banner.
-      document.querySelectorAll('header:not(#nd-subnav):not(#nd-nav)').forEach((el) => {
+      document.querySelectorAll('header:not(.site-header)').forEach((el) => {
         const box = el.parentElement;
         if (!box || box.getAttribute('role') === 'navigation') return;
         el.setAttribute('role', 'presentation');

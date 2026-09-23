@@ -1,0 +1,58 @@
+{
+  "$comment": "The people on the About > Team page. Facts only: roles from each repository's MAINTAINERS / CORE_TEAM file and its commit history. login is the GitHub account (avatar and link); leave it out when it is not known.",
+  "lead": [
+    {
+      "name": "Hyan Mandian",
+      "login": "hyanmandian",
+      "role": { "en": "Creator. Leads the project, the JavaScript library and this site.", "pt-BR": "Criador. Lidera o projeto, a biblioteca JavaScript e este site." },
+      "since": 2018
+    }
+  ],
+  "libraries": [
+    {
+      "lib": "javascript",
+      "people": [{ "name": "Hyan Mandian", "login": "hyanmandian" }]
+    },
+    {
+      "lib": "python",
+      "note": { "en": "Maintained with Cumbuca Dev. Started in 2017 by Luiz Berti (@luizberti) as brutils.", "pt-BR": "Mantida com a Cumbuca Dev. Começou em 2017 com Luiz Berti (@luizberti), como brutils." },
+      "people": [
+        { "name": "Camila Maia", "login": "camilamaia" },
+        { "name": "Maria Antônia Maia", "login": "antoniamaia" }
+      ]
+    },
+    {
+      "lib": "go",
+      "note": { "en": "Started in 2018 by Andreo Vieira.", "pt-BR": "Começou em 2018 com Andreo Vieira." },
+      "people": [{ "name": "Leonel Sanches da Silva", "login": "leonelsanchesdasilva" }, { "name": "Andreo Vieira", "login": "andreoav" }]
+    },
+    {
+      "lib": "ruby",
+      "note": { "en": "Started in 2016 by Alex Rocha.", "pt-BR": "Começou em 2016 com Alex Rocha." },
+      "people": [{ "name": "Leonel Sanches da Silva", "login": "leonelsanchesdasilva" }, { "name": "Alex Rocha" }]
+    },
+    {
+      "lib": "rust",
+      "note": { "en": "Started in 2018 by Andreo Vieira.", "pt-BR": "Começou em 2018 com Andreo Vieira." },
+      "people": [{ "name": "Leonel Sanches da Silva", "login": "leonelsanchesdasilva" }, { "name": "Andreo Vieira", "login": "andreoav" }]
+    },
+    {
+      "lib": "dotnet",
+      "note": { "en": "Started in 2018 by Rodinei Fagundes.", "pt-BR": "Começou em 2018 com Rodinei Fagundes." },
+      "people": [{ "name": "Leonel Sanches da Silva", "login": "leonelsanchesdasilva" }, { "name": "Rodinei Fagundes", "login": "rodineijf" }]
+    },
+    {
+      "lib": "erlang",
+      "note": { "en": "The newest library, started in 2026.", "pt-BR": "A biblioteca mais nova, de 2026." },
+      "people": [{ "name": "Camilo Cunha de Azevedo" }]
+    }
+  ],
+  "partners": [
+    {
+      "name": "Cumbuca Dev",
+      "login": "cumbucadev",
+      "url": "https://github.com/cumbucadev",
+      "role": { "en": "A community that teaches programming through open source. It grew the Python library from 2023 and joined Brazilian Utils as a partner in 2025.", "pt-BR": "Uma comunidade que ensina programação com código aberto. Fez a biblioteca Python crescer a partir de 2023 e se juntou ao Brazilian Utils como parceira em 2025." }
+    }
+  ]
+}

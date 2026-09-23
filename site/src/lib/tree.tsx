@@ -1,6 +1,6 @@
-// The sidebar: four sections, picked from the switcher at its top (Fumadocs root folders).
+// The sidebar: five sections, picked from the switcher at its top (Fumadocs root folders).
 import type * as PageTree from 'fumadocs-core/page-tree';
-import { BookOpen, Boxes, Compass, GitPullRequest } from 'lucide-react';
+import { BookOpen, Boxes, Compass, GitPullRequest, Info } from 'lucide-react';
 import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './data';
 import { type Locale, pick, prefixOf } from './i18n';
 import { LangIcon } from '@/components/lang-icon';
@@ -74,5 +74,16 @@ export function pageTree(locale: Locale): PageTree.Root {
     children: folderPages(locale, 'contributing').map((p) => page(p.title, `/contributing/${p.slug}/`)),
   };
 
-  return { $id: `${locale}:root`, name: 'Brazilian Utils', children: [utilities, libraries, ...(guides.length ? [guideFolder] : []), contributing] };
+  const about: PageTree.Folder = {
+    $id: `${locale}:about`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'About', 'Sobre'),
+    description: L(locale, 'History, team, community and privacy', 'História, time, comunidade e privacidade'),
+    icon: <Info />,
+    // The .mdx files of content/docs/about/, in the order of its meta.json.
+    children: folderPages(locale, 'about').map((p) => page(p.title, `/about/${p.slug}/`)),
+  };
+
+  return { $id: `${locale}:root`, name: 'Brazilian Utils', children: [utilities, libraries, ...(guides.length ? [guideFolder] : []), contributing, about] };
 }

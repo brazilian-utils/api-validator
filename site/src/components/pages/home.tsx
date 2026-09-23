@@ -10,7 +10,8 @@ import { CATEGORIES, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
 import { Breakdown } from '@/components/breakdown.client';
 import { libraryBreakdown } from '@/lib/breakdown';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
-import { baseOptions } from '@/lib/layout';
+import { baseOptions, headerProps } from '@/lib/layout';
+import { HomeHeader } from '@/components/site-header.client';
 import { Markdown } from '@/lib/markdown';
 import { loadUsage } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
@@ -71,7 +72,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, transparentMode: 'top' }} links={[{ text: L(locale, 'Documentation', 'Documentação'), url: `${p}/getting-started/`, active: 'nested-url' }, ...(baseOptions(locale).links ?? [])]}>
+    <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, component: <HomeHeader {...headerProps(locale)} /> }}>
       <HomeJsonLd locale={locale} description={L(locale, 'Validate, format and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
       <div className="flex flex-1 flex-col">
         <section className="band">

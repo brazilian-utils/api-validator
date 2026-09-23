@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/getting-started/',
     '/reference/parity/',
     ...folderPages('en', 'contributing').map((p) => `/contributing/${p.slug}/`),
+    ...folderPages('en', 'about').map((p) => `/about/${p.slug}/`),
     ...loadSpecs().map((s: any) => `/utils/${s.id}/`),
     ...loadLibs().map((l: any) => `/libs/${l.id}/`),
     ...loadGuides().map((g: any) => `/guides/${g.lib}/${g.slug}/`),

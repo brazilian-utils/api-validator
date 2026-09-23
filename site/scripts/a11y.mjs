@@ -28,7 +28,7 @@ const BASE = (process.env.BASE_PATH ?? new URL(process.env.SITE_URL || 'https://
 // One page of each type, in both languages; generated pages exist in every build.
 const PAGES = [
   '/', '/getting-started/', '/utils/cpf/', '/utils/license-plate/', '/libs/javascript/', '/libs/go/',
-  '/reference/parity/', '/contributing/usage-files/', '/pt-br/', '/pt-br/utils/cnpj/', '/pt-br/libs/python/', '/does-not-exist/',
+  '/reference/parity/', '/contributing/usage-files/', '/about/team/', '/pt-br/about/faq/', '/pt-br/', '/pt-br/utils/cnpj/', '/pt-br/libs/python/', '/does-not-exist/',
 ];
 for (const guide of fs.existsSync(`${OUT}/guides`) ? fs.readdirSync(`${OUT}/guides`) : []) {
   const first = fs.readdirSync(`${OUT}/guides/${guide}`).find((f) => !f.endsWith('.txt'));
