@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "domain": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+    "title": { "type": "string" },
+    "description": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+    "aliases": { "default": [], "type": "array", "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" } },
+    "functions": {
+      "type": "object",
+      "propertyNames": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "flatName": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "aliases": {
+            "default": [],
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*\\.[a-z][A-Za-z0-9]*$" }
+          },
+          "summary": { "type": "string" },
+          "description": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] },
+          "references": { "default": [], "type": "array", "items": { "type": "string", "format": "uri" } },
+          "level": { "default": "extended", "type": "string", "enum": ["core", "extended"] },
+          "params": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "minLength": 1 },
+                "type": { "type": "string", "minLength": 1 },
+                "optional": { "type": "boolean" },
+                "description": { "type": "string" }
+              },
+              "required": ["name", "type"],
+              "additionalProperties": false
+            }
+          },
+          "returns": { "type": "string", "minLength": 1 },
+          "fallible": { "type": "boolean" },
+          "network": { "type": "boolean" },
+          "deprecated": { "type": "boolean" },
+          "tests": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "args": { "default": [], "type": "array", "items": {} },
+                "returns": {},
+                "throws": { "type": "boolean", "const": true },
+                "matches": { "type": "string" },
+                "satisfies": { "type": "string" },
+                "repeat": { "default": 1, "type": "integer", "minimum": 1, "maximum": 50 },
+                "note": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["returns"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["domain", "functions"],
+  "additionalProperties": false,
+  "title": "brazilian-utils contract: one domain (contract/<domain>.json)"
+}

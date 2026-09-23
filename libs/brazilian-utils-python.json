@@ -1,0 +1,15 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-python",
+  "language": "python",
+  "notes": "Ignored: legacy names kept for backward compatibility (sieve = remove_symbols, display = format, validate = is_valid).",
+  "repo": "https://github.com/brazilian-utils/python",
+  "entry": "brutils",
+  "bindings": {
+    "municipality.getByCode": "ibge.municipality.get_municipality_by_code",
+    "state.getCodeByName": "ibge.uf.convert_name_to_uf",
+    "state.getNameByCode": "ibge.uf.convert_uf_to_name",
+    "state.getByIbgeCode": "ibge.uf.convert_code_to_uf"
+  },
+  "ignore": ["*.sieve", "*.display", "*.validate"]
+}

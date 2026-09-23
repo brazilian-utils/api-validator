@@ -1,0 +1,207 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "date",
+  "title": "Dates, holidays and business days",
+  "description": "Brazilian holidays, business days (dias úteis) and dates written out in words.",
+  "aliases": ["dateUtils"],
+  "functions": {
+    "addBusinessDays": {
+      "summary": "Adds a number of Brazilian business days (dias úteis) to a date.",
+      "description": [
+        "Adds a number of Brazilian business days (dias úteis) to a date, skipping Saturdays, Sundays and the holidays `date.isBusinessDay` skips.",
+        "",
+        "- `options` may count the optional holidays (Carnaval, Corpus Christi; counted by default) and one state's holidays.",
+        "- Returns a new date with the time of day preserved; the input is never mutated.",
+        "- An `amount` of 0 returns the same date, even on a non-business day; a negative `amount` walks backwards.",
+        "- Returns null for an invalid date, a non-integer `amount`, or a result outside the years 1900 to 2099."
+      ],
+      "flatName": "addBusinessDays",
+      "params": [
+        { "name": "date", "type": "date" },
+        { "name": "amount", "type": "number" },
+        { "name": "options", "type": "BusinessDayOptions", "optional": true }
+      ],
+      "returns": "date?"
+    },
+    "convertToWords": {
+      "summary": "Formats a date as its Brazilian Portuguese \"por extenso\" textual representation, e.g. `\"01/01/2024\"` becomes `\"primeiro de janeiro de dois mil e vinte e quatro\"`.",
+      "description": [
+        "Writes a date in Brazilian Portuguese words (\"por extenso\"), e.g. \"primeiro de janeiro de dois mil e vinte e quatro\".",
+        "",
+        "- `value` is a date (its local calendar date) or a string `dd/mm/yyyy` or ISO `yyyy-mm-dd`.",
+        "- Day 1 is \"primeiro\"; `options` can spell out only the month (digits for day and year, day 1 as `1º`) and prefix the weekday.",
+        "- Pending decision (findings §1b): the reference (JS) writes all lower case and parses ISO strings; Go and Ruby capitalise and do not parse ISO strings.",
+        "- Pending decision (findings §2 #9): for an invalid date, a malformed string, a day or month that does not exist, or a year before 1 the reference (JS) returns an empty string; other libs return null."
+      ],
+      "flatName": "convertDateToWords",
+      "aliases": ["date.convertDateToText"],
+      "params": [
+        { "name": "value", "type": "date | string" },
+        { "name": "options", "type": "ConvertDateToWordsOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "name": "first-of-month", "args": ["01/01/2024"], "returns": "primeiro de janeiro de dois mil e vinte e quatro" },
+        { "args": ["02/01/2024"], "returns": "dois de janeiro de dois mil e vinte e quatro" },
+        { "args": ["25/12/2024"], "returns": "vinte e cinco de dezembro de dois mil e vinte e quatro" },
+        { "name": "iso-string", "args": ["2024-12-25"], "returns": "vinte e cinco de dezembro de dois mil e vinte e quatro" },
+        { "name": "leap-day", "args": ["29/02/2000"], "returns": "vinte e nove de fevereiro de dois mil" },
+        { "name": "not-a-leap-year", "args": ["29/02/2023"], "returns": "", "note": "invalid dates: the reference returns an empty string (asserted by its tests); some libs return null/None" },
+        { "name": "day-out-of-range", "args": ["31/04/2024"], "returns": "" },
+        { "name": "garbage", "args": ["not a date"], "returns": "" },
+        { "name": "empty", "args": [""], "returns": "" }
+      ]
+    },
+    "differenceInBusinessDays": {
+      "summary": "Counts the number of Brazilian business days (dias úteis) between two dates.",
+      "description": [
+        "Counts the Brazilian business days between two dates.",
+        "",
+        "- Counts `earlierDate` when it is a business day and every business day strictly between the two; `laterDate` is never counted. The time of day is ignored.",
+        "- Negative when `laterDate` is before `earlierDate`; 0 on the same calendar day.",
+        "- `options` as in `date.addBusinessDays`.",
+        "- Returns null when either date is invalid or outside the years 1900 to 2099."
+      ],
+      "flatName": "differenceInBusinessDays",
+      "params": [
+        { "name": "laterDate", "type": "date" },
+        { "name": "earlierDate", "type": "date" },
+        { "name": "options", "type": "BusinessDayOptions", "optional": true }
+      ],
+      "returns": "number?"
+    },
+    "getHolidays": {
+      "summary": "Retrieves all Brazilian holidays for a given year.",
+      "description": [
+        "Returns the national Brazilian holidays of a year, sorted by date.",
+        "",
+        "- Each holiday has a name, a date and a type: national, state, optional (e.g. Carnaval, Corpus Christi) or religious.",
+        "- \"Dia da Consciência Negra\" (Nov 20) is national from 2024 on.",
+        "- Returns an empty list when `year` is not an integer from 1900 to 2099."
+      ],
+      "references": [
+        "https://legis.ac.gov.br/detalhar/1087",
+        "https://legis.ac.gov.br/detalhar/1828",
+        "https://legis.ac.gov.br/detalhar/618",
+        "https://legis.ac.gov.br/detalhar/940",
+        "https://legis.ac.gov.br/detalhar/688",
+        "https://sapl.al.al.leg.br/norma/3363",
+        "https://sapl.al.al.leg.br/norma/3364",
+        "https://sapl.al.al.leg.br/norma/3117",
+        "https://al.ap.leg.br/ver_texto_lei.php?iddocumento=17488",
+        "https://silegis.al.ap.leg.br/proposicaopdf/2CEatualizadaeconsolidadaateEC071comSumario.pdf",
+        "https://al.ap.leg.br/ver_texto_lei.php?iddocumento=22214",
+        "https://sapl.al.am.leg.br/norma/8919",
+        "https://sapl.al.am.leg.br/norma/2873",
+        "https://sapl.cmm.am.gov.br/norma/3932",
+        "https://www.legislabahia.ba.gov.br/documentos/constituicao-do-estado-da-bahia-de-05-de-outubro-de-1989",
+        "https://belt.al.ce.gov.br/index.php/constituicao-do-ceara/emendas-a-constituicao-do-ceara/item/5643-emenda-constitucional-n-73-de-1-de-dezembro-de-2011-d-o-06-12-11",
+        "https://www.sinj.df.gov.br/sinj/Norma/18459/Lei_72_27_12_1989.html",
+        "https://www.sinj.df.gov.br/sinj/Norma/48922/Lei_963_1995.html",
+        "https://www3.al.es.gov.br/Arquivo/Documents/legislacao/html/LEI110102019.html",
+        "https://legisla.casacivil.go.gov.br/pesquisa_legislacao/100979/lei-20756",
+        "https://arquivos.al.ma.leg.br:8443/ged/legislacao/LEI_2457",
+        "https://www.al.mt.gov.br/norma-juridica/urn:lex:br;mato.grosso:estadual:lei.ordinaria:2002-12-27;7879",
+        "https://aacpdappls.net.ms.gov.br/appls/legislacao/secoge/govato.nsf/1b758e65922af3e904256b220050342a/a489a293563f506304256e450002e9f8",
+        "https://bancodeleis.alepa.pa.gov.br/arquivos/lei5999_1996_93239.pdf",
+        "https://sapl.al.pb.leg.br/norma/11988",
+        "https://www.legislacao.pr.gov.br/legislacao/pesquisarAto.do?action=exibir&codAto=134573",
+        "https://legis.alepe.pe.gov.br/texto.aspx?tiponorma=1&numero=16241&complemento=0&ano=2017&tipo=&url=",
+        "https://sapl.al.pi.leg.br/norma/5849",
+        "http://alerjln1.alerj.rj.gov.br/CONTLEI.NSF/c8aa0900025feef6032564ec0060dfff/1baf90ca125ff96f8325740a00776600",
+        "https://portal.stf.jus.br/processos/detalhe.asp?incidente=2624787",
+        "http://alerjln1.alerj.rj.gov.br/CONTLEI.NSF/69d90307244602bb032567e800668618/80a541c3a5a9d63183256c7d0057bf25",
+        "https://portal.stf.jus.br/processos/detalhe.asp?incidente=2636281",
+        "http://www.al.rn.leg.br/storage/legislacao//arq5064574f632ec.pdf",
+        "https://www.al.rn.leg.br/noticia/19157/rn-faz-519-anos-e-data-foi-criada-por-lei-estadual-em-alusao-ao-marco-de-touros",
+        "https://ww2.al.rs.gov.br/dal/LinkClick.aspx?fileticket=WQdIfqNoXO4%3d&tabid=3683&mid=5359",
+        "https://ww2.al.rs.gov.br/dal/Legisla%C3%A7%C3%A3o/Constitui%C3%A7%C3%A3oEstadual/tabid/3683/Default.aspx",
+        "https://sapl.al.ro.leg.br/norma/4958",
+        "https://sapl.al.ro.leg.br/norma/3003",
+        "https://portal.stf.jus.br/processos/detalhe.asp?incidente=2545186",
+        "http://sapl.al.rr.leg.br/media/sapl/public/normajuridica/1991/3912/constituicao_estadual_do_estado_de_roraima.pdf",
+        "http://leis.alesc.sc.gov.br/html/2022/18531_2022_lei.html",
+        "http://leis.alesc.sc.gov.br/html/1996/10306_1996_lei.html",
+        "http://leis.alesc.sc.gov.br/html/1999/11213_1999_lei.html",
+        "http://leis.alesc.sc.gov.br/html/2004/12906_2004_lei.html",
+        "http://leis.alesc.sc.gov.br/html/2005/13408_2005_lei.html",
+        "https://www.al.sp.gov.br/repositorio/legislacao/lei/1997/lei-9497-05.03.1997.html",
+        "https://www.al.sp.gov.br/repositorio/legislacao/lei/2023/lei-17746-12.09.2023.html",
+        "https://aleselegis.al.se.leg.br/Arquivo/Documents/legislacao/html/CE11989.html",
+        "https://www.al.to.leg.br/arquivo/15717",
+        "https://www.al.to.leg.br/arquivo/15724",
+        "https://www.al.to.leg.br/arquivo/6883",
+        "https://www.al.to.leg.br/arquivo/6358",
+        "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/2002/l10607.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/L1266.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l6802.htm",
+        "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l9093.htm",
+        "https://www.in.gov.br/web/dou/-/portaria-mgi-n-11.460-de-29-de-dezembro-de-2025-678388627"
+      ],
+      "flatName": "getHolidays",
+      "params": [{ "name": "year", "type": "number" }],
+      "returns": "Holiday[]"
+    },
+    "isBusinessDay": {
+      "summary": "Checks whether a given date is a Brazilian business day (dia útil).",
+      "description": [
+        "Checks whether a date is a Brazilian business day (dia útil): not a Saturday, a Sunday or a holiday of `date.getHolidays`, by its local calendar date.",
+        "",
+        "- `options` may count the optional holidays (Carnaval, Corpus Christi; counted by default) and one state's holidays.",
+        "- Returns false for an invalid date or a year outside 1900 to 2099."
+      ],
+      "references": [
+        "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/2002/l10607.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l6802.htm",
+        "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l9093.htm",
+        "https://www.in.gov.br/web/dou/-/portaria-mgi-n-11.460-de-29-de-dezembro-de-2025-678388627"
+      ],
+      "flatName": "isBusinessDay",
+      "params": [
+        { "name": "value", "type": "date" },
+        { "name": "options", "type": "BusinessDayOptions", "optional": true }
+      ],
+      "returns": "boolean"
+    },
+    "isHoliday": {
+      "summary": "Checks whether a given date is a Brazilian holiday.",
+      "description": [
+        "Checks whether a date is a Brazilian holiday, by its local calendar date.",
+        "",
+        "- `options` carries the target date and, optionally, a state code whose holidays also count (an unknown code is ignored).",
+        "- Returns false when the date is missing or invalid."
+      ],
+      "references": [
+        "https://www.planalto.gov.br/ccivil_03/leis/l0662.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/2002/l10607.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l6802.htm",
+        "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm",
+        "https://www.planalto.gov.br/ccivil_03/leis/l9093.htm",
+        "https://www.in.gov.br/web/dou/-/portaria-mgi-n-11.460-de-29-de-dezembro-de-2025-678388627"
+      ],
+      "flatName": "isHoliday",
+      "level": "core",
+      "params": [{ "name": "options", "type": "IsHolidayParams", "optional": true }],
+      "returns": "boolean"
+    },
+    "subBusinessDays": {
+      "summary": "Subtracts a number of Brazilian business days (dias úteis) from a date.",
+      "description": [
+        "Subtracts a number of Brazilian business days from a date: the same as `date.addBusinessDays` with the opposite `amount`.",
+        "",
+        "- Same rules as `date.addBusinessDays`; a negative `amount` walks forwards."
+      ],
+      "flatName": "subBusinessDays",
+      "params": [
+        { "name": "date", "type": "date" },
+        { "name": "amount", "type": "number" },
+        { "name": "options", "type": "BusinessDayOptions", "optional": true }
+      ],
+      "returns": "date?"
+    }
+  }
+}

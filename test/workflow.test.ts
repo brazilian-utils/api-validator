@@ -21,41 +21,50 @@ const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
   waivers: {},
   knownFailures: {},
   options: {},
-  source: "libs/demo.yaml",
+  source: "libs/demo.json",
   ...over
 });
 
-function contractFrom(yaml: string) {
+type Domain = { domain: string; functions: Record<string, Record<string, unknown>> };
+
+function contractFrom(doc: Domain) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract-"));
-  fs.writeFileSync(path.join(dir, "cpf.yaml"), yaml);
+  fs.writeFileSync(path.join(dir, `${doc.domain}.json`), JSON.stringify(doc));
   return loadContract(dir);
 }
 
-const CPF = `domain: cpf
-functions:
-  isValid:
-    level: core
-    params: [{ name: cpf, type: string }]
-    returns: boolean
-    tests:
-      - { name: valid-sample, args: ["40364478081"], returns: true }
-      - { args: ["123"], returns: false, note: too short }
-  format:
-    level: core
-    params: [{ name: cpf, type: string }]
-    returns: string?
-    tests:
-      - { args: ["40364478081"], returns: "403.644.780-81" }
-      - { args: ["1"], returns: null }
-      - { args: ["x"], throws: true }
-      - { args: ["40364478081"], matches: "^\\\\d{3}\\\\." , name: shape }
-  generate:
-    level: core
-    params: []
-    returns: string
-    tests:
-      - { args: [], satisfies: cpf.isValid, repeat: 3, name: generated-is-valid }
-`;
+const string = [{ name: "cpf", type: "string" }];
+const CPF: Domain = {
+  domain: "cpf",
+  functions: {
+    isValid: {
+      level: "core",
+      params: string,
+      returns: "boolean",
+      tests: [
+        { name: "valid-sample", args: ["40364478081"], returns: true },
+        { args: ["123"], returns: false, note: "too short" }
+      ]
+    },
+    format: {
+      level: "core",
+      params: string,
+      returns: "string?",
+      tests: [
+        { args: ["40364478081"], returns: "403.644.780-81" },
+        { args: ["1"], returns: null },
+        { args: ["x"], throws: true },
+        { name: "shape", args: ["40364478081"], matches: "^\\d{3}\\." }
+      ]
+    },
+    generate: {
+      level: "core",
+      params: [],
+      returns: "string",
+      tests: [{ name: "generated-is-valid", args: [], satisfies: "cpf.isValid", repeat: 3 }]
+    }
+  }
+};
 
 
 describe("JSON conformance suite", () => {
@@ -156,11 +165,11 @@ describe("status site", () => {
 describe("contract changelog", () => {
   it("lists new functions, changed signatures and test vectors", () => {
     const before = contractFrom(CPF);
-    const after = contractFrom(
-      CPF.replace("returns: string?", "returns: string")
-        .replace('- { args: ["123"], returns: false, note: too short }', '- { args: ["123"], throws: true }')
-        .replace("  generate:", "  isValidMasked:\n    level: extended\n    params: [{ name: cpf, type: string }]\n    returns: boolean\n  generate:")
-    );
+    const changed: Domain = structuredClone(CPF);
+    changed.functions.format.returns = "string";
+    (changed.functions.isValid.tests as unknown[])[1] = { args: ["123"], throws: true };
+    changed.functions.isValidMasked = { level: "extended", params: string, returns: "boolean" };
+    const after = contractFrom(changed);
     const log = changelog(before, after);
     assert.deepEqual(log.added.map((f) => f.id), ["cpf.isValidMasked"]);
     assert.deepEqual(log.changed.map((c) => c.id), ["cpf.format", "cpf.isValid"]);

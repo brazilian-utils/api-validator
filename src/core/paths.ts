@@ -7,6 +7,7 @@ export const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.
 /** Data dirs default to the package, but can be overridden (e.g. a lib vendoring the contract). */
 export const CONTRACT_DIR = process.env.API_VALIDATOR_CONTRACT_DIR ?? path.join(PACKAGE_ROOT, "contract");
 export const LIBS_DIR = process.env.API_VALIDATOR_LIBS_DIR ?? path.join(PACKAGE_ROOT, "libs");
+export const SCHEMA_DIR = path.join(PACKAGE_ROOT, "schema");
 export const BASELINES_DIR = path.join(PACKAGE_ROOT, "baselines");
 export const SNAPSHOTS_DIR = path.join(PACKAGE_ROOT, "snapshots");
 export const REPOS_DIR = process.env.API_VALIDATOR_REPOS_DIR ?? path.join(PACKAGE_ROOT, ".repos");

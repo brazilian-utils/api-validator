@@ -14,9 +14,9 @@ import { lookupKey, snake, words } from "../src/core/naming.js";
 import { getAdapter } from "../src/languages/registry.js";
 import type { LanguageAdapter } from "../src/languages/types.js";
 
-function tmpContract(files: Record<string, string>): string {
+function tmpContract(files: Record<string, object>): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract-"));
-  for (const [name, text] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), text);
+  for (const [name, doc] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), JSON.stringify(doc));
   return dir;
 }
 
@@ -29,7 +29,7 @@ const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
   waivers: {},
   knownFailures: {},
   options: {},
-  source: "libs/lib.yaml",
+  source: "libs/lib.json",
   ...over
 });
 
@@ -103,17 +103,14 @@ describe("type mapping per language", () => {
 describe("contract loader", () => {
   it("reports every problem with file and path", () => {
     const dir = tmpContract({
-      "cpf.yaml": [
-        "domain: cpf",
-        "functions:",
-        "  isValid:",
-        "    params: [{ name: cpf, type: 'strin g' }]",
-        "    returns: boolean",
-        "  generate:",
-        "    returns: string",
-        "    tests: [{ args: [], satisfies: cpf.nope }]"
-      ].join("\n"),
-      "cnpj.yaml": "domain: cnpj\nfunctions:\n  isValid:\n    returns: boolean\n    tests:\n      - { args: [], returns: true, throws: true }\n"
+      "cpf.json": {
+        domain: "cpf",
+        functions: {
+          isValid: { params: [{ name: "cpf", type: "strin g" }], returns: "boolean" },
+          generate: { returns: "string", tests: [{ args: [], satisfies: "cpf.nope" }] }
+        }
+      },
+      "cnpj.json": { domain: "cnpj", functions: { isValid: { returns: "boolean", tests: [{ args: [], returns: true, throws: true }] } } }
     });
     assert.throws(
       () => loadContract(dir),
@@ -124,15 +121,20 @@ describe("contract loader", () => {
     );
   });
   it("test ids are stable when vectors are added around them", () => {
-    const mk = (tests: string) => loadContract(tmpContract({ "cpf.yaml": `domain: cpf\nfunctions:\n  isValid:\n    params: [{ name: c, type: string }]\n    returns: boolean\n    tests:\n${tests}` }));
-    const a = mk("      - { args: ['1'], returns: false }\n");
-    const b = mk("      - { args: ['0'], returns: false }\n      - { args: ['1'], returns: false }\n      - { name: named, args: ['2'], returns: false }\n");
+    const mk = (tests: object[]) =>
+      loadContract(tmpContract({ "cpf.json": { domain: "cpf", functions: { isValid: { params: [{ name: "c", type: "string" }], returns: "boolean", tests } } } }));
+    const a = mk([{ args: ["1"], returns: false }]);
+    const b = mk([{ args: ["0"], returns: false }, { args: ["1"], returns: false }, { name: "named", args: ["2"], returns: false }]);
     assert.equal(a.functions.get("cpf.isValid")!.tests[0].id, 'cpf.isValid#["1"]');
     assert.deepEqual(b.functions.get("cpf.isValid")!.tests.map((t) => t.id), ['cpf.isValid#["0"]', 'cpf.isValid#["1"]', "cpf.isValid#named"]);
   });
   it("derives flat names and alias spellings", () => {
     const dir = tmpContract({
-      "legalProcess.yaml": "domain: legalProcess\naliases: [processoJuridico]\nfunctions:\n  isValid:\n    aliases: [lawsuit.check]\n    params: [{ name: v, type: string }]\n    returns: boolean\n"
+      "legalProcess.json": {
+        domain: "legalProcess",
+        aliases: ["processoJuridico"],
+        functions: { isValid: { aliases: ["lawsuit.check"], params: [{ name: "v", type: "string" }], returns: "boolean" } }
+      }
     });
     const fn = loadContract(dir).functions.get("legalProcess.isValid")!;
     assert.equal(fn.flatName, "isValidLegalProcess");
@@ -182,7 +184,13 @@ const sym = (name: string, params: string[], returns: string, extra: Partial<Nat
 describe("matching", () => {
   const contract = loadContract(
     tmpContract({
-      "cpf.yaml": "domain: cpf\nfunctions:\n  isValid:\n    params: [{ name: cpf, type: string }]\n    returns: boolean\n  format:\n    params: [{ name: cpf, type: string }]\n    returns: string\n"
+      "cpf.json": {
+        domain: "cpf",
+        functions: {
+          isValid: { params: [{ name: "cpf", type: "string" }], returns: "boolean" },
+          format: { params: [{ name: "cpf", type: "string" }], returns: "string" }
+        }
+      }
     })
   );
   const isValid = contract.functions.get("cpf.isValid")!;
@@ -207,30 +215,30 @@ describe("matching", () => {
 
 describe("analysis + conformance (fake lib)", () => {
   const dir = tmpContract({
-    "cpf.yaml": [
-      "domain: cpf",
-      "functions:",
-      "  isValid:",
-      "    level: core",
-      "    params: [{ name: cpf, type: string }]",
-      "    returns: boolean",
-      "    tests:",
-      "      - { args: ['11111111111'], returns: false }",
-      "      - { args: ['52998224725'], returns: true }",
-      "  format:",
-      "    params: [{ name: cpf, type: string }]",
-      "    returns: string?",
-      "    tests:",
-      "      - { args: ['52998224725'], returns: '529.982.247-25' }",
-      "      - { args: ['x'], returns: null }",
-      "  generate:",
-      "    params: []",
-      "    returns: string",
-      "    tests: [{ args: [], satisfies: cpf.isValid, repeat: 3 }]",
-      "  parse:",
-      "    params: [{ name: v, type: string }]",
-      "    returns: string"
-    ].join("\n")
+    "cpf.json": {
+      domain: "cpf",
+      functions: {
+        isValid: {
+          level: "core",
+          params: [{ name: "cpf", type: "string" }],
+          returns: "boolean",
+          tests: [
+            { args: ["11111111111"], returns: false },
+            { args: ["52998224725"], returns: true }
+          ]
+        },
+        format: {
+          params: [{ name: "cpf", type: "string" }],
+          returns: "string?",
+          tests: [
+            { args: ["52998224725"], returns: "529.982.247-25" },
+            { args: ["x"], returns: null }
+          ]
+        },
+        generate: { params: [], returns: "string", tests: [{ args: [], satisfies: "cpf.isValid", repeat: 3 }] },
+        parse: { params: [{ name: "v", type: "string" }], returns: "string" }
+      }
+    }
   });
   const contract = loadContract(dir);
   const impls = {

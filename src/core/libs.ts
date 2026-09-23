@@ -1,13 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
-import YAML from "yaml";
 import { z } from "zod";
 import type { Contract, Issue, LibConfig } from "./model.js";
 
-const LibSchema = z
+export const LibSchema = z
   .object({
+    $schema: z.string().optional(),
     name: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
     language: z.string().min(1),
+    /** Free text for maintainers (JSON has no comments). */
+    notes: z.string().optional(),
     repo: z.string().url().optional(),
     branch: z.string().optional(),
     entry: z.string().default("."),
@@ -22,16 +24,23 @@ const LibSchema = z
 export function loadLibConfigs(dir: string): LibConfig[] {
   const problems: string[] = [];
   const libs: LibConfig[] = [];
-  for (const file of fs.readdirSync(dir).filter((f) => /\.ya?ml$/.test(f)).sort()) {
+  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
     const rel = path.join(path.basename(dir), file);
-    const raw = YAML.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    let raw: unknown;
+    try {
+      raw = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    } catch (e) {
+      problems.push(`${rel}: JSON error: ${(e as Error).message}`);
+      continue;
+    }
     const parsed = LibSchema.safeParse(raw);
     if (!parsed.success) {
       for (const issue of parsed.error.issues) problems.push(`${rel}: ${issue.path.join(".") || "(root)"}: ${issue.message}`);
       continue;
     }
-    if (`${parsed.data.name}.yaml` !== file) problems.push(`${rel}: lib "${parsed.data.name}" must live in ${parsed.data.name}.yaml`);
-    libs.push({ ...parsed.data, source: rel });
+    if (`${parsed.data.name}.json` !== file) problems.push(`${rel}: lib "${parsed.data.name}" must live in ${parsed.data.name}.json`);
+    const { $schema: _schema, notes: _notes, ...config } = parsed.data;
+    libs.push({ ...config, source: rel });
   }
   if (problems.length > 0) throw new Error(`Invalid lib config:\n  - ${problems.join("\n  - ")}`);
   return libs;

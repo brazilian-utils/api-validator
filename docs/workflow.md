@@ -12,7 +12,7 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
 ```
                     ┌──────────────────────────────────────────────┐
                     │ api-validator (this repo)                    │
-                    │  contract/*.yaml  = names + input/output     │
+                    │  contract/*.json  = names + input/output     │
                     │                     + shared test vectors    │
                     └───────┬───────────────────────────▲──────────┘
              contract change│ merged                    │ PR: new function,
@@ -41,7 +41,7 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
 
 ### 1. Adding a function
 
-1. **Contract PR** (this repo): add the function to `contract/<domain>.yaml` with its
+1. **Contract PR** (this repo): add the function to `contract/<domain>.json` with its
    signature and test vectors. Run `api-validator diff --fn '<domain>.*'` if other libs
    already have something similar, to see how they behave today.
 2. The PR's Conformance run shows which libs have it (usually none yet). Nothing breaks:
@@ -81,7 +81,7 @@ accept `"00000000000"` as a valid PIS, and that Python rejects CNHs the other li
 `isValid` accept a formatted CPF? does `format` of an invalid value return `null`, `""`
 or the input?). These are decided once, in the contract, by adding the vector — see
 [findings.md](findings.md) for the current list. Until a lib converges, it can list the
-vector under `knownFailures` in its `libs/<lib>.yaml` with the reason, which keeps it
+vector under `knownFailures` in its `libs/<lib>.json` with the reason, which keeps it
 visible without failing CI.
 
 ## Tests: here, and in the libs too

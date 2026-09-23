@@ -3,19 +3,19 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { Command, Option } from "commander";
-import YAML from "yaml";
 import { analyzeLib, bindLib, extractSurface } from "./core/analyze.js";
 import { json, skipsFor, suiteFiles, type Outcomes } from "./core/cases.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
 import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { loadContract } from "./core/contract.js";
-import { formatContractDir } from "./core/format-contract.js";
+import { formatContractDir, formatDir, schemaFiles } from "./core/format-contract.js";
+import { formatJson, orderDomain } from "./core/jsonfmt.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
 import { differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
-import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, REPOS_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
+import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
 import { run, which } from "./core/shell.js";
 import { getAdapter } from "./languages/registry.js";
@@ -42,26 +42,17 @@ function writeFile(file: string, content: string) {
   fs.writeFileSync(file, content.endsWith("\n") ? content : `${content}\n`);
 }
 
-/** Append tests to functions of a contract file, keeping its formatting and comments. */
+/** Append tests to functions of a contract file (then `fmt` puts it in canonical form). */
 function appendTests(file: string, ops: Record<string, Array<Record<string, unknown>>>): number {
-  const doc = YAML.parseDocument(fs.readFileSync(file, "utf8"));
+  const doc = JSON.parse(fs.readFileSync(file, "utf8")) as { functions: Record<string, { tests?: unknown[] }> };
   let added = 0;
   for (const [op, tests] of Object.entries(ops)) {
-    const fnNode = doc.getIn(["functions", op]) as YAML.YAMLMap | undefined;
-    if (!fnNode) continue;
-    let list = fnNode.get("tests") as YAML.YAMLSeq | undefined;
-    if (!list) {
-      list = doc.createNode([]) as YAML.YAMLSeq;
-      fnNode.set("tests", list);
-    }
-    for (const t of tests) {
-      const node = doc.createNode(t) as YAML.YAMLMap;
-      (node.get("args", true) as unknown as YAML.YAMLSeq).flow = true;
-      list.add(node);
-      added++;
-    }
+    const fn = doc.functions[op];
+    if (!fn) continue;
+    (fn.tests ??= []).push(...tests);
+    added += tests.length;
   }
-  fs.writeFileSync(file, doc.toString({ lineWidth: 140 }));
+  fs.writeFileSync(file, formatJson(orderDomain(doc as never)));
   return added;
 }
 
@@ -225,20 +216,39 @@ program
 
 program
   .command("fmt")
-  .description("Format contract files canonically (key order, quoted test strings)")
-  .option("--check", "only report files that are not formatted (for CI)")
+  .description("Format contract/*.json and libs/*.json canonically and regenerate schema/ (editor validation)")
+  .option("--check", "only report files that are not formatted or schemas that are stale (for CI)")
   .action((opts) => {
-    if (opts.check) {
-      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-fmt-"));
-      fs.cpSync(CONTRACT_DIR, tmp, { recursive: true });
-      const changed = formatContractDir(tmp);
-      fs.rmSync(tmp, { recursive: true, force: true });
-      for (const f of changed) console.log(`not formatted: contract/${f}`);
-      if (changed.length) process.exitCode = 1;
-      return;
+    const dirs: Array<[string, "contract" | "lib", string]> = [
+      [CONTRACT_DIR, "contract", "contract"],
+      [LIBS_DIR, "lib", "libs"]
+    ];
+    let bad = 0;
+    for (const [dir, kind, label] of dirs) {
+      const tmp = opts.check ? fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-fmt-")) : dir;
+      if (opts.check) fs.cpSync(dir, tmp, { recursive: true });
+      for (const f of formatDir(tmp, kind)) {
+        console.log(`${opts.check ? "not formatted" : "formatted"}: ${label}/${f}`);
+        bad++;
+      }
+      if (opts.check) fs.rmSync(tmp, { recursive: true, force: true });
     }
-    for (const f of formatContractDir(CONTRACT_DIR)) console.log(`formatted contract/${f}`);
-    loadContract(CONTRACT_DIR);
+    for (const [name, content] of schemaFiles()) {
+      const file = path.join(SCHEMA_DIR, name);
+      if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === content) continue;
+      if (opts.check) {
+        console.log(`stale: schema/${name}`);
+        bad++;
+      } else {
+        writeFile(file, content);
+        console.log(`wrote schema/${name}`);
+      }
+    }
+    if (opts.check && bad) process.exitCode = 1;
+    if (!opts.check) {
+      loadContract(CONTRACT_DIR);
+      loadLibConfigs(LIBS_DIR);
+    }
   });
 
 program
@@ -561,10 +571,10 @@ program
   .option("-f, --fn <glob>", "contract functions to test, e.g. 'cpf.*' (default: all)")
   .option("-l, --lib <names...>", "only these libs")
   .option("--reference <lib>", "lib used to generate inputs and break ties", "brazilian-utils-javascript")
-  .option("--propose", "write majority answers as test proposals to contract/_proposals/<domain>.yaml")
+  .option("--propose", "write majority answers as test proposals to contract/_proposals/<domain>.json")
   .option("--unanimous", "with --propose: only inputs where every lib that answered agrees")
   .option("--min-libs <n>", "with --propose: minimum number of agreeing libs", "3")
-  .option("--apply", "with --propose: append the proposals straight into contract/<domain>.yaml")
+  .option("--apply", "with --propose: append the proposals straight into contract/<domain>.json")
   .option("--show-agreement", "also list inputs where every lib agrees")
   .option("--network", "include functions that call remote services")
   .option("--baseline", "record how libs split today as known divergences (baselines/_divergences.json)")
@@ -636,22 +646,28 @@ program
     console.log(`\n${divergent ? c.yellow(`${divergent} divergent inputs`) : c.green("no divergence")} across ${rows.length} compared calls. Report: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, "diff.md"))}`);
     if (opts.apply) {
       for (const [domain, ops] of proposals) {
-        const n = appendTests(path.join(CONTRACT_DIR, `${domain}.yaml`), ops);
+        const n = appendTests(path.join(CONTRACT_DIR, `${domain}.json`), ops);
         formatContractDir(CONTRACT_DIR);
-        console.log(c.cyan(`contract/${domain}.yaml: +${n} tests`));
+        console.log(c.cyan(`contract/${domain}.json: +${n} tests`));
       }
       return;
     }
     for (const [domain, ops] of proposals) {
-      const file = path.join(CONTRACT_DIR, "_proposals", `${domain}.yaml`);
-      writeFile(file, `# Test proposals mined by \`api-validator diff\` (majority answer, ties -> ${opts.reference}).\n# Review each one, move the good ones into contract/${domain}.yaml under the function's \`tests\`, delete this file.\n${YAML.stringify(ops, { lineWidth: 140 })}`);
+      const file = path.join(CONTRACT_DIR, "_proposals", `${domain}.json`);
+      writeFile(
+        file,
+        formatJson({
+          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${opts.reference}). Review each one, move the good ones into contract/${domain}.json under the function's tests, delete this file.`,
+          functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
+        })
+      );
       console.log(c.cyan(`proposals: ${path.relative(process.cwd(), file)}`));
     }
   });
 
 program
   .command("suggest")
-  .description("Propose contract entries (YAML) for public symbols of a lib that the contract does not cover")
+  .description("Propose lib-config bindings (JSON) for public symbols of a lib that the contract does not cover")
   .requiredOption("-l, --lib <name>", "lib")
   .option("-p, --path <dir>", "lib checkout to use")
   .action(async (opts) => {
@@ -660,12 +676,12 @@ program
     const orphans = report.unmapped.filter((u) => u.suggestions.length === 0);
     const bindable = report.unmapped.filter((u) => u.suggestions.length > 0);
     if (bindable.length) {
-      console.log("# Probably existing contract functions under another name -> libs/<lib>.yaml");
-      console.log(YAML.stringify({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }));
+      console.log(`Probably existing contract functions under another name -> "bindings" in libs/${report.library}.json:`);
+      console.log(formatJson({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }));
     }
     if (orphans.length) {
-      console.log("# Not in the contract -> propose in contract/<domain>.yaml, or add to `ignore`");
-      for (const u of orphans) console.log(`#   ${u.symbol}${u.location ? `  (${u.location.file}:${u.location.line})` : ""}`);
+      console.log("Not in the contract -> propose in contract/<domain>.json, or add to \"ignore\":");
+      for (const u of orphans) console.log(`  ${u.symbol}${u.location ? `  (${u.location.file}:${u.location.line})` : ""}`);
     }
   });
 

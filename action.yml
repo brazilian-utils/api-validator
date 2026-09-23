@@ -10,7 +10,7 @@ branding:
 
 inputs:
   library:
-    description: Lib name as in libs/<name>.yaml, e.g. brazilian-utils-python
+    description: Lib name as in libs/<name>.json, e.g. brazilian-utils-python
     required: true
   path:
     description: Path of the lib checkout

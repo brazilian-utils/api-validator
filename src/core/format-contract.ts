@@ -1,57 +1,49 @@
 /**
- * Canonical formatting of contract files (`api-validator fmt`): stable key order and
- * double-quoted strings inside tests, so `"01310200"` can never silently become the
- * number 1310200 when someone edits a vector by hand.
+ * Canonical formatting of the hand-edited JSON (`api-validator fmt`): contract/*.json and
+ * libs/*.json in a stable key order, one test case per line (see jsonfmt.ts), and the JSON
+ * Schemas in schema/ that editors use to validate and autocomplete those files.
  */
 import fs from "node:fs";
 import path from "node:path";
-import YAML from "yaml";
+import { z } from "zod";
+import { DomainFileSchema } from "./contract.js";
+import { formatJson, orderDomain, orderLib } from "./jsonfmt.js";
+import { LibSchema } from "./libs.js";
 
-const DOMAIN_ORDER = ["domain", "title", "description", "aliases", "functions"];
-const FN_ORDER = ["summary", "description", "references", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"];
-const TEST_ORDER = ["name", "args", "returns", "throws", "matches", "satisfies", "repeat", "note"];
+type Kind = "contract" | "lib";
 
-function reorder(map: YAML.YAMLMap, order: string[]) {
-  const rank = (k: unknown) => {
-    const i = order.indexOf(String((k as YAML.Scalar).value ?? k));
-    return i < 0 ? order.length : i;
-  };
-  map.items.sort((a, b) => rank(a.key) - rank(b.key));
-}
-
-function quoteStrings(node: unknown) {
-  if (YAML.isScalar(node) && typeof node.value === "string") node.type = "QUOTE_DOUBLE";
-  else if (YAML.isSeq(node)) node.items.forEach(quoteStrings);
-  else if (YAML.isMap(node)) node.items.forEach((p) => quoteStrings(p.value));
-}
-
-export function formatContractFile(file: string): boolean {
-  const before = fs.readFileSync(file, "utf8");
-  const doc = YAML.parseDocument(before);
-  const root = doc.contents as YAML.YAMLMap;
-  reorder(root, DOMAIN_ORDER);
-  const fns = root.get("functions") as YAML.YAMLMap | undefined;
-  for (const pair of fns?.items ?? []) {
-    const fn = pair.value as YAML.YAMLMap;
-    reorder(fn, FN_ORDER);
-    for (const t of (fn.get("tests") as YAML.YAMLSeq | undefined)?.items ?? []) {
-      const test = t as YAML.YAMLMap;
-      reorder(test, TEST_ORDER);
-      const args = test.get("args", true) as unknown as YAML.YAMLSeq | undefined;
-      if (args) args.flow = true;
-      quoteStrings(args);
-      quoteStrings(test.get("returns", true));
-      quoteStrings(test.get("matches", true));
+/** Format every `*.json` of a dir in place; returns the names of the files that changed. */
+export function formatDir(dir: string, kind: Kind): string[] {
+  const changed: string[] = [];
+  for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
+    const file = path.join(dir, f);
+    const before = fs.readFileSync(file, "utf8");
+    let doc: Record<string, never>;
+    try {
+      doc = JSON.parse(before);
+    } catch {
+      continue; // lint reports it
+    }
+    const after = formatJson(kind === "contract" ? orderDomain(doc) : orderLib(doc));
+    if (after !== before) {
+      fs.writeFileSync(file, after);
+      changed.push(f);
     }
   }
-  const after = doc.toString({ lineWidth: 140, flowCollectionPadding: false });
-  if (after !== before) fs.writeFileSync(file, after);
-  return after !== before;
+  return changed;
 }
 
+/** Back-compat name used by `diff --apply`. */
 export function formatContractDir(dir: string): string[] {
-  return fs
-    .readdirSync(dir)
-    .filter((f) => /\.ya?ml$/.test(f))
-    .filter((f) => formatContractFile(path.join(dir, f)));
+  return formatDir(dir, "contract");
+}
+
+/** JSON Schemas of the edited files, generated from the validation schemas (never drift). */
+export function schemaFiles(): Map<string, string> {
+  const gen = (schema: z.ZodType, title: string) =>
+    formatJson({ ...z.toJSONSchema(schema, { io: "input", unrepresentable: "any" }), title });
+  return new Map([
+    ["contract.schema.json", gen(DomainFileSchema, "brazilian-utils contract: one domain (contract/<domain>.json)")],
+    ["lib.schema.json", gen(LibSchema, "brazilian-utils lib config (libs/<name>.json)")]
+  ]);
 }

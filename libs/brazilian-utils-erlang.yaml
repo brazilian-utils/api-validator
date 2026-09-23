@@ -1,6 +1,0 @@
-name: brazilian-utils-erlang
-language: erlang
-repo: https://github.com/brazilian-utils/erlang
-entry: src
-options:
-  app: brutils

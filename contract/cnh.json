@@ -1,0 +1,90 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cnh",
+  "title": "CNH — Carteira Nacional de Habilitação",
+  "description": "The Brazilian driver's license registry number.",
+  "functions": {
+    "format": {
+      "summary": "Formats a Brazilian CNH (Carteira Nacional de Habilitação) number.",
+      "description": [
+        "Formats a CNH number as `000000000-00` (9 digits, hyphen, 2 check digits).",
+        "",
+        "- `options.pad` left-pads the value with zeros to 11 digits first."
+      ],
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
+      ],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCnhOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["00000000119"], "returns": "000000001-19" },
+        { "name": "remasks", "args": ["000.000.001-19"], "returns": "000000001-19" },
+        { "name": "partial", "args": ["0000000011"], "returns": "000000001-1" },
+        { "name": "empty", "args": [""], "returns": "" }
+      ]
+    },
+    "generate": {
+      "summary": "Generates a valid random CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number).",
+      "description": ["Generates a valid random CNH number: 11 digits, unformatted, that pass `cnh.isValid`."],
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
+      ],
+      "params": [],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "cnh.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": "Validates if a CNH (Carteira Nacional de Habilitação, the Brazilian driver's license number) is valid.",
+      "description": [
+        "Validates a CNH registry number: 9 digits plus 2 check digits (Resolução CONTRAN nº 886/2021, art. 4º).",
+        "",
+        "- Spaces, dots and hyphens are ignored; any other character makes the value invalid.",
+        "- A value whose 11 digits are all the same is rejected.",
+        "- Pending decision (findings §1): the reference (JS) keeps a remainder of 1 in the first check digit as `1`, as real registry numbers do (art. 4º § 1º says `0`); Python and Erlang implement a different (2022) algorithm."
+      ],
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["73918433737"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["73918433738"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["55677801844"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["55677801845"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["02578228759"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["02578228750"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["739184337-37"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["556778018-44"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["025782287-59"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "name": "valid-sample", "args": ["75206264506"], "returns": true, "note": "valid CNH for go, javascript, ruby and rust; python implements the 2022 CNH algorithm and rejects it: confirm which rule the contract follows (docs/findings.md)" }
+      ]
+    },
+    "parse": {
+      "summary": "Removes CNH (Carteira Nacional de Habilitação) formatting characters and returns only digits.",
+      "description": ["Removes CNH formatting and keeps only digits, capped to 11 digits."],
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/Resolucao8862021F.pdf"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["000000001-19"], "returns": "00000000119" },
+        { "name": "unmasked", "args": ["00000000119"], "returns": "00000000119" },
+        { "name": "strips-non-digits", "args": ["000.abc000001-19"], "returns": "00000000119" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["00000000119123"], "returns": "00000000119", "note": "reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests" }
+      ]
+    }
+  }
+}

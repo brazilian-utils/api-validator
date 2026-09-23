@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "pis",
+  "title": "PIS — Programa de Integração Social",
+  "description": "The PIS/PASEP/NIT worker registration number.",
+  "functions": {
+    "format": {
+      "summary": "Formats a PIS (Programa de Integração Social) number according to the specified pattern.",
+      "description": [
+        "Formats a PIS as `000.00000.00-0`.",
+        "",
+        "- `options.pad` left-pads the value with zeros to 11 digits first.",
+        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
+      ],
+      "references": [
+        "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
+        "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
+        "https://www.sirc.gov.br/wp-content/uploads/manual_sirc_recomendacoes_tecnicas_v7.pdf"
+      ],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatPisOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["55984775363"], "returns": "559.84775.36-3", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "000.00000.00-0", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["36365790380"], "returns": "363.65790.38-0", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["73532010294"], "returns": "735.32010.29-4", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+      ]
+    },
+    "generate": {
+      "summary": "Generates a valid random Brazilian PIS (Programa de Integração Social) number.",
+      "description": ["Generates a valid random PIS: 11 digits, unformatted."],
+      "references": [
+        "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
+        "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
+        "https://www.sirc.gov.br/wp-content/uploads/manual_sirc_recomendacoes_tecnicas_v7.pdf"
+      ],
+      "level": "core",
+      "params": [],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "pis.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": "Validates a Brazilian PIS (Programa de Integração Social) number. Accepts the usual mask characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
+      "description": [
+        "Validates a PIS/PASEP/NIT: 10 base digits and a modulus 11 check digit.",
+        "",
+        "- Pending decision (findings §1): the reference (JS) rejects a value whose digits are all the same as a reserved number; six libs accept them when the check digit matches.",
+        "- Pending decision (findings §2 #1): the reference (JS) ignores the usual mask characters and whitespace; other libs accept digits only."
+      ],
+      "references": [
+        "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
+        "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
+        "https://www.sirc.gov.br/wp-content/uploads/manual_sirc_recomendacoes_tecnicas_v7.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "pis", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["55984775363"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["55984775364"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["36365790380"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["36365790381"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["73532010294"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["73532010295"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "name": "repeated-digits", "args": ["00000000000"], "returns": false, "note": "a PIS made of one repeated digit is never valid (same rule as cpf/cnpj, where all libs agree)" },
+        { "name": "repeated-digits-9", "args": ["99999999999"], "returns": false, "note": "same rule as above" }
+      ]
+    },
+    "parse": {
+      "summary": "Removes PIS formatting characters and returns only digits.",
+      "description": ["Removes PIS formatting and keeps only digits, capped to 11 digits."],
+      "references": [
+        "https://www.gov.br/inss/pt-br/direitos-e-deveres/inscricao-e-contribuicao/inscricao",
+        "https://www.gov.br/esocial/pt-br/documentacao-tecnica/manuais/mos-manual-de-orientacao-do-esocial-vs-2-4.pdf",
+        "https://www.sirc.gov.br/wp-content/uploads/manual_sirc_recomendacoes_tecnicas_v7.pdf"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["123.45678.90-1"], "returns": "12345678901" },
+        { "name": "unmasked", "args": ["12345678901"], "returns": "12345678901" },
+        { "name": "strips-non-digits", "args": ["123#Error*&@#45678#Char!90-1"], "returns": "12345678901" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["12345678901123"], "returns": "12345678901", "note": "reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests" }
+      ]
+    },
+    "removeSymbols": {
+      "summary": "Removes the formatting symbols (keeps everything else).",
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["55984775363"], "returns": "55984775363", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["55984775364"], "returns": "55984775364", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["36365790380"], "returns": "36365790380", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["36365790381"], "returns": "36365790381", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["73532010294"], "returns": "73532010294", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["73532010295"], "returns": "73532010295", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["559.84775.36-3"], "returns": "55984775363", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["363.65790.38-0"], "returns": "36365790380", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["735.32010.29-4"], "returns": "73532010294", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+      ]
+    }
+  }
+}

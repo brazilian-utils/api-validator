@@ -17,7 +17,7 @@ export const kotlin: LanguageAdapter = {
 };
 ```
 
-Then add `libs/<name>.yaml` (`language: kotlin`), run `api-validator check -l <name> -v`,
+Then add `libs/<name>.json` (`"language": "kotlin"`), run `api-validator check -l <name> -v`,
 and add a fixture + tests under `test/`.
 
 ## 1. `candidates(fn, lib)` — naming conventions
@@ -114,4 +114,4 @@ cases the harness fails must be exactly the ones `check --tests` fails.
 - [ ] `tools` listed (so `api-validator doctor` checks them)
 - [ ] the lib's harness (`templates/harness/<id>/`), parity with `check --tests` verified
 - [ ] toolchain added to `.github/workflows/ci.yml` and `conformance.yml`
-- [ ] `libs/<name>.yaml` + `api-validator baseline -l <name> --tests`
+- [ ] `libs/<name>.json` + `api-validator baseline -l <name> --tests`

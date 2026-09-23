@@ -126,7 +126,7 @@ export function indexJson(contract: Contract, files: Map<string, DomainJson>) {
   const fns = [...files.values()].flatMap((d) => d.functions);
   return {
     format: CASES_FORMAT,
-    generatedBy: "brazilian-utils/api-validator from contract/*.yaml. Do not edit: change the contract.",
+    generatedBy: "brazilian-utils/api-validator from contract/*.json. Do not edit: change the contract.",
     digest: digestOf(files),
     functions: fns.length,
     cases: fns.reduce((n, f) => n + f.cases.length, 0),

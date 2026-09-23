@@ -1,0 +1,161 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cep",
+  "title": "CEP — Código de Endereçamento Postal",
+  "description": "Brazilian postal codes: validation, formatting and address lookup.",
+  "functions": {
+    "format": {
+      "summary": "Formats a given value as a Brazilian postal code (CEP).",
+      "description": [
+        "Formats a CEP as `00000-000`.",
+        "",
+        "- `options.pad` left-pads the value with zeros to 8 digits first; a CEP starting with `0` given as a number loses that zero otherwise.",
+        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
+      ],
+      "references": [
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
+      ],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCepOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["91906292"], "returns": "91906-292", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["91906293"], "returns": "91906-293", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000"], "returns": "00000-000", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["21749676"], "returns": "21749-676", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["21749677"], "returns": "21749-677", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["41790070"], "returns": "41790-070", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["41790071"], "returns": "41790-071", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+      ]
+    },
+    "generate": {
+      "summary": "Generates a random Brazilian CEP (postal code).",
+      "description": [
+        "Generates a random CEP: 8 digits, unformatted.",
+        "",
+        "- A CEP has no check digit, so every 8-digit string is structurally valid."
+      ],
+      "references": [
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
+      ],
+      "level": "core",
+      "params": [],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "cep.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "getAddressInfo": {
+      "summary": "Fetches address information for a given CEP using multiple providers simultaneously. Returns the result from the first provider that responds successfully.",
+      "description": [
+        "Fetches the address of a CEP from several providers at once and returns the first successful answer (network call).",
+        "",
+        "- `cep` may be a string or a number; a number is left-padded with zeros to 8 digits.",
+        "- The result carries the CEP, state, city, neighborhood and street.",
+        "- `options.providers` picks which providers to query.",
+        "- Transient network failures are retried per provider.",
+        "- Fails with an error, distinguishing an invalid CEP or provider list, a CEP no provider knows, and a service failure."
+      ],
+      "references": ["https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep"],
+      "flatName": "getAddressInfoByCep",
+      "aliases": ["cep.getAddressFromCep", "cep.getAddress"],
+      "level": "core",
+      "network": true,
+      "params": [
+        { "name": "cep", "type": "string | number" },
+        { "name": "options", "type": "GetAddressInfoByCepOptions", "optional": true }
+      ],
+      "returns": "AddressInfo"
+    },
+    "getInfoByAddress": {
+      "summary": "Looks every CEP of a Brazilian street up on the ViaCEP API.",
+      "description": [
+        "Looks up every CEP of a street on the ViaCEP service (network call).",
+        "",
+        "- `params` carries the state (federative unit, case-insensitive), the city and the street; city and street are trimmed and stripped of accents before the query.",
+        "- Each result is the ViaCEP record unchanged.",
+        "- Transient network failures are retried.",
+        "- Fails with an error, distinguishing a missing or invalid state/city/street, an address with no match, and an HTTP error from the service."
+      ],
+      "references": ["https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep"],
+      "flatName": "getCepInfoByAddress",
+      "aliases": ["cep.getCepInformationFromAddress", "cep.getCepFromAddress"],
+      "level": "core",
+      "network": true,
+      "params": [{ "name": "params", "type": "GetCepInfoByAddressParams" }],
+      "returns": "CepAddressInfo[]"
+    },
+    "isValid": {
+      "summary": "Validates if a CEP (Brazilian postal code) is valid.",
+      "description": [
+        "Validates a CEP: exactly 8 digits.",
+        "",
+        "- `cep` may be a string or a number; a CEP starting with `0` has to be a string.",
+        "- Letters or other characters make the value invalid.",
+        "- Pending decision (findings §2 #1): the reference (JS) ignores spaces, dots and hyphens (`01310-200` is valid); other libs accept digits only."
+      ],
+      "references": [
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
+      ],
+      "level": "core",
+      "params": [{ "name": "cep", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["91906292"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["91906293"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["21749676"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["21749677"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["41790070"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["41790071"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+      ]
+    },
+    "parse": {
+      "summary": "Removes CEP formatting characters and returns only digits.",
+      "description": ["Removes CEP formatting and keeps only digits, capped to 8 digits."],
+      "references": [
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/tudo-sobre-cep",
+        "https://www.correios.com.br/enviar/precisa-de-ajuda/guia-de-enderecamento/guia-de-enderecamento"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["01001-000"], "returns": "01001000" },
+        { "name": "unmasked", "args": ["01001000"], "returns": "01001000" },
+        { "name": "strips-non-digits", "args": ["a0.10cr01?00#ab0"], "returns": "01001000" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["01001000123"], "returns": "01001000", "note": "reference truncates to the 8 characters of the document; asserted by the reference (JS) unit tests" }
+      ]
+    },
+    "removeSymbols": {
+      "summary": "Removes the formatting symbols (keeps everything else).",
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["91906292"], "returns": "91906292", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["91906293"], "returns": "91906293", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["00000000"], "returns": "00000000", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["21749676"], "returns": "21749676", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["21749677"], "returns": "21749677", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["41790070"], "returns": "41790070", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["41790071"], "returns": "41790071", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["91906-292"], "returns": "91906292", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["21749-676"], "returns": "21749676", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["41790-070"], "returns": "41790070", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+      ]
+    }
+  }
+}

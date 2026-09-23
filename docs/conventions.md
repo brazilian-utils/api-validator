@@ -1,6 +1,6 @@
 # Cross-cutting conventions
 
-Rules that hold for every contract function unless its `description` in `contract/<domain>.yaml`
+Rules that hold for every contract function unless its `description` in `contract/<domain>.json`
 says otherwise. They come from the "Conventions" section of the reference (JavaScript) docs,
 checked against what the seven libs actually do (`api-validator check --tests` and `diff`,
 recorded in [findings.md](findings.md)).

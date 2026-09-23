@@ -7,7 +7,7 @@ that checks every implementation against it. Read [docs/workflow.md](docs/workfl
 
 The contract is the single source of truth for names, inputs, outputs and behaviour.
 
-- **New function:** add it to `contract/<domain>.yaml` with a `summary`, `params`, `returns`
+- **New function:** add it to `contract/<domain>.json` with a `summary`, `params`, `returns`
   and test vectors. If some lib already has it, run `npx tsx src/cli.ts diff --fn '<domain>.*'`
   to see how the existing implementations behave before writing the vectors.
 - **Bug fix in any lib:** add the vector that exposes the bug here first. It then runs against
@@ -15,7 +15,7 @@ The contract is the single source of truth for names, inputs, outputs and behavi
 - **Behaviour decision** (see [docs/findings.md](docs/findings.md)): add the vector with a
   `note` saying what was decided and why.
 - **Names:** the contract uses `domain.operation` in camelCase; each language adapter derives
-  the idiomatic name. A lib that uses another name gets a `bindings` entry in `libs/<lib>.yaml`;
+  the idiomatic name. A lib that uses another name gets a `bindings` entry in `libs/<lib>.json`;
   a name several libs share can become a contract `aliases` entry instead.
 
 Then `npx tsx src/cli.ts fmt && npm run lint`, and open the PR. The Conformance job on the PR
@@ -26,7 +26,7 @@ PR refreshing its `api-contract/` copy of the suite.
 
 ## Changing a lib config
 
-`libs/<lib>.yaml`: `bindings` for irregular names, `ignore` for public symbols that are
+`libs/<lib>.json`: `bindings` for irregular names, `ignore` for public symbols that are
 deliberately outside the contract, `waivers` for functions a lib will not implement (with the
 reason), `knownFailures` for vectors a lib is known to fail while the fix is in progress.
 

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "language": { "type": "string", "minLength": 1 },
+    "notes": { "type": "string" },
+    "repo": { "type": "string", "format": "uri" },
+    "branch": { "type": "string" },
+    "entry": { "default": ".", "type": "string" },
+    "bindings": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": {
+        "anyOf": [{ "type": "string" }, { "minItems": 1, "type": "array", "items": { "type": "string" } }]
+      }
+    },
+    "ignore": { "default": [], "type": "array", "items": { "type": "string" } },
+    "waivers": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "knownFailures": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "options": { "default": {}, "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": {} }
+  },
+  "required": ["name", "language"],
+  "additionalProperties": false,
+  "title": "brazilian-utils lib config (libs/<name>.json)"
+}

@@ -1,0 +1,8 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-go",
+  "language": "go",
+  "repo": "https://github.com/brazilian-utils/go",
+  "entry": ".",
+  "ignore": ["helpers.*"]
+}

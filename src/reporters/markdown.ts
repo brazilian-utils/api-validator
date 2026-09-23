@@ -119,9 +119,8 @@ export function libMarkdown(report: LibReport, contract: Contract, diff?: Baseli
       out.push("");
       out.push("Suggested `bindings` (verify before copying into the lib config):");
       out.push("");
-      out.push("```yaml");
-      out.push("bindings:");
-      for (const u of bindable) out.push(`  ${u.suggestions[0].id}: ${u.symbol}`);
+      out.push("```json");
+      out.push(JSON.stringify({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }, null, 2));
       out.push("```");
     }
     out.push("");

@@ -1,0 +1,113 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "cpf",
+  "title": "CPF — Cadastro de Pessoas Físicas",
+  "description": "The Brazilian individual taxpayer id.",
+  "functions": {
+    "format": {
+      "summary": "Formats a given CPF (Cadastro de Pessoas Físicas) value according to the Brazilian standard.",
+      "description": [
+        "Formats a CPF as `000.000.000-00`.",
+        "",
+        "- `options.pad` left-pads the value with zeros to 11 digits first.",
+        "- `options.obfuscate` hides the first 3 digits and the 2 check digits with `*`, after padding.",
+        "- Pending decision (findings §2 #2, #3): the reference (JS) masks an incomplete value as far as it goes and returns an empty string for empty or garbage input; other libs return null."
+      ],
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf"],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCpfOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["83159562131"], "returns": "831.595.621-31", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["02746891972"], "returns": "027.468.919-72", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["52708175602"], "returns": "527.081.756-02", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+      ]
+    },
+    "generate": {
+      "summary": "Generates a valid random CPF (Cadastro de Pessoas Físicas).",
+      "description": [
+        "Generates a valid random CPF: 11 digits, unformatted.",
+        "",
+        "- `state` (a state code such as `SP`) fixes the 9th digit, the região fiscal, to that state's code; without it, or with an unknown code, the digit is random."
+      ],
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf",
+        "https://www.gov.br/receitafederal/pt-br/assuntos/educacao-fiscal/educacao_fiscal/folhetos-orientativos/cadastros-dig.pdf",
+        "https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=151372"
+      ],
+      "level": "core",
+      "params": [{ "name": "state", "type": "string", "optional": true }],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "cpf.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": "Validates if a CPF (Cadastro de Pessoas Físicas) is valid. Accepts the usual mask characters (`.`, `-`) and whitespace around and between groups.",
+      "description": [
+        "Validates a CPF: 9 base digits and 2 modulus 11 check digits (REGRA_VALIDA_CPF of the Receita Federal).",
+        "",
+        "- A reserved number (all 11 digits the same, e.g. `00000000000`) is rejected.",
+        "- Empty, blank or non-numeric input is invalid.",
+        "- Pending decision (findings §2 #1): the reference (JS) ignores the mask characters (`.`, `-`) and whitespace around and between groups; other libs accept digits only."
+      ],
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf",
+        "https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=151372"
+      ],
+      "level": "core",
+      "params": [{ "name": "cpf", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["83159562131"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["83159562132"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["02746891972"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["02746891973"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["52708175602"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["52708175603"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+      ]
+    },
+    "parse": {
+      "summary": "Removes CPF formatting characters and returns only digits.",
+      "description": ["Removes CPF formatting and keeps only digits, capped to 11 digits."],
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/meu-cpf"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["943.895.751-04"], "returns": "94389575104" },
+        { "name": "unmasked", "args": ["94389575104"], "returns": "94389575104" },
+        { "name": "strips-non-digits", "args": ["943.?ABC895.751-04abc"], "returns": "94389575104" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["94389575104123"], "returns": "94389575104", "note": "reference truncates to the 11 characters of the document; asserted by the reference (JS) unit tests" }
+      ]
+    },
+    "removeSymbols": {
+      "summary": "Removes the formatting symbols (keeps everything else).",
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["83159562131"], "returns": "83159562131", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["83159562132"], "returns": "83159562132", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["02746891972"], "returns": "02746891972", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["02746891973"], "returns": "02746891973", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["52708175602"], "returns": "52708175602", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["52708175603"], "returns": "52708175603", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["831.595.621-31"], "returns": "83159562131", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["027.468.919-72"], "returns": "02746891972", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["527.081.756-02"], "returns": "52708175602", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["   "], "returns": "   ", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["abc"], "returns": "abc", "note": "consensus of 3 libs (python, ruby, rust)" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-javascript",
+  "language": "typescript",
+  "notes": "Reference implementation.",
+  "repo": "https://github.com/brazilian-utils/javascript",
+  "entry": "src/index.ts",
+  "ignore": ["toStandardSchema"]
+}

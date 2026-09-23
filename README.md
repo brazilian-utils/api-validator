@@ -4,7 +4,7 @@ Keeps the [brazilian-utils](https://github.com/brazilian-utils) implementations 
 JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang and .NET — one library in seven
 languages.
 
-- **Same API**: one language-agnostic contract (`contract/*.yaml`) declares every function,
+- **Same API**: one language-agnostic contract (`contract/*.json`) declares every function,
   its inputs and outputs; each language adapter checks the real, extracted API against it
   in that language's idiom (`cpf.isValid` → `isValidCpf` · `cpf.is_valid` · `cpf.IsValid` ·
   `CPFUtils.valid?` · `brutils:is_valid_cpf/1` · `Cpf.IsValid`).
@@ -57,7 +57,7 @@ toolchain is missing are still checked for API.
 | `probe <fn> <args...>` | Call one function with the same args in every lib, side by side |
 | `baseline [--tests]` | Record what conforms now; CI then fails only when it stops conforming |
 | `extract` | Write `snapshots/<lib>.api.json` (public API as extracted) |
-| `suggest -l <lib>` | YAML bindings for symbols that look like contract functions under other names |
+| `suggest -l <lib>` | JSON bindings for symbols that look like contract functions under other names |
 | `lint [--strict]` / `fmt [--check]` | Validate / canonically format the contract and lib configs; lists functions without test vectors (`--strict` fails on them) |
 
 ```console
@@ -130,9 +130,9 @@ implements them, iterates until the shared tests pass and opens a PR for review.
 ## How it works
 
 ```
-contract/*.yaml ──┐
+contract/*.json ──┐
                   ├─► match (conventions + bindings) ─► signature check ─► shared tests ─► report
-libs/*.yaml ──────┤         ▲
+libs/*.json ──────┤         ▲
 lib checkout ─► adapter.extract (native parser / reflection / scanner)
 ```
 
@@ -166,8 +166,8 @@ Contract and lib config format: [docs/contract.md](docs/contract.md).
 ## Layout
 
 ```
-contract/        the shared contract, one YAML per domain (+ tests)
-libs/            one YAML per implementation: repo, language, bindings, ignores, waivers
+contract/        the shared contract, one JSON per domain (+ tests)
+libs/            one JSON per implementation: repo, language, bindings, ignores, waivers
 baselines/       what conforms today, per lib (CI fails on regressions); _divergences.json = known splits
 snapshots/       extracted public API per lib (API changes show up in PR diffs)
 src/core/        contract, types, matching, signatures, conformance, diff, baselines

@@ -1,32 +1,63 @@
 # Contract reference
 
-One YAML file per domain in `contract/`, named after the domain. Files starting with `_`
-are ignored (e.g. `contract/_proposals/`). Validate with `api-validator lint`, format with
-`api-validator fmt` (CI runs `fmt --check`).
+One JSON file per domain in `contract/`, named after the domain. Files starting with `_` are
+ignored (e.g. `contract/_proposals/`). Validate with `api-validator lint`, format with
+`api-validator fmt` (CI runs `fmt --check`). Every file points at `schema/contract.schema.json`,
+so editors (VS Code, JetBrains…) validate and autocomplete it as you type.
 
-```yaml
-domain: legalProcess            # lowerCamelCase, = file name
-title: Legal process            # optional
-aliases: [processoJuridico]     # other names of the domain used by some libs
-functions:
-  isValid:                      # operation -> id "legalProcess.isValid"
-    summary: Checks whether a legal process number (NUP) is valid.
-    flatName: isValidLegalProcess   # facade name; default = operation + Domain
-    aliases: [lawsuit.check]        # other domain.operation spellings in use
-    level: core                     # core: every lib must have it; extended (default)
-    network: false                  # true: calls a remote service (skipped in tests/diff by default)
-    params:
-      - { name: value, type: string }
-      - { name: options, type: IsValidOptions, optional: true }
-    returns: boolean
-    tests:
-      - { args: ["68476506020233030000"], returns: true }
-      - { args: [""], returns: false }
-      - { args: ["x"], throws: true }                     # must fail (exception / error value)
-      - { args: [], matches: "^\\d{20}$", repeat: 3 }      # regex on a string result
-      - { args: [], satisfies: legalProcess.isValid, repeat: 5 }  # result fed to another function must return true
-      - { name: repeated-digits, args: ["0000"], returns: false, note: "why" }
+`fmt` keeps one test case per line, and writes multi-line text (`description`) as an array of
+lines, so a file reads like this:
+
+```json
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "legalProcess",
+  "title": "Legal process (número único de processo, CNJ)",
+  "aliases": ["processoJuridico"],
+  "functions": {
+    "isValid": {
+      "summary": "Checks whether a legal process number (NUP) is valid.",
+      "description": [
+        "Validates the 20-digit number: check digits (ISO 7064 MOD 97-10), segment and court.",
+        "",
+        "- Accepts the formatted form `NNNNNNN-DD.AAAA.J.TR.OOOO`."
+      ],
+      "references": ["https://atos.cnj.jus.br/atos/detalhar/119"],
+      "flatName": "isValidLegalProcess",
+      "aliases": ["lawsuit.check"],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string" },
+        { "name": "options", "type": "IsValidOptions", "optional": true }
+      ],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["68476506020233030000"], "returns": true },
+        { "args": [""], "returns": false },
+        { "args": ["x"], "throws": true },
+        { "args": [], "matches": "^\\d{20}$", "repeat": 3 },
+        { "args": [], "satisfies": "legalProcess.isValid", "repeat": 5 },
+        { "name": "repeated-digits", "args": ["0000"], "returns": false, "note": "why this case matters" }
+      ]
+    }
+  }
+}
 ```
+
+| Field | Meaning |
+|---|---|
+| `domain` | lowerCamelCase, same as the file name |
+| `aliases` (domain) | other names of the domain some libs use |
+| function key | the operation: `isValid` → id `legalProcess.isValid` |
+| `summary` | one sentence |
+| `description` | the language-neutral spec (markdown; string or array of lines): rules, edge cases, bad input |
+| `references` | official sources (laws, manuals, specs) |
+| `flatName` | facade name; default = operation + Domain (`isValidLegalProcess`) |
+| `aliases` (function) | other `domain.operation` spellings in use |
+| `level` | `core`: every lib must have it; `extended` (default) |
+| `network` | `true`: calls a remote service (skipped in tests and diff by default) |
+| `params`, `returns` | canonical types (below); `optional: true` for optional params |
+| `tests[]` | args + exactly one of `returns` (any JSON value), `throws: true` (must fail), `matches` (regex on a string result), `satisfies` (result fed to that function must return `true`); optional `name`, `repeat`, `note` |
 
 ## Canonical types
 
@@ -50,19 +81,33 @@ case/separator-insensitively (`zipCode` == `zip_code`) and absent == `null`.
 Mined vectors (`api-validator diff --propose --unanimous --apply`) carry a `note` saying
 which libs agreed.
 
-## Lib config (`libs/<name>.yaml`)
+## Lib config (`libs/<name>.json`)
 
-```yaml
-name: brazilian-utils-python
-language: python             # adapter id or alias
-repo: https://github.com/brazilian-utils/python
-entry: brutils               # adapter-specific: package dir, entry file, src dir...
-bindings:                    # contract id -> native symbol(s) when conventions don't find it
-  state.getCodeByName: ibge.uf.convert_name_to_uf
-ignore: ["*.sieve"]          # public symbols that are intentionally outside the contract
-waivers:                     # contract functions this lib will not implement, with reason
-  cep.getAddressInfo: "no network access in this runtime"
-knownFailures:               # test (or function) ids expected to fail for now, with reason
-  pis.isValid#repeated-digits: "fix in progress (#123)"
-options: { namespace: BrazilianUtils }   # adapter options
+Validated by `schema/lib.schema.json`.
+
+```json
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-python",
+  "language": "python",
+  "notes": "Free text for maintainers (JSON has no comments).",
+  "repo": "https://github.com/brazilian-utils/python",
+  "entry": "brutils",
+  "options": { "namespace": "BrazilianUtils" },
+  "bindings": { "state.getCodeByName": "ibge.uf.convert_name_to_uf" },
+  "ignore": ["*.sieve"],
+  "waivers": { "cep.getAddressInfo": "no network access in this runtime" },
+  "knownFailures": { "pis.isValid#repeated-digits": "fix in progress (#123)" }
+}
 ```
+
+| Field | Meaning |
+|---|---|
+| `language` | adapter id or alias |
+| `entry` | adapter-specific: package dir, entry file, src dir… |
+| `options` | adapter options (`namespace`, `app`, `casesDir`, `testFile`…) |
+| `bindings` | contract id → native symbol(s), when the naming conventions don't find it |
+| `ignore` | public symbols intentionally outside the contract (globs) |
+| `waivers` | contract functions this lib will not implement, with the reason |
+| `knownFailures` | test (or function) ids expected to fail for now, with the reason |
+

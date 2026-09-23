@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/contract.schema.json",
+  "domain": "ie",
+  "title": "IE — Inscrição estadual",
+  "description": "State tax registration numbers, validated per state.",
+  "functions": {
+    "isValid": {
+      "summary": "Validates a Brazilian state tax registration number (IE).",
+      "description": [
+        "Validates an inscrição estadual (state registration) for a given state, using that state's published format and check-digit rule (SINTEGRA).",
+        "",
+        "- `params` carries the registration and the state code (case-insensitive).",
+        "- Several states have special cases (extra prefixes or formats such as the SP produtor rural `P…`, or deviations from the SINTEGRA page): GO, PA, MS, SP, TO, DF, PE, AL and RJ.",
+        "- An all-zero registration is accepted wherever the published formula yields a check digit of 0 for it."
+      ],
+      "references": [
+        "http://www.sintegra.gov.br/insc_est.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_AC.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_AL.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_AM.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_AP.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_BA.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_CE.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_DF.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_ES.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_GO.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_MA.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_MG.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_MS.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_MT.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_PA.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_PB.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_PE.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_PI.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_PR.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_RJ.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_RN.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_RO.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_RR.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_RS.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_SC.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_SE.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_SP.html",
+        "http://www.sintegra.gov.br/Cad_Estados/cad_TO.html",
+        "https://goias.gov.br/economia/roteiro-de-critica-da-inscricao-estadual-de-goias/"
+      ],
+      "params": [{ "name": "params", "type": "IsValidIeParams" }],
+      "returns": "boolean"
+    }
+  }
+}

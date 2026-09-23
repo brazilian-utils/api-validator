@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
-import YAML from "yaml";
 import { z } from "zod";
 import { parseCType } from "./ctype.js";
 import { camel, pascal } from "./naming.js";
 import type { Contract, ContractFunction, ContractTest, Expectation } from "./model.js";
+
+/** Markdown text: a string, or an array of lines (how the formatter writes multi-line text). */
+const markdown = z.union([z.string(), z.array(z.string())]).transform((v) => (Array.isArray(v) ? v.join("\n") : v));
 
 const identifier = z.string().regex(/^[a-z][A-Za-z0-9]*$/, "must be lowerCamelCase");
 
@@ -44,8 +46,8 @@ const FunctionSchema = z
     flatName: identifier.optional(),
     aliases: z.array(z.string().regex(/^[a-z][A-Za-z0-9]*\.[a-z][A-Za-z0-9]*$/, "must be domain.operation")).default([]),
     summary: z.string().optional(),
-    /** Language-agnostic spec in markdown: rules, edge cases, bad-input behaviour. */
-    description: z.string().optional(),
+    /** Language-agnostic spec in markdown (a string, or one string per line): rules, edge cases, bad-input behaviour. */
+    description: markdown.optional(),
     /** Links to authoritative sources (official specs, manuals). */
     references: z.array(z.string().url()).default([]),
     level: z.enum(["core", "extended"]).default("extended"),
@@ -58,11 +60,12 @@ const FunctionSchema = z
   })
   .strict();
 
-const DomainFileSchema = z
+export const DomainFileSchema = z
   .object({
+    $schema: z.string().optional(),
     domain: identifier,
     title: z.string().optional(),
-    description: z.string().optional(),
+    description: markdown.optional(),
     aliases: z.array(identifier).default([]),
     functions: z.record(identifier, FunctionSchema)
   })
@@ -85,7 +88,7 @@ export function defaultFlatName(domain: string, operation: string): string {
   return camel(operation) + pascal(domain);
 }
 
-/** Load every `*.yaml` in the contract dir (files starting with `_` are skipped). */
+/** Load every `*.json` in the contract dir (files starting with `_` are skipped). */
 export function loadContract(dir: string): Contract {
   const problems: string[] = [];
   const contract: Contract = { functions: new Map(), domains: new Map() };
@@ -93,16 +96,16 @@ export function loadContract(dir: string): Contract {
 
   const files = fs
     .readdirSync(dir)
-    .filter((f) => /\.ya?ml$/.test(f) && !f.startsWith("_"))
+    .filter((f) => f.endsWith(".json") && !f.startsWith("_"))
     .sort();
 
   for (const file of files) {
     const rel = path.join(path.basename(dir), file);
     let raw: unknown;
     try {
-      raw = YAML.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+      raw = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
     } catch (e) {
-      problems.push(`${rel}: YAML error: ${(e as Error).message}`);
+      problems.push(`${rel}: JSON error: ${(e as Error).message}`);
       continue;
     }
     const parsed = DomainFileSchema.safeParse(raw);
@@ -113,7 +116,7 @@ export function loadContract(dir: string): Contract {
       continue;
     }
     const doc = parsed.data;
-    const expectedFile = `${doc.domain}.yaml`;
+    const expectedFile = `${doc.domain}.json`;
     if (file !== expectedFile) problems.push(`${rel}: domain "${doc.domain}" must live in ${expectedFile}`);
     if (contract.domains.has(doc.domain)) problems.push(`${rel}: duplicate domain "${doc.domain}"`);
     contract.domains.set(doc.domain, { title: doc.title, description: doc.description, aliases: doc.aliases, source: rel });
