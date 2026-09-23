@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightSidebarTopics from 'starlight-sidebar-topics';
+import starlightThemeNova from 'starlight-theme-nova';
 import { CATEGORIES, REPO_URL, loadGuides, loadLibs, loadSpecs } from './src/lib/registry.mjs';
 
 import baseLinks from './src/integrations/base-links.mjs';
@@ -19,6 +21,9 @@ const guides = loadGuides();
 const utilityGroups = CATEGORIES.map((category) => ({
   label: category.label.en,
   translations: { 'pt-BR': category.label['pt-BR'] },
+  // Closed until the reader opens it, or is on one of its pages: the menu shows the categories,
+  // not all the utilities at once.
+  collapsed: true,
   items: specs
     .filter((spec) => spec.category === category.id)
     .map((spec) => ({
@@ -65,52 +70,66 @@ export default defineConfig({
       components: {
         Head: './src/components/Head.astro',
         Hero: './src/components/Hero.astro',
+        ThemeSelect: './src/components/ThemeSelect.astro',
       },
       head: [
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: `${BASE_PATH.replace(/\/$/, '')}/apple-touch-icon.png` } },
       ],
-      sidebar: [
-        {
-          label: 'Start here',
-          translations: { 'pt-BR': 'Comece aqui' },
-          items: [
-            { slug: 'getting-started', label: 'Getting started', translations: { 'pt-BR': 'Primeiros passos' } },
+      expressiveCode: true,
+      plugins: [
+        starlightThemeNova(),
+        // Three menus instead of one long list: the reader picks what they came for at the top of
+        // the sidebar, and only that part of the site is listed under it.
+        starlightSidebarTopics(
+          [
+            {
+              label: { en: 'Utilities', 'pt-BR': 'Utilitários' },
+              link: '/getting-started/',
+              icon: 'open-book',
+              items: [
+                { slug: 'getting-started', label: 'Getting started', translations: { 'pt-BR': 'Primeiros passos' } },
+                ...utilityGroups,
+              ],
+            },
+            ...(guides.length
+              ? [
+                  {
+                    label: { en: 'Guides', 'pt-BR': 'Guias' },
+                    link: `/guides/${guides[0].lib}/${guides[0].slug}/`,
+                    icon: 'rocket',
+                    items: guides.map((g) => ({
+                      slug: `guides/${g.lib}/${g.slug}`,
+                      label: g.title.en ?? Object.values(g.title)[0],
+                      translations: g.title['pt-BR'] ? { 'pt-BR': g.title['pt-BR'] } : {},
+                      // Name the library only when guides come from more than one.
+                      ...(new Set(guides.map((x) => x.lib)).size > 1 ? { badge: { text: libs.find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' } } : {}),
+                    })),
+                  },
+                ]
+              : []),
+            {
+              label: { en: 'Libraries', 'pt-BR': 'Bibliotecas' },
+              link: '/reference/parity/',
+              icon: 'seti:json',
+              items: [
+                { slug: 'reference/parity', label: 'Parity matrix', translations: { 'pt-BR': 'Matriz de paridade' } },
+                ...libs.map((lib) => ({ slug: `libs/${lib.id}`, label: lib.label })),
+              ],
+            },
+            {
+              label: { en: 'Contributing', 'pt-BR': 'Contribuindo' },
+              link: '/contributing/specs/',
+              icon: 'pencil',
+              items: [
+                { slug: 'contributing/specs', label: 'Write a spec', translations: { 'pt-BR': 'Escreva uma spec' } },
+                { slug: 'contributing/usage-files', label: 'Usage files', translations: { 'pt-BR': 'Arquivos de uso' } },
+                { slug: 'contributing/new-language', label: 'Port to a new language', translations: { 'pt-BR': 'Porte para uma nova linguagem' } },
+              ],
+            },
           ],
-        },
-        ...utilityGroups,
-        // Longer, library-specific pages (a form field, an address form…), from each library's guides.
-        ...(guides.length
-          ? [
-              {
-                label: 'Guides',
-                translations: { 'pt-BR': 'Guias' },
-                items: guides.map((g) => ({
-                  slug: `guides/${g.lib}/${g.slug}`,
-                  label: g.title.en ?? Object.values(g.title)[0],
-                  translations: g.title['pt-BR'] ? { 'pt-BR': g.title['pt-BR'] } : {},
-                  // Name the library only when guides come from more than one.
-                  ...(new Set(guides.map((x) => x.lib)).size > 1 ? { badge: { text: libs.find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' } } : {}),
-                })),
-              },
-            ]
-          : []),
-        {
-          label: 'Libraries',
-          translations: { 'pt-BR': 'Bibliotecas' },
-          items: [
-            { slug: 'reference/parity', label: 'Parity matrix', translations: { 'pt-BR': 'Matriz de paridade' } },
-            ...libs.map((lib) => ({ slug: `libs/${lib.id}`, label: lib.label })),
-          ],
-        },
-        {
-          label: 'Contributing',
-          translations: { 'pt-BR': 'Contribuindo' },
-          items: [
-            { slug: 'contributing/specs', label: 'Write a spec', translations: { 'pt-BR': 'Escreva uma spec' } },
-            { slug: 'contributing/usage-files', label: 'Usage files', translations: { 'pt-BR': 'Arquivos de uso' } },
-            { slug: 'contributing/new-language', label: 'Port to a new language', translations: { 'pt-BR': 'Porte para uma nova linguagem' } },
-          ],
-        },
+          // The home pages belong to no topic.
+          { exclude: ['/', '/pt-br/'] },
+        ),
       ],
     }),
   ],

@@ -37,7 +37,11 @@ Type:
 
 ## Layout
 
-Starlight's three columns stay (sidebar, content, table of contents): readers know them.
+Starlight's three columns stay (sidebar, content, table of contents): readers know them. The
+Nova theme (`starlight-theme-nova`) draws the frame: a flat header, a quieter sidebar. The sidebar
+is split into four topics with `starlight-sidebar-topics` (Utilities, Guides, Libraries,
+Contributing): the reader picks one at the top and sees only its pages. Utility categories start
+closed; the category of the current page opens.
 
 Home page:
 
@@ -99,4 +103,5 @@ Tried and dropped:
 
 - Pills with borders for the status of each library under a function: noise at 7 libraries × 5
   functions per page. Plain marks with the library name read faster.
+- One sidebar for the whole site: about 60 entries, every category open. Replaced by the topics.
 - A giant mascot in the hero: the brand already shows it in the header. The specimen took its place.

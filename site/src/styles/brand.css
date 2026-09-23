@@ -171,6 +171,8 @@ starlight-tabs .tablist-wrapper {
   max-width: none;
 }
 .sl-markdown-content ol.flow li {
+  list-style: none;
+  padding-inline-start: 0;
   counter-increment: flow;
   margin: 0;
   padding-top: 0.75rem;
@@ -225,4 +227,11 @@ starlight-tabs .tablist-wrapper {
 }
 .sl-markdown-content .pending strong {
   color: var(--sl-color-white);
+}
+
+/* The Nova theme's reset takes the underline off every link outside Markdown. Links in running
+   text keep it: color alone does not tell a link from text (WCAG 1.4.1). */
+main :where(p, li, dd, td, th, figcaption, .sub) a:not(.primary):not([role='tab']) {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }

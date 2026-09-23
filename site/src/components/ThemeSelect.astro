@@ -1,0 +1,18 @@
+---
+/**
+ * The Nova theme's light/dark switch, with a name: Nova's own has only the sun and moon icons,
+ * which a screen reader announces as a nameless button.
+ */
+import { Toggle } from 'astro-theme-toggle/components';
+import { Icon } from '@astrojs/starlight/components';
+---
+
+<div class="size-8 overflow-visible">
+  <Toggle
+    aria-label={Astro.locals.t('themeSelect.accessibleLabel')}
+    class="flex size-8 rounded-md p-2 text-(--sl-color-text) transition hover:bg-gray-400/30 focus-visible:outline-offset-1 active:scale-90"
+  >
+    <Fragment slot="icon-light"><Icon name="sun" size="1rem" /></Fragment>
+    <Fragment slot="icon-dark"><Icon name="moon" size="1rem" /></Fragment>
+  </Toggle>
+</div>
