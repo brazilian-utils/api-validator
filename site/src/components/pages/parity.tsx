@@ -10,7 +10,7 @@ import { StatusIcon, type Status } from '@/components/status';
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const parityText = (locale: Locale) => ({
   title: L(locale, 'Parity matrix', 'Matriz de paridade'),
-  description: L(locale, 'Which library implements which utility, and how much of it, from the last api-validator run.', 'Qual biblioteca implementa qual utilitário, e quanto dele, segundo a última execução do api-validator.'),
+  description: L(locale, 'Which library implements which utility, and how much of it.', 'Qual biblioteca implementa qual utilitário, e quanto dele.'),
 });
 
 export function ParityPage({ locale }: { locale: Locale }) {
@@ -23,11 +23,18 @@ export function ParityPage({ locale }: { locale: Locale }) {
   const groups = CATEGORIES.map((c: any) => ({ c, specs: specs.filter((s: any) => s.category === c.id) })).filter((g: any) => g.specs.length);
   const states = (['full', 'partial', 'failing', 'none'] as const).filter((s) => status || s !== 'failing');
   const { title, description } = parityText(locale);
+  const when = status
+    ? t('parity.fromRun', { date: new Date(status.generatedAt).toLocaleString(locale) })
+    : manifest?.fetchedAt
+      ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.`
+      : '';
 
   return (
     <DocsPage full tableOfContent={{ enabled: false }}>
       <DocsTitle>{title}</DocsTitle>
-      <DocsDescription>{description}</DocsDescription>
+      <DocsDescription>
+        {description} {when}
+      </DocsDescription>
       <DocsBody>
         <p>
           {L(
@@ -44,11 +51,14 @@ export function ParityPage({ locale }: { locale: Locale }) {
             </span>
           ))}
         </p>
-        <div className="not-prose relative overflow-x-auto" tabIndex={0} aria-label={title}>
-          <table className="w-full border-collapse text-sm">
-            <thead className="sticky top-0 bg-fd-card">
+        {/* The wrapper scrolls both ways, so the header row and the utility column stay in view.
+            Sticky cells need an opaque background of their own: the page's paper, so they stay part of
+            the table rather than cards pinned to its edge. */}
+        <div className="not-prose relative max-h-[80vh] overflow-auto ps-2" tabIndex={0} aria-label={title}>
+          <table className="w-full border-separate border-spacing-0 text-sm">
+            <thead className="sticky top-0 z-20 bg-fd-background">
               <tr>
-                <th scope="col" className="border-b px-3 py-2.5 text-start font-medium text-fd-muted-foreground">{t('parity.utility')}</th>
+                <th scope="col" className="pinned sticky left-0 z-10 px-3 py-2.5 text-start font-medium text-fd-muted-foreground">{t('parity.utility')}</th>
                 {libs.map((lib: any) => (
                   <th key={lib.id} scope="col" className="border-b px-3 py-2.5 text-start font-medium">
                     <Link href={`${p}/libs/${lib.id}/`} className="inline-flex items-center gap-1.5 hover:underline">
@@ -62,13 +72,13 @@ export function ParityPage({ locale }: { locale: Locale }) {
             <tbody>
               {groups.map(({ c, specs }: any) => [
                 <tr key={c.id}>
-                  <th colSpan={libs.length + 1} scope="colgroup" className="border-b bg-fd-muted px-3 pt-5 pb-2 text-start text-xs font-semibold uppercase tracking-wide text-fd-muted-foreground">
-                    {pick(c.label, locale)}
+                  <th colSpan={libs.length + 1} scope="colgroup" className="border-b bg-fd-background px-3 pt-5 pb-2 text-start text-sm font-semibold text-fd-foreground">
+                    <span className="sticky left-3">{pick(c.label, locale)}</span>
                   </th>
                 </tr>,
                 ...specs.map((spec: any) => (
-                  <tr key={spec.id} className="hover:bg-fd-accent/40">
-                    <th scope="row" className="border-b px-3 py-2 text-start font-normal">
+                  <tr key={spec.id} className="group hover:bg-fd-accent/40">
+                    <th scope="row" className="pinned sticky left-0 z-10 px-3 py-2 text-start font-normal">
                       <Link href={`${p}/utils/${spec.id}/`} className="hover:underline">{pick(spec.title, locale)}</Link>
                     </th>
                     {libs.map((lib: any) => {
@@ -89,13 +99,6 @@ export function ParityPage({ locale }: { locale: Locale }) {
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-fd-muted-foreground">
-          {status
-            ? t('parity.fromRun', { date: new Date(status.generatedAt).toLocaleString(locale) })
-            : manifest?.fetchedAt
-              ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.`
-              : ''}
-        </p>
         <p>
           {L(locale, 'To fill an empty cell, read ', 'Para preencher uma célula vazia, leia ')}
           <Link href={`${p}/contributing/new-language/`}>{L(locale, 'Port to a new language', 'Implemente em outra linguagem')}</Link>.

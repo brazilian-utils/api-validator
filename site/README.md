@@ -61,7 +61,7 @@ Todas as dependências estão em versão exata (sem `^`). As principais:
 | `tailwindcss`, `@tailwindcss/postcss` | estilos (o tema do Fumadocs é Tailwind) |
 | `shiki`, `unified`, `remark-*`, `hast-util-to-jsx-runtime` | Markdown do contrato e das bibliotecas, com destaque de código |
 | `geist`, `simple-icons`, `lucide-react` | fontes e ícones, sem CDN |
-| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (caixa "Teste") |
+| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (campo da home, caixa "Teste") |
 
 `npm audit --audit-level=low` roda no CI e precisa sair limpo.
 
@@ -157,8 +157,8 @@ Com `--strict`, o script falha no CI quando falta a versão de um idioma.
   só carregam quando alguém abre a busca.
 - Os links não fazem prefetch: num host estático, cada prefetch é uma requisição, e há páginas
   com centenas de links.
-- A biblioteca JavaScript (para a caixa "Teste") só carrega quando a caixa abre. O exemplo da home
-  é o demo do guia "Document field" da própria biblioteca, que carrega dentro do seu quadro.
+- A biblioteca JavaScript (para a caixa "Teste") só carrega quando a caixa abre. O campo da home
+  carrega só as funções que usa (`format*`, `parse*`, `isValid*`, `generate*` de sete documentos).
 - Contraste AA em todo texto, nos dois temas, inclusive nos blocos de código (temas de alto
   contraste do Shiki). `src/components/a11y.client.tsx` completa a marcação do Fumadocs onde o
   axe pede (nomes das regiões de código, sumário como navegação, rolagem por teclado).

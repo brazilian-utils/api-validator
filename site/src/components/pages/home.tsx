@@ -1,22 +1,34 @@
-// The home page: what the project does, the JavaScript library's own document field to try (its
-// guide's live demos), the same first call in each language, how the libraries stay the same, and
-// every utility by category.
+// The home page: what the project does, a document number to type (masked and checked by the
+// JavaScript library as you type), the same first call in each language, how the libraries stay
+// the same, and every utility by category.
 import Link from '@/components/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { FlatTabs } from '@/components/flat-tabs';
 import { ArrowRight } from 'lucide-react';
-import { CATEGORIES, coverage, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
+import { CATEGORIES, coverage, isImplemented, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions } from '@/lib/layout';
 import { Markdown } from '@/lib/markdown';
 import { loadUsage } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
-import { GuideDemos, guideExamples } from '@/components/pages/guide';
+import { guideExamples } from '@/components/pages/guide';
+import { Specimen, type Kind } from '@/components/specimen.client';
 import { StatusIcon } from '@/components/status';
 import { HomeJsonLd } from '@/components/json-ld';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
+
+/** The documents of the home page's field, and how many check digits each one ends with. */
+const KINDS = [
+  { domain: 'cpf', check: 2 },
+  { domain: 'cnpj', check: 2 },
+  { domain: 'cep', check: 0 },
+  { domain: 'licensePlate', check: 0 },
+  { domain: 'pis', check: 1 },
+  { domain: 'cnh', check: 2 },
+  { domain: 'voterId', check: 2 },
+];
 
 /** The first code block of a usage file, as Markdown. */
 const firstCode = (body?: string) => body?.match(/^(`{3,})[^\n]*\n[\s\S]*?\n\1/m)?.[0];
@@ -30,6 +42,19 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
   const others = specs.length - 4;
+
+  // Each document of the field: a number from its contract cases, and its isValid in every library.
+  const kinds: Kind[] = KINDS.flatMap(({ domain, check }) => {
+    const spec = specs.find((s: any) => s.domain === domain);
+    const op = spec?.operations.find((o: any) => o.id === 'isValid');
+    const sample = (op?.tests as any[] | undefined)?.find((c: any) => c.returns === true && typeof c.args[0] === 'string')?.args[0];
+    if (!spec || !op || !sample) return [];
+    const names = libs.flatMap((lib: any) => {
+      const f = status?.libs?.[lib.id]?.functions?.[op.fnId];
+      return f && isImplemented(f) ? [{ lib: lib.id, label: lib.label, symbol: f.symbol }] : [];
+    });
+    return [{ domain, check, title: pick(spec.title, locale), href: `${p}/utils/${spec.id}/`, sample: sample.toUpperCase().replace(/[^0-9A-Z]/g, ''), names }];
+  });
   // The frameworks of the JavaScript library's document-field guide, as its tabs name them.
   const names = guideExamples(locale, 'javascript', 'document-field')?.map((e: any) => e.name).filter(Boolean) ?? [];
   const frameworks = names.length ? new Intl.ListFormat(locale, { type: 'conjunction' }).format(names) : null;
@@ -73,15 +98,33 @@ export function HomePage({ locale }: { locale: Locale }) {
                 </Link>
               </div>
             </div>
-            {frameworks && (
-              <div className="min-w-0">
-                <GuideDemos locale={locale} lib="javascript" slug="document-field" />
+            <div className="min-w-0">
+              <Specimen
+                kinds={kinds}
+                text={{
+                  label: t('specimen.label'),
+                  examples: t('specimen.examples'),
+                  valid: t('specimen.valid'),
+                  invalid: t('specimen.invalid'),
+                  unknown: t('specimen.unknown'),
+                  same: t('specimen.sameCheck'),
+                  empty: t('specimen.empty'),
+                  generate: t('specimen.generate'),
+                  checkOne: t('specimen.checkDigits', { count: 1 }),
+                  checkOther: t('specimen.checkDigits', { count: 9 }).replace('9', '{n}'),
+                  missingOne: t('specimen.missing', { count: 1 }),
+                  missingOther: t('specimen.missing', { count: 9 }).replace('9', '{n}'),
+                  expectedOne: t('specimen.expected', { count: 1 }),
+                  expectedOther: t('specimen.expected', { count: 2 }),
+                }}
+              />
+              {frameworks && (
                 <Link href={`${p}/guides/javascript/document-field/`} className="mt-3 inline-flex items-center gap-1 text-sm font-medium hover:underline">
-                  {L(locale, `The code of this field, in ${frameworks}`, `O código deste campo, em ${frameworks}`)}
+                  {L(locale, `This field in your project, in ${frameworks}`, `Este campo no seu projeto, em ${frameworks}`)}
                   <ArrowRight aria-hidden className="size-3.5" />
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </section>
 

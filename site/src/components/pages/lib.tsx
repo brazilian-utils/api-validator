@@ -5,10 +5,12 @@ import Link from '@/components/link';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/notebook/page';
 import { Note } from '@/components/note';
+import { Disclosure } from '@/components/disclosure';
 import { isImplemented, loadLibs, loadStatus, loadUsageManifest } from '@/lib/data';
 import { type Locale, prefixOf, translator } from '@/lib/i18n';
 import { functionLinks } from '@/lib/links';
 import { Markdown } from '@/lib/markdown';
+import { SITE_ROOT } from '@/lib/meta';
 import { demoteHeadings } from '@/lib/prose';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
@@ -20,6 +22,9 @@ export const libDescription = (locale: Locale, label: string) =>
 
 const base = process.env.NEXT_PUBLIC_BASE ?? '';
 const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stringify(v));
+/** Past this many rows a table starts closed, so the page stays a page. */
+const LONG = 15;
+const GROUPS = ['failing', 'signature', 'missing'] as const;
 
 export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
   const libs = loadLibs();
@@ -37,6 +42,7 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
     .filter(([, f]) => rank(f) < 9)
     .map(([fnId, f]) => ({ fnId, f, by: implementedBy(fnId) }))
     .sort((a, b) => rank(a.f) - rank(b.f) || b.by.length - a.by.length || a.fnId.localeCompare(b.fnId));
+  const groups = GROUPS.map((g) => ({ g, rows: work.filter((w) => w.f.status === g) })).filter((x) => x.rows.length);
   const failures = fns.flatMap(([fnId, f]) => (f.failures ?? []).map((x: any) => ({ fn: fnId, ...x })));
   const undocumented = fns.filter(([, f]) => isImplemented(f) && f.usage && !f.usage.documented);
   const others = status ? libs.filter((l: any) => status.libs[l.id]).sort((a: any, b: any) => status.libs[b.id].summary.coreCoverage - status.libs[a.id].summary.coreCoverage) : [];
@@ -46,11 +52,35 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
 
   const toc = [
     ...(mine ? [{ title: t('lib.compare'), url: '#compare', depth: 2 }, { title: t('lib.work'), url: '#work', depth: 2 }] : []),
+    ...(mine ? groups.map(({ g, rows }) => ({ title: t(`lib.group.${g}`, { count: rows.length }), url: `#work-${g}`, depth: 3 })) : []),
     ...(failures.length ? [{ title: t('lib.failures'), url: '#failures', depth: 2 }] : []),
     ...(undocumented.length ? [{ title: t('lib.undocumented'), url: '#undocumented', depth: 2 }] : []),
     ...(mine?.unmapped?.length ? [{ title: t('lib.outsideTitle'), url: '#outside', depth: 2 }] : []),
     ...(conventions ? [{ title: L(locale, 'API conventions', 'Convenções da API'), url: '#conventions', depth: 2 }] : []),
+    ...(mine ? [{ title: t('lib.badgeTitle'), url: '#badge', depth: 2 }] : []),
   ];
+  const failureTable = (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">{t('lib.case')}</th>
+          <th scope="col">{t('testcases.expected')}</th>
+          <th scope="col">{t('lib.actual')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {failures.map((x: any, i: number) => (
+          <tr key={`${x.id}-${i}`}>
+            <td><Link href={where.get(x.fn)?.href ?? '#'}><code className="whitespace-nowrap!">{x.id}</code></Link></td>
+            <td><code>{show(x.expected)}</code></td>
+            <td><code>{x.actual === null && x.message ? x.message : show(x.actual)}</code></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+  const badgeAlt = s ? t('lib.badgeAlt', { core: s.coreCoverage, passed: s.testsPassed }) : '';
+  const badgeMarkdown = `[![${t('lib.badgeLabel')}](${SITE_ROOT}/badges/${lib.id}.svg)](${SITE_ROOT}/libs/${lib.id}/)`;
 
   return (
     <DocsPage toc={toc} tableOfContent={{ style: 'clerk' }}>
@@ -70,15 +100,6 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
         <dd><a href={lib.registry} className="underline underline-offset-4">{lib.package}</a></dd>
         <dt className="text-fd-muted-foreground">{t('libs.install')}</dt>
         <dd className="min-w-0"><code className="break-all font-mono">{lib.install}</code></dd>
-        {mine && (
-          <>
-            <dt className="text-fd-muted-foreground">{t('lib.badge')}</dt>
-            <dd>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${base}/badges/${lib.id}.svg`} alt={t('lib.badgeAlt', { core: s.coreCoverage, passed: s.testsPassed })} height={20} />
-            </dd>
-          </>
-        )}
       </dl>
 
       <DocsBody>
@@ -134,68 +155,65 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
             {work.length === 0 ? (
               <p>{t('lib.workDone')}</p>
             ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">{t('lib.function')}</th>
-                    <th scope="col">{t('lib.status')}</th>
-                    <th scope="col">{t('lib.why')}</th>
-                    <th scope="col">{t('lib.implementedBy')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {work.map(({ fnId, f, by }) => (
-                    <tr key={fnId}>
-                      <td>
-                        <Link href={where.get(fnId)?.href ?? '#'}>{where.get(fnId)?.label ?? fnId}</Link>
-                        <div className="text-xs text-fd-muted-foreground">
-                          <code>{fnId}</code>
-                          {f.level === 'core' && ` ${t('lib.coreTag')}`}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="inline-flex items-center gap-1.5 whitespace-nowrap" title={t(`status.${f.status}`)}>
-                          <StatusIcon status={f.status as Status} />
-                          {t(`status.short.${f.status}`)}
-                        </span>
-                      </td>
-                      <td className="text-sm">
-                        {f.status === 'failing'
-                          ? t('status.failedCases', { count: f.failed })
-                          : f.status === 'signature'
-                            ? f.issues.join('. ')
-                            : f.suggestions?.length
-                              ? t('lib.maybe', { symbols: f.suggestions.join(', ') })
-                              : ''}
-                      </td>
-                      <td className="text-sm">{by.length ? `${by.length}: ${by.join(', ')}` : t('lib.nobody')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              groups.map(({ g, rows }) => {
+                // Missing functions rarely have anything to say: the column appears only when a row does.
+                const details = rows.some(({ f }) => f.status !== 'missing' || f.suggestions?.length);
+                const table = (
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">{t('lib.function')}</th>
+                        <th scope="col">{t('lib.status')}</th>
+                        {details && <th scope="col">{t('lib.why')}</th>}
+                        <th scope="col">{t('lib.implementedBy')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map(({ fnId, f, by }) => (
+                        <tr key={fnId}>
+                          <td>
+                            <Link href={where.get(fnId)?.href ?? '#'}>{where.get(fnId)?.label ?? fnId}</Link>
+                            <div className="text-xs text-fd-muted-foreground">
+                              <code className="whitespace-nowrap!">{fnId}</code>
+                              {f.level === 'core' && ` ${t('lib.coreTag')}`}
+                            </div>
+                          </td>
+                          <td>
+                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap" title={t(`status.${f.status}`)}>
+                              <StatusIcon status={f.status as Status} />
+                              {t(`status.short.${f.status}`)}
+                            </span>
+                          </td>
+                          {details && (
+                            <td className="text-sm">
+                              {f.status === 'failing'
+                                ? t('status.failedCases', { count: f.failed })
+                                : f.status === 'signature'
+                                  ? f.issues.join('. ')
+                                  : f.suggestions?.length
+                                    ? t('lib.maybe', { symbols: f.suggestions.join(', ') })
+                                    : ''}
+                            </td>
+                          )}
+                          <td className="text-sm">{by.length ? `${by.length}: ${by.join(', ')}` : t('lib.nobody')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+                return (
+                  <section key={g}>
+                    <h3 id={`work-${g}`}>{t(`lib.group.${g}`, { count: rows.length })}</h3>
+                    {rows.length > LONG ? <Disclosure title={t(`lib.show.${g}`, { count: rows.length })}>{table}</Disclosure> : table}
+                  </section>
+                );
+              })
             )}
 
             {failures.length > 0 && (
               <>
                 <h2 id="failures">{t('lib.failures')}</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <th scope="col">{t('lib.case')}</th>
-                      <th scope="col">{t('testcases.expected')}</th>
-                      <th scope="col">{t('lib.actual')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {failures.map((x: any, i: number) => (
-                      <tr key={`${x.id}-${i}`}>
-                        <td><Link href={where.get(x.fn)?.href ?? '#'}><code>{x.id}</code></Link></td>
-                        <td><code>{show(x.expected)}</code></td>
-                        <td><code>{x.actual === null && x.message ? x.message : show(x.actual)}</code></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                {failures.length > LONG ? <Disclosure title={t('lib.show.cases', { count: failures.length })}>{failureTable}</Disclosure> : failureTable}
               </>
             )}
 
@@ -234,6 +252,18 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
           <>
             <h2 id="conventions">{L(locale, 'API conventions', 'Convenções da API')}</h2>
             <Markdown source={demoteHeadings(conventions)} />
+          </>
+        )}
+
+        {mine && (
+          <>
+            <h2 id="badge">{t('lib.badgeTitle')}</h2>
+            <p>{t('lib.badgeIntro')}</p>
+            <p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`${base}/badges/${lib.id}.svg`} alt={badgeAlt} height={20} />
+            </p>
+            <Markdown source={'```md\n' + badgeMarkdown + '\n```'} />
           </>
         )}
       </DocsBody>

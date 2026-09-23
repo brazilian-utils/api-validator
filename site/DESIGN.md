@@ -38,12 +38,15 @@ categories start closed.
 └──────────────┴──────────────────────────────────────────────┴──────────────────┘
 ```
 
-The home page: a two-line headline with the numbers in its sentence, and next to it the JavaScript
-library's own "Document field" guide, live (a field that masks and validates as you type, in React,
-Angular, Vue or plain JavaScript). Every example on the site comes from the libraries; the site
-writes none of its own. Then the same first call in each language as tabs (install command and a
-real usage example), the four steps that keep the libraries the same, and every utility by
-category with how many libraries have it.
+The home page: a two-line headline with the numbers in its sentence, and the document specimen: type
+a number and the JavaScript library masks it as you type (the same way its "Document field" guide
+does), says which document it is, shows it with the check digits highlighted, valid or not (and
+which check digits a wrong number should have), and names the same function in every language. It
+starts on a CPF that is well formed but fails, so the page never shows a number that could be
+someone's; "Generate a valid one" asks the library for one. Every check on the site is the
+libraries' own code. Then the same first call in each language as tabs (install command and a real
+usage example), the four steps that keep the libraries the same, and every utility by category
+with how many libraries have it.
 
 ## Tokens
 
@@ -52,8 +55,8 @@ Color: [Flexoki](https://stephango.com/flexoki), an ink-on-paper palette. Warm p
 accent (`#1c6c66` light, `#3aa99f` dark). The dark theme is Flexoki's black (`#100f0f`).
 
 The brand colors (github.com/brazilian-utils/brand: green `#009c3b`, yellow `#ffdf00`, blue
-`#3e4095`) stay where they mean something: the three stripes at the bottom of the link preview
-image.
+`#3e4095`) stay where they mean something: the yellow behind check digits, and the three stripes
+at the bottom of the link preview image.
 
 State is an icon first and a color second: ✓ all good (green), ◐ some (amber), ✕ a case fails
 (red), ! signature differs (amber), ○ not implemented (muted), - not planned or not run.

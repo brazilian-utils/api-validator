@@ -60,15 +60,6 @@ function Examples({ list, group, demoText, code }: { list: any[]; group: string;
   return <FlatTabs groupId={group} persist variant={group === 'guide-variant' ? 'compact' : 'line'} items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
 }
 
-/**
- * The first group of examples of a library guide, demos only (the home page shows the JavaScript
- * library's document field this way). Null when the guide was not fetched (offline builds).
- */
-export function GuideDemos({ locale, lib, slug }: { locale: Locale; lib: string; slug: string }) {
-  const examples = guideExamples(locale, lib, slug);
-  return examples ? <Examples list={examples} group="guide-example" demoText={demoTextOf(locale)} /> : null;
-}
-
 /** The first group of examples of a guide (one per framework), or null without the guide. */
 export function guideExamples(locale: Locale, lib: string, slug: string): any[] | null {
   const guide = guideEntry(lib, slug) && loadGuide(lib, slug, locale);

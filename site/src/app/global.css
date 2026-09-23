@@ -4,7 +4,8 @@
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
 
-/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent; ok/fail/warn mark state. Text
+/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent; ok/fail/warn mark state, the
+   brand yellow marks check digits. Text
    colors meet WCAG 2.1 AA on their backgrounds in both themes. */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -26,6 +27,7 @@
   --color-fd-primary-foreground: #fffcf0;
   --color-fd-ring: #24837b;
   --color-header: #f2f0e5;
+  --color-brand-yellow: #ffdf00;
   --color-ok: #3d6a07;
   --color-fail: #af3029;
   --color-warn: #8c5a00;
@@ -64,6 +66,20 @@
   font-weight: 400;
 }
 
+/* The check digits of a document number: the brand yellow, ink text on it in both themes. When
+   the number fails, its check digits are struck in the fail color instead. */
+mark.check {
+  background: var(--color-brand-yellow);
+  color: #1d1f3d;
+  border-radius: 0.2em;
+  padding: 0 0.08em;
+}
+mark.check-wrong {
+  background: transparent;
+  color: var(--color-fail);
+  text-decoration: line-through 2px;
+}
+
 html {
   scrollbar-gutter: stable;
 }
@@ -78,17 +94,11 @@ html {
 }
 
 /* Code blocks: on the page's paper, where every syntax color meets AA, and one surface with no
-   drop shadow (a border already draws the edge). The copy button gets its own paper and the code
-   room for it, so on a phone it never sits on top of the code. */
+   drop shadow (a border already draws the edge). The copy button keeps Fumadocs' see-through
+   blurred backing: an opaque one would hide the middle of a long line on a phone. */
 figure.shiki {
   background-color: var(--color-fd-background);
   box-shadow: none;
-}
-figure.shiki button {
-  background: var(--color-fd-background);
-}
-figure.shiki:has(button) pre {
-  padding-inline-end: 2.75rem;
 }
 
 /* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */
@@ -110,9 +120,9 @@ a {
   outline-offset: 2px;
 }
 
-/* Running text keeps a readable measure; tables, code and the page's own controls (pager,
-   not-prose rows) keep the full column. */
-#nd-page .prose :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, .not-prose *) {
+/* Running text keeps a readable measure (the page description included); tables, code, links
+   drawn as cards (the pager) and flex rows (legends, chips) keep the full column. */
+#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, a *, .flex) {
   max-width: 62ch;
 }
 
@@ -136,4 +146,17 @@ a {
   #nd-page .prose td code {
     overflow-wrap: anywhere;
   }
+}
+
+/* A table cell that stays in view while its table scrolls (the parity matrix's utility column):
+   the page's paper under it and the row rule painted into that paper (a 1px band at the bottom),
+   so it reads as part of the row, not as a card pinned to the edge; the row's hover tint too. */
+.pinned {
+  --pinned-paper: var(--color-fd-background);
+  background:
+    linear-gradient(var(--color-fd-border), var(--color-fd-border)) bottom / 100% 1px no-repeat,
+    var(--pinned-paper);
+}
+tr:hover > .pinned {
+  --pinned-paper: color-mix(in srgb, var(--color-fd-accent) 40%, var(--color-fd-background));
 }
