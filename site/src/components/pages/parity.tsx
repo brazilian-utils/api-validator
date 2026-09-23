@@ -44,7 +44,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
             </span>
           ))}
         </p>
-        <div className="not-prose overflow-x-auto rounded-xl border" tabIndex={0} aria-label={title}>
+        <div className="not-prose relative overflow-x-auto" tabIndex={0} aria-label={title}>
           <table className="w-full border-collapse text-sm">
             <thead className="sticky top-0 bg-fd-card">
               <tr>
@@ -73,7 +73,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
                     </th>
                     {libs.map((lib: any) => {
                       const x = coverage(spec, lib.id);
-                      const detail = x.detail.map((d: any) => `${STATUS_MARK[d.status] ?? '–'} ${pick(d.op.label, locale)}`).join('\n');
+                      const detail = x.detail.map((d: any) => `${STATUS_MARK[d.status] ?? '-'} ${pick(d.op.label, locale)}`).join('\n');
                       return (
                         <td key={lib.id} className="border-b px-3 py-2 tabular-nums" title={detail}>
                           <span className="inline-flex items-center gap-1.5">

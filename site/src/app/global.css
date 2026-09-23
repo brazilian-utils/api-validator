@@ -92,3 +92,47 @@ html {
 figure.shiki {
   background-color: var(--color-fd-background);
 }
+
+/* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */
+::selection {
+  background: color-mix(in oklab, var(--color-fd-primary) 22%, transparent);
+}
+:root {
+  caret-color: var(--color-fd-primary);
+  scrollbar-color: var(--color-fd-border) transparent;
+  accent-color: var(--color-fd-primary);
+  font-variant-numeric: tabular-nums;
+}
+a {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+:focus-visible {
+  outline: 2px solid var(--color-fd-ring);
+  outline-offset: 2px;
+}
+
+/* Running text keeps a readable measure; tables and code keep the full column. */
+#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *) {
+  max-width: 62ch;
+}
+
+/* Code blocks: one surface, no drop shadow (a border already draws the edge). */
+figure.shiki {
+  box-shadow: none;
+}
+
+/* Full-width bands of the home page: the header's paper tone, a rule between bands. */
+.band {
+  background: var(--color-header);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+.band-top {
+  border-top: 1px solid var(--color-fd-border);
+}
+
+/* Prose tables fit a phone: code in a cell wraps instead of pushing the table sideways. */
+#nd-page .prose td code {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}

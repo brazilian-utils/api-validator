@@ -15,7 +15,8 @@
     "audit": "npm audit --audit-level=low",
     "a11y": "node scripts/a11y.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "design": "node scripts/design-check.mjs"
   },
   "dependencies": {
     "@brazilian-utils/brazilian-utils": "2.4.0",
@@ -47,6 +48,7 @@
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.6",
+    "impeccable": "4.1.0",
     "postcss": "8.5.28",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3"

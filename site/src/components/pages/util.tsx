@@ -7,13 +7,10 @@ import Link from '@/components/link';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { lastCommit } from '@/lib/git';
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Accordion, Accordions } from 'fumadocs-ui/components/accordion';
-import { TypeTable } from 'fumadocs-ui/components/type-table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from 'fumadocs-ui/components/tabs';
+import { Note } from '@/components/note';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import { BookOpen, ExternalLink, FileJson, Pencil } from 'lucide-react';
+import { ArrowRight, BookOpen, ExternalLink, FileJson, Pencil } from 'lucide-react';
 import { CONTRACT_DIR, REPO_URL, coverage, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
@@ -22,6 +19,8 @@ import { loadUsage, sinceOf } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
 import { TryIt } from '@/components/try-it';
+import { FlatTabs } from '@/components/flat-tabs';
+import { Disclosure } from '@/components/disclosure';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
@@ -66,29 +65,34 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
       </div>
 
       {/* Which library implements how much of this utility. */}
-      <div className="not-prose grid grid-cols-2 gap-2 sm:grid-cols-4">
+      {/* One surface, one cell per library: how much of this utility each one implements. */}
+      <ul className="not-prose grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-fd-border sm:grid-cols-4 [&>li]:bg-fd-background">
         {libs.map((lib: any) => {
           const c = coverage(spec, lib.id);
           const since = sinceOf(lib.id, spec.id);
           return (
-            <Link
-              key={lib.id}
-              href={`${p}/libs/${lib.id}/`}
-              className="flex flex-col gap-2 rounded-lg border bg-fd-card p-3 transition-colors hover:border-fd-primary/50 hover:bg-fd-accent"
-            >
-              <span className="flex items-center justify-between gap-2">
-                <LangIcon lib={lib.id} className="size-5" />
-                <span className="flex items-center gap-1 text-xs text-fd-muted-foreground tabular-nums">
+            <li key={lib.id}>
+              <Link href={`${p}/libs/${lib.id}/`} className="flex h-full flex-col gap-1 px-4 py-3 transition-colors hover:bg-fd-accent">
+                <span className="flex items-center gap-2 text-sm font-medium">
+                  <LangIcon lib={lib.id} className="size-4" />
+                  <span className="truncate">{lib.label}</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-xs text-fd-muted-foreground">
                   <StatusIcon status={c.state as Status} label={t(`parity.${c.state}`)} className="size-3.5" />
                   {c.count}/{c.total}
+                  {since && <span className="truncate">{t('util.since', { version: since })}</span>}
                 </span>
-              </span>
-              <span className="truncate text-sm font-medium">{lib.label}</span>
-              {since && <span className="-mt-1.5 text-xs text-fd-muted-foreground">{t('util.since', { version: since })}</span>}
-            </Link>
+              </Link>
+            </li>
           );
         })}
-      </div>
+        <li>
+          <Link href={`${p}/reference/parity/`} className="flex h-full items-center gap-1.5 px-4 py-3 text-sm text-fd-muted-foreground transition-colors hover:bg-fd-accent hover:text-fd-foreground">
+            {L(locale, 'Parity matrix', 'Matriz de paridade')}
+            <ArrowRight aria-hidden className="size-3.5" />
+          </Link>
+        </li>
+      </ul>
 
       <DocsBody>
         {englishOnly && <p className="text-sm text-fd-muted-foreground">{t('ops.englishOnly')}</p>}
@@ -110,7 +114,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
         {longSpec && (
           <>
             <h2 id="specification">{L(locale, 'Specification', 'Especificação')}</h2>
-            {specIsFallback && <Callout type="warn">{t('spec.fallback')}</Callout>}
+            {specIsFallback && <Note type="warn">{t('spec.fallback')}</Note>}
             <Markdown source={demote(longSpec)} />
           </>
         )}
@@ -118,7 +122,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
         <h2 id="official-sources">{L(locale, 'Official sources', 'Fontes oficiais')}</h2>
         {references.length === 0 && localCopies.length === 0 && <p>{t('references.none')}</p>}
         {references.length > 0 && (
-          <ul>
+          <ul className="[overflow-wrap:anywhere]">
             {references.map((r: any) => (
               <li key={r.url}>
                 <a href={r.url} target="_blank" rel="noopener noreferrer">
@@ -129,8 +133,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
           </ul>
         )}
         {localCopies.length > 0 && (
-          <Accordions type="single">
-            <Accordion title={`${t('references.localCopy')} (${localCopies.length})`} id="local-copies">
+          <Disclosure title={`${t('references.localCopy')} (${localCopies.length})`} id="local-copies">
               <ul>
                 {localCopies.map((f: any) => (
                   <li key={f.name}>
@@ -140,8 +143,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
                   </li>
                 ))}
               </ul>
-            </Accordion>
-          </Accordions>
+          </Disclosure>
         )}
 
         {related.length > 0 && (
@@ -171,7 +173,6 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
   const description = pick(op.description ?? op.summary, locale);
   const { text, pending } = splitPending(description);
   const usage = libs.map((lib: any) => ({ lib, entry: loadUsage(lib.id, spec.id, op.id, locale), fn: status?.libs?.[lib.id]?.functions?.[op.fnId] }));
-  const params = Object.fromEntries(op.params.map((x: any) => [x.name, { type: <code>{x.type}</code>, required: !x.optional }]));
 
   return (
     <section className="scroll-mt-24">
@@ -191,7 +192,7 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
               title={[t(`status.${fn?.status ?? 'missing'}`), fn?.symbol].filter(Boolean).join(' · ')}
               className="inline-flex items-center gap-1.5 rounded-full border bg-fd-card px-2.5 py-1 text-xs hover:bg-fd-accent"
             >
-              <StatusIcon status={(fn?.status ?? 'missing') as Status} label={`${t(`status.${fn?.status ?? 'missing'}`)}:`} className="size-3.5" />
+              <StatusIcon status={(fn?.status ?? 'missing') as Status} label={t(`status.${fn?.status ?? 'missing'}`)} className="size-3.5" />
               {lib.label}
               {fn?.status === 'failing' && <span className="text-fail">{t('status.failedCases', { count: fn.failed })}</span>}
             </Link>
@@ -202,54 +203,78 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
       {text.trim() && <Markdown source={text} />}
 
       {pending.map((note: string, i: number) => (
-        <Callout key={i} type="warn" title={L(locale, 'Pending decision', 'Decisão pendente')}>
+        <Note key={i} type="warn" title={L(locale, 'Pending decision', 'Decisão pendente')}>
           <Markdown source={linkFindings(note, locale)} />
-        </Callout>
+        </Note>
       ))}
 
-      {op.network && <Callout type="info">{t('ops.network')}</Callout>}
-      {op.deprecated && <Callout type="warn">{t('ops.deprecated')}</Callout>}
+      {op.network && <Note type="info">{t('ops.network')}</Note>}
+      {op.deprecated && <Note type="warn">{t('ops.deprecated')}</Note>}
 
-      {op.params.length > 0 && <TypeTable type={params} />}
+      {op.params.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{L(locale, 'Parameter', 'Parâmetro')}</th>
+              <th scope="col">{L(locale, 'Type', 'Tipo')}</th>
+              <th scope="col">{L(locale, 'Required', 'Obrigatório')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {op.params.map((x: any) => (
+              <tr key={x.name}>
+                <td><code>{x.name}</code></td>
+                <td><code>{x.type}</code></td>
+                <td>{x.optional ? L(locale, 'no', 'não') : L(locale, 'yes', 'sim')}</td>
+              </tr>
+            ))}
+            <tr>
+              <td className="text-fd-muted-foreground">{L(locale, 'returns', 'retorna')}</td>
+              <td><code>{op.returns}</code></td>
+              <td />
+            </tr>
+          </tbody>
+        </table>
+      )}
 
-      <Tabs groupId="lang" persist defaultValue={libs[0].id} className="!my-6">
-        <TabsList>
-          {usage.map(({ lib }: any) => (
-            <TabsTrigger key={lib.id} value={lib.id} className="gap-1.5">
+      <FlatTabs
+        groupId="lang"
+        persist
+        label={L(locale, 'Library', 'Biblioteca')}
+        items={usage.map(({ lib, entry, fn }: any) => ({
+          value: lib.id,
+          label: (
+            <>
               <LangIcon lib={lib.id} className="size-3.5" />
               {lib.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        {usage.map(({ lib, entry, fn }: any) => (
-          <TabsContent key={lib.id} value={lib.id}>
-            {entry ? (
-              <>
-                <Markdown source={entry.body} />
-                {entry.source && (
-                  <a href={entry.source} target="_blank" rel="noopener noreferrer" className="not-prose inline-flex items-center gap-1 text-xs text-fd-muted-foreground hover:text-fd-foreground">
-                    {t('usage.source')}: {lib.repo} <ExternalLink className="size-3" />
-                  </a>
-                )}
-              </>
-            ) : (
-              <p className="text-fd-muted-foreground">
-                {isImplemented(fn) ? t('usage.undocumented', { lib: lib.label }) : t('usage.notAvailable', { lib: lib.label })}{' '}
-                <Link href={isImplemented(fn) ? `${p}/contributing/usage-files/` : `${p}/contributing/new-language/`}>
-                  {isImplemented(fn) ? t('usage.document') : t('usage.contribute')}
-                </Link>
-              </p>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+            </>
+          ),
+          content: entry ? (
+            <>
+              <Markdown source={entry.body} />
+              {entry.source && (
+                <a href={entry.source} target="_blank" rel="noopener noreferrer" className="not-prose mt-2 inline-flex items-center gap-1 text-xs text-fd-muted-foreground no-underline hover:text-fd-foreground">
+                  {t('usage.source')}: {lib.repo} <ExternalLink className="size-3" />
+                </a>
+              )}
+            </>
+          ) : (
+            <p className="text-fd-muted-foreground">
+              {isImplemented(fn) ? t('usage.undocumented', { lib: lib.label }) : t('usage.notAvailable', { lib: lib.label })}{' '}
+              <Link href={isImplemented(fn) ? `${p}/contributing/usage-files/` : `${p}/contributing/new-language/`}>
+                {isImplemented(fn) ? t('usage.document') : t('usage.contribute')}
+              </Link>
+            </p>
+          ),
+        }))}
+      />
 
-      <Accordions type="multiple">
+      <div className="my-6">
         <TryIt op={op} locale={locale} />
-        <Accordion title={<span>{t('cases.summary', { count: op.tests.length })} <code className="font-normal">{op.fnId}</code></span>} id={`${anchor}-cases`}>
+        <Disclosure title={<span>{t('cases.summary', { count: op.tests.length })} <code className="font-normal">{op.fnId}</code></span>} id={`${anchor}-cases`}>
           <Cases op={op} locale={locale} libs={libs} status={status} />
-        </Accordion>
-      </Accordions>
+        </Disclosure>
+      </div>
     </section>
   );
 }
@@ -267,7 +292,7 @@ function Cases({ op, locale, libs, status }: any) {
   };
   const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="!my-0 text-sm">
         <thead>
           <tr>
@@ -275,8 +300,7 @@ function Cases({ op, locale, libs, status }: any) {
             <th>{t('testcases.expected')}</th>
             {withStatus.map((lib: any) => (
               <th key={lib.id} className="text-center" title={lib.label}>
-                <span className="inline-flex justify-center"><LangIcon lib={lib.id} /></span>
-                <span className="sr-only">{lib.label}</span>
+                <span role="img" aria-label={lib.label} className="inline-flex justify-center"><LangIcon lib={lib.id} /></span>
               </th>
             ))}
           </tr>

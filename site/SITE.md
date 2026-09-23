@@ -24,6 +24,7 @@ npm run typecheck # TypeScript
 npm run check:i18n
 npm audit         # precisa sair limpo; o CI falha em qualquer severidade
 npm run a11y      # depois do build: axe-core em cada tipo de página
+npm run design    # depois do build: detector do Impeccable (padrões de interface gerada por IA)
 ```
 
 O `npm run a11y` precisa de `playwright` e `axe-core`, que não são dependências do site. Instale
@@ -166,8 +167,8 @@ por dia, e quando uma biblioteca manda `repository_dispatch` com `event_type=lib
 release. `SITE_URL` é a URL pública com o caminho (padrão
 `https://<org>.github.io/api-validator`); o caminho vira o `basePath` do Next. `site-check.yml`
 roda em todo PR que toca `contract/`, `libs/` ou `site/`: `npm audit`, `check:i18n --strict`,
-`lint` sem avisos, `typecheck`, o build (com os arquivos de uso e os guias das bibliotecas) e a
-verificação de acessibilidade (`npm run a11y`).
+`lint` sem avisos, `typecheck`, o build (com os arquivos de uso e os guias das bibliotecas), a
+verificação de acessibilidade (`npm run a11y`) e a de design (`npm run design`).
 
 ## Pendências conhecidas
 

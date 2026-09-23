@@ -18,9 +18,8 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
   }, []);
   const caption = title ? text.demoOf.replace('{title}', title) : text.demo;
   return (
-    <figure className="not-prose my-4 overflow-hidden rounded-xl border bg-fd-card">
-      <figcaption className="flex items-center gap-2 border-b px-3 py-2 text-xs text-fd-muted-foreground">
-        <span className="size-2 rounded-full bg-ok" aria-hidden />
+    <figure className="not-prose my-4">
+      <figcaption className="mb-2 flex items-center gap-2 text-xs text-fd-muted-foreground">
         {caption}
         <a href={src} target="_blank" rel="noopener" className="ms-auto inline-flex items-center gap-1 hover:text-fd-foreground">
           {text.open}
@@ -28,7 +27,7 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
           <ExternalLink aria-hidden className="size-3" />
         </a>
       </figcaption>
-      <iframe ref={frame} src={src} title={caption} loading="lazy" style={{ height }} className="block w-full bg-white" />
+      <iframe ref={frame} src={src} title={caption} loading="lazy" style={{ height }} className="block w-full rounded-lg bg-white" />
     </figure>
   );
 }

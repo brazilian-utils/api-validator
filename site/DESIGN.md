@@ -27,21 +27,21 @@ categories start closed.
 │ started      │ CPF                                          │   Validate       │
 │ ▾ Personal   │ Cadastro de Pessoas Físicas, …               │   Format         │
 │   CPF        │ [Contract] [Edit]                            │   …              │
-│   CNH …      │ [JS 4/5][Py 4/5][Go 3/5] …  one card a lib   │   Specification  │
+│   CNH …      │ JS 4/5 │ Py 4/5 │ Go 3/5 │ …  one strip     │   Specification  │
 │ ▸ Companies  │                                              │   Official       │
 │ ▸ …          │ Validate  cpf.isValid                        │   sources        │
 │              │ ┌ cpf.isValid(cpf: string): boolean ─────┐   │                  │
 │              │ ✓ JavaScript ✓ Python …                      │                  │
 │              │ description · ⚠ pending decision · params    │                  │
-│              │ [JS][Py][Go][Ruby][Rust][.NET][Erlang] tabs  │                  │
-│              │ ▸ Try it   ▸ Shared test cases               │                  │
+│              │ JS  Py  Go  Ruby  Rust  .NET  Erlang (tabs)  │                  │
+│              │ ─ ▸ Try it ─ ▸ Shared test cases ─           │                  │
 └──────────────┴──────────────────────────────────────────────┴──────────────────┘
 ```
 
-The home page is a product page: a headline, the document specimen (type a number, see it
-formatted with the check digits highlighted, valid or not, and the same function in every
-language), the project in numbers, one card per library with its install command and coverage,
-the four steps that keep the libraries the same, and every utility by category.
+The home page: a two-line headline with the numbers in its sentence, the document specimen (type a
+number, see it formatted with the check digits highlighted, valid or not, and the same function in
+every language), the same first call in each language as tabs (install command and a real usage
+example), the four steps that keep the libraries the same, and every utility by category.
 
 ## Tokens
 
@@ -54,20 +54,41 @@ The brand colors (github.com/brazilian-utils/brand: green `#009c3b`, yellow `#ff
 at the bottom of the link preview image.
 
 State is an icon first and a color second: ✓ all good (green), ◐ some (amber), ✕ a case fails
-(red), ! signature differs (amber), ○ not implemented (muted), – not planned or not run.
+(red), ! signature differs (amber), ○ not implemented (muted), - not planned or not run.
 
 Type: Geist Sans for text, Geist Mono for code and document numbers (self-hosted, no CDN). Samba,
 the brand face, only for the wordmark in the header.
 
 ## Rules
 
-1. Every text meets WCAG 2.1 AA in both themes, code included (Shiki's high-contrast themes on
-   the paper background). `npm run a11y` checks it on every page type, light and dark, desktop
-   and phone.
-2. Structure encodes information: tables for things with columns, tabs for alternatives (one
-   library, one framework), accordions for what most readers skip (try it, test cases).
-3. The page loads what it shows. Search, the full reference library and the demos load on use.
-4. Both languages everywhere, from the same data.
+The site follows [Impeccable](https://impeccable.style) (github.com/pbakaus/impeccable) and
+[Taste Skill](https://www.tasteskill.dev) (github.com/Leonxlnx/taste-skill). Design read, as
+Taste Skill asks for it: developer documentation for engineers in seven languages, in a calm
+technical language, on Fumadocs with the Flexoki palette and Geist. Dials: variance 4, motion 3,
+density 5. Impeccable mode: Read (the home page leans Persuade).
+
+1. Every text meets WCAG 2.1 AA in both themes, code included (Shiki's high-contrast themes).
+   `npm run a11y` checks it on every page type, light and dark, desktop and phone.
+2. No card inside a card. Tabs are a row of labels over a rule, with the panel below and no box
+   around it (`flat-tabs.tsx`); "try it" and the test cases are native `<details>` between rules
+   (`disclosure.tsx`). A code block is the only surface in a tab.
+3. Notes are a tinted surface with an icon (`note.tsx`), never a colored side stripe.
+4. No eyebrow labels, no hero metrics, no section numbers, no decorative dots, no progress bars
+   with tracks, no gradient text, no em-dashes. Numbers appear in sentences, where they mean
+   something ("every one runs the same 814 test cases").
+5. Running text stops at 62ch (about 78 characters in Geist); tables and code keep the column.
+6. The parts the browser draws are themed: selection, caret, scrollbars, focus ring, link
+   underline offset, tabular figures.
+7. The page loads what it shows. Search, the full reference library and the demos load on use.
+8. Both languages everywhere, from the same data.
+
+`npm run design` runs Impeccable's detector (61 rules) on every page type, desktop and phone, and
+CI fails on any finding. Exceptions, each on purpose:
+
+- `cream-palette`: the warm paper is Flexoki's, the palette the maintainers chose for the site.
+  Impeccable's own rule is that a pinned palette wins over a saturated-pattern warning.
+- Lucide icons stay (Taste Skill prefers Phosphor or Tabler): Fumadocs draws its own interface
+  with Lucide, and one stroke family across the page matters more than the family.
 
 ## Tried and dropped
 

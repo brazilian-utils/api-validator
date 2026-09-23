@@ -63,7 +63,8 @@ try {
     for (const p of PAGES) {
       await page.goto(url(p));
       await page.waitForTimeout(600);
-      // Open every accordion of the page (try it, test cases), as a reader would.
+      // Open every disclosure of the page (try it, test cases, local copies), as a reader would.
+      await page.evaluate(() => document.querySelectorAll('article details').forEach((d) => (d.open = true)));
       for (const trigger of await page.$$('article button[aria-expanded="false"]')) await trigger.click().catch(() => {});
       await page.waitForTimeout(600);
       await page.addScriptTag({ content: axeSource });

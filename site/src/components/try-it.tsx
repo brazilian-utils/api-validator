@@ -1,7 +1,7 @@
 // "Try it": runs the function with the reference library (JavaScript) in the browser. Only for
 // functions the published package has.
 import * as reference from '@brazilian-utils/brazilian-utils';
-import { Accordion } from 'fumadocs-ui/components/accordion';
+import { Disclosure } from './disclosure';
 import pkg from '@brazilian-utils/brazilian-utils/package.json';
 import { isImplemented, loadLibs, loadStatus } from '@/lib/data';
 import { type Locale, translator } from '@/lib/i18n';
@@ -26,13 +26,13 @@ export function TryIt({ op, locale }: { op: any; locale: Locale }) {
   });
   const cases = op.tests.filter((c: any) => 'returns' in c).map((c: any) => ({ args: c.args, returns: c.returns }));
   return (
-    <Accordion title={<span>{t('try.title', { lib: lib.label })} <code className="font-normal">{fn.symbol}</code></span>} id={`try-${op.fnId.replace('.', '-')}`}>
+    <Disclosure title={<span>{t('try.title', { lib: lib.label })} <code className="font-normal">{fn.symbol}</code></span>} id={`try-${op.fnId.replace('.', '-')}`}>
       <TryItForm
         symbol={fn.symbol}
         fields={fields}
         cases={cases}
         text={{ run: t('try.run'), hint: t('try.hint'), matches: t('try.matches'), differs: t('try.differs'), note: t('try.note', { package: `${lib.package} ${pkg.version}` }) }}
       />
-    </Accordion>
+    </Disclosure>
   );
 }

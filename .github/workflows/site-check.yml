@@ -53,3 +53,8 @@ jobs:
           npm i --no-save --ignore-scripts playwright@1.55.1 axe-core@4.10.3
           npx playwright install --with-deps chromium
           npm run a11y
+      # Impeccable's detector (impeccable.style): no generated-interface patterns (nested cards,
+      # side-stripe callouts, hero metrics…) and no design-quality problems (line length, cramped
+      # padding, overflow), on every page type, desktop and phone. Uses the runner's Chrome.
+      - name: Design
+        run: npm run design

@@ -66,7 +66,7 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
   const [head, digits] = kind && valid ? splitCheck(formatted, kind.check) : [formatted, ''];
 
   return (
-    <section aria-labelledby={`${id}-label`} className="rounded-2xl border bg-fd-card p-5 shadow-sm sm:p-6">
+    <section aria-labelledby={`${id}-label`} className="rounded-2xl border bg-fd-background p-5 sm:p-6">
       <label id={`${id}-label`} htmlFor={`${id}-input`} className="text-sm font-medium">
         {text.label}
       </label>

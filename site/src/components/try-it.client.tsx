@@ -94,7 +94,7 @@ export function TryItForm({ symbol, fields, cases, text }: { symbol: string; fie
           {text.run}
         </button>
       </div>
-      <output aria-live="polite" className="flex min-h-10 flex-wrap items-center gap-3 rounded-md border bg-fd-background px-3 py-2 text-sm">
+      <output aria-live="polite" className="flex min-h-10 flex-wrap items-center gap-3 rounded-md bg-fd-background px-3 py-2 text-sm">
         {!out && <span className="text-fd-muted-foreground">{text.hint}</span>}
         {out?.value !== undefined && <code className="font-mono">{out.value}</code>}
         {out?.verdict && <span className={`text-xs ${out.verdict[0] ? 'text-ok' : 'text-fail'}`}>{out.verdict[1]}</span>}

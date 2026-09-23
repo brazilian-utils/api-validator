@@ -4,7 +4,7 @@
 import Link from '@/components/link';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/notebook/page';
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Note } from '@/components/note';
 import { isImplemented, loadLibs, loadStatus, loadUsageManifest } from '@/lib/data';
 import { type Locale, prefixOf, translator } from '@/lib/i18n';
 import { functionLinks } from '@/lib/links';
@@ -83,7 +83,7 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
 
       <DocsBody>
         {!mine ? (
-          <Callout type="info">{t('lib.noStatus')}</Callout>
+          <Note type="info">{t('lib.noStatus')}</Note>
         ) : (
           <>
             <p className="text-lg">

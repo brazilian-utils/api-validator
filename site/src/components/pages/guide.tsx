@@ -3,8 +3,8 @@
 import Link from '@/components/link';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle, EditOnGitHub } from 'fumadocs-ui/layouts/notebook/page';
-import { Callout } from 'fumadocs-ui/components/callout';
-import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+import { Note } from '@/components/note';
+import { FlatTabs } from '@/components/flat-tabs';
 import { loadGuide, loadGuides, loadLibs } from '@/lib/data';
 import { type Locale, pick, translator } from '@/lib/i18n';
 import { functionLinks } from '@/lib/links';
@@ -38,13 +38,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
     const files = node.children.filter((c: any) => c.kind === 'file');
     if (files.length === 1) return <Markdown source={fence(files[0].code, files[0].lang, files[0].name)} />;
     return (
-      <Tabs items={files.map((f: any) => f.name)}>
-        {files.map((f: any) => (
-          <Tab key={f.name} value={f.name}>
-            <Markdown source={fence(f.code, f.lang)} />
-          </Tab>
-        ))}
-      </Tabs>
+      <FlatTabs items={files.map((f: any) => ({ value: f.name, label: <span className="font-mono text-xs">{f.name}</span>, content: <Markdown source={fence(f.code, f.lang)} /> }))} />
     );
   };
 
@@ -66,13 +60,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
   };
 
   const Examples = ({ list, group }: { list: any[]; group: string }) => (
-    <Tabs groupId={group} persist items={list.map((n) => n.name ?? '')}>
-      {list.map((n) => (
-        <Tab key={n.name} value={n.name ?? ''}>
-          <Content node={n} />
-        </Tab>
-      ))}
-    </Tabs>
+    <FlatTabs groupId={group} persist items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} /> }))} />
   );
 
   return (
@@ -95,7 +83,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
           </div>
         )}
       </div>
-      {guide.locale !== locale && <Callout type="info">{t('guide.englishOnly')}</Callout>}
+      {guide.locale !== locale && <Note type="info">{t('guide.englishOnly')}</Note>}
       <DocsBody>
         {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" />))}
       </DocsBody>

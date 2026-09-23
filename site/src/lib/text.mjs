@@ -37,7 +37,7 @@ export function testIds(fnId, tests) {
 }
 
 /** Text marks for a function's status in a library (tooltips of the parity matrix). */
-export const STATUS_MARK = { ok: '✓', failing: '✕', signature: '!', missing: '○', waived: '–' };
+export const STATUS_MARK = { ok: '✓', failing: '✕', signature: '!', missing: '○', waived: '-' };
 
 /** Implemented: present in the library, whatever its cases do. */
 export const isImplemented = (f) => f?.status === 'ok' || f?.status === 'failing';

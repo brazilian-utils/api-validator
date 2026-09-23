@@ -16,10 +16,13 @@ export type Status = keyof typeof ICON;
 
 export function StatusIcon({ status, label, className = 'size-4' }: { status: Status; label?: string; className?: string }) {
   const [Icon, color] = ICON[status] ?? ICON.missing;
-  return (
-    <>
-      <Icon aria-hidden="true" className={`${className} ${color} shrink-0`} />
-      {label && <span className="sr-only">{label}</span>}
-    </>
+  const icon = <Icon aria-hidden="true" className={`${className} ${color} shrink-0`} />;
+  // Named as an image rather than with visually hidden text: it stays inside scrolling tables.
+  return label ? (
+    <span role="img" aria-label={label} className="inline-flex shrink-0">
+      {icon}
+    </span>
+  ) : (
+    icon
   );
 }

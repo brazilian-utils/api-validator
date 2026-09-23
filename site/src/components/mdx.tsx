@@ -1,6 +1,6 @@
 // Components the hand-written MDX pages can use, on top of Fumadocs' defaults.
 import defaultMdxComponents from 'fumadocs-ui/mdx';
-import { Callout } from 'fumadocs-ui/components/callout';
+import { Note } from '@/components/note';
 import { File, Files, Folder } from 'fumadocs-ui/components/files';
 import type { MDXComponents } from 'mdx/types';
 import type { ReactNode } from 'react';
@@ -11,5 +11,5 @@ function Steps({ children }: { children: ReactNode }) {
 }
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
-  return { ...defaultMdxComponents, Callout, Files, Folder, File, Steps, ...components };
+  return { ...defaultMdxComponents, Callout: Note, Files, Folder, File, Steps, ...components };
 }
