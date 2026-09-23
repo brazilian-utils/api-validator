@@ -3,6 +3,7 @@
  * The libraries, one row each: language (links to its status page), package, install command and
  * how much of the contract it implements in the last validator run.
  */
+import { Icon } from '@astrojs/starlight/components';
 import { loadLibs, loadStatus } from '@lib/registry.mjs';
 import { RAW, pageContext } from '@lib/page';
 
@@ -26,8 +27,8 @@ const pct = (n: number) => `${Math.round(n)}%`;
       {libs.map(({ lib, summary }) => (
         <tr>
           <th scope="row">
-            <a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a>
-            <span class="sub"><a href={lib.registry}>{lib.package}</a> <a href={`https://github.com/${lib.repo}`}>{t('libs.source')}<span class="sr-only"> ({lib.label})</span></a></span>
+            <a href={`${prefix}/libs/${lib.id}/`}>{lib.icon && <Icon name={lib.icon as any} class="icon" />}{lib.label}</a>
+            <span class="sub"><a href={lib.registry} target="_blank" rel="noopener noreferrer">{lib.package}</a> <a href={`https://github.com/${lib.repo}`} target="_blank" rel="noopener noreferrer">{t('libs.source')}<span class="sr-only"> ({lib.label})</span></a></span>
           </th>
           <td><code>{lib.install}</code></td>
           {status && (
@@ -60,6 +61,11 @@ const pct = (n: number) => `${Math.round(n)}%`;
     font-weight: 400;
     color: var(--sl-color-gray-3);
   }
+  .icon {
+    display: inline-block;
+    vertical-align: -0.15em;
+    margin-inline-end: 0.4rem;
+  }
   tbody th > a {
     display: block;
     font-weight: 700;
@@ -77,5 +83,31 @@ const pct = (n: number) => `${Math.round(n)}%`;
   }
   code {
     white-space: nowrap;
+  }
+  /* A phone has no room for three columns: each library becomes a block of three lines. The
+     install command and the coverage explain themselves without the column headers. */
+  @media (max-width: 40rem) {
+    thead {
+      position: absolute;
+      clip: rect(0 0 0 0);
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    tr {
+      display: block;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--sl-color-hairline);
+    }
+    tbody th,
+    td {
+      display: block;
+      border: 0;
+      padding: 0.15rem 0;
+    }
+    .lib-table table td code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
   }
 </style>

@@ -27,33 +27,39 @@ Color (brand palette from github.com/brazilian-utils/brand, tuned for contrast):
 Type:
 
 - **Samba** (brand face) for the site name and page titles only.
-- **Atkinson Hyperlegible Next** for all text. Made by the Braille Institute so that `0/O`,
-  `1/l/I` and `5/S` never look alike. That matters on a site about document numbers.
-- **Atkinson Hyperlegible Mono** for code and identifiers, for the same reason.
+- **Archivo** for all text: the brand's second face (the old CSS already fell back to it), a
+  grotesque with an even color at body size.
+- **Atkinson Hyperlegible Mono** for code, identifiers and document numbers. The Braille Institute
+  made it so that `0/O`, `1/l/I` and `5/S` never look alike, which matters on a site about
+  document numbers. (A first pass used Atkinson for body text too: too wide and mechanical for
+  running prose.)
 - Scale: 1.2 ratio, body 1rem/1.6, line length below 75 characters.
 
 ## Layout
 
 Starlight's three columns stay (sidebar, content, table of contents): readers know them.
 
-Home page, left aligned:
+Home page:
 
 ```
-[dog] Brazilian Utils                                    (title, Samba)
-One spec for Brazilian documents. Seven libraries follow it.
-
- ┌ Type a document ─────────────────────────────────────┐
- │ 529.982.247-25                                       │   the specimen: live, formats as you
- └──────────────────────────────────────────────────────┘   type, check digits highlighted
- CPF, valid. Check digits 25.
- JavaScript isValidCpf   Python is_valid_cpf   Go cpf.IsValid ...
-
-Libraries         table: language, package, install, contract coverage, status page
-How it works      numbered list (it is a sequence): contract → issues → site
+ [dog]                         ┌ Type a Brazilian document number ────────┐
+ Brazilian Utils               │ 83159562131                               │
+ Validate, format and          │ 831.595.621-[31]   ← check digits, yellow │
+ generate Brazilian documents. │ CPF: ✓ valid.                             │
+ One contract, seven languages.│ JavaScript isValidCpf · Python … · Go …   │
+ [Get started]  Browse         └───────────────────────────────────────────┘
+ ─────────────────────────────────────────────────────────────────────────
+ Libraries          table: icon + language, package, install, coverage
+ How the libraries stay the same    1 Contract  2 Issues  3 Tests  4 This site
 ```
 
-Utility page: summary, then one plain line per library ("JavaScript: 4 of 5 operations"), then
-the spec, then one section per operation.
+Utility page: summary, then one line per library (✓ JavaScript 4/5), then the spec, then one
+block per function. A block starts with a rule, the function's name and its signature set as type
+(name bold, types in the link blue), then the status per library, the behavior, an open decision
+as a quiet note, the tabs, and two disclosures of the same look: try it, and the shared cases.
+
+Marks, everywhere: ✓ all good, ◐ some, ✕ a case fails, ! signature differs, ○ not implemented,
+– not planned or not run.
 
 ## Principles
 

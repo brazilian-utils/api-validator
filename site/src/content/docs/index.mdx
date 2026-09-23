@@ -2,16 +2,14 @@
 title: Brazilian Utils
 description: Validate, format and generate Brazilian documents in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang.
 template: splash
+hero:
+  title: Brazilian Utils
+  tagline: Validate, format and generate Brazilian documents. One contract, seven languages.
 editUrl: false
 lastUpdated: false
 ---
 
-import Specimen from '@components/Specimen.astro';
 import LibTable from '@components/LibTable.astro';
-
-Seven libraries validate, format and generate Brazilian documents: CPF, CNPJ, CEP, license plates, boletos and more. One contract defines each function and its test cases. This site shows the contract and how each library follows it.
-
-<Specimen />
 
 ## Libraries
 
@@ -19,12 +17,14 @@ Each library has the same functions, with names in the style of its language. Se
 
 <LibTable />
 
-## How the site stays correct
+## How the libraries stay the same
 
-1. A new function goes into the contract first, with its test cases.
-2. Each library that does not have the function gets an issue.
-3. Each library runs the shared test cases with its own test command.
-4. The site shows the contract, an example from each library and the result of the last test run.
+<ol class="flow">
+  <li><strong>Contract</strong> A new function goes into the contract first, with its test cases.</li>
+  <li><strong>Issues</strong> Each library that does not have the function gets an issue.</li>
+  <li><strong>Tests</strong> Each library runs the shared test cases with its own test command.</li>
+  <li><strong>This site</strong> It shows the contract, an example from each library and the last test results.</li>
+</ol>
 
 The site opens in Portuguese when your browser prefers it. The language menu changes it, and the site keeps your choice.
 

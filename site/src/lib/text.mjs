@@ -37,7 +37,7 @@ export function testIds(fnId, tests) {
 }
 
 /** Marks for a function's status in a library, and for one shared case. Text first, color second. */
-export const STATUS_MARK = { ok: '✓', failing: '✕', signature: '!', missing: '–', waived: '–' };
+export const STATUS_MARK = { ok: '✓', failing: '✕', signature: '!', missing: '○', waived: '–' };
 export const STATUS_CLASS = { ok: 'bu-ok', failing: 'bu-fail', signature: 'bu-warn', missing: 'bu-none', waived: 'bu-none' };
 export const CASE_MARK = { pass: '✓', fail: '✕', 'known-failure': '✕', skip: '–' };
 

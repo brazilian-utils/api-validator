@@ -116,6 +116,8 @@ export const collections = {
           'libs.coverage': z.string(),
           'libs.coverageValue': z.string(),
           'libs.source': z.string(),
+          'home.start': z.string(),
+          'home.browse': z.string(),
         })
         .partial(),
     }),

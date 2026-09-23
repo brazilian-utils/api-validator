@@ -46,7 +46,7 @@ const first = kinds.find((k) => k.domain === 'cpf');
   <p class="formatted" aria-hidden="true"></p>
   <div id="specimen-result" class="result" aria-live="polite"></div>
   <p class="examples">
-    {t('specimen.examples')}
+    <span class="label">{t('specimen.examples')}</span>
     {kinds.filter((k) => k.example).map((k) => (
       <button type="button" data-value={k.example}>{k.title}</button>
     ))}
@@ -239,10 +239,13 @@ const first = kinds.find((k) => k.domain === 'cpf');
     margin: 0.25rem 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0 0.9rem;
     align-items: baseline;
     color: var(--sl-color-gray-3);
     font-size: var(--sl-text-sm);
+  }
+  .examples .label {
+    flex-basis: 100%;
   }
   .examples button {
     font: inherit;

@@ -6,7 +6,6 @@
  */
 import { getCollection } from 'astro:content';
 import { coverage, loadGuides, loadLibs, loadSpec } from '@lib/registry.mjs';
-import { STATUS_CLASS, STATUS_MARK } from '@lib/text.mjs';
 import { RAW, pageContext } from '@lib/page';
 
 interface Props {
@@ -19,14 +18,15 @@ const { locale, prefix } = pageContext(Astro);
 const spec = loadSpec(util);
 const libs = loadLibs();
 const usage = await getCollection('usage', (entry) => entry.data.util === util);
-const STATE = { full: 'ok', partial: 'ok', failing: 'failing', none: 'missing' } as const;
+// Same marks as the parity matrix: all functions ✓, some ◐, a failing case ✕, none ○.
+const MARK = { full: ['✓', 'bu-ok'], partial: ['◐', 'bu-warn'], failing: ['✕', 'bu-fail'], none: ['○', 'bu-none'] } as const;
 
 const availability = spec
   ? libs.map((lib) => {
       const { count, failing, total, state } = coverage(spec, lib.id);
       // The version the library first shipped this utility in, when its usage file says (`since:`).
       const since = usage.find((e) => e.data.lib === lib.id && e.data.since)?.data.since;
-      return { lib, count, failing, total, since, mark: STATUS_MARK[STATE[state]], cls: STATUS_CLASS[STATE[state]] };
+      return { lib, count, failing, total, since, mark: MARK[state][0], cls: MARK[state][1] };
     })
   : [];
 

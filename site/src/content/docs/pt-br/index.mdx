@@ -2,16 +2,14 @@
 title: Brazilian Utils
 description: Valide, formate e gere documentos brasileiros em JavaScript, Python, Go, Ruby, Rust, .NET e Erlang.
 template: splash
+hero:
+  title: Brazilian Utils
+  tagline: Valide, formate e gere documentos brasileiros. Um contrato, sete linguagens.
 editUrl: false
 lastUpdated: false
 ---
 
-import Specimen from '@components/Specimen.astro';
 import LibTable from '@components/LibTable.astro';
-
-Sete bibliotecas validam, formatam e geram documentos brasileiros: CPF, CNPJ, CEP, placas, boletos e outros. Um contrato define cada função e os casos de teste dela. Este site mostra o contrato e como cada biblioteca o segue.
-
-<Specimen />
 
 ## Bibliotecas
 
@@ -19,12 +17,14 @@ Todas as bibliotecas têm as mesmas funções, com nomes no estilo de cada lingu
 
 <LibTable />
 
-## Como o site continua correto
+## Como as bibliotecas continuam iguais
 
-1. Uma função nova entra primeiro no contrato, com os casos de teste.
-2. Cada biblioteca que não tem a função recebe uma issue.
-3. Cada biblioteca roda os casos de teste compartilhados com o próprio comando de teste.
-4. O site mostra o contrato, um exemplo de cada biblioteca e o resultado da última execução dos testes.
+<ol class="flow">
+  <li><strong>Contrato</strong> Uma função nova entra primeiro no contrato, com os casos de teste.</li>
+  <li><strong>Issues</strong> Cada biblioteca que não tem a função recebe uma issue.</li>
+  <li><strong>Testes</strong> Cada biblioteca roda os casos de teste compartilhados com o próprio comando de teste.</li>
+  <li><strong>Este site</strong> Mostra o contrato, um exemplo de cada biblioteca e os últimos resultados dos testes.</li>
+</ol>
 
 O site abre em português quando o navegador prefere português. O menu de idioma muda isso, e o site guarda a sua escolha.
 

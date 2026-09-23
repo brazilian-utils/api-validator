@@ -97,8 +97,10 @@
   "libs.install": "Instalação",
   "libs.coverage": "Contrato",
   "libs.coverageValue": "{{done}} de {{total}} funções, {{core}} das core",
-  "util.since": "desde a {{version}}",
+  "util.since": "desde a versão {{version}}",
   "libs.source": "código-fonte",
   "specimen.checkDigits_one": "O dígito em destaque é o dígito verificador.",
-  "specimen.checkDigits_other": "Os {{count}} dígitos em destaque são os dígitos verificadores."
+  "specimen.checkDigits_other": "Os {{count}} dígitos em destaque são os dígitos verificadores.",
+  "home.start": "Primeiros passos",
+  "home.browse": "Ver os utilitários"
 }

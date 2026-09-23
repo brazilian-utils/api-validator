@@ -22,7 +22,7 @@ const libs = status ? loadLibs().filter((lib) => status.libs[lib.id]) : [];
 
 function result(libId: string, caseId: string) {
   const f = status?.libs[libId]?.functions?.[operation!.fnId];
-  if (!f || f.status === 'missing' || f.status === 'waived') return { cls: 'bu-none', mark: '–', label: t(`status.${f?.status === 'waived' ? 'waived' : 'missing'}`) };
+  if (!f || f.status === 'missing' || f.status === 'waived') return { cls: 'bu-none', mark: f?.status === 'waived' ? '–' : '○', label: t(`status.${f?.status === 'waived' ? 'waived' : 'missing'}`) };
   const r = f.results?.[caseId];
   if (!r) return { cls: 'bu-none', mark: '–', label: t('cases.notRun') };
   return { cls: r === 'pass' ? 'bu-ok' : r === 'skip' ? 'bu-none' : 'bu-fail', mark: CASE_MARK[r as keyof typeof CASE_MARK] ?? '–', label: t(`cases.${r}` as any) };
@@ -35,7 +35,7 @@ const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
 {tests.length === 0 ? (
   <p class="no-cases">{t('testcases.none')}</p>
 ) : (
-  <details class="cases">
+  <details class="cases bu-disclosure not-content">
     <summary>{t('cases.summary', { ...RAW, count: tests.length })}</summary>
     <table tabindex="0" aria-label={`${t('cases.summary', { ...RAW, count: tests.length })}: ${operation!.fnId}`}>
         <thead>
@@ -71,10 +71,22 @@ const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
 )}
 
 <style>
-  .cases summary {
-    cursor: pointer;
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-gray-2);
+  table {
+    margin: 0 0.9rem 0.9rem;
+    width: calc(100% - 1.8rem);
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+  th,
+  td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    text-align: start;
+  }
+  thead th {
+    font-weight: 500;
+    color: var(--sl-color-gray-3);
   }
   table {
     font-size: var(--sl-text-sm);

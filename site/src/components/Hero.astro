@@ -1,0 +1,112 @@
+---
+/**
+ * Starlight's hero, replaced on the home page: title and one line on the left, the specimen (type a
+ * document number) on the right. A hero with an image or actions (the 404 pages) keeps
+ * Starlight's own layout.
+ */
+import Default from '@astrojs/starlight/components/Hero.astro';
+import { Image } from 'astro:assets';
+import icon from '../assets/icon.png';
+import Specimen from './Specimen.astro';
+import { pageContext } from '@lib/page';
+
+const { data } = Astro.locals.starlightRoute.entry;
+const hero = data.hero;
+const home = hero && !hero.image && !hero.actions?.length;
+const { prefix } = pageContext(Astro);
+const t = Astro.locals.t;
+---
+
+{home ? (
+  <div class="home-hero">
+    <div class="intro">
+      <Image src={icon} alt="" width={72} height={72} class="mascot" loading="eager" />
+      <h1 id="_top" data-page-title>{hero.title ?? data.title}</h1>
+      <p class="tagline">{hero.tagline}</p>
+      <p class="links">
+        <a class="primary" href={`${prefix}/getting-started/`}>{t('home.start')}</a>
+        <a href={`${prefix}/utils/cpf/`}>{t('home.browse')}</a>
+      </p>
+    </div>
+    <div class="try">
+      <Specimen />
+    </div>
+  </div>
+) : (
+  <Default />
+)}
+
+<style>
+  .mascot {
+    width: 4.5rem;
+    height: auto;
+  }
+  .home-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 3rem;
+    align-items: center;
+    padding-block: 1.5rem 3rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+  @media (max-width: 50rem) {
+    .home-hero {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding-block: 0.5rem 2rem;
+    }
+    .mascot {
+      width: 3rem;
+    }
+  }
+  h1 {
+    font-family: 'Samba', var(--sl-font);
+    font-weight: 400;
+    font-size: clamp(2.75rem, 6vw, 4.25rem);
+    line-height: 1;
+    margin: 0.75rem 0 1rem;
+    color: var(--sl-color-white);
+  }
+  .tagline {
+    font-size: var(--sl-text-xl);
+    line-height: 1.45;
+    color: var(--sl-color-gray-2);
+    max-width: 28ch;
+    margin: 0;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    align-items: center;
+    margin: 1.75rem 0 0;
+  }
+  .links a {
+    color: var(--bu-link);
+    font-weight: 500;
+  }
+  .links .primary {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-black);
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.3rem;
+    text-decoration: none;
+  }
+  .links .primary:hover {
+    background: var(--sl-color-accent-high);
+  }
+  /* The specimen is the hero's object: one panel, the only one on the page. */
+  .try {
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+  }
+  .try :global(.specimen) {
+    margin: 0;
+    max-width: none;
+  }
+  .try :global(.formatted) {
+    font-size: clamp(2rem, 4.2vw, 3.25rem);
+  }
+</style>

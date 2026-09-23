@@ -106,9 +106,9 @@ const external = { rel: 'noopener noreferrer' };
                   <a href={where.get(id)?.href}>{where.get(id)?.label ?? id}</a>
                   <div class="muted"><code>{id}</code>{f.level === 'core' && ` ${t('lib.coreTag')}`}</div>
                 </td>
-                <td class:list={['nowrap', { 'bu-fail': f.status === 'failing', 'bu-warn': f.status === 'signature', 'bu-none': f.status === 'missing' }]}>{t(`status.short.${f.status}` as any)}</td>
+                <td title={t(`status.${f.status}` as any)} class:list={['nowrap', { 'bu-fail': f.status === 'failing', 'bu-warn': f.status === 'signature', 'bu-none': f.status === 'missing' }]}>{t(`status.short.${f.status}` as any)}</td>
                 <td class="small">{f.status === 'failing' ? t('status.failedCases', { ...RAW, count: f.failed }) : f.status === 'signature' ? f.issues.join('. ') : f.suggestions?.length ? t('lib.maybe', { ...RAW, symbols: f.suggestions.join(', ') }) : ''}</td>
-                <td class="small">{by.length ? by.join(', ') : t('lib.nobody')}</td>
+                <td class="small">{by.length ? `${by.length}: ${by.join(', ')}` : t('lib.nobody')}</td>
               </tr>
             ))}
           </tbody>

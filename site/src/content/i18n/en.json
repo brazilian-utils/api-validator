@@ -97,8 +97,10 @@
   "libs.install": "Install",
   "libs.coverage": "Contract",
   "libs.coverageValue": "{{done}} of {{total}} functions, {{core}} of core",
-  "util.since": "since {{version}}",
+  "util.since": "since version {{version}}",
   "libs.source": "source code",
   "specimen.checkDigits_one": "The highlighted digit is the check digit.",
-  "specimen.checkDigits_other": "The {{count}} highlighted digits are the check digits."
+  "specimen.checkDigits_other": "The {{count}} highlighted digits are the check digits.",
+  "home.start": "Get started",
+  "home.browse": "Browse the utilities"
 }

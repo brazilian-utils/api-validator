@@ -47,7 +47,7 @@ const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) 
 ---
 
 {usable && (
-  <details class="try-it not-content" data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
+  <details class="try-it bu-disclosure not-content" data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
     <summary>{t('try.title', { ...RAW, lib: lib!.label })} <code>{fn.symbol}</code></summary>
     <form>
       {params.map((p: any) => (
@@ -131,18 +131,6 @@ const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) 
 </script>
 
 <style>
-  .try-it {
-    margin: 1rem 0;
-    border: 1px solid var(--sl-color-hairline);
-    border-radius: 0.5rem;
-    background: var(--sl-color-bg-nav);
-  }
-  summary {
-    cursor: pointer;
-    padding: 0.55rem 0.9rem;
-    font-weight: 600;
-    font-size: var(--sl-text-sm);
-  }
   summary code { font-weight: 400; margin-inline-start: 0.25rem; }
   form {
     display: flex;

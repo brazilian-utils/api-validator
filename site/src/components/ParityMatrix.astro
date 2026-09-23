@@ -23,7 +23,7 @@ function cell(spec: any, libId: string) {
 
 const groups = CATEGORIES.map((c: any) => ({ c, specs: specs.filter((s: any) => s.category === c.id) })).filter((g: any) => g.specs.length);
 // Marks: text first, color second. The legend is built from the same map.
-const MARKS: Array<[state: string, mark: string, cls: string]> = [['full', '✓', 'bu-ok'], ['partial', '◐', 'bu-warn'], ['failing', '✕', 'bu-fail'], ['none', '–', 'bu-none']];
+const MARKS: Array<[state: string, mark: string, cls: string]> = [['full', '✓', 'bu-ok'], ['partial', '◐', 'bu-warn'], ['failing', '✕', 'bu-fail'], ['none', '○', 'bu-none']];
 const mark = Object.fromEntries(MARKS.map(([state, m, cls]) => [state, { m, cls }]));
 ---
 
@@ -62,6 +62,7 @@ const mark = Object.fromEntries(MARKS.map(([state, m, cls]) => [state, { m, cls 
   </div>
 
   <p class="legend">
+    <span>{t('parity.legend')}:</span>
     {MARKS.filter(([state]) => status || state !== 'failing').map(([state, m, cls]) => (
       <span><span class={cls} aria-hidden="true">{m}</span> {t(`parity.${state}` as any)}</span>
     ))}

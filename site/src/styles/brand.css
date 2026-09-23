@@ -16,7 +16,7 @@
 
 /* Dark theme (Starlight's default): a night version of the brand blue. */
 :root {
-  --sl-font: 'Atkinson Hyperlegible Next', system-ui, sans-serif;
+  --sl-font: 'Archivo', system-ui, sans-serif;
   --sl-font-mono: 'Atkinson Hyperlegible Mono', ui-monospace, monospace;
   --sl-color-accent-low: #10391f;
   --sl-color-accent: #4ad17f;
@@ -57,6 +57,13 @@
   --bu-ok: #00692a;
   --bu-fail: #b3261e;
   --bu-warn: #8a5300;
+}
+
+/* Room for code: pages here are half code. Running text keeps its own measure (below). */
+:root {
+  --sl-content-width: 50rem;
+  --sl-text-body: 1.0625rem;
+  --sl-line-height: 1.65;
 }
 
 /* The brand face for the site name and page titles only. */
@@ -106,4 +113,116 @@ header.header {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Headings: a clear scale, tight leading, no extra weight on top of the size. */
+.sl-markdown-content :is(h2, h3) {
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.sl-markdown-content h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 3rem;
+}
+.sl-markdown-content h3 {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+
+/* Language tabs: seven fit on one line. */
+starlight-tabs [role='tab'] {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--sl-text-sm);
+  gap: 0.35rem;
+}
+starlight-tabs .tablist-wrapper {
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+/*
+ * One contract function on a utility page (scripts/generate-pages.mjs): a rule above it, its
+ * name and signature as a header, then status, description, examples, try-it and cases.
+ */
+.sl-markdown-content .fn {
+  margin-top: 3.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--sl-color-gray-5);
+}
+.sl-markdown-content :is(h2, .sl-heading-wrapper) + .fn {
+  margin-top: 1.5rem;
+}
+.sl-markdown-content .fn > h3:first-child,
+.sl-markdown-content .fn > :first-child h3 {
+  margin-top: 0;
+}
+.sl-markdown-content .fn > * + * {
+  margin-top: 1rem;
+}
+
+/* Home: the four steps of the flow side by side (a real sequence, so numbered). */
+.sl-markdown-content ol.flow {
+  list-style: none;
+  counter-reset: flow;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+  max-width: none;
+}
+.sl-markdown-content ol.flow li {
+  counter-increment: flow;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 3px solid var(--bu-brand-green);
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+}
+.sl-markdown-content ol.flow li::before {
+  content: counter(flow);
+  display: block;
+  font-family: var(--sl-font-mono);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--sl-color-accent);
+  margin-bottom: 0.5rem;
+}
+.sl-markdown-content ol.flow strong {
+  display: block;
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-base);
+}
+
+/* The two disclosures under each function (try it, shared test cases): one look for both. */
+.bu-disclosure {
+  margin: 0.75rem 0 0;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.4rem;
+  background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+}
+.bu-disclosure > summary {
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  font-weight: 500;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-1);
+  list-style-position: inside;
+}
+.bu-disclosure > summary:hover {
+  color: var(--sl-color-white);
+}
+.bu-disclosure[open] > summary {
+  border-bottom: 1px solid var(--sl-color-hairline);
+  margin-bottom: 0.75rem;
+}
+
+/* An open decision of the maintainers, under a function: visible, but quieter than the behavior. */
+.sl-markdown-content .pending {
+  border-inline-start: 3px solid var(--sl-color-gray-5);
+  padding: 0.1rem 0 0.1rem 0.9rem;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-2);
+}
+.sl-markdown-content .pending strong {
+  color: var(--sl-color-white);
 }

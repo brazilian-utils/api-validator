@@ -55,14 +55,16 @@ export default defineConfig({
       // Needs git history; the site lives in a git repository now.
       lastUpdated: true,
       customCss: [
-        '@fontsource/atkinson-hyperlegible-next/400.css',
-        '@fontsource/atkinson-hyperlegible-next/400-italic.css',
-        '@fontsource/atkinson-hyperlegible-next/700.css',
+        '@fontsource/archivo/400.css',
+        '@fontsource/archivo/500.css',
+        '@fontsource/archivo/700.css',
         '@fontsource/atkinson-hyperlegible-mono/400.css',
+        '@fontsource/atkinson-hyperlegible-mono/700.css',
         './src/styles/brand.css',
       ],
       components: {
         Head: './src/components/Head.astro',
+        Hero: './src/components/Hero.astro',
       },
       head: [
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: `${BASE_PATH.replace(/\/$/, '')}/apple-touch-icon.png` } },

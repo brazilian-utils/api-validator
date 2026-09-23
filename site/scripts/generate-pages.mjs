@@ -17,13 +17,40 @@ import { DOCS_DIR, LANGS, LANG_PREFIX, REPO_URL, loadGuide, loadGuides, loadLibs
 import { signature } from '../src/lib/text.mjs';
 
 const HEADINGS = {
-  en: { operations: 'Usage', references: 'Official sources', libTitle: (l) => `${l} library`, conventions: 'API conventions' },
-  'pt-BR': { operations: 'Uso', references: 'Fontes oficiais', libTitle: (l) => `Biblioteca ${l}`, conventions: 'Convenções da API' },
+  en: { pending: 'Pending decision', operations: 'Usage', references: 'Official sources', libTitle: (l) => `${l} library`, conventions: 'API conventions' },
+  'pt-BR': { pending: 'Decisão pendente', operations: 'Uso', references: 'Fontes oficiais', libTitle: (l) => `Biblioteca ${l}`, conventions: 'Convenções da API' },
 };
 const LIB_DESCRIPTION = {
   en: (l) => `What the ${l} library implements from the shared contract, what fails, and what to do next.`,
   'pt-BR': (l) => `O que a biblioteca ${l} implementa do contrato compartilhado, o que falha e o que fazer agora.`,
 };
+/**
+ * Bullets that record an open decision of the maintainers ("Pending decision (findings §2 #1): …")
+ * come out of the description and show as a note after it, so the behavior reads first.
+ */
+function splitPending(markdown) {
+  const pending = [];
+  const text = markdown
+    .split('\n')
+    .filter((line) => {
+      const m = /^\s*[-*]\s+(?:Pending decision|Decisão pendente)\s*(.*)$/i.exec(line);
+      if (m) pending.push(m[1].replace(/^[:\s]+/, ''));
+      return !m;
+    })
+    .join('\n');
+  return { text, pending };
+}
+
+/** "(findings §2 #1)" → a link to that section of docs/findings.md. */
+const FINDINGS = { '1': '1-cases-in-the-contract-that-some-libraries-fail', '1b': '1b-found-by-the-506-cases-added-from-the-js-reference-tests', '2': '2-decisions-needed-not-encoded-yet' };
+function linkFindings(note, lang) {
+  const m = /^\(findings (§(\w+)[^)]*)\):?\s*/.exec(note);
+  if (!m) return note;
+  const text = note.slice(m[0].length).replace(/^./, (c) => c.toUpperCase());
+  const link = FINDINGS[m[2]] ? `[findings ${m[1]}](${REPO_URL}/blob/main/docs/findings.md#${FINDINGS[m[2]]})` : `findings ${m[1]}`;
+  return `${text} ${lang === 'pt-BR' ? 'Veja' : 'See'} ${link}.`;
+}
+
 /** Contract prose in the page's language, else English. */
 const textIn = (t, lang) => t?.[lang] ?? t?.en;
 
@@ -59,16 +86,18 @@ function utilPage(spec, lang) {
   const ops = spec.operations
     .map((op) => {
       const notes = op.network || op.deprecated;
+      const { text, pending } = splitPending(textIn(op.description, lang) || textIn(op.summary, lang) || '');
       return [
+        '<section class="fn">',
+        '',
         `### ${mdxText(op.label[lang])}`,
         '',
-        '```txt wrap',
-        signature(op),
-        '```',
+        `<Signature fn="${op.fnId}" />`,
         '',
         `<OpStatus fn="${op.fnId}" />`,
         '',
-        mdx(textIn(op.description, lang) || textIn(op.summary, lang) || ''),
+        mdx(text),
+        ...pending.map((note) => `\n<div class="pending" role="note">\n\n**${h.pending}.** ${mdx(linkFindings(note, lang))}\n\n</div>`),
         notes ? `\n<OpNotes network={${op.network}} deprecated={${op.deprecated}} />` : '',
         '',
         `<Usage util="${spec.id}" op="${op.id}" fn="${op.fnId}" />`,
@@ -76,6 +105,8 @@ function utilPage(spec, lang) {
         `<TryIt util="${spec.id}" op="${op.id}" />`,
         '',
         `<Cases util="${spec.id}" op="${op.id}" />`,
+        '',
+        '</section>',
         '',
       ].join('\n');
     })
@@ -94,6 +125,7 @@ import Cases from '@components/Cases.astro';
 import OpStatus from '@components/OpStatus.astro';
 import OpNotes from '@components/OpNotes.astro';
 import OpsIntro from '@components/OpsIntro.astro';
+import Signature from '@components/Signature.astro';
 import TryIt from '@components/TryIt.astro';
 
 <UtilHeader util="${spec.id}" />
