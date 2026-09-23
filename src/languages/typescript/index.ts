@@ -7,7 +7,6 @@ import { LANGUAGES_DIR, PACKAGE_ROOT } from "../../core/paths.js";
 import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.js";
 import { runJsonProcess } from "../shared/process-runner.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { typescriptTestgen } from "./testgen.js";
 
 function isDeprecatedNode(node: Node): boolean {
   const holders: Node[] = [node];
@@ -178,7 +177,6 @@ export const typescript: LanguageAdapter = {
   extract,
   mapType: (native) => mapTs(native),
   tools: [{ bin: "node", purpose: "extraction (TypeScript compiler) and shared tests", install: "https://nodejs.org" }],
-  testgen: typescriptTestgen((t) => mapTs(t)),
   runner: {
     requires: ["node"],
     async run(ctx, calls) {

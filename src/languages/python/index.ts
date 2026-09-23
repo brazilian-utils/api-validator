@@ -7,7 +7,6 @@ import { parseJsonOutput, runOrThrow } from "../../core/shell.js";
 import { runJsonProcess } from "../shared/process-runner.js";
 import { listOf, makeTypeMapper, nullableOf, unionOf } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { pythonTestgen } from "./testgen.js";
 
 /** Interpreter: lib option `python` (e.g. a venv path) > $API_VALIDATOR_PYTHON > python3. */
 function interpreter(ctx: AdapterContext): string {
@@ -80,9 +79,7 @@ export const python: LanguageAdapter = {
   mapType: (native) => mapPy(native),
   tools: [
     { bin: "python3", purpose: "extraction (griffe) and shared tests", install: "https://www.python.org/downloads/" },
-    { bin: "ruff", purpose: "formatting exported tests", install: "pip install ruff", optional: true }
   ],
-  testgen: pythonTestgen,
   runner: {
     requires: ["python3"],
     async run(ctx, calls) {

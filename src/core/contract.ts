@@ -44,6 +44,10 @@ const FunctionSchema = z
     flatName: identifier.optional(),
     aliases: z.array(z.string().regex(/^[a-z][A-Za-z0-9]*\.[a-z][A-Za-z0-9]*$/, "must be domain.operation")).default([]),
     summary: z.string().optional(),
+    /** Language-agnostic spec in markdown: rules, edge cases, bad-input behaviour. */
+    description: z.string().optional(),
+    /** Links to authoritative sources (official specs, manuals). */
+    references: z.array(z.string().url()).default([]),
     level: z.enum(["core", "extended"]).default("extended"),
     params: z.array(ParamSchema).default([]),
     returns: z.string().min(1),
@@ -190,6 +194,8 @@ export function loadContract(dir: string): Contract {
         flatName,
         spellings,
         summary: fn.summary,
+        description: fn.description,
+        references: fn.references,
         level: fn.level,
         params: fn.params,
         returns: fn.returns,

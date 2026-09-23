@@ -8,7 +8,6 @@ import { parseJsonOutput, runOrThrow } from "../../core/shell.js";
 import { runJsonProcess } from "../shared/process-runner.js";
 import { listOf, makeTypeMapper } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
-import { rubyTestgen } from "./testgen.js";
 
 const env = { ...process.env, LANG: "C.UTF-8", LC_ALL: "C.UTF-8" };
 
@@ -80,9 +79,8 @@ export const ruby: LanguageAdapter = {
   mapType: (native) => mapRuby(native),
   tools: [
     { bin: "ruby", purpose: "extraction (reflection + YARD) and shared tests", install: "https://www.ruby-lang.org/en/documentation/installation/" },
-    { bin: "bundle", purpose: "running exported RSpec tests", install: "gem install bundler", optional: true }
+    { bin: "bundle", purpose: "running the lib's harness (rspec)", install: "gem install bundler", optional: true }
   ],
-  testgen: rubyTestgen,
   runner: {
     requires: ["ruby"],
     async run(ctx, calls) {

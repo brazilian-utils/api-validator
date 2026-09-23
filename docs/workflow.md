@@ -34,7 +34,7 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
 | You want | Mechanism | Where |
 |---|---|---|
 | Same API everywhere: names, inputs, outputs, in each language's idiom | The contract declares `domain.operation` + canonical types; each language adapter maps them to its idiom (`cpf.isValid` → `isValidCpf` / `cpf.is_valid` / `cpf.IsValid` / `CPFUtils.valid?`...) and checks the real signature extracted from source | `check` |
-| Same logic everywhere | Shared test vectors in the contract run unchanged in every language through a thin per-language runner, **and** are exported into every lib as a native test file its own `test` command runs; `diff` feeds the same mined inputs to all libs and fails on any *new* disagreement | `check --tests`, `export-tests`, `diff --fail-on-new` |
+| Same logic everywhere | Shared test cases in the contract run unchanged in every language through a thin per-language runner, **and** inside every lib as a JSON suite its own harness runs; `diff` feeds the same mined inputs to all libs and fails on any *new* disagreement | `check --tests`, `export-cases`, `diff --fail-on-new` |
 | Libs stay in sync (same functions, fixes propagated) | Contract-first rule enforced by CI + an auto-maintained "api-contract" issue in every repo with a porting brief per missing/failing item | Action, `issue`, `brief` |
 
 ## The flows
@@ -53,8 +53,8 @@ is the single source of truth; the tooling makes drift impossible to miss and ch
    are the objective acceptance criterion, so the agent does not need to "understand" the
    other codebase). The lib's CI (the Action) shows it passing.
 5. `api-validator baseline` in this repo locks it in: from now on, breaking it in any lib
-   fails that lib's CI. The next nightly regenerates each lib's exported test file with the
-   new vectors un-skipped (bot PR).
+   fails that lib's CI. The next nightly refreshes each lib's `api-contract/` (bot PR), and
+   its harness runs the new cases.
 
 The first lib to implement it can also start the flow: its CI fails with
 "public but not in the contract" (see rule below), which is the prompt to open the
@@ -70,7 +70,7 @@ the same source). So:
 2. The Conformance run shows exactly which libs have the bug. On merge, each affected
    lib's issue lists the failing vector with expected vs actual.
 3. Fix in each lib; the vector keeps all of them honest forever: it is in every lib's own
-   test suite too (exported, skipped until that lib is fixed).
+   test suite too (vendored, skipped until that lib is fixed).
 
 `diff` often finds these before users do: this repo's first run found that four libs
 accept `"00000000000"` as a valid PIS, and that Python rejects CNHs the other libs accept.
@@ -86,35 +86,62 @@ visible without failing CI.
 
 ## Tests: here, and in the libs too
 
-The contract vectors run in two places, on purpose:
+The contract cases run in two places, on purpose, from one source:
 
-| | Contract vectors via the validator (`check --tests`) | Same vectors exported into the lib (`export-tests`) |
+| | Via the validator (`check --tests`) | Inside the lib (its harness over `api-contract/`) |
 |---|---|---|
-| Runs | here (nightly, contract PRs) and in the lib's CI through the Action | in the lib's own test command: `python -m unittest`, `npm test`, `go test ./...`, `cargo test`, `rspec`, `rebar3 eunit`, `dotnet test` |
-| Needs this repo | yes | no: plain native test code, no dependency |
-| Good for | the cross-lib view: same answer in all 7 libs, API/signature checks, the dashboard, issues, differential testing | the developer's inner loop: a vector fails in the editor/`test` command they already run, reads like their other tests, shows up in coverage and mutation testing |
-| Kept honest by | baselines (ratchet) | `export-tests --check` in the Action (stale file ⇒ warning or failure) + a nightly bot PR that regenerates it |
+| Runs | here (nightly, contract PRs) and in the lib's CI through the Action | in the lib's own test command: `npm test`, `python -m unittest`, `go test ./...`, `cargo test`, `rspec`, `rebar3 eunit`, `dotnet test` |
+| Needs this repo | yes | no: a vendored JSON copy + one test file in the lib's language |
+| Good for | the cross-lib view: same answer in all 7 libs, API/signature checks, the status site, issues, differential testing | the developer's inner loop: a case fails in the `test` command they already run, shows up in coverage and mutation testing |
+| Kept honest by | baselines (ratchet) | `export-cases --check` in the Action + a nightly bot PR refreshing `api-contract/` |
+
+**Why JSON + a hand-written harness, not generated test code.** The suite is data — one
+file per domain, no knowledge of any language (the model of JSON-Schema-Test-Suite and the
+WHATWG URL tests). Each lib owns a small harness written once in its own idiom: a registry
+from contract id to its function (where idioms are adapted: options objects, `(T, bool)`,
+`Option`, `{ok, V}`), a loop over the cases, and one shared set of comparison rules (checked
+by `cases/equality.json`). Nobody here needs to know seven test frameworks, a new language
+needs no code in this repo to run the suite, and adding a function to a lib is one registry
+line. The harness is also *more* capable than the validator's generated runners for typed
+languages: it can supply a default for an argument Go or Rust requires, or read a result
+type the runner cannot serialise.
 
 What stays **only in the lib**: tests of internals and language-specific surface (option
 objects, overloads, type-level tests, property tests with the language's own generators,
 error messages). What stays **only here**: API matching, public-surface control,
 differential testing, and anything about *comparing* libs.
 
-The exported file is generated, never edited: a wrong expectation is fixed in
-`contract/`, a wrong behaviour in the lib. Tests a lib does not pass yet (in
-`knownFailures`, or not in its baseline) are exported as *skipped with the reason*, so the
-lib's suite is green on adoption and each fix un-skips a test on the next regeneration.
+The suite is vendored, never edited: a wrong expectation is fixed in `contract/`, a wrong
+behaviour in the lib. Cases a lib does not pass yet are listed in its `skip.json` with the
+reason (the last failure message), so the lib's suite is green on adoption; the refresh after
+a fix drops the entry and the case runs from then on.
 
 ## What runs automatically
 
 | When | What | Fails on |
 |---|---|---|
 | Contract / lib-config PR here | `lint`, `fmt --check`, `check --tests` on all libs, `diff --fail-on-new`, contract `changelog` in the job summary | regressions, new divergences, invalid contract |
-| Nightly here | all of the above on every lib's default branch + dashboard + badges, then: sync the `api-contract` issue in every lib, and open/update an `api-contract/exported-tests` PR in every lib whose exported test file changed | regressions, new divergences |
-| Every lib push/PR | the Action: `check --tests` against the baseline + `export-tests --check`; the lib's own test job runs the exported file | regressions, public API outside the contract, (optionally) a stale exported file |
+| Nightly here | all of the above on every lib's default branch, then: publish the status site (a page per lib and per function, badges, the JSON suite), sync the `api-contract` issue in every lib, and open/update an `api-contract/cases` PR in every lib whose `api-contract/` changed | regressions, new divergences |
+| Every lib push/PR | the Action: `check --tests` against the baseline + `export-cases --check`; the lib's own test job runs its harness | regressions, public API outside the contract, (optionally) a stale suite copy |
 
 Nothing needs a person to remember a step: a merged contract change reaches every lib as an
-issue item (what to implement or fix, with a brief) and as a PR (the new tests).
+issue item (what to implement or fix, with a brief), as a PR (the new cases), and on its
+status page.
+
+## Where a lib sees how it stands
+
+The status site, linked from the badge in every lib's README:
+
+- **lib page**: core coverage and cases passing next to every other lib; the work list
+  (failing first, then signatures, then missing core, then extended — ordered by how many libs
+  already have each function); failing cases with expected vs actual; public API outside the
+  contract; inputs where it answers differently from the others.
+- **function page**: the spec (summary, description, references), the implementation in each
+  lib with a link to its source, a case × lib matrix, failures, divergences, and the reference
+  implementation's source.
+
+Everything on it is computed from the contract and the nightly reports (`api-validator site`);
+the same data is in `api/libs/<lib>.json` for scripts.
 
 ## Rules that make it work
 
@@ -138,7 +165,7 @@ issue item (what to implement or fix, with a brief) and as a PR (the new tests).
 | Lib maintainer | Works from the `api-contract` issue; the lib CI (Action) shows progress in the job summary |
 | Contract maintainer | Reviews contract PRs; runs `diff` for new domains; decides behaviour questions |
 | Anyone | `api-validator brief <fn> --lib <lib>` before porting something |
-| Nightly job | Syncs all libs, runs `check --tests` + `diff`, refreshes the dashboard and issues, opens exported-test PRs |
+| Nightly job | Syncs all libs, runs `check --tests` + `diff`, publishes the status site, refreshes issues, opens suite-refresh PRs |
 | New machine / new contributor | `api-validator doctor` lists every toolchain the configured libs need and what is missing |
 
 ## Using a coding agent for the ports

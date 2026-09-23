@@ -9,12 +9,15 @@ languages.
   in that language's idiom (`cpf.isValid` → `isValidCpf` · `cpf.is_valid` · `cpf.IsValid` ·
   `CPFUtils.valid?` · `brutils:is_valid_cpf/1` · `Cpf.IsValid`).
 - **Same behaviour**: the contract carries shared test vectors that run, unchanged, against
-  every lib — here through a thin runner per language, and inside each lib as a generated
-  native test file its own test command runs (`export-tests`). Differential testing feeds the
-  same mined inputs to all libs and fails on any new disagreement.
+  every lib — here through a thin runner per language, and inside each lib as a JSON
+  conformance suite (`api-contract/`) its own small harness runs with its own test command.
+  Differential testing feeds the same mined inputs to all libs and fails on any new
+  disagreement.
 - **In sync**: CI in each lib fails on regressions and on public API added outside the
   contract; every lib repo gets an auto-maintained issue with a porting brief for each
-  missing or failing function, and a bot PR whenever its exported tests change.
+  missing or failing function, and a bot PR whenever its copy of the suite changes.
+- **Visible**: a status site (a page per lib and per function) that each lib's README badge
+  links to: how the lib compares with the others, what it is missing, what fails and why.
 
 See **[docs/workflow.md](docs/workflow.md)** for the maintenance workflow,
 **[docs/findings.md](docs/findings.md)** for what the first run found and
@@ -27,7 +30,7 @@ npm ci
 npx tsx src/cli.ts doctor          # which toolchains are installed / missing
 npx tsx src/cli.ts sync            # clone/update every lib into .repos/
 npx tsx src/cli.ts check --tests   # contract + shared tests for all libs
-open output/index.html             # dashboard; output/<lib>.md = TODO list per lib
+npx tsx src/cli.ts site            # status site in output/site/ (open index.html)
 ```
 
 Running the shared tests needs each lib's toolchain (and dependencies) installed; libs whose
@@ -45,7 +48,9 @@ toolchain is missing are still checked for API.
 | `todo -l <lib>` | Markdown TODO list of a lib, most important first |
 | `brief <fn> -l <lib>` | Porting brief: idiomatic name, signature, acceptance tests, reference source, links to every implementation |
 | `issue -l <lib>` | Body of the lib's sync issue (TODO + briefs) |
-| `export-tests -l <lib> [--path .] [--check]` | Write the contract tests as a native test file of the lib (unittest, vitest, `go test`, `cargo test`, RSpec, EUnit, xUnit); `--check` fails when it is stale |
+| `cases` | Write the JSON conformance suite (`cases/<domain>.json`, schema, index, equality self-test) |
+| `export-cases -l <lib> [--path .] [--check]` | Vendor the suite into a lib (`api-contract/`, with the lib's `skip.json`); `--check` fails when it is behind |
+| `site [--base-url url]` | Build the status site from the latest reports: overview, a page per lib and per function, badges, the suite |
 | `diff [--fn 'cpf.*']` | Differential testing across libs; `--baseline` records today's splits, `--fail-on-new` fails only on new ones; `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
 | `changelog [--from ref] [--to ref]` | Contract changes between git refs (new functions, signature changes, new/changed vectors) as markdown |
 | `doctor` | Toolchains every configured lib needs, and what is missing |
@@ -81,29 +86,38 @@ up the language and call this repository's Action:
 
 The job summary shows the lib's TODO list. It fails when something in the lib's baseline
 stops conforming, or when a new public function appears that the contract does not know.
-It also warns (`exported-tests: check` to fail) when the lib's exported contract test file
-is out of date.
+It also warns (`cases: check` to fail) when the lib's vendored conformance suite is behind
+the contract.
 
-### The contract tests inside the lib
+### The shared cases inside the lib
 
-```bash
-npx tsx /path/to/api-validator/src/cli.ts export-tests --lib brazilian-utils-python --path .
-python -m unittest tests/test_api_contract.py
-```
+Each lib keeps a copy of the JSON suite in `api-contract/` (refreshed by a nightly bot PR) and a
+**harness**: one test file, written once in the lib's language, with a registry from contract
+function id to the lib's function. Its normal test command runs every case; missing functions
+are skipped as "not implemented", cases the lib does not pass yet are skipped with the reason
+(`skip.json`). Spec: [docs/harness.md](docs/harness.md); ready harnesses for every lib:
+[templates/harness/](templates/harness).
 
-| Lib | File | Run with |
+| Lib | Harness | Run with |
 |---|---|---|
-| JavaScript | `src/api-contract.test.ts` | `npm test -- src/api-contract.test.ts` |
-| Python | `tests/test_api_contract.py` | `python -m unittest tests/test_api_contract.py` |
-| Go | `apicontract/api_contract_test.go` | `go test ./apicontract` |
-| Rust | `tests/api_contract.rs` | `cargo test --test api_contract` |
+| JavaScript | `src/api-contract.test.ts` | `npm test` |
+| Python | `tests/test_api_contract.py` | `python -m unittest tests.test_api_contract` |
+| Go | `apicontract/apicontract_test.go` | `go test ./apicontract` |
+| Rust | `tests/api_contract.rs` (`harness = false`) | `cargo test --test api_contract` |
 | Ruby | `spec/api_contract_spec.rb` | `bundle exec rspec spec/api_contract_spec.rb` |
 | Erlang | `test/brutils_api_contract_tests.erl` | `rebar3 eunit --module=brutils_api_contract_tests` |
-| .NET | `BrazilianUtils.Tests/ApiContractTests.fs` (+ `<Compile Include>`) | `dotnet test BrazilianUtils.Tests/…fsproj --filter …ApiContractTests` |
+| .NET | `BrazilianUtils.Tests/ApiContractTests.fs` | `dotnet test --filter FullyQualifiedName~ApiContractTests` |
 
-Generated, never edited (fix expectations in `contract/`, behaviour in the lib). Tests the lib
-does not pass yet are skipped with the reason and un-skip on regeneration once fixed. Why
-both here and in the lib: [docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libs-too).
+Adding a function to a lib = implement it + one registry line. Why the cases run both here and
+in the lib: [docs/workflow.md](docs/workflow.md#tests-here-and-in-the-libs-too).
+
+### Status page and badge
+
+The nightly run publishes the status site. Each lib's README:
+
+```markdown
+[![API contract](https://brazilian-utils.github.io/api-validator/badges/python.svg)](https://brazilian-utils.github.io/api-validator/libs/python/)
+```
 
 Locally, from a lib checkout: `npx tsx /path/to/api-validator/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
@@ -112,11 +126,6 @@ brazilian-utils-python --path . --tests`.
 workflow that hands the porting brief of the chosen functions to a coding agent, which
 implements them, iterates until the shared tests pass and opens a PR for review.
 
-With the dashboard published (`vars.PUBLISH_DASHBOARD`), each lib can show a badge:
-
-```markdown
-![API contract](https://img.shields.io/endpoint?url=https://brazilian-utils.github.io/api-validator/badges/python.json)
-```
 
 ## How it works
 

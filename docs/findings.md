@@ -58,20 +58,24 @@ positional arguments elsewhere, and `format` returning `string?` in Python/Ruby/
 
 ## 3. Coverage snapshot (after the 506 new vectors)
 
-| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Exported native tests (pass / skipped) |
+| Lib | Contract coverage | Core coverage | Shared tests (pass/fail/skip) | Lib's own harness (pass / skipped) |
 |---|---|---|---|---|
 | javascript | 92.5% | 80.4% | 697 / 0 / 0 | 697 / 0 (vitest) |
-| python | 25.2% | 71.7% | 288 / 38 / 1 | 288 / 38 (unittest) |
-| ruby | 24.5% | 78.3% | 281 / 38 / 1 | 281 / 38 (RSpec) |
-| rust | 24.5% | 76.1% | 276 / 16 / 8 | 276 / 16 (cargo test) |
-| go | 19.7% | 63% | 197 / 28 / 6 | 197 / 28 (go test) |
+| python | 25.2% | 71.7% | 288 / 38 / 1 | 288 / 39 (unittest) |
+| ruby | 24.5% | 78.3% | 281 / 38 / 1 | 281 / 39 (RSpec) |
+| rust | 24.5% | 76.1% | 276 / 16 / 8 | 276 / 24 (cargo test) |
+| go | 19.7% | 63% | 197 / 28 / 6 | 197 / 34 (go test) |
 | erlang | 19.7% | 58.7% | 239 / 26 / 0 | 239 / 26 (EUnit) |
-| dotnet | 17% | 54.3% | 198 / 22 / 5 | 198 / 22 (xUnit) |
+| dotnet | 17% | 54.3% | 198 / 22 / 5 | 198 / 27 (xUnit) |
 
 Core coverage went *down* because core functions now have vectors that several libs fail
 (currency, phone, license plate, legal nature): those were untested before, not correct.
-Every exported test passes natively exactly when the validator passes it; the skipped ones
-are the failures above, skipped with their reason until each lib is fixed.
+Each lib's harness passes natively exactly the cases the validator passes; its skips are
+the failures above plus the calls the validator's runner cannot make, each with its reason in
+`skip.json`, until the lib is fixed. With `API_CONTRACT_NO_SKIP=1`, the harnesses fail exactly
+the validator's failures — and, in the typed libs, a few more cases the runner could only skip
+(e.g. `currency.format` with a string argument where the lib takes a number, or
+`legalNature.list` in Rust).
 
 `diff` now compares 1138 calls; 390 divergent inputs fall into 59 known splits, recorded in
 `baselines/_divergences.json` — the nightly fails only on a split that is not there.

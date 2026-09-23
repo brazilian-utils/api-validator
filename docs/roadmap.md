@@ -10,15 +10,16 @@ progress is a number, not an opinion.
 | Step | Who | How |
 |---|---|---|
 | Merge this repository's PR | maintainers | CI runs typecheck, tests with all 7 toolchains, contract lint |
-| Publish the dashboard | org admin | enable GitHub Pages (source: GitHub Actions), set repository variable `PUBLISH_DASHBOARD=true` |
+| Publish the status site | org admin | enable GitHub Pages (source: GitHub Actions), set repository variables `PUBLISH_DASHBOARD=true` and `SITE_URL` |
 | Turn on issue + test sync | org admin | a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 lib repos, saved as secret `LIBS_TOKEN` |
 | Add the Action to every lib | one PR per lib | copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`; add the badge to the README |
-| Commit the exported tests in every lib | one PR per lib (or the first nightly bot PR) | `api-validator export-tests --lib <lib> --path .` writes the native test file; the lib's own test command runs it |
+| Add the suite + harness to every lib | one PR per lib | `api-validator export-cases --lib <lib> --path .` vendors `api-contract/`; copy the lib's harness from `templates/harness/<lang>/` (already written and verified for all 7 libs) |
 | Record the divergence baseline | maintainers | `api-validator diff --baseline` once; from then on the nightly fails only on *new* ways libs disagree |
 | Optional: agent ports | org admin | secret `ANTHROPIC_API_KEY` in lib repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
 **Done when** all 7 lib repos show the API contract check on their PRs, an `api-contract` issue,
-and an exported contract test file that their own test command runs.
+a harness running the shared cases in their own test command, and a badge linking to their
+status page.
 
 ## Phase 1 — agree on the contract (1–2 weeks)
 

@@ -8,7 +8,7 @@ import path from "node:path";
 import YAML from "yaml";
 
 const DOMAIN_ORDER = ["domain", "title", "description", "aliases", "functions"];
-const FN_ORDER = ["summary", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"];
+const FN_ORDER = ["summary", "description", "references", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"];
 const TEST_ORDER = ["name", "args", "returns", "throws", "matches", "satisfies", "repeat", "note"];
 
 function reorder(map: YAML.YAMLMap, order: string[]) {

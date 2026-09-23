@@ -5,13 +5,13 @@ import path from "node:path";
 import { Command, Option } from "commander";
 import YAML from "yaml";
 import { analyzeLib, bindLib, extractSurface } from "./core/analyze.js";
-import { exportCases, headerLines } from "./core/testgen.js";
+import { json, skipsFor, suiteFiles, type Outcomes } from "./core/cases.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
 import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { loadContract } from "./core/contract.js";
 import { formatContractDir } from "./core/format-contract.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
-import { differential, diffDivergences, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
+import { differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
@@ -22,9 +22,8 @@ import { getAdapter } from "./languages/registry.js";
 import type { Tool } from "./languages/types.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
-import { writeDashboard } from "./reporters/html.js";
-import { badge } from "./reporters/badge.js";
-import { briefMarkdown, type ImplRef } from "./reporters/brief.js";
+import { buildSite, type SiteLib } from "./reporters/site.js";
+import { briefMarkdown, sourceBlock, type ImplRef } from "./reporters/brief.js";
 import { libMarkdown, overviewMarkdown } from "./reporters/markdown.js";
 
 type FailOn = "regression" | "error" | "never";
@@ -66,26 +65,33 @@ function appendTests(file: string, ops: Record<string, Array<Record<string, unkn
   return added;
 }
 
-/** Run the lib's formatters over generated content (scratch copy next to the target file). */
-function formatGenerated(root: string, rel: string, content: string, commands: string[][]): string {
-  if (commands.length === 0) return content;
-  const ext = path.extname(rel);
-  const scratch = path.join(root, path.dirname(rel), `api_contract_scratch_${process.pid}${ext}`);
-  fs.mkdirSync(path.dirname(scratch), { recursive: true });
-  fs.writeFileSync(scratch, content);
-  try {
-    for (const [bin, ...args] of commands) {
-      if (!which(bin)) {
-        console.error(c.yellow(`warning: ${bin} not found, generated file left unformatted (${[bin, ...args].join(" ")})`));
-        continue;
-      }
-      const r = run(bin, args.map((a) => a.replaceAll("{file}", scratch)), { cwd: root });
-      if (r.status !== 0) console.error(c.yellow(`warning: ${bin} exited ${r.status}: ${(r.stderr || r.stdout).trim().split("\n").slice(0, 5).join("\n")}`));
-    }
-    return fs.readFileSync(scratch, "utf8");
-  } finally {
-    fs.rmSync(scratch, { force: true });
-  }
+const REFERENCE_LIB = "brazilian-utils-javascript";
+
+function listFiles(dir: string, prefix = ""): string[] {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? listFiles(path.join(dir, e.name), `${prefix}${e.name}/`) : [`${prefix}${e.name}`]
+  );
+}
+
+function casesReadme(lib: LibConfig): string {
+  return `# API contract cases
+
+Vendored from [brazilian-utils/api-validator](https://github.com/brazilian-utils/api-validator): the
+shared test vectors every brazilian-utils implementation runs. **Do not edit** — change the contract
+there; this copy is refreshed by a bot PR, or by hand:
+
+    npx tsx <api-validator>/src/cli.ts export-cases --lib ${lib.name} --path .
+
+- \`cases/<domain>.json\`: contract functions with their cases (\`cases.schema.json\`).
+- \`cases/index.json\`: the comparison rules the harness implements.
+- \`cases/equality.json\`: self-test for the harness's comparison function.
+- \`skip.json\`: cases this lib does not pass yet, with the reason (generated from the api-validator
+  baseline and known failures). Fix the lib, and the next refresh drops the entry.
+
+The harness in this repository maps contract function ids to this lib's functions and runs every
+case with the lib's own test command. Keep this directory out of the lib's formatter and linters
+(it is vendored). Harness spec: https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md
+`;
 }
 
 function writeSnapshot(surface: ApiSurface) {
@@ -161,7 +167,7 @@ program
 
 program
   .command("doctor")
-  .description("Check the toolchains every configured lib needs (extraction, shared tests, exported tests)")
+  .description("Check the toolchains every configured lib needs (extraction, shared tests)")
   .option("-l, --lib <names...>", "only these libs")
   .action((opts) => {
     const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
@@ -186,7 +192,7 @@ program
         const checkout = fs.existsSync(path.join(REPOS_DIR, lib.name));
         const base = loadBaseline(BASELINES_DIR, name);
         console.log(
-          `  ${checkout ? c.green("✓") : c.yellow("○")} ${name}: ${checkout ? "checked out" : "not checked out (run sync)"}, ${base ? `baseline with ${base.tests.length} tests` : "no baseline"}${adapter.testgen ? `, exports ${adapter.testgen.framework} tests` : ", no test export"}`
+          `  ${checkout ? c.green("✓") : c.yellow("○")} ${name}: ${checkout ? "checked out" : "not checked out (run sync)"}, ${base ? `baseline with ${base.tests.length} tests` : "no baseline"}`
         );
       }
     }
@@ -272,26 +278,76 @@ program
       writeFile(path.join(OUTPUT_DIR, `${report.library}.report.json`), JSON.stringify({ ...report, baseline: diff }, null, 2));
       const md = libMarkdown(report, contract, diff);
       writeFile(path.join(OUTPUT_DIR, `${report.library}.md`), md);
-      writeFile(path.join(OUTPUT_DIR, "badges", `${report.library.replace("brazilian-utils-", "")}.json`), JSON.stringify(badge(report)));
       markdown.push(md);
       if (shouldFail(opts.failOn as FailOn, report, diff)) failed = true;
     }
     if (results.length > 1) {
-      writeDashboard(contract, results.map((r) => r.report), path.join(OUTPUT_DIR, "index.html"));
       writeFile(path.join(OUTPUT_DIR, "README.md"), `# API conformance\n\n${overviewMarkdown(results.map((r) => r.report))}\n\n${markdown.join("\n\n")}`);
-      console.log(c.dim(`\nReports: ${path.relative(process.cwd(), OUTPUT_DIR)}/{index.html,README.md,<lib>.md,<lib>.report.json}`));
+      console.log(c.dim(`\nReports: ${path.relative(process.cwd(), OUTPUT_DIR)}/{README.md,<lib>.md,<lib>.report.json}; status site: api-validator site`));
     } else console.log(c.dim(`\nReport: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, `${results[0].report.library}.md`))}`));
     if (opts.summary) fs.appendFileSync(opts.summary, `${markdown.join("\n\n")}\n`);
     if (failed) process.exitCode = 1;
   });
 
 program
-  .command("export-tests")
-  .description("Write the contract tests as a native test file of each lib (run by the lib's own test command)")
+  .command("cases")
+  .description("Write the contract's test vectors as the JSON conformance suite (cases/<domain>.json, schema, index)")
+  .option("-o, --out <dir>", "output directory", path.join(OUTPUT_DIR, "site"))
+  .action((opts) => {
+    const files = suiteFiles(loadContract(CONTRACT_DIR));
+    for (const [rel, value] of files) writeFile(path.join(opts.out, rel), json(value));
+    console.log(`wrote ${files.size} files to ${path.relative(process.cwd(), opts.out)}`);
+  });
+
+program
+  .command("site")
+  .description("Build the status site (overview, a page per lib and per function, badges, JSON suite) from the latest reports")
+  .option("-o, --out <dir>", "output directory", path.join(OUTPUT_DIR, "site"))
+  .option("--base-url <url>", "absolute URL the site is served from (for README snippets)", process.env.SITE_URL)
+  .action((opts) => {
+    const contract = loadContract(CONTRACT_DIR);
+    const libs: SiteLib[] = [];
+    for (const lib of loadLibConfigs(LIBS_DIR)) {
+      const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
+      if (!fs.existsSync(file)) {
+        console.error(c.yellow(`${lib.name}: no report (run check first), left out`));
+        continue;
+      }
+      const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
+      const snap = path.join(SNAPSHOTS_DIR, `${lib.name}.api.json`);
+      const surface = fs.existsSync(snap) ? (JSON.parse(fs.readFileSync(snap, "utf8")) as ApiSurface) : undefined;
+      // The reference lib's source, shown on each function page.
+      const sources = new Map<string, string>();
+      const root = path.join(REPOS_DIR, lib.name);
+      if (lib.name === REFERENCE_LIB && fs.existsSync(root)) {
+        for (const f of report.functions) {
+          const src = f.location ? sourceBlock(path.join(root, f.location.file), f.location.line) : undefined;
+          if (src) sources.set(f.id, src);
+        }
+      }
+      libs.push({ lib, report, surface, sources });
+    }
+    const diffFile = path.join(OUTPUT_DIR, "diff.json");
+    const splitsFile = path.join(BASELINES_DIR, "_divergences.json");
+    const files = buildSite({
+      contract,
+      libs,
+      diff: fs.existsSync(diffFile) ? JSON.parse(fs.readFileSync(diffFile, "utf8")) : undefined,
+      knownSplits: fs.existsSync(splitsFile) ? JSON.parse(fs.readFileSync(splitsFile, "utf8")) : undefined,
+      baseUrl: opts.baseUrl ? `${String(opts.baseUrl).replace(/\/$/, "")}/` : undefined,
+      generatedAt: new Date().toISOString().replace(/\.\d+Z$/, "Z"),
+      validatorRepo: "https://github.com/brazilian-utils/api-validator"
+    });
+    for (const [rel, content] of files) writeFile(path.join(opts.out, rel), content);
+    console.log(`site: ${files.size} files in ${path.relative(process.cwd(), opts.out)} (${libs.length} libs, ${contract.functions.size} function pages)`);
+  });
+
+program
+  .command("export-cases")
+  .description("Vendor the JSON conformance suite into a lib (api-contract/), with the lib's skip list; its harness runs it")
   .option("-l, --lib <names...>", "only these libs")
   .option("-p, --path <dir>", "lib checkout to write into (default: .repos/<lib>)")
-  .option("--check", "only verify the file is up to date (for the lib's CI); exit 1 if stale")
-  .option("--stdout", "print the file instead of writing it")
+  .option("--check", "only verify the vendored copy is current (for the lib's CI); exit 1 if stale")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
     const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
@@ -299,45 +355,47 @@ program
     let stale = 0;
     for (const lib of libs) {
       const ws = workspaceFor(lib, opts.path);
-      const gen = ws.adapter.testgen;
-      if (!gen) {
-        console.log(`${lib.name}: no test generator for ${ws.adapter.displayName} yet`);
-        continue;
-      }
       const ctx = { lib, root: ws.root, workDir: ws.workDir };
-      const surface = await extractSurface(ws.adapter, ctx);
-      const { bound, boundById } = bindLib(contract, ws.adapter, lib, surface);
-      const groups = exportCases(bound, boundById, lib, loadBaseline(BASELINES_DIR, lib.name));
-      const rel = typeof lib.options.testFile === "string" ? lib.options.testFile : gen.path(ctx);
-      const file = path.join(ws.root, rel);
-      const rendered = gen.render(ctx, groups, headerLines(lib, groups, gen.command(ctx)));
-      const formatters = Array.isArray(lib.options.testFormat) ? (lib.options.testFormat as string[][]) : (gen.format?.(ctx) ?? []);
-      const content = formatGenerated(ws.root, rel, rendered.content.endsWith("\n") ? rendered.content : `${rendered.content}\n`, formatters);
-      if (opts.stdout) {
-        process.stdout.write(content);
-        continue;
-      }
-      const wires = gen.wire?.(ctx, rel) ?? [];
-      const changes = [{ path: file, content }, ...wires.map((w) => ({ path: path.join(ws.root, w.path), content: w.content }))].filter(
-        (ch) => !fs.existsSync(ch.path) || fs.readFileSync(ch.path, "utf8") !== ch.content
-      );
-      const cases = groups.flatMap((g) => g.cases);
-      const skipped = cases.filter((x) => x.skip).length;
-      const summary = `${cases.length} tests of ${groups.length} functions (${skipped} skipped, ${rendered.unexpressible.length} not expressible in ${ws.adapter.displayName})`;
+      const { bound } = bindLib(contract, ws.adapter, lib, await extractSurface(ws.adapter, ctx));
+      const implemented = new Set(bound.map((b) => b.fn.id));
+      const dir = typeof lib.options.casesDir === "string" ? lib.options.casesDir : "api-contract";
+      const files = suiteFiles(contract);
+      const reportFile = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
+      const outcomes: Outcomes | undefined = fs.existsSync(reportFile)
+        ? new Map((JSON.parse(fs.readFileSync(reportFile, "utf8")) as LibReport).functions.flatMap((f) => f.tests.map((t) => [t.id, t] as const)))
+        : undefined;
+      files.set("skip.json", skipsFor(lib, contract, implemented, loadBaseline(BASELINES_DIR, lib.name), outcomes));
+      const wanted = new Map([...files].map(([rel, v]) => [rel, json(v)]));
+      wanted.set("README.md", casesReadme(lib));
+      const target = path.join(ws.root, dir);
+      const existing = fs.existsSync(target) ? listFiles(target) : [];
+      // JSON is compared by value, so a lib formatter re-indenting the files is not "stale".
+      const same = (rel: string, content: string) => {
+        const file = path.join(target, rel);
+        if (!fs.existsSync(file)) return false;
+        const cur = fs.readFileSync(file, "utf8");
+        if (!rel.endsWith(".json")) return cur.trim() === content.trim();
+        try {
+          return JSON.stringify(JSON.parse(cur)) === JSON.stringify(JSON.parse(content));
+        } catch {
+          return false;
+        }
+      };
+      const changed = [...wanted].filter(([rel, content]) => !same(rel, content)).map(([rel]) => rel);
+      const removed = existing.filter((rel) => !wanted.has(rel));
+      const skips = Object.keys(files.get("skip.json") as object).length;
+      const summary = `${implemented.size} of ${contract.functions.size} functions implemented, ${skips} cases skipped`;
       if (opts.check) {
-        if (changes.length) {
+        if (changed.length || removed.length) {
           stale++;
-          for (const ch of changes) console.log(`${lib.name}: ${path.relative(ws.root, ch.path)} is out of date with the contract`);
-          console.log(`  regenerate: npx tsx <api-validator>/src/cli.ts export-tests --lib ${lib.name} --path .`);
-        } else console.log(`${lib.name}: ${rel} up to date — ${summary}`);
+          console.log(`${lib.name}: ${dir}/ is out of date with the contract (${[...changed, ...removed.map((r) => `-${r}`)].slice(0, 8).join(", ")}${changed.length + removed.length > 8 ? ", …" : ""})`);
+          console.log(`  refresh: npx tsx <api-validator>/src/cli.ts export-cases --lib ${lib.name} --path .`);
+        } else console.log(`${lib.name}: ${dir}/ up to date — ${summary}`);
         continue;
       }
-      for (const ch of changes) {
-        fs.mkdirSync(path.dirname(ch.path), { recursive: true });
-        fs.writeFileSync(ch.path, ch.content); // exactly as rendered: --check compares bytes
-      }
-      console.log(`${lib.name}: ${changes.length ? "wrote" : "unchanged"} ${rel} — ${summary}; run with: ${gen.command(ctx)}`);
-      for (const u of rendered.unexpressible) console.log(c.dim(`  not expressible: ${u.id}: ${u.reason}`));
+      for (const rel of changed) writeFile(path.join(target, rel), wanted.get(rel)!);
+      for (const rel of removed) fs.rmSync(path.join(target, rel));
+      console.log(`${lib.name}: ${changed.length + removed.length ? `updated ${changed.length + removed.length} files in` : "unchanged"} ${dir}/ — ${summary}`);
     }
     if (stale) process.exitCode = 1;
   });
@@ -561,6 +619,11 @@ program
     for (const { row, split } of dd.fresh) md.push(`- 🆕 \`${row.fn}\` splits **${split}** (e.g. \`${JSON.stringify(row.args)}\`)`);
     for (const g of dd.gone) md.push(`- ✅ \`${g.fn}\` no longer splits ${g.split} on this run's inputs`);
     writeFile(path.join(OUTPUT_DIR, "diff.md"), md.join("\n"));
+    // Structured copy for the site (only divergent inputs, with their split).
+    writeFile(
+      path.join(OUTPUT_DIR, "diff.json"),
+      JSON.stringify({ compared: rows.length, fresh: dd.fresh.map((f) => ({ fn: f.row.fn, split: f.split })), rows: rows.filter((r) => !r.agree).map((r) => ({ ...r, split: partition(r) })) })
+    );
     if (opts.baseline) {
       const merged = { ...Object.fromEntries(Object.entries(known).filter(([fn]) => !fns.some((f) => f.id === fn))), ...divergenceBaseline(rows) };
       writeFile(divFile, JSON.stringify(Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b))), null, 2));

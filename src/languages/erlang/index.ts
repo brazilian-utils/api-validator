@@ -11,7 +11,6 @@ import { makeTypeMapper } from "../shared/typemap.js";
 import type { TypeNode } from "../../core/model.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
 import { extractFromBeams, runErlang, typeDefs } from "./runner.js";
-import { erlangTestgen } from "./testgen.js";
 import { which } from "../../core/shell.js";
 
 const CLEAN = { line: ["%"], strings: ['"'], chars: false };
@@ -104,9 +103,8 @@ export const erlang: LanguageAdapter = {
     },
     { bin: "erlc", version: null, purpose: "extraction (beam_lib) and shared tests", install: "ships with Erlang/OTP" },
     { bin: "escript", version: null, purpose: "extraction and shared tests", install: "ships with Erlang/OTP" },
-    { bin: "rebar3", version: ["version"], purpose: "running exported EUnit tests", install: "https://rebar3.org", optional: true }
+    { bin: "rebar3", version: ["version"], purpose: "running the lib's harness (rebar3 eunit)", install: "https://rebar3.org", optional: true }
   ],
-  testgen: erlangTestgen,
   runner: { requires: ["erlc", "escript"], run: runErlang }
 };
 

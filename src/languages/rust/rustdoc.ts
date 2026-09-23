@@ -115,7 +115,8 @@ export function extractWithRustdoc(ctx: AdapterContext, toolchain: string): Nati
       returnsNode: f.sig.output ? typeNode(f.sig.output) : undefined,
       deprecated: item.deprecation ? true : undefined,
       aliasOf: def && def !== name ? def : undefined,
-      location: item.span ? { file: item.span.filename, line: item.span.begin[0] } : undefined,
+      // Paths relative to the lib root, like every other extractor (links, reports).
+      location: item.span ? { file: path.isAbsolute(item.span.filename) ? path.relative(ctx.root, item.span.filename) : item.span.filename, line: item.span.begin[0] } : undefined,
       meta: { rustPath: publicPath.join("::") }
     });
   };

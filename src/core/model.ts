@@ -53,6 +53,9 @@ export interface ContractFunction {
    */
   spellings: Array<{ domain: string; operation: string; flatName: string }>;
   summary?: string;
+  /** Language-agnostic spec (markdown). */
+  description?: string;
+  references?: string[];
   level: Level;
   params: ContractParam[];
   returns: string;

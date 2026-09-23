@@ -10,7 +10,6 @@ import { firstArg, listOf, makeTypeMapper, nullableOf } from "../shared/typemap.
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
 import { extractFromAssembly, runDotnet } from "./runner.js";
 import { which } from "../../core/shell.js";
-import { dotnetTestgen } from "./testgen.js";
 
 async function extract(ctx: AdapterContext): Promise<Extraction> {
   if (!which("dotnet")) throw new Error("the .NET adapter needs the .NET SDK (dotnet) on PATH to build and reflect the lib");
@@ -49,7 +48,6 @@ export const dotnet: LanguageAdapter = {
     const t = mapDotnet(native);
     return position === "return" && t.k === "void" ? T.void : t;
   },
-  tools: [{ bin: "dotnet", purpose: "extraction (reflection), shared tests, exported xUnit tests", install: "https://dotnet.microsoft.com/download (SDK 8+)" }],
-  testgen: dotnetTestgen,
+  tools: [{ bin: "dotnet", purpose: "extraction (reflection), shared tests", install: "https://dotnet.microsoft.com/download (SDK 8+)" }],
   runner: { requires: ["dotnet"], run: runDotnet }
 };
