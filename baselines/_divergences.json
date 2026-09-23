@@ -50,7 +50,12 @@
     "javascript | python,ruby"
   ],
   "legalNature.getDescription": [
+    "go | python,ruby | rust",
     "go | python,ruby,rust"
+  ],
+  "legalNature.isValid": [
+    "go,python,ruby | javascript,rust",
+    "go,python,ruby,rust | javascript"
   ],
   "legalNature.list": [
     "go | javascript | python,ruby"
