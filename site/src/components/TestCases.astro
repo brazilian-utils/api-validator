@@ -1,0 +1,75 @@
+---
+/**
+ * Renders specs/<util>/test-cases.json as one table per operation.
+ * These are the cases every implementation must pass; showing them is free documentation.
+ */
+import { loadTestCases } from '@lib/registry.mjs';
+
+interface Props {
+  util: string;
+}
+
+const { util } = Astro.props;
+const t = Astro.locals.t;
+const data = loadTestCases(util);
+
+function show(value: unknown): string {
+  if (value === null || value === undefined) return '—';
+  if (typeof value === 'string') return value;
+  return JSON.stringify(value);
+}
+---
+
+{!data ? (
+  <p>{t('testcases.none')}</p>
+) : (
+  <div class="test-cases">
+    {data.utils.map((group: { name: string; cases: Array<{ in: unknown; out: unknown; assert?: string }> }) => (
+      <details open>
+        <summary>
+          <strong>{group.name}</strong> <span class="count">({group.cases.length})</span>
+        </summary>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>{t('testcases.input')}</th>
+                <th>{t('testcases.expected')}</th>
+                {group.cases.some((c) => c.assert) && <th>{t('testcases.assert')}</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {group.cases.map((c) => (
+                <tr>
+                  <td><code>{show(c.in)}</code></td>
+                  <td><code>{show(c.out)}</code></td>
+                  {group.cases.some((x) => x.assert) && <td>{c.assert ? <code>{c.assert}</code> : ''}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    ))}
+    <p class="version">test-cases.json v{data.version}</p>
+  </div>
+)}
+
+<style>
+  .test-cases details + details {
+    margin-top: 0.75rem;
+  }
+  .test-cases summary {
+    cursor: pointer;
+  }
+  .count {
+    color: var(--sl-color-gray-3);
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  .version {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-4);
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+title: Porting to a new language
+description: How to implement a utility in a language that does not have it yet, or start a whole new library.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+The [parity matrix](/reference/parity/) shows every gap. Each one is a self-contained contribution: the rule is already written, the test cases already exist, and the site already has a tab waiting.
+
+## Adding a utility to an existing library
+
+<Steps>
+
+1. **Read the spec.** Open the utility page on this site. The "Rules and algorithm" section is the whole behaviour; the "Test cases" section is what you must pass.
+
+2. **Implement it in the library repo**, following that repository's `CONTRIBUTING.md` for naming, tests and changelog. Name the functions the way the language expects (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); the spec does not dictate names.
+
+3. **Pass the test cases.** Copy `specs/<util>/test-cases.json` into your test suite, or point the adapter in the docs repo at your library.
+
+4. **Add `docs/usage/<util>.md`** in the library repo, following the [usage files](/contributing/usage-files/) contract.
+
+5. **Release.** The next site build shows your tab.
+
+</Steps>
+
+## Starting a library in a new language
+
+<Steps>
+
+1. Open a discussion in the [organization](https://github.com/brazilian-utils/.github) or email `cumbucadev@brazilian-utils.com.br` to get a repository created under `brazilian-utils/<language>`.
+
+2. Start with the same first four utilities every library has: CPF, CNPJ, CEP and license plate. Their specs and test cases are complete.
+
+3. Follow the repository conventions of an existing library (the Python one has the most detailed `CONTRIBUTING.md`).
+
+4. Ship `docs/usage/` from the first release.
+
+5. Open a PR in the docs repository adding your library to `libs.yaml` (id, label, icon, repo, install command, registry link). That is the only change the site needs.
+
+</Steps>
+
+<Aside type="tip">
+Do not document differences from other libraries. If your implementation behaves differently from the spec, that is a bug to fix, not a note to write.
+</Aside>

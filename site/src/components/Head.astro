@@ -1,0 +1,61 @@
+---
+/**
+ * Extends Starlight's <Head> with one small inline script:
+ *
+ * 1. Remember the language the reader picks in the language selector (localStorage "bu:lang").
+ * 2. On English pages, if the reader has no saved preference and the browser prefers Portuguese,
+ *    redirect once to the same page under /pt-br/ and save that as the preference.
+ *
+ * The site is static, so this is the only place where the browser language can be honoured.
+ * Crawlers do not run the script, so the English root stays indexable.
+ */
+import Default from '@astrojs/starlight/components/Head.astro';
+
+const { lang } = Astro.locals.starlightRoute;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const ptPrefix = `${base}/pt-br`;
+const shouldDetect = lang !== 'pt-BR';
+---
+
+<Default><slot /></Default>
+
+<script is:inline define:vars={{ base, ptPrefix, shouldDetect }}>
+  (function () {
+    var KEY = 'bu:lang';
+
+    // 1. Persist the reader's explicit choice from Starlight's language selector.
+    document.addEventListener(
+      'change',
+      function (event) {
+        var target = event.target;
+        if (!target || !target.closest || !target.closest('starlight-lang-select')) return;
+        try {
+          var value = String(target.value || '');
+          localStorage.setItem(KEY, value === ptPrefix || value.indexOf(ptPrefix + '/') === 0 ? 'pt-br' : 'en');
+        } catch (e) {}
+      },
+      true,
+    );
+
+    // 2. First visit on an English page: follow the browser language once.
+    if (!shouldDetect) return;
+    try {
+      if (localStorage.getItem(KEY)) return; // an explicit choice always wins
+      var langs = navigator.languages || [navigator.language || ''];
+      var wantsPt = false;
+      for (var i = 0; i < langs.length; i++) {
+        var l = String(langs[i]);
+        if (/^pt\b/i.test(l)) { wantsPt = true; break; } // first preference decides
+        if (/^en\b/i.test(l)) break;
+      }
+      if (!wantsPt) return;
+      var path = location.pathname;
+      if (path === ptPrefix || path.indexOf(ptPrefix + '/') === 0) return;
+      var rest = base && path.indexOf(base) === 0 ? path.slice(base.length) : path;
+      localStorage.setItem(KEY, 'pt-br'); // never check again
+      location.replace(ptPrefix + rest + location.search + location.hash);
+    } catch (e) {
+      /* no storage available: stay in English */
+    }
+  })();
+</script>

@@ -1,0 +1,54 @@
+---
+title: Primeiros passos
+description: O que é o Brazilian Utils, como a documentação é organizada e como ler a página de um utilitário.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Brazilian Utils é uma família de bibliotecas que validam, formatam e geram dados específicos do Brasil: CPF, CNPJ, CEP, placas de veículo, telefones, boletos e mais. Existe uma biblioteca por linguagem, todas mantidas na organização [brazilian-utils](https://github.com/brazilian-utils).
+
+Este site documenta todas elas em um só lugar.
+
+## Como a documentação é organizada
+
+Cada utilitário tem **uma página**, não importa quantas linguagens o implementam. Toda página tem as mesmas seções:
+
+<Steps>
+
+1. **O que é e como funciona.** O identificador, suas regras, o algoritmo de validação e os regexes. Essa é a spec canônica, compartilhada por todas as bibliotecas.
+
+2. **Fontes oficiais.** A lei, o decreto ou o documento do órgão de onde a regra vem, com cópia guardada no repositório caso o original saia do ar.
+
+3. **Uso.** Um bloco por operação (validar, formatar, remover símbolos, gerar…), com uma aba por linguagem. Escolha JavaScript, Python, Go, Ruby, Rust, .NET ou Erlang uma vez e todas as páginas seguem.
+
+4. **Casos de teste.** As entradas e saídas esperadas que toda implementação precisa satisfazer.
+
+</Steps>
+
+<Aside type="tip">
+As abas de linguagem mostram só *como chamar* a biblioteca. O comportamento é o mesmo em todas porque é definido pela spec, não por uma implementação específica.
+</Aside>
+
+## Instalando uma biblioteca
+
+Escolha sua linguagem na [página inicial](/pt-br/) para ver o comando de instalação, ou vá direto ao registro de pacotes:
+
+| Linguagem | Pacote | Repositório |
+| --- | --- | --- |
+| JavaScript / TypeScript | [`@brazilian-utils/brazilian-utils`](https://www.npmjs.com/package/@brazilian-utils/brazilian-utils) | [javascript](https://github.com/brazilian-utils/javascript) |
+| Python | [`brutils`](https://pypi.org/project/brutils/) | [python](https://github.com/brazilian-utils/python) |
+| Go | [`github.com/brazilian-utils/go`](https://pkg.go.dev/github.com/brazilian-utils/go) | [go](https://github.com/brazilian-utils/go) |
+| Ruby | [`br-utils`](https://rubygems.org/gems/br-utils) | [ruby](https://github.com/brazilian-utils/ruby) |
+| Rust | [`brazilian_utils`](https://crates.io/crates/brazilian_utils) | [rust](https://github.com/brazilian-utils/rust) |
+| .NET | [`BrazilianUtils`](https://www.nuget.org/packages/BrazilianUtils) | [dotnet](https://github.com/brazilian-utils/dotnet) |
+| Erlang | [`brutils`](https://hex.pm/packages/brutils) | [erlang](https://github.com/brazilian-utils/erlang) |
+
+## O que as bibliotecas não fazem
+
+As bibliotecas validam **estrutura**: tamanho, caracteres permitidos, dígitos verificadores. Elas não consultam bases do governo, então um CPF ou CNPJ "válido" é um bem formado, não necessariamente um que existe ou está ativo. Operações que chamam um serviço externo (como buscar endereço pelo CEP) dizem isso explicitamente na aba.
+
+## Para onde ir agora
+
+- Navegue pelos utilitários na barra lateral, agrupados por categoria.
+- Veja a [matriz de paridade](/pt-br/reference/parity/) para saber qual linguagem implementa o quê.
+- Quer contribuir? Comece por [escrever uma spec](/pt-br/contributing/specs/) ou [portar para uma nova linguagem](/pt-br/contributing/new-language/).

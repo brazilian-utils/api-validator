@@ -1,0 +1,54 @@
+---
+title: Getting started
+description: What Brazilian Utils is, how the documentation is organized, and how to read a utility page.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+Brazilian Utils is a family of libraries that validate, format and generate data specific to Brazil: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library per language, all maintained under the [brazilian-utils](https://github.com/brazilian-utils) organization.
+
+This site documents all of them in one place.
+
+## How the docs are organized
+
+Every utility has **one page**, no matter how many languages implement it. Each page has the same sections:
+
+<Steps>
+
+1. **What it is and how it works.** The identifier, its rules, the validation algorithm and the regexes. This is the canonical spec, shared by every library.
+
+2. **Official sources.** The law, decree or agency document the rule comes from, with a copy kept in the repository in case the original goes offline.
+
+3. **Usage.** One block per operation (validate, format, remove symbols, generate…), with one tab per language. Pick JavaScript, Python, Go, Ruby, Rust, .NET or Erlang once and every page follows.
+
+4. **Test cases.** The inputs and expected outputs every implementation must satisfy.
+
+</Steps>
+
+<Aside type="tip">
+The language tabs only show *how to call* the library. The behaviour is the same everywhere because it is defined by the spec, not by any single implementation.
+</Aside>
+
+## Installing a library
+
+Pick your language on the [home page](/) for the install command, or go straight to the package registry:
+
+| Language | Package | Repository |
+| --- | --- | --- |
+| JavaScript / TypeScript | [`@brazilian-utils/brazilian-utils`](https://www.npmjs.com/package/@brazilian-utils/brazilian-utils) | [javascript](https://github.com/brazilian-utils/javascript) |
+| Python | [`brutils`](https://pypi.org/project/brutils/) | [python](https://github.com/brazilian-utils/python) |
+| Go | [`github.com/brazilian-utils/go`](https://pkg.go.dev/github.com/brazilian-utils/go) | [go](https://github.com/brazilian-utils/go) |
+| Ruby | [`br-utils`](https://rubygems.org/gems/br-utils) | [ruby](https://github.com/brazilian-utils/ruby) |
+| Rust | [`brazilian_utils`](https://crates.io/crates/brazilian_utils) | [rust](https://github.com/brazilian-utils/rust) |
+| .NET | [`BrazilianUtils`](https://www.nuget.org/packages/BrazilianUtils) | [dotnet](https://github.com/brazilian-utils/dotnet) |
+| Erlang | [`brutils`](https://hex.pm/packages/brutils) | [erlang](https://github.com/brazilian-utils/erlang) |
+
+## What the libraries do not do
+
+The libraries validate **structure**: length, allowed characters, check digits. They do not query government databases, so a "valid" CPF or CNPJ is a well-formed one, not necessarily one that exists or is active. Operations that call an external service (like looking up an address by CEP) say so explicitly on their tab.
+
+## Where to go next
+
+- Browse the utilities in the sidebar, grouped by category.
+- Check the [parity matrix](/reference/parity/) to see which language implements what.
+- Want to contribute? Start with [writing a spec](/contributing/specs/) or [porting to a new language](/contributing/new-language/).

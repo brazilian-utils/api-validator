@@ -1,0 +1,38 @@
+---
+/**
+ * Home page cards: one per library from libs.yaml, with the install command.
+ */
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { loadLibs } from '@lib/registry.mjs';
+
+const libs = loadLibs();
+---
+
+<CardGrid>
+  {libs.map((lib) => (
+    <Card title={lib.label} icon={lib.icon as any}>
+      <pre class="install"><code>{lib.install}</code></pre>
+      <p class="links">
+        <a href={lib.registry} rel="noopener noreferrer" target="_blank">{lib.package}</a>
+        {' · '}
+        <a href={`https://github.com/${lib.repo}`} rel="noopener noreferrer" target="_blank">GitHub</a>
+      </p>
+    </Card>
+  ))}
+</CardGrid>
+
+<style>
+  .install {
+    margin: 0.5rem 0;
+    padding: 0.6rem 0.8rem;
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: 0.4rem;
+    font-size: var(--sl-text-sm);
+    overflow-x: auto;
+  }
+  .links {
+    font-size: var(--sl-text-sm);
+    margin: 0;
+  }
+</style>

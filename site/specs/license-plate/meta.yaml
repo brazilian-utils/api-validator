@@ -1,0 +1,25 @@
+# Site metadata for this spec. The rule itself lives in spec.md / spec_en.md.
+category: vehicles
+order: 1
+title:
+  en: License plate
+  pt-BR: Placa de veículo
+summary:
+  en: Brazilian vehicle license plates, in the Mercosur (LLLNLNN) and pre-Mercosur (LLLNNNN) patterns.
+  pt-BR: Placas de identificação veicular, nos padrões Mercosul (LLLNLNN) e pré-Mercosul (LLLNNNN).
+
+operations:
+  - id: validate
+    label: { en: Validate, pt-BR: Validar }
+  - id: format
+    label: { en: Format, pt-BR: Formatar }
+  - id: remove-symbols
+    label: { en: Remove symbols, pt-BR: Remover símbolos }
+  - id: generate
+    label: { en: Generate, pt-BR: Gerar }
+  - id: detect-format
+    label: { en: Detect the pattern, pt-BR: Detectar o padrão }
+  - id: convert-to-mercosul
+    label: { en: Convert to Mercosur, pt-BR: Converter para Mercosul }
+
+related: []

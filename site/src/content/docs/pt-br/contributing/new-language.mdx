@@ -1,0 +1,44 @@
+---
+title: Portando para outra linguagem
+description: Como implementar um utilitário em uma linguagem que ainda não o tem, ou começar uma biblioteca nova.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+A [matriz de paridade](/pt-br/reference/parity/) mostra cada lacuna. Cada uma é uma contribuição fechada em si: a regra já está escrita, os casos de teste já existem e o site já tem uma aba esperando.
+
+## Adicionando um utilitário a uma biblioteca existente
+
+<Steps>
+
+1. **Leia a spec.** Abra a página do utilitário neste site. A seção "Regras e algoritmo" é todo o comportamento; a seção "Casos de teste" é o que você precisa passar.
+
+2. **Implemente no repositório da biblioteca**, seguindo o `CONTRIBUTING.md` daquele repositório para nomes, testes e changelog. Nomeie as funções do jeito que a linguagem espera (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); a spec não dita nomes.
+
+3. **Passe nos casos de teste.** Copie `specs/<util>/test-cases.json` para a sua suíte, ou aponte o adapter do repositório docs para a sua biblioteca.
+
+4. **Adicione `docs/usage/<util>.md`** no repositório da biblioteca, seguindo o contrato de [arquivos de uso](/pt-br/contributing/usage-files/).
+
+5. **Publique a release.** O próximo build do site mostra a sua aba.
+
+</Steps>
+
+## Começando uma biblioteca em uma linguagem nova
+
+<Steps>
+
+1. Abra uma discussão na [organização](https://github.com/brazilian-utils/.github) ou escreva para `cumbucadev@brazilian-utils.com.br` para criarem o repositório `brazilian-utils/<linguagem>`.
+
+2. Comece pelos mesmos quatro utilitários que toda biblioteca tem: CPF, CNPJ, CEP e placa. As specs e os casos de teste deles estão completos.
+
+3. Siga as convenções de repositório de uma biblioteca existente (a de Python tem o `CONTRIBUTING.md` mais detalhado).
+
+4. Publique `docs/usage/` desde a primeira release.
+
+5. Abra um PR no repositório docs adicionando sua biblioteca ao `libs.yaml` (id, label, ícone, repositório, comando de instalação, link do registro). É a única mudança que o site precisa.
+
+</Steps>
+
+<Aside type="tip">
+Não documente diferenças em relação a outras bibliotecas. Se a sua implementação se comporta diferente da spec, isso é um bug para corrigir, não uma nota para escrever.
+</Aside>

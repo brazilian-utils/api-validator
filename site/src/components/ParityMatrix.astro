@@ -1,0 +1,120 @@
+---
+/**
+ * Utility × library matrix, derived entirely from the usage files fetched from each repo.
+ * A cell is "full" when the library documents every operation of the spec,
+ * "partial" when it documents some, and empty otherwise.
+ */
+import { getCollection } from 'astro:content';
+import { loadLibs, loadSpecs, loadUsageManifest, LANG_PREFIX } from '@lib/registry.mjs';
+
+const { lang } = Astro.locals.starlightRoute;
+const t = Astro.locals.t;
+const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
+
+const libs = loadLibs();
+const specs = loadSpecs();
+const manifest = loadUsageManifest();
+const usage = await getCollection('usage');
+
+function cell(utilId: string, libId: string, total: number) {
+  const ops = new Set(usage.filter((e) => e.data.util === utilId && e.data.lib === libId).map((e) => e.data.op));
+  if (ops.size === 0) return { state: 'none', ops };
+  return { state: total > 0 && ops.size >= total ? 'full' : 'partial', ops };
+}
+---
+
+<div class="parity not-content">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{t('parity.utility')}</th>
+          {libs.map((lib) => <th>{lib.label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {specs.map((spec) => (
+          <tr>
+            <th scope="row">
+              <a href={`${prefix}/utils/${spec.id}/`}>{spec.title[locale]}</a>
+            </th>
+            {libs.map((lib) => {
+              const c = cell(spec.id, lib.id, spec.operations.length);
+              const opsList = spec.operations.map((op) => `${c.ops.has(op.id) ? '✓' : '✗'} ${op.label[locale]}`).join('\n');
+              return (
+                <td class={`cell cell-${c.state}`} title={opsList}>
+                  <span class="mark" aria-label={t(`parity.${c.state}` as any)}>
+                    {c.state === 'full' ? '●' : c.state === 'partial' ? '◐' : '○'}
+                  </span>
+                  {c.state !== 'none' && <span class="count">{c.ops.size}/{spec.operations.length}</span>}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="legend">
+    <strong>{t('parity.legend')}:</strong>
+    <span class="cell-full">● {t('parity.full')}</span>
+    <span class="cell-partial">◐ {t('parity.partial')}</span>
+    <span class="cell-none">○ {t('parity.none')}</span>
+  </p>
+
+  {manifest?.fetchedAt && (
+    <p class="fetched">{t('parity.fetchedAt')} {new Date(manifest.fetchedAt).toLocaleString(locale)}.</p>
+  )}
+</div>
+
+<style>
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--sl-text-sm);
+  }
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--sl-color-hairline);
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead th {
+    font-size: var(--sl-text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sl-color-gray-3);
+  }
+  .cell {
+    font-variant-numeric: tabular-nums;
+  }
+  .mark {
+    font-size: 1.1em;
+    margin-inline-end: 0.35rem;
+  }
+  .cell-full .mark { color: var(--sl-color-green); }
+  .cell-partial .mark { color: var(--sl-color-orange); }
+  .cell-none .mark { color: var(--sl-color-gray-4); }
+  .count {
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: var(--sl-text-sm);
+    margin-top: 1rem;
+  }
+  .fetched {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-4);
+  }
+</style>

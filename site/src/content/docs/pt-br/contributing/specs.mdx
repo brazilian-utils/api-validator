@@ -1,0 +1,73 @@
+---
+title: Escrevendo uma spec
+description: Como adicionar ou alterar uma spec canônica no repositório de docs.
+---
+
+import { FileTree, Steps, Aside } from '@astrojs/starlight/components';
+
+Uma spec é a descrição única de um identificador ou formato brasileiro que todas as bibliotecas seguem. Ela mora no [repositório docs](https://github.com/brazilian-utils/docs) e é licenciada sob CC BY 4.0.
+
+## Anatomia de uma spec
+
+<FileTree>
+- specs
+  - cpf
+    - spec.md a regra, em português
+    - spec_en.md a mesma regra, em inglês
+    - meta.yaml o que o site precisa: categoria, títulos, operações
+    - test-cases.json entradas e saídas esperadas por operação
+    - references
+      - references.md links para os documentos oficiais
+      - lei-14534-2023.pdf cópias locais desses documentos
+</FileTree>
+
+`spec.md` e `spec_en.md` sempre têm as mesmas seções, nesta ordem: **Resumo**, **Operações**, **Regras de validação**, **Algoritmo detalhado**, **Regex**, **Exemplos**. Veja [`specs/cpf`](https://github.com/brazilian-utils/docs/tree/main/specs/cpf) para uma spec completa.
+
+## meta.yaml
+
+```yaml
+category: documents          # uma de: documents, companies, address, vehicles, finance, telecom, text-and-dates
+order: 1                     # posição dentro da categoria (opcional)
+title:
+  en: CPF
+  pt-BR: CPF
+summary:
+  en: One sentence shown under the page title.
+  pt-BR: Uma frase mostrada abaixo do título.
+operations:                  # os `## títulos` que as bibliotecas usam nos arquivos de uso
+  - id: validate
+    label: { en: Validate, pt-BR: Validar }
+  - id: format
+    label: { en: Format, pt-BR: Formatar }
+  - id: remove-symbols
+    label: { en: Remove symbols, pt-BR: Remover símbolos }
+  - id: generate
+    label: { en: Generate, pt-BR: Gerar }
+related: [cnpj]              # ids de outras specs (opcional)
+```
+
+Ids de operação são minúsculos, separados por hífen e estáveis: renomear um quebra o arquivo de uso de todas as bibliotecas.
+
+## Adicionando uma spec nova
+
+<Steps>
+
+1. Abra uma issue no repositório docs chamada `adicionar specs/<id>` e comente "bora!" para ela ser atribuída a você.
+
+2. Crie `specs/<id>/` com os arquivos acima. Escreva o `spec.md` primeiro (as fontes oficiais estão em português) e o `spec_en.md` no mesmo PR.
+
+3. Baixe todo documento oficial que citar para `references/` e linke a partir de `references.md`. Página de governo some; o PDF no repositório é o que sobrevive.
+
+4. Adicione `test-cases.json` com pelo menos os exemplos da spec. É o que os adapters das bibliotecas executam.
+
+5. Rode `npm run check:i18n` e `npm run build`. O site descobre a spec nova pelo `meta.yaml`; nenhuma página precisa ser escrita à mão.
+
+</Steps>
+
+<Aside type="caution" title="Spec e casos de teste precisam concordar">
+Se a spec diz que entrada formatada é inválida, o `test-cases.json` não pode esperar que seja válida. O build ainda não checa isso por você; quem revisa checa.
+</Aside>
+
+## Alterando uma spec
+
+Mudança de comportamento afeta todas as bibliotecas. Abra uma issue antes, descreva a mudança e quais bibliotecas ela toca, e só então abra o PR. Mantenha `spec.md`, `spec_en.md` e `test-cases.json` em sincronia no mesmo PR.

@@ -1,0 +1,112 @@
+---
+title: Usage files
+description: The contract each library follows so its examples appear on this site. One Markdown file per utility, inside the library repository.
+---
+
+import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
+
+The "Usage" section of every utility page is not written here. It is pulled, at build time, from a folder inside each library's own repository:
+
+<FileTree>
+- javascript/
+  - docs/
+    - usage/
+      - cpf.md
+      - cnpj.md
+      - cep.md
+      - license-plate.md
+      - …
+</FileTree>
+
+The library owns those files. Whoever changes the API updates the usage file in the same pull request, and the library's own reviewers approve it. This site only reads.
+
+## The contract
+
+One file per utility, named after the spec id (`cpf.md`, `license-plate.md`…). Inside, one `##` heading per operation, using the operation ids from the spec's `meta.yaml`:
+
+````markdown
+---
+since: 2.0.0
+---
+
+## validate
+
+```js
+import { isValidCpf } from '@brazilian-utils/brazilian-utils';
+
+isValidCpf('11144477735'); // true
+isValidCpf('00000000000'); // false
+```
+
+## format
+
+```js
+import { formatCpf } from '@brazilian-utils/brazilian-utils';
+
+formatCpf('11144477735'); // '111.444.777-35'
+```
+
+## remove-symbols
+
+```js
+import { parseCpf } from '@brazilian-utils/brazilian-utils';
+
+parseCpf('111.444.777-35'); // '11144477735'
+```
+
+## generate
+
+```js
+import { generateCpf } from '@brazilian-utils/brazilian-utils';
+
+generateCpf(); // a random valid CPF
+```
+````
+
+Rules:
+
+- **Headings are operation ids.** `validate`, `format`, `remove-symbols`, `generate`, plus whatever the spec declares (`address-lookup`, `detect-format`…). Unknown headings are ignored and reported in the build log.
+- **Each section shows the call.** Import, invocation, result. One or two lines of prose are fine (for example, "network call, uses ViaCEP"). Do not explain the rule; the spec already does.
+- **Code and comments in English.** The same file serves both languages of the site. If you want a Portuguese version, add `cpf.pt-br.md` next to it; when it does not exist, the English file is shown to Portuguese readers too.
+- **`since` is optional.** The version of your library in which the utility first shipped. Shown as a badge.
+- **No file, no tab.** A library without `docs/usage/<util>.md` appears as "not available yet" for that utility. A file without a given `## operation` shows the same message for that operation only.
+
+## Which ref is used
+
+The site fetches the files from the library's **latest GitHub release**, so what readers see matches the package they install. Repositories without releases fall back to the default branch.
+
+## Keeping examples true
+
+The site does not run your examples. Your repository should, with whatever your language uses for that: `doctest` in Python, `Example` tests in Go, doc-tests in Rust, a Vitest file that imports the same snippets in JavaScript. The rule of thumb: if the example on the site is wrong, the library's CI should have been red.
+
+## Rebuilding the site when you release
+
+Add one step to your release workflow so the site rebuilds as soon as the new version is out:
+
+```yaml
+- name: Notify docs site
+  if: success()
+  run: gh api repos/brazilian-utils/docs/dispatches -f event_type=lib-released -f 'client_payload[lib]=javascript'
+  env:
+    GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
+```
+
+`DOCS_DISPATCH_TOKEN` is an organization secret with permission to trigger workflows on the docs repository. Without it the site still rebuilds daily.
+
+## Migrating an existing README
+
+<Steps>
+
+1. Create `docs/usage/` in your repository.
+
+2. For each utility your library implements, create `<spec id>.md` and move the corresponding examples from your README into `## operation` sections. This is a cut-and-paste job: the examples already exist.
+
+3. Shorten the README to installation, three examples and a link to this site.
+
+4. Open the PR. When it merges and the next release ships, the tabs appear here automatically.
+
+</Steps>
+
+<Aside type="note">
+Until a library adopts the contract, this site builds its tabs from temporary copies kept in `fixtures/usage/` in the docs repository. Those copies are already in the right format; they can be moved into the library repo as-is.
+</Aside>
