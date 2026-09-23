@@ -8,6 +8,7 @@ import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
 import { Breakdown } from '@/components/breakdown.client';
 import { functionBreakdown } from '@/lib/breakdown';
+import { DocsPager } from '@/components/docs-pager.client';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const parityText = (locale: Locale) => ({
@@ -32,7 +33,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
       : '';
 
   return (
-    <DocsPage full tableOfContent={{ enabled: false }}>
+    <DocsPage slots={{ footer: DocsPager }} full tableOfContent={{ enabled: false }}>
       <DocsTitle>{title}</DocsTitle>
       <DocsDescription>
         {description} {when}
@@ -45,7 +46,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
             'Cada célula diz o que falta do utilitário na biblioteca, e o ícone mostra a situação. Passe o mouse ou toque numa célula para ver cada função.',
           )}
         </p>
-        <p className="not-prose flex flex-wrap gap-x-5 gap-y-2 text-sm">
+        <p className="not-prose mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
           <span className="text-fd-muted-foreground">{t('parity.legend')}:</span>
           {states.map((s) => (
             <span key={s} className="inline-flex items-center gap-1.5">
@@ -56,7 +57,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
         {/* The wrapper scrolls both ways, so the header row and the utility column stay in view.
             Sticky cells need an opaque background of their own: the page's paper, so they stay part of
             the table rather than cards pinned to its edge. */}
-        <div className="not-prose relative max-h-[80vh] overflow-auto ps-2" tabIndex={0} aria-label={title}>
+        <div className="not-prose relative -ms-2 max-h-[80vh] overflow-auto ps-2" tabIndex={0} aria-label={title}>
           <table className="w-full border-separate border-spacing-0 text-sm">
             <thead className="sticky top-0 z-20 bg-fd-background">
               <tr>

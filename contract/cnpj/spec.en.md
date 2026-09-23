@@ -19,7 +19,7 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
 - **Formatting**: Format the CNPJ as `XX.XXX.XXX/XXXX-DV`, where:
     - `X`: alphanumeric character (digits `0` to `9` and uppercase letters `A` to `Z`).
     - `DV`: check digits calculated with the modulo 11 algorithm.
-- **Symbol removal**: Remove the `.`, `/` and `-` characters and keep only the alphanumeric characters.
+- **Parsing**: Remove the `.`, `/` and `-` characters and keep only the alphanumeric characters.
 - **Generation**: Generate a random valid CNPJ string.
 
 ## Validation rules

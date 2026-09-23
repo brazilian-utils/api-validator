@@ -29,10 +29,10 @@ function Avatar({ person, size }: { person: Person; size: number }) {
   );
 }
 
-function Card({ person, locale }: { person: Person; locale: Locale }) {
+function Row({ person, locale }: { person: Person; locale: Locale }) {
   const href = person.url ?? (person.login ? `https://github.com/${person.login}` : undefined);
   return (
-    <li className="flex items-start gap-4 rounded-xl border bg-fd-card p-4">
+    <li className="flex items-start gap-4 py-4">
       <Avatar person={person} size={56} />
       <div className="min-w-0">
         <p className="font-medium">{href ? <a href={href}>{person.name}</a> : person.name}</p>
@@ -47,9 +47,10 @@ function Card({ person, locale }: { person: Person; locale: Locale }) {
 export function Team({ locale = 'en', part }: { locale?: Locale; part: 'lead' | 'partners' | 'libraries' }) {
   if (part !== 'libraries') {
     return (
-      <ul className="not-prose my-6 grid gap-3 sm:grid-cols-2">
+      // Rows between rules, like the libraries below: people are not cards.
+      <ul className="not-prose my-6 divide-y border-y">
         {(team[part] as Person[]).map((p) => (
-          <Card key={p.name} person={p} locale={locale} />
+          <Row key={p.name} person={p} locale={locale} />
         ))}
       </ul>
     );

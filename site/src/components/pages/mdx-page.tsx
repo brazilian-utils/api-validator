@@ -7,6 +7,7 @@ import { REPO_URL } from '@/lib/data';
 import { getMDXComponents } from '@/components/mdx';
 import { pageMetadata } from '@/lib/meta';
 import type { Locale } from '@/lib/i18n';
+import { DocsPager } from '@/components/docs-pager.client';
 
 const pageOf = (locale: Locale, slugs: string[]) => source.getPage(slugs, fileLocale(locale)) ?? notFound();
 
@@ -14,7 +15,7 @@ export function MdxPage({ locale, slugs }: { locale: Locale; slugs: string[] }) 
   const page = pageOf(locale, slugs);
   const MDX = page.data.body;
   return (
-    <DocsPage toc={page.data.toc} tableOfContent={{ style: 'clerk' }}>
+    <DocsPage slots={{ footer: DocsPager }} toc={page.data.toc} tableOfContent={{ style: 'clerk' }}>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>

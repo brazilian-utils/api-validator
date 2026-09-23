@@ -10,6 +10,7 @@ import { type Locale, pick, translator } from '@/lib/i18n';
 import { functionLinks } from '@/lib/links';
 import { Markdown } from '@/lib/markdown';
 import { LiveDemo } from '@/components/live-demo.client';
+import { DocsPager } from '@/components/docs-pager.client';
 
 const base = process.env.NEXT_PUBLIC_BASE ?? '';
 
@@ -34,7 +35,7 @@ function Files({ node }: { node: any }) {
   const files = node.children.filter((c: any) => c.kind === 'file');
   if (!files.length) return null;
   if (files.length === 1) return <Markdown source={fence(files[0].code, files[0].lang, files[0].name)} />;
-  return <FlatTabs items={files.map((f: any) => ({ value: f.name, label: <span className="font-mono text-xs">{f.name}</span>, content: <Markdown source={fence(f.code, f.lang)} /> }))} />;
+  return <FlatTabs variant="file" items={files.map((f: any) => ({ value: f.name, label: f.name, content: <Markdown source={fence(f.code, f.lang)} /> }))} />;
 }
 
 /** One example of a guide (a framework, a variant): its intro, its live demo and, with `code`, its files. */
@@ -77,7 +78,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
   const demoText = demoTextOf(locale);
 
   return (
-    <DocsPage tableOfContent={{ enabled: false }}>
+    <DocsPage slots={{ footer: DocsPager }} tableOfContent={{ enabled: false }}>
       <DocsTitle>{guide.title}</DocsTitle>
       <DocsDescription className="mb-0">{guide.description}</DocsDescription>
       <div className="not-prose flex flex-col gap-1.5 text-sm text-fd-muted-foreground">

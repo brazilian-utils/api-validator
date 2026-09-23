@@ -17,7 +17,7 @@ The CPF is an 11-digit national identification number. The first eight digits ar
 
 - **Validation**: Check whether an unformatted CPF is valid according to the official rules.
 - **Formatting**: Show the CPF in the standard format `XXX.XXX.XXX-YY`.
-- **Symbol removal**: Remove the `.` and `-` characters and keep only the digits.
+- **Parsing**: Remove the `.` and `-` characters and keep only the digits.
 - **Generation**: Generate a valid CPF, at random or according to specific rules.
 
 ## Validation rules

@@ -17,7 +17,7 @@ O CPF é um identificador nacional de 11 dígitos. Os 8 primeiros dígitos são 
 
 - **Validação**: Verificar se um CPF sem formatação é válido conforme as regras oficiais.
 - **Formatação**: Mostrar o CPF no formato padrão `XXX.XXX.XXX-YY`.
-- **Remoção de símbolos**: Remover os caracteres `.` e `-` e manter apenas os dígitos.
+- **Interpretação**: Remover os caracteres `.` e `-` e manter apenas os dígitos.
 - **Geração**: Gerar um CPF válido, ao acaso ou conforme regras específicas.
 
 ## Regras de validação

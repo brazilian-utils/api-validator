@@ -12,12 +12,12 @@ import { libraryBreakdown } from '@/lib/breakdown';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions, headerProps } from '@/lib/layout';
 import { HomeHeader } from '@/components/site-header.client';
+import { SiteFooter } from '@/components/site-footer';
 import { Markdown } from '@/lib/markdown';
 import { loadUsage } from '@/lib/usage';
 import { LangIcon } from '@/components/lang-icon';
 import { guideExamples } from '@/components/pages/guide';
 import { Specimen, type Kind } from '@/components/specimen.client';
-import { StatusIcon } from '@/components/status';
 import { HomeJsonLd } from '@/components/json-ld';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
@@ -116,9 +116,9 @@ export function HomePage({ locale }: { locale: Locale }) {
                 }}
               />
               {frameworks && (
-                <Link href={`${p}/guides/javascript/document-field/`} className="mt-3 inline-flex items-center gap-1 text-sm font-medium hover:underline">
+                <Link href={`${p}/guides/javascript/document-field/`} className="mt-3 inline-block text-sm font-medium hover:underline">
                   {L(locale, `This field in your project, in ${frameworks}`, `Este campo no seu projeto, em ${frameworks}`)}
-                  <ArrowRight aria-hidden className="size-3.5" />
+                  <ArrowRight aria-hidden className="ms-1 inline size-3.5 align-[-0.125em]" />
                 </Link>
               )}
             </div>
@@ -206,7 +206,6 @@ export function HomePage({ locale }: { locale: Locale }) {
                             hrefText={t('cov.openUtil', { util })}
                             className="text-xs text-fd-muted-foreground"
                           >
-                            <StatusIcon status={b.state} className="size-3" />
                             {b.short}
                           </Breakdown>
                         </li>
@@ -219,16 +218,7 @@ export function HomePage({ locale }: { locale: Locale }) {
           </div>
         </section>
 
-        <footer className="band band-top">
-          <div className="mx-auto flex w-full max-w-(--site-width) flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-fd-muted-foreground sm:px-6">
-            <p>Brazilian Utils</p>
-            <nav aria-label={L(locale, 'Footer', 'Rodapé')} className="flex gap-5">
-              <Link href={`${p}/reference/parity/`} className="hover:text-fd-foreground">{L(locale, 'Parity matrix', 'Matriz de paridade')}</Link>
-              <Link href={`${p}/contributing/specs/`} className="hover:text-fd-foreground">{L(locale, 'Contributing', 'Como contribuir')}</Link>
-              <a href="https://github.com/brazilian-utils" className="hover:text-fd-foreground">GitHub</a>
-            </nav>
-          </div>
-        </footer>
+        <SiteFooter locale={locale} />
       </div>
     </HomeLayout>
   );

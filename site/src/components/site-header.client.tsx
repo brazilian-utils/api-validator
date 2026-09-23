@@ -39,47 +39,57 @@ function HeaderRow({ sections, title, homeUrl, prefix, github, slots, menu, clas
   const active = sections.findIndex((s) => s.match.some((m) => path === m.replace(/\/$/, '') || path.startsWith(m)));
   // Laid out like vuejs.org: the logo with search beside it; the sections, then the settings and
   // GitHub, on the right, each group set off by a thin divider.
-  const divider = <span aria-hidden className="mx-2 h-6 w-px bg-fd-border max-md:hidden" />;
+  const divider = <span aria-hidden className="mx-3 h-6 w-px bg-fd-border max-md:hidden" />;
+  // The bar spans the window; its content sits in the site's column, with the page's edges.
   return (
-    <header className={`site-header z-40 flex h-14 items-center gap-2 px-4 md:px-6 ${className}`}>
-      <Link href={homeUrl} className="inline-flex shrink-0 items-center">
-        {title}
-      </Link>
-      {slots.searchTrigger && <slots.searchTrigger.full hideIfDisabled className="ms-4 w-full max-w-56 rounded-full ps-2.5 max-md:hidden" />}
-      <div className="flex flex-1 items-center justify-end gap-1">
-        <nav aria-label="Sections" className="flex items-center gap-6 max-lg:hidden">
-          {sections.map((s, i) => (
-            <Link
-              key={s.url}
-              href={s.url}
-              aria-current={i === active ? 'page' : undefined}
-              className="text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground aria-[current=page]:text-fd-primary"
-            >
-              {s.title}
-            </Link>
-          ))}
-        </nav>
-        <span aria-hidden className="mx-3 h-6 w-px bg-fd-border max-lg:hidden" />
-        {slots.searchTrigger && <slots.searchTrigger.sm hideIfDisabled className="p-2 md:hidden" />}
-        <div className="flex items-center gap-1.5 max-md:hidden">
-          {slots.themeSwitch && <slots.themeSwitch />}
-          {slots.languageSelect && (
-            <slots.languageSelect.root>
-              <Languages className="size-4.5 text-fd-muted-foreground" />
-            </slots.languageSelect.root>
-          )}
+    <header className={`site-header z-40 ${className}`}>
+      <div className="mx-auto flex h-14 w-full max-w-(--site-width) items-center gap-2 px-4 sm:px-6">
+        <Link href={homeUrl} className="inline-flex shrink-0 items-center">
+          {title}
+        </Link>
+        {slots.searchTrigger && <slots.searchTrigger.full hideIfDisabled className="ms-4 w-full max-w-56 rounded-full ps-2.5 max-md:hidden" />}
+        <div className="flex flex-1 items-center justify-end gap-1">
+          <nav aria-label="Sections" className="flex items-center gap-6 max-lg:hidden">
+            {sections.map((s, i) => (
+              <Link
+                key={s.url}
+                href={s.url}
+                aria-current={i === active ? 'page' : undefined}
+                className="text-sm font-medium text-fd-muted-foreground transition-colors hover:text-fd-foreground aria-[current=page]:text-fd-primary"
+              >
+                {s.title}
+              </Link>
+            ))}
+          </nav>
+          <span aria-hidden className="mx-3 h-6 w-px bg-fd-border max-lg:hidden" />
+          {slots.searchTrigger && <slots.searchTrigger.sm hideIfDisabled className="p-2 md:hidden" />}
+          <div className="flex items-center gap-1.5 max-md:hidden">
+            {slots.themeSwitch && <slots.themeSwitch />}
+            {slots.languageSelect && (
+              <slots.languageSelect.root>
+                <Languages className="size-4.5 text-fd-muted-foreground" />
+              </slots.languageSelect.root>
+            )}
+          </div>
+          {divider}
+          <a
+            href={github.url}
+            aria-label={github.label}
+            target="_blank"
+            rel="noopener"
+            className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'text-fd-muted-foreground max-md:hidden' })}
+          >
+            {github.icon}
+          </a>
+          {menu}
         </div>
-        {divider}
-        <a href={github.url} aria-label={github.label} target="_blank" rel="noopener" className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'text-fd-muted-foreground max-md:hidden' })}>
-          {github.icon}
-        </a>
-        {menu}
       </div>
     </header>
   );
 }
 
-/** In the documentation: the grid's header row, full width; the menu opens the sidebar drawer. */
+/** In the documentation: the grid's header row, full width (its content does not size the grid's
+ * columns); the menu opens the sidebar drawer. */
 export function DocsHeader(props: HeaderProps) {
   const { slots } = useNotebookLayout();
   const Trigger = slots.sidebar?.trigger;
@@ -87,7 +97,7 @@ export function DocsHeader(props: HeaderProps) {
     <HeaderRow
       {...props}
       slots={slots}
-      className="sticky top-(--fd-docs-row-1) [grid-area:header] [grid-column:1/-1]! layout:[--fd-header-height:--spacing(14)]"
+      className="sticky top-(--fd-docs-row-1) [grid-area:header] [grid-column:1/-1]! [contain:inline-size] layout:[--fd-header-height:--spacing(14)]"
       menu={
         Trigger && (
           <Trigger aria-label={props.menuLabel} className={buttonVariants({ variant: 'ghost', size: 'icon-sm', className: '-me-1.5 p-2 text-fd-muted-foreground lg:hidden' })}>
@@ -125,7 +135,13 @@ export function HomeHeader(props: HeaderProps) {
                   <Languages className="size-4.5 text-fd-muted-foreground" />
                 </slots.languageSelect.root>
               )}
-              <a href={props.github.url} aria-label={props.github.label} target="_blank" rel="noopener" className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'ms-auto text-fd-muted-foreground' })}>
+              <a
+                href={props.github.url}
+                aria-label={props.github.label}
+                target="_blank"
+                rel="noopener"
+                className={buttonVariants({ size: 'icon-sm', variant: 'ghost', className: 'ms-auto text-fd-muted-foreground' })}
+              >
                 {props.github.icon}
               </a>
             </div>

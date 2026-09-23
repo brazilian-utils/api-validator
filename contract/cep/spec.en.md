@@ -16,7 +16,7 @@ The CEP is a numeric code of eight digits. The postal service assigns these code
 
 - **Validation**: Check whether an unformatted CEP contains exactly `8` digits.
 - **Formatting**: Show the CEP in the standard format `XXXXX-XXX`.
-- **Symbol removal**: Remove the `.` and `-` characters from the input.
+- **Parsing**: Remove the `.` and `-` characters from the input.
 - **Generation**: Generate a random CEP of `8` digits.
 
 ## Validation rules

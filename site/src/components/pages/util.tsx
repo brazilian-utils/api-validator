@@ -8,9 +8,8 @@ import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { lastCommit } from '@/lib/git';
 import { Note } from '@/components/note';
-import { Card, Cards } from 'fumadocs-ui/components/card';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
-import { ArrowRight, BookOpen, ExternalLink, FileJson, Pencil } from 'lucide-react';
+import { ArrowRight, ExternalLink, FileJson, Pencil } from 'lucide-react';
 import { Breakdown } from '@/components/breakdown.client';
 import { functionBreakdown } from '@/lib/breakdown';
 import { CONTRACT_DIR, REPO_URL, contractPath, specName, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
@@ -23,6 +22,7 @@ import { StatusIcon, type Status } from '@/components/status';
 import { TryIt } from '@/components/try-it';
 import { FlatTabs } from '@/components/flat-tabs';
 import { Disclosure } from '@/components/disclosure';
+import { DocsPager } from '@/components/docs-pager.client';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
@@ -68,7 +68,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
   ];
 
   return (
-    <DocsPage toc={toc} tableOfContent={{ style: 'clerk' }} breadcrumb={{ enabled: false }}>
+    <DocsPage slots={{ footer: DocsPager }} toc={toc} tableOfContent={{ style: 'clerk' }} breadcrumb={{ enabled: false }}>
       <DocsTitle>{pick(spec.title, locale)}</DocsTitle>
       <DocsDescription className="mb-0">{pick(spec.summary, locale)}</DocsDescription>
 
@@ -122,11 +122,20 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
         {guides.length > 0 && (
           <>
             <h2 id="guides">{t('util.guides')}</h2>
-            <Cards>
+            {/* Rows between rules, like the home page's lists: a guide is a link and a sentence. */}
+            <ul className="not-prose divide-y border-y">
               {guides.map((g: any) => (
-                <Card key={g.slug} icon={<BookOpen />} title={pick(g.title, locale)} description={pick(g.description, locale)} href={`${p}/guides/${g.lib}/${g.slug}/`} />
+                <li key={g.slug}>
+                  <Link href={`${p}/guides/${g.lib}/${g.slug}/`} className="group flex items-start justify-between gap-4 py-3">
+                    <span>
+                      <span className="font-medium group-hover:text-fd-primary">{pick(g.title, locale)}</span>
+                      <span className="mt-0.5 block text-sm text-fd-muted-foreground">{pick(g.description, locale)}</span>
+                    </span>
+                    <ArrowRight aria-hidden className="mt-1 size-4 shrink-0 text-fd-muted-foreground group-hover:text-fd-primary" />
+                  </Link>
+                </li>
               ))}
-            </Cards>
+            </ul>
           </>
         )}
 

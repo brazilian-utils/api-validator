@@ -25,22 +25,19 @@ body {
 label { font-weight: 500; font-size: 13px; color: var(--color-fd-foreground); }
 input, select {
   font: 15px/1.4 var(--font-mono); padding: 7px 10px; color: var(--color-fd-foreground);
-  background: var(--color-fd-background); border: 1px solid var(--color-fd-border); border-radius: 8px;
-  transition: border-color .15s, box-shadow .15s;
+  background: var(--color-fd-background); border: 1px solid var(--color-fd-border); border-radius: 6px;
+  transition: border-color .15s;
 }
 select { font-family: var(--font-sans); font-size: 14px; }
 input::placeholder { color: var(--color-fd-muted-foreground); opacity: .7; }
-input:focus, select:focus {
-  outline: none; border-color: var(--color-fd-ring);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-fd-ring) 25%, transparent);
-}
+input:focus-visible, select:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 2px; }
 input:disabled, select:disabled { opacity: .55; }
 input[aria-invalid="true"] { border-color: var(--color-fail); }
 p, output { margin: 0; font-size: 13px; color: var(--color-fd-muted-foreground); }
 input[aria-invalid="true"] + p, p[role="alert"]:not(:empty) { color: var(--color-fail); }
 output:not(:empty) { color: var(--color-fd-primary); }
 button {
-  font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 0; border-radius: 8px; cursor: pointer;
+  font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 0; border-radius: 6px; cursor: pointer;
   color: var(--color-fd-primary-foreground); background: var(--color-fd-primary); transition: opacity .15s;
 }
 button:hover { opacity: .9; }
@@ -142,16 +139,10 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
 
   const caption = title ? text.demoOf.replace('{title}', title) : text.demo;
   return (
-    <figure className="not-prose my-4 overflow-hidden rounded-xl border bg-fd-card">
-      <figcaption className="flex items-center gap-2 border-b px-4 py-2 text-xs text-fd-muted-foreground">
-        {caption}
-        <a href={src} target="_blank" rel="noopener" className="ms-auto inline-flex items-center gap-1 hover:text-fd-foreground">
-          {text.open}
-          {title && <span className="sr-only"> ({title})</span>}
-          <ExternalLink aria-hidden className="size-3" />
-        </a>
-      </figcaption>
-      <div className="relative">
+    // On the page's paper with a rule around it, like the home page's specimen: no title bar (the
+    // tab above already names the example); the link to open it alone sits under it.
+    <figure className="not-prose my-4">
+      <div className="relative overflow-hidden rounded-xl border">
         <iframe
           ref={frame}
           src={src}
@@ -169,8 +160,7 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
             if (!dressed) setReady(true);
             else setTimeout(() => setReady(true), 10_000);
           }}
-          // A height that changes (the reserved one to the real one) eases instead of jumping.
-          className={`block h-40 w-full transition-[height,opacity] duration-200 ease-out motion-reduce:transition-none ${ready ? 'opacity-100' : 'opacity-0'}`}
+          className={`block h-40 w-full transition-opacity duration-150 motion-reduce:transition-none ${ready ? 'opacity-100' : 'opacity-0'}`}
         />
         {!ready && (
           <p role="status" className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-fd-muted-foreground">
@@ -179,6 +169,13 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
           </p>
         )}
       </div>
+      <figcaption className="mt-2 flex justify-end text-xs text-fd-muted-foreground">
+        <a href={src} target="_blank" rel="noopener" className="inline-flex items-center gap-1 hover:text-fd-foreground">
+          {text.open}
+          <span className="sr-only"> ({caption})</span>
+          <ExternalLink aria-hidden className="size-3" />
+        </a>
+      </figcaption>
     </figure>
   );
 }

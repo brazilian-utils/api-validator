@@ -13,7 +13,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/boleto.rs",
+        "file": "src/boleto.rs",
         "line": 255
       }
     },
@@ -27,7 +27,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/boleto.rs",
+        "file": "src/boleto.rs",
         "line": 287
       }
     },
@@ -41,7 +41,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 102
       }
     },
@@ -50,7 +50,7 @@
       "params": [],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 159
       }
     },
@@ -68,7 +68,7 @@
       ],
       "returns": "Result<Option<Address>, Box<dyn Error>>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 199
       }
     },
@@ -94,7 +94,7 @@
       ],
       "returns": "Result<Option<Vec<Address>>, Box<dyn Error>>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 284
       }
     },
@@ -108,7 +108,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 140
       }
     },
@@ -122,7 +122,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cep.rs",
+        "file": "src/cep.rs",
         "line": 77
       }
     },
@@ -136,7 +136,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnh.rs",
+        "file": "src/cnh.rs",
         "line": 26
       }
     },
@@ -150,7 +150,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 246
       }
     },
@@ -164,7 +164,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 57
       }
     },
@@ -178,7 +178,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 165
       }
     },
@@ -196,7 +196,7 @@
       ],
       "returns": "usize",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 203
       }
     },
@@ -210,7 +210,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 138
       }
     },
@@ -224,7 +224,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 29
       }
     },
@@ -238,7 +238,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cnpj.rs",
+        "file": "src/cnpj.rs",
         "line": 98
       }
     },
@@ -252,7 +252,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 234
       }
     },
@@ -266,7 +266,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 70
       }
     },
@@ -275,7 +275,7 @@
       "params": [],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 163
       }
     },
@@ -293,7 +293,7 @@
       ],
       "returns": "usize",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 193
       }
     },
@@ -307,7 +307,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 144
       }
     },
@@ -321,7 +321,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 44
       }
     },
@@ -335,7 +335,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/cpf.rs",
+        "file": "src/cpf.rs",
         "line": 109
       }
     },
@@ -349,7 +349,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/currency.rs",
+        "file": "src/currency.rs",
         "line": 371
       }
     },
@@ -363,7 +363,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/currency.rs",
+        "file": "src/currency.rs",
         "line": 296
       }
     },
@@ -377,7 +377,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/currency.rs",
+        "file": "src/currency.rs",
         "line": 63
       }
     },
@@ -391,7 +391,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/date_utils.rs",
+        "file": "src/date_utils.rs",
         "line": 61
       }
     },
@@ -409,7 +409,7 @@
       ],
       "returns": "Option<bool>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/date_utils.rs",
+        "file": "src/date_utils.rs",
         "line": 158
       }
     },
@@ -423,7 +423,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/email.rs",
+        "file": "src/email.rs",
         "line": 44
       }
     },
@@ -437,7 +437,7 @@
       ],
       "returns": "Option<&'static str>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_nature.rs",
+        "file": "src/legal_nature.rs",
         "line": 237
       }
     },
@@ -451,7 +451,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_nature.rs",
+        "file": "src/legal_nature.rs",
         "line": 207
       }
     },
@@ -460,7 +460,7 @@
       "params": [],
       "returns": "std::collections::HashMap<String, String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_nature.rs",
+        "file": "src/legal_nature.rs",
         "line": 263
       }
     },
@@ -474,7 +474,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_process.rs",
+        "file": "src/legal_process.rs",
         "line": 73
       }
     },
@@ -492,7 +492,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_process.rs",
+        "file": "src/legal_process.rs",
         "line": 215
       }
     },
@@ -506,7 +506,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_process.rs",
+        "file": "src/legal_process.rs",
         "line": 132
       }
     },
@@ -520,7 +520,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/legal_process.rs",
+        "file": "src/legal_process.rs",
         "line": 41
       }
     },
@@ -534,7 +534,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 226
       }
     },
@@ -548,7 +548,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 56
       }
     },
@@ -562,7 +562,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 273
       }
     },
@@ -576,7 +576,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 191
       }
     },
@@ -594,7 +594,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 163
       }
     },
@@ -608,7 +608,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/license_plate.rs",
+        "file": "src/license_plate.rs",
         "line": 25
       }
     },
@@ -622,7 +622,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/phone.rs",
+        "file": "src/phone.rs",
         "line": 214
       }
     },
@@ -636,7 +636,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/phone.rs",
+        "file": "src/phone.rs",
         "line": 296
       }
     },
@@ -654,7 +654,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/phone.rs",
+        "file": "src/phone.rs",
         "line": 182
       }
     },
@@ -668,7 +668,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/phone.rs",
+        "file": "src/phone.rs",
         "line": 330
       }
     },
@@ -682,7 +682,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/phone.rs",
+        "file": "src/phone.rs",
         "line": 60
       }
     },
@@ -696,7 +696,7 @@
       ],
       "returns": "u32",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/pis.rs",
+        "file": "src/pis.rs",
         "line": 42
       }
     },
@@ -710,7 +710,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/pis.rs",
+        "file": "src/pis.rs",
         "line": 122
       }
     },
@@ -719,7 +719,7 @@
       "params": [],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/pis.rs",
+        "file": "src/pis.rs",
         "line": 155
       }
     },
@@ -733,7 +733,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/pis.rs",
+        "file": "src/pis.rs",
         "line": 81
       }
     },
@@ -747,7 +747,7 @@
       ],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/pis.rs",
+        "file": "src/pis.rs",
         "line": 29
       }
     },
@@ -761,7 +761,7 @@
       ],
       "returns": "u32",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/renavam.rs",
+        "file": "src/renavam.rs",
         "line": 30
       }
     },
@@ -770,7 +770,7 @@
       "params": [],
       "returns": "String",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/renavam.rs",
+        "file": "src/renavam.rs",
         "line": 128
       }
     },
@@ -784,7 +784,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/renavam.rs",
+        "file": "src/renavam.rs",
         "line": 85
       }
     },
@@ -802,7 +802,7 @@
       ],
       "returns": "u8",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/voter_id.rs",
+        "file": "src/voter_id.rs",
         "line": 206
       }
     },
@@ -820,7 +820,7 @@
       ],
       "returns": "u8",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/voter_id.rs",
+        "file": "src/voter_id.rs",
         "line": 243
       }
     },
@@ -834,7 +834,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/voter_id.rs",
+        "file": "src/voter_id.rs",
         "line": 100
       }
     },
@@ -848,7 +848,7 @@
       ],
       "returns": "Option<String>",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/voter_id.rs",
+        "file": "src/voter_id.rs",
         "line": 136
       }
     },
@@ -862,7 +862,7 @@
       ],
       "returns": "bool",
       "location": {
-        "file": "/home/user/api-validator/.repos/brazilian-utils-rust/src/voter_id.rs",
+        "file": "src/voter_id.rs",
         "line": 34
       }
     }

@@ -13,28 +13,28 @@ type tables, accordions and callouts. The site keeps all of it and adds only wha
 
 ## Layout
 
-The Fumadocs "notebook" layout: a full-width header with its own background and a rule under it,
-so the frame reads apart from the page. The header holds the logo, the search, the language, the
-theme and GitHub, and a second row with the four sections of the site as tabs: Utilities,
-Libraries, Guides, Contributing. The sidebar lists only the pages of the current section; utility
-categories start closed.
+One header on every page (`site-header.client.tsx`), laid out like vuejs.org: the logo and the
+search on the left; the sections of the site (Utilities, Libraries, Guides, Contributing, About),
+then theme and language, then GitHub on the right. The bar spans the window in the header's own
+paper tone; its content sits in the site's column. The home page and the documentation share that
+column (`--site-width`, 80rem): the docs' sidebar, page and table of contents sit inside the same
+edges as the home page's sections, so nothing moves from one to the other. The same footer closes
+both. The sidebar lists only the pages of the current section; utility categories start closed.
 
 ```
-┌ [dog] Brazilian Utils        [ Search            ⌘K ]           GitHub  文A  ☀/☾ ┐
-│ Utilities   Libraries   Guides   Contributing                                    │
+┌ [dog BRAZILIAN UTILS] [ Search ⌘K ]     Utilities Libraries Guides Contributing About │ ☀/☾ 文A │ GitHub ┐
 ├──────────────┬──────────────────────────────────────────────┬──────────────────┤
 │ Getting      │ CPF                                          │ On this page     │
 │ started      │ Cadastro de Pessoas Físicas, …               │   Validate       │
 │ ▾ Personal   │ [Contract] [Edit]                            │   Format         │
-│   CPF        │ JS ◐ 4/5  Py ◐ 4/5  Go ◐ 3/5 …  one row      │   …              │
+│   CPF        │ JS ✓ complete  Py ◐ no Parse …   one row     │   …              │
 │   CNH …      │                                              │   Specification  │
-│ ▸ Companies  │                                              │   Official       │
-│ ▸ …          │ Validate  cpf.isValid                        │   sources        │
-│              │ ┌ cpf.isValid(cpf: string): boolean ─────┐   │                  │
+│ ▸ Companies  │ Validate  cpf.isValid                        │   Official       │
+│ ▸ …          │ ┌ cpf.isValid(cpf: string): boolean ─────┐   │   sources        │
 │              │ ✓ JavaScript ✓ Python …                      │                  │
-│              │ description · ⚠ pending decision · (params)  │                  │
 │              │ JS  Py  Go  Ruby  Rust  .NET  Erlang (tabs)  │                  │
 │              │ ─ ▸ Try it ─ ▸ Shared test cases ─           │                  │
+│              │ ← Previous page                  Next page → │                  │
 └──────────────┴──────────────────────────────────────────────┴──────────────────┘
 ```
 
@@ -61,8 +61,13 @@ at the bottom of the link preview image.
 State is an icon first and a color second: ✓ all good (green), ◐ some (amber), ✕ a case fails
 (red), ! signature differs (amber), ○ not implemented (muted), - not planned or not run.
 
-Type: Geist Sans for text, Geist Mono for code and document numbers (self-hosted, no CDN). Samba,
-the brand face, only for the wordmark in the header.
+Type: Geist Sans for text, Geist Mono for code and document numbers (self-hosted, no CDN). The
+wordmark is the brand logo itself (github.com/brazilian-utils/brand). Headings are set as on the
+home page: a page title at 2.25rem with tight tracking, clearly above its sections.
+
+Shape: controls (inputs, buttons, kbd) 6px; containers (code blocks, notes, the specimen, the
+demo frame) 12px; chips and the search pill fully round. No drop shadows: a border draws an edge.
+One focus style everywhere: a 2px outline in the ring color, 2px away.
 
 ## Rules
 
@@ -78,12 +83,15 @@ density 5. Impeccable mode: Read (the home page leans Persuade).
    around it (`flat-tabs.tsx`); a second level of tabs (the variants of a guide example) is
    `compact`, small labels with no rule, so two levels never look alike. On a phone the labels
    wrap instead of scrolling out of sight. "Try it" and the test cases are native `<details>`
-   between rules (`disclosure.tsx`). A code block is the only surface in a tab.
+   between rules (`disclosure.tsx`). A code block is the only surface in a tab; the files of a
+   guide example are the code block's own title bar (`file` tabs), a third look for a third level.
+   Lists of pages or people (guides of a utility, the team) are rows between rules, not cards.
 3. Notes are a tinted surface with an icon (`note.tsx`), never a colored side stripe.
-4. No eyebrow labels, no hero metrics, no section numbers, no decorative dots, no progress bars
-   with tracks, no gradient text, no em-dashes. Numbers appear in sentences, where they mean
+4. No eyebrow labels, no hero metrics, no section numbers, no decorative dots or icons that repeat
+   on every row, no progress bars or rings with tracks, no gradient text, no em-dashes, no layout
+   animated (a live demo keeps its reserved height and only fades in). Numbers appear in sentences, where they mean
    something ("every one runs the same 814 test cases").
-5. Running text stops at 62ch (about 78 characters in Geist); tables and code keep the column.
+5. Running text stops at 52ch (about 72 characters in Geist); tables and code keep the column.
 6. The parts the browser draws are themed: selection, caret, scrollbars, focus ring, link
    underline offset, tabular figures.
 7. The page loads what it shows. Search, the full reference library and the demos load on use.

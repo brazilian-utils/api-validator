@@ -104,6 +104,17 @@ figure.shiki {
   background-color: var(--color-fd-background);
   box-shadow: none;
 }
+/* Where there is a mouse, the copy button shows on hover or keyboard focus, so it never sits on
+   the code while it is being read; on touch screens it stays. */
+@media (hover: hover) {
+  figure.shiki > div:has(> button[aria-label]) {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  figure.shiki:is(:hover, :focus-within) > div:has(> button[aria-label]) {
+    opacity: 1;
+  }
+}
 
 /* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */
 ::selection {
@@ -127,7 +138,7 @@ a {
 /* Running text keeps a readable measure (the page description included); tables, code, links
    drawn as cards (the pager) and flex rows (legends, chips) keep the full column. */
 #nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, a *, .flex) {
-  max-width: 62ch;
+  max-width: 52ch;
 }
 
 /* Full-width bands of the home page: the header's paper tone, a rule between bands. */
@@ -163,4 +174,20 @@ a {
 }
 tr:hover > .pinned {
   --pinned-paper: color-mix(in srgb, var(--color-fd-accent) 40%, var(--color-fd-background));
+}
+
+/* Headings as on the home page: the title clearly above its sections, both set tight. */
+#nd-page h1 {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+#nd-page .prose :is(h2, h3) {
+  letter-spacing: -0.02em;
+}
+
+/* The phone's "On this page" bar names the section; a progress ring beside it says nothing more. */
+[data-toc-popover-trigger] svg[role='progressbar'] {
+  display: none;
 }

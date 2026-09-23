@@ -161,7 +161,7 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
   };
 
   return (
-    <section aria-labelledby={`${id}-label`} className="rounded-2xl border bg-fd-background p-5 sm:p-6">
+    <section aria-labelledby={`${id}-label`} className="rounded-xl border bg-fd-background p-5 sm:p-6">
       <div className="flex items-center justify-between gap-3">
         <label id={`${id}-label`} htmlFor={`${id}-input`} className="text-sm font-medium">
           {text.label}
@@ -187,7 +187,7 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
         autoCapitalize="characters"
         spellCheck={false}
         aria-describedby={`${id}-result`}
-        className="mt-2 w-full rounded-lg border bg-fd-background px-3 py-2.5 font-mono text-lg tracking-wide outline-none placeholder:text-fd-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-fd-ring"
+        className="mt-2 w-full rounded-md border bg-fd-background px-3 py-2.5 font-mono text-lg tracking-wide placeholder:text-fd-muted-foreground/70"
       />
       <p aria-hidden="true" className={`mt-4 min-h-[1.2em] overflow-hidden text-ellipsis whitespace-nowrap font-mono text-3xl tracking-wider sm:text-4xl ${alnum ? '' : 'text-fd-muted-foreground/60'}`}>
         {alnum ? head : mask || ' '}

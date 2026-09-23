@@ -19,7 +19,7 @@ O CNPJ é o número de identificação que a Receita Federal atribui a empresas,
 - **Formatação**: Mostrar o CNPJ no formato `XX.XXX.XXX/XXXX-DV`, onde:
     - `X`: caractere alfanumérico (algarismos de `0` a `9` e letras maiúsculas de `A` a `Z`).
     - `DV`: dígitos verificadores calculados pelo algoritmo do módulo 11.
-- **Remoção de símbolos**: Remover os caracteres `.`, `/` e `-` e manter apenas os caracteres alfanuméricos.
+- **Interpretação**: Remover os caracteres `.`, `/` e `-` e manter apenas os caracteres alfanuméricos.
 - **Geração**: Gerar uma string de CNPJ válida e aleatória.
 
 ## Regras de validação

@@ -14,6 +14,7 @@ import { SITE_ROOT } from '@/lib/meta';
 import { demoteHeadings } from '@/lib/prose';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
+import { DocsPager } from '@/components/docs-pager.client';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const libTitle = (locale: Locale, label: string) => L(locale, `${label} library`, `Biblioteca ${label}`);
@@ -83,14 +84,14 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
   const badgeMarkdown = `[![${t('lib.badgeLabel')}](${SITE_ROOT}/badges/${lib.id}.svg)](${SITE_ROOT}/libs/${lib.id}/)`;
 
   return (
-    <DocsPage toc={toc} tableOfContent={{ style: 'clerk' }}>
+    <DocsPage slots={{ footer: DocsPager }} toc={toc} tableOfContent={{ style: 'clerk' }}>
       <DocsTitle className="flex items-center gap-3">
         <LangIcon lib={lib.id} className="size-7" />
         {libTitle(locale, lib.label)}
       </DocsTitle>
       <DocsDescription className="mb-0">{libDescription(locale, lib.label)}</DocsDescription>
 
-      <dl className="not-prose grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl border bg-fd-card p-4 text-sm">
+      <dl className="not-prose grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-y py-3 text-sm">
         <dt className="text-fd-muted-foreground">{t('lib.repository')}</dt>
         <dd className="min-w-0 break-words">
           <a href={`https://github.com/${lib.repo}`} className="underline underline-offset-4">github.com/{lib.repo}</a>
@@ -173,10 +174,13 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
                         <tr key={fnId}>
                           <td>
                             <Link href={where.get(fnId)?.href ?? '#'}>{where.get(fnId)?.label ?? fnId}</Link>
-                            <div className="text-xs text-fd-muted-foreground">
-                              <code className="whitespace-nowrap!">{fnId}</code>
-                              {f.level === 'core' && ` ${t('lib.coreTag')}`}
-                            </div>
+                            {/* The contract id under the name, when the name is not already the id. */}
+                            {(where.get(fnId)?.label || f.level === 'core') && (
+                              <div className="text-xs text-fd-muted-foreground">
+                                {where.get(fnId)?.label && <code className="whitespace-nowrap!">{fnId}</code>}
+                                {f.level === 'core' && ` ${t('lib.coreTag')}`}
+                              </div>
+                            )}
                           </td>
                           <td>
                             <span className="inline-flex items-center gap-1.5 whitespace-nowrap" title={t(`status.${f.status}`)}>

@@ -16,7 +16,7 @@ O CEP é um código numérico de oito algarismos. Os Correios atribuem esses có
 
 - **Validação**: Verificar se um CEP sem formatação contém exatamente `8` dígitos.
 - **Formatação**: Mostrar o CEP no formato padrão `XXXXX-XXX`.
-- **Remoção de símbolos**: Remover os caracteres `.` e `-` da entrada.
+- **Interpretação**: Remover os caracteres `.` e `-` da entrada.
 - **Geração**: Gerar um CEP aleatório de `8` dígitos.
 
 ## Regras de validação

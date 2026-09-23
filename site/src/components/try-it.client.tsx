@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 
 export interface Field {
   name: string;
@@ -113,7 +114,12 @@ export function TryItForm({ symbol, fields, cases, text }: { symbol: string; fie
       <output aria-live="polite" className="flex min-h-10 flex-wrap items-center gap-3 rounded-md bg-fd-background px-3 py-2 text-sm">
         {!out && <span className="text-fd-muted-foreground">{text.hint}</span>}
         {out?.value !== undefined && <code className="font-mono">{out.value}</code>}
-        {out?.verdict && <span className={`text-xs ${out.verdict[0] ? 'text-ok' : 'text-fail'}`}>{out.verdict[1]}</span>}
+        {out?.verdict && (
+          <span className={`inline-flex items-center gap-1 text-xs ${out.verdict[0] ? 'text-ok' : 'text-fail'}`}>
+            {out.verdict[0] ? <CheckCircle2 aria-hidden className="size-3.5" /> : <XCircle aria-hidden className="size-3.5" />}
+            {out.verdict[1]}
+          </span>
+        )}
         {out?.error && <span className="text-xs text-fail">{out.error}</span>}
       </output>
       <p className="text-xs text-fd-muted-foreground">{text.note}</p>
