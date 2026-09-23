@@ -6,7 +6,8 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { loadContract } from "./contract.js";
+import { CONTRACT_FILE, loadContract } from "./contract.js";
+import { slugOf } from "../../site/src/lib/usage-format.mjs";
 import type { Contract, ContractFunction, ContractTest } from "./model.js";
 import { runOrThrow } from "./shell.js";
 import { paramList } from "./signature.js";
@@ -17,8 +18,14 @@ export function contractAt(repo: string, dir: string, ref: string): Contract {
   const rel = path.relative(repo, dir);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-contract-"));
   try {
-    const files = runOrThrow("git", ["ls-tree", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n").filter((f) => f.endsWith(".json"));
-    for (const f of files) fs.writeFileSync(path.join(tmp, f), runOrThrow("git", ["show", `${ref}:${rel}/${f}`], { cwd: repo }));
+    const files = runOrThrow("git", ["ls-tree", "-r", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n");
+    for (const f of files) {
+      // Today a domain lives in <domain>/contract.json; older refs kept it flat in <domain>.json.
+      const to = /^[^/_][^/]*\/contract\.json$/.test(f) || /^_[^/]*\.json$/.test(f) ? f : /^[^/_][^/]*\.json$/.test(f) ? path.join(slugOf(f.slice(0, -5)), CONTRACT_FILE) : undefined;
+      if (!to) continue;
+      fs.mkdirSync(path.dirname(path.join(tmp, to)), { recursive: true });
+      fs.writeFileSync(path.join(tmp, to), runOrThrow("git", ["show", `${ref}:${rel}/${f}`], { cwd: repo }));
+    }
     return loadContract(tmp);
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

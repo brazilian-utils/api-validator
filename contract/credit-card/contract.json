@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "creditCard",
+  "title": { "en": "Payment card", "pt-BR": "Cartão de pagamento" },
+  "summary": {
+    "en": "Payment card numbers (credit or debit), Luhn check only.",
+    "pt-BR": "Números de cartão de crédito ou débito, só pelo algoritmo de Luhn."
+  },
+  "category": "finance",
+  "order": 8,
+  "functions": {
+    "isValid": {
+      "summary": {
+        "en": "Validates a payment card number (credit or debit) with the Luhn algorithm.",
+        "pt-BR": "Valida um número de cartão de pagamento (crédito ou débito) com o algoritmo de Luhn."
+      },
+      "description": {
+        "en": [
+          "Validates a payment card number (credit or debit): 12 to 19 digits and a Luhn check digit.",
+          "",
+          "- The function does not detect the brand, look up the issuer range, or check the expiry or the CVV.",
+          "- The function rejects a number whose digits are all the same, even though it passes Luhn.",
+          "- Accepts a string or a number, with whitespace, `.`, `-` and `/` anywhere between the digits. Letters make it invalid. Pass a number above the largest exactly representable integer as a string."
+        ],
+        "pt-BR": [
+          "Valida um número de cartão de pagamento (crédito ou débito): de 12 a 19 dígitos e um dígito verificador de Luhn.",
+          "",
+          "- A função não detecta a bandeira, não consulta a faixa do emissor e não verifica a validade nem o CVV.",
+          "- A função rejeita um número com todos os dígitos iguais, mesmo que ele passe no Luhn.",
+          "- Aceita uma string ou um número, com espaço em branco, `.`, `-` e `/` em qualquer ponto entre os dígitos. Letras tornam o número inválido. Passe como string um número acima do maior inteiro representável com exatidão."
+        ]
+      },
+      "references": ["https://www.iso.org/standard/70484.html"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["4111111111111111"], "returns": true },
+        { "args": ["5555555555554444"], "returns": true },
+        { "name": "15-digits", "args": ["378282246310005"], "returns": true },
+        { "name": "masked", "args": ["4111 1111 1111 1111"], "returns": true },
+        { "name": "luhn-fail", "args": ["4111111111111112"], "returns": false },
+        { "name": "zeros", "args": ["0000000000000000"], "returns": false },
+        { "name": "too-short", "args": ["60110000000"], "returns": false },
+        { "name": "letters", "args": ["abcdabcdabcd"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false }
+      ]
+    }
+  }
+}

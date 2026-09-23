@@ -1,0 +1,138 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "iban",
+  "title": { "en": "IBAN", "pt-BR": "IBAN" },
+  "summary": {
+    "en": "Brazilian IBANs (country code BR): validation, formatting, parsing and decoding.",
+    "pt-BR": "IBANs brasileiros (código de país BR): validação, formatação, leitura e decodificação."
+  },
+  "category": "finance",
+  "order": 7,
+  "related": ["bank"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats an IBAN in the ISO 13616 print grouping, with blocks of 4 characters. Statements and bank forms show the IBAN in this form.",
+        "pt-BR": "Formata um IBAN no agrupamento de impressão da ISO 13616, em blocos de 4 caracteres. Extratos e formulários bancários mostram o IBAN nessa forma."
+      },
+      "description": {
+        "en": [
+          "Formats an IBAN in the ISO 13616 print grouping: blocks of 4 characters separated by spaces, upper-cased. It does not validate the IBAN (use `iban.isValid`).",
+          "",
+          "- The function reads only letters and digits. The result is capped at the 29 characters of a Brazilian IBAN."
+        ],
+        "pt-BR": [
+          "Formata um IBAN no agrupamento de impressão da ISO 13616: blocos de 4 caracteres separados por espaços, em maiúsculas. Não valida o IBAN (use `iban.isValid`).",
+          "",
+          "- A função lê apenas letras e dígitos. O resultado é limitado aos 29 caracteres de um IBAN brasileiro."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["BR1500000000000010932840814P2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2" },
+        { "name": "lowercase", "args": ["br1500000000000010932840814p2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2" },
+        { "name": "partial", "args": ["BR150"], "returns": "BR15 0" },
+        { "name": "empty", "args": [""], "returns": "" }
+      ]
+    },
+    "getInfo": {
+      "summary": {
+        "en": "Parses a Brazilian IBAN (International Bank Account Number) into its fields.",
+        "pt-BR": "Decompõe um IBAN (International Bank Account Number) brasileiro em seus campos."
+      },
+      "description": {
+        "en": [
+          "Parses a Brazilian IBAN into its fields. Returns null whenever `iban.isValid` would return false.",
+          "",
+          "- Fields, all strings: country code, check digits, bank ISPB, branch, account, account type and owner."
+        ],
+        "pt-BR": [
+          "Decompõe um IBAN brasileiro em seus campos. Retorna null sempre que `iban.isValid` retornaria false.",
+          "",
+          "- Campos, todos strings: código do país, dígitos verificadores, ISPB do banco, agência, conta, tipo de conta e titular."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf",
+        "https://www.iso.org/standard/81090.html",
+        "https://www.iso.org/standard/31531.html"
+      ],
+      "flatName": "getIbanInfo",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "IbanInfo?",
+      "tests": [
+        { "args": ["BR1500000000000010932840814P2"], "returns": { "countryCode": "BR", "checkDigits": "15", "bankIspb": "00000000", "branch": "00001", "account": "0932840814", "accountType": "P", "owner": "2" } },
+        { "name": "masked", "args": ["BR15 0000 0000 0000 1093 2840 814P 2"], "returns": { "countryCode": "BR", "checkDigits": "15", "bankIspb": "00000000", "branch": "00001", "account": "0932840814", "accountType": "P", "owner": "2" } },
+        { "args": ["BR3860701190000010000012345C1"], "returns": { "countryCode": "BR", "checkDigits": "38", "bankIspb": "60701190", "branch": "00001", "account": "0000012345", "accountType": "C", "owner": "1" } },
+        { "name": "wrong-check", "args": ["BR1500000000000010932840814P3"], "returns": null },
+        { "name": "not-brazilian", "args": ["DE89370400440532013000"], "returns": null },
+        { "name": "empty", "args": [""], "returns": null }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Validates a Brazilian IBAN (International Bank Account Number).",
+        "pt-BR": "Valida um IBAN (International Bank Account Number) brasileiro."
+      },
+      "description": {
+        "en": [
+          "Validates a Brazilian IBAN. Any other country is invalid.",
+          "",
+          "- Layout, 29 characters: `BR`, 2 check digits (ISO 7064 MOD 97-10), 8-digit ISPB, 5-digit branch, 10-digit account, 1-letter account type (usually `C` or `P`), 1 owner indicator (`1` to `9`, then `A` to `Z`).",
+          "- Accepts the compact form or groups of 4 split by one whitespace, `.`, `-` or `/`, in any case. A separator inside a group makes the IBAN invalid."
+        ],
+        "pt-BR": [
+          "Valida um IBAN brasileiro. Um IBAN de qualquer outro país é inválido.",
+          "",
+          "- Leiaute, 29 caracteres: `BR`, 2 dígitos verificadores (ISO 7064 MOD 97-10), ISPB de 8 dígitos, agência de 5 dígitos, conta de 10 dígitos, tipo de conta de 1 letra (em geral `C` ou `P`), 1 indicador de titular (`1` a `9`, depois `A` a `Z`).",
+          "- Aceita a forma compacta ou grupos de 4 separados por um espaço em branco, `.`, `-` ou `/`, em maiúsculas ou minúsculas. Um separador dentro de um grupo torna o IBAN inválido."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf",
+        "https://www.iso.org/standard/81090.html",
+        "https://www.iso.org/standard/31531.html"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["BR1500000000000010932840814P2"], "returns": true },
+        { "name": "masked", "args": ["BR15 0000 0000 0000 1093 2840 814P 2"], "returns": true },
+        { "name": "lowercase", "args": ["br1500000000000010932840814p2"], "returns": true },
+        { "name": "wrong-check", "args": ["BR1500000000000010932840814P3"], "returns": false },
+        { "name": "not-brazilian", "args": ["DE89370400440532013000"], "returns": false },
+        { "name": "too-short", "args": ["BR15000000000000109328408"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes IBAN formatting characters, upper-cases the result and returns the compact IBAN.",
+        "pt-BR": "Remove os caracteres de formatação de um IBAN, converte o resultado para maiúsculas e retorna o IBAN compacto."
+      },
+      "description": {
+        "en": ["Removes IBAN formatting and keeps letters and digits upper-cased, capped to 29 characters."],
+        "pt-BR": ["Remove a formatação do IBAN e mantém letras e dígitos em maiúsculas, limitados a 29 caracteres."]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["BR15 0000 0000 0000 1093 2840 814P 2"], "returns": "BR1500000000000010932840814P2" },
+        { "name": "lowercase-mixed-separators", "args": ["br15-0000.0000/0000 1093 2840 814p-2"], "returns": "BR1500000000000010932840814P2" },
+        { "name": "caps-length", "args": ["BR1500000000000010932840814P2EXTRA"], "returns": "BR1500000000000010932840814P2", "note": "reference truncates to 29 characters; asserted by the reference (JS) unit tests" },
+        { "name": "empty", "args": [""], "returns": "" }
+      ]
+    }
+  }
+}

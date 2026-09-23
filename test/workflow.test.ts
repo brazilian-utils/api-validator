@@ -34,7 +34,8 @@ type Domain = { domain: string; functions: Record<string, Record<string, unknown
 
 function contractFrom(doc: Domain) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract-"));
-  fs.writeFileSync(path.join(dir, `${doc.domain}.json`), JSON.stringify(doc));
+  fs.mkdirSync(path.join(dir, doc.domain));
+  fs.writeFileSync(path.join(dir, doc.domain, "contract.json"), JSON.stringify(doc));
   return loadContract(dir);
 }
 

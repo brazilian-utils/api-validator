@@ -16,6 +16,7 @@ import crypto from "node:crypto";
 import type { Baseline } from "./baseline.js";
 import { knownFailure } from "./conformance.js";
 import type { Contract, ContractFunction, ContractTest, LibConfig } from "./model.js";
+import { slugOf } from "../../site/src/lib/usage-format.mjs";
 
 const CASES_FORMAT = 1;
 
@@ -127,12 +128,12 @@ function indexJson(files: Map<string, DomainJson>) {
   const fns = [...files.values()].flatMap((d) => d.functions);
   return {
     format: CASES_FORMAT,
-    generatedBy: "brazilian-utils/api-validator from contract/*.json. Do not edit: change the contract.",
+    generatedBy: "brazilian-utils/api-validator from contract/<domain>/contract.json. Do not edit: change the contract.",
     digest: digestOf(files),
     functions: fns.length,
     cases: fns.reduce((n, f) => n + f.cases.length, 0),
     domains: [...files.keys()],
-    files: [...files.keys()].map((d) => `${d}.json`),
+    files: [...files.keys()].map((d) => `${slugOf(d)}.json`),
     comparison: COMPARISON_RULES
   };
 }
@@ -233,7 +234,7 @@ export function suiteFiles(contract: Contract): Map<string, unknown> {
   out.set("cases.schema.json", CASES_SCHEMA);
   out.set("cases/index.json", indexJson(files));
   out.set("cases/equality.json", EQUALITY_SELF_TEST);
-  for (const [d, json] of files) out.set(`cases/${d}.json`, json);
+  for (const [d, json] of files) out.set(`cases/${slugOf(d)}.json`, json);
   return out;
 }
 

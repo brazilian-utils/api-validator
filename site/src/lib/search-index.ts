@@ -3,7 +3,7 @@
 import { CATEGORIES, loadGuides, loadLibs, loadSpecs, loadStatus } from './data';
 import { LOCALES, type Locale, pick, prefixOf } from './i18n';
 import { slug } from './prose';
-import { source } from './source';
+import { fileLocale, source } from './source';
 import { libDescription, libTitle } from '@/components/pages/lib';
 import { parityText } from '@/components/pages/parity';
 
@@ -35,7 +35,7 @@ export function searchIndexes() {
     for (const g of loadGuides() as any[]) out.push({ locale, title: pick(g.title, locale), description: pick(g.description, locale), content: pick(g.description, locale), url: `${p}/guides/${g.lib}/${g.slug}` });
     const parity = parityText(locale);
     out.push({ locale, title: parity.title, description: parity.description, content: parity.description, url: `${p}/reference/parity` });
-    for (const page of source.getPages(locale)) out.push({ locale, title: page.data.title, description: page.data.description, content: page.data.description ?? '', url: trim(`${p}${page.url.replace(/^\/pt-BR/, '')}`) });
+    for (const page of source.getPages(fileLocale(locale))) out.push({ locale, title: page.data.title, description: page.data.description, content: page.data.description ?? '', url: trim(`${p}${page.url.replace(/^\/pt-br/, '')}`) });
   }
   return out;
 }

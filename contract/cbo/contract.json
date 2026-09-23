@@ -1,0 +1,107 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cbo",
+  "title": { "en": "CBO", "pt-BR": "CBO" },
+  "summary": {
+    "en": "Occupation codes of the official CBO 2002 table.",
+    "pt-BR": "Códigos de ocupação da Classificação Brasileira de Ocupações (CBO 2002)."
+  },
+  "category": "companies",
+  "order": 5,
+  "functions": {
+    "get": {
+      "summary": {
+        "en": "Looks up a CBO (Classificação Brasileira de Ocupações) code in the official CBO 2002 table.",
+        "pt-BR": "Consulta um código CBO (Classificação Brasileira de Ocupações) na tabela oficial CBO 2002."
+      },
+      "description": {
+        "en": [
+          "Looks up a CBO code in the CBO 2002 occupation table and returns its code and official title.",
+          "",
+          "- Same input rules as `cbo.isValid`. The returned code is the 6 bare digits.",
+          "- Returns null for an unknown code or a value not written in one of the accepted forms."
+        ],
+        "pt-BR": [
+          "Consulta um código CBO na tabela de ocupações CBO 2002 e retorna o código e o título oficial.",
+          "",
+          "- Mesmas regras de entrada de `cbo.isValid`. O código retornado tem os 6 dígitos sem máscara.",
+          "- Retorna null para um código desconhecido ou para um valor que não está escrito em uma das formas aceitas."
+        ]
+      },
+      "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "Cbo?",
+      "tests": [
+        { "args": ["212405"], "returns": { "code": "212405", "description": "Analista de desenvolvimento de sistemas" } },
+        { "name": "masked", "args": ["2124-05"], "returns": { "code": "212405", "description": "Analista de desenvolvimento de sistemas" } },
+        { "name": "leading-zero", "args": ["0102-05"], "returns": { "code": "010205", "description": "Oficial da aeronáutica" } },
+        { "name": "nonexistent", "args": ["223150"], "returns": null },
+        { "args": ["000000"], "returns": null },
+        { "name": "empty", "args": [""], "returns": null }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Checks whether a CBO (Classificação Brasileira de Ocupações) code exists in the official CBO 2002 table.",
+        "pt-BR": "Verifica se um código CBO (Classificação Brasileira de Ocupações) existe na tabela oficial CBO 2002."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CBO code exists in the official CBO 2002 occupation table.",
+          "",
+          "- Accepts the 6 digits, the `NNNN-NN` mask or a non-negative integer. The mask has a single separator between the groups: space, `.`, `-` or `/`.",
+          "- Bare digits (string or number) are left-padded with zeros to 6. A masked value is read as written.",
+          "- Any other string is rejected. The function does not pick out its digits."
+        ],
+        "pt-BR": [
+          "Verifica se um código CBO existe na tabela oficial de ocupações CBO 2002.",
+          "",
+          "- Aceita os 6 dígitos, a máscara `NNNN-NN` ou um inteiro não negativo. A máscara tem um único separador entre os grupos: espaço, `.`, `-` ou `/`.",
+          "- Dígitos sem máscara (string ou número) são completados com zeros à esquerda até 6. Um valor com máscara é lido como está escrito.",
+          "- Qualquer outra string é rejeitada. A função não extrai os dígitos dela."
+        ]
+      },
+      "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["212405"], "returns": true },
+        { "name": "masked", "args": ["2124-05"], "returns": true },
+        { "name": "leading-zero", "args": ["010205"], "returns": true },
+        { "name": "nonexistent", "args": ["223150"], "returns": false },
+        { "name": "zeros", "args": ["000000"], "returns": false },
+        { "name": "too-short", "args": ["21240"], "returns": false },
+        { "name": "letters", "args": ["abcdef"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes CBO (Classificação Brasileira de Ocupações) formatting characters and returns only digits.",
+        "pt-BR": "Remove os caracteres de formatação do CBO (Classificação Brasileira de Ocupações) e retorna somente os dígitos."
+      },
+      "description": {
+        "en": [
+          "Removes CBO formatting and keeps only digits, capped to 6 digits.",
+          "",
+          "- It does not left-pad anything. A leading zero must be written out."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CBO e mantém somente os dígitos, limitados a 6 dígitos.",
+          "",
+          "- Não completa nada com zeros à esquerda. Um zero à esquerda precisa estar escrito."
+        ]
+      },
+      "references": ["https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["2124-05"], "returns": "212405" },
+        { "name": "unmasked", "args": ["212405"], "returns": "212405" },
+        { "name": "strips-non-digits", "args": ["21?ABC24-05abc"], "returns": "212405" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["212405999"], "returns": "212405", "note": "reference truncates to the 6 characters of the document; asserted by the reference (JS) unit tests" }
+      ]
+    }
+  }
+}

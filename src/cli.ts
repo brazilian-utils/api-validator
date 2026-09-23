@@ -8,7 +8,7 @@ import { json, skipsFor, suiteFiles, type Outcomes } from "./core/cases.js";
 import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineDiff } from "./core/baseline.js";
 import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { LABEL, closeReason, keyOf, marker, scopeFrom, wantedIssues, type Scope } from "./core/issues.js";
-import { loadContract } from "./core/contract.js";
+import { contractFile, loadContract } from "./core/contract.js";
 import { formatDir, schemaFiles } from "./core/format-contract.js";
 import { formatJson, orderDomain } from "./core/jsonfmt.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
@@ -233,7 +233,7 @@ program
 
 program
   .command("fmt")
-  .description("Format contract/*.json and libs/*.json canonically and regenerate schema/ (editor validation)")
+  .description("Format contract/<domain>/contract.json and libs/*.json canonically and regenerate schema/ (editor validation)")
   .option("--check", "only report files that are not formatted or schemas that are stale (for CI)")
   .action((opts) => {
     const dirs: Array<[string, "contract" | "lib", string]> = [
@@ -687,10 +687,10 @@ program
   .option("-f, --fn <glob>", "contract functions to test, e.g. 'cpf.*' (default: all)")
   .option("-l, --lib <names...>", "only these libs")
   .option("--reference <lib>", "lib used to generate inputs and break ties", REFERENCE_LIB)
-  .option("--propose", "write majority answers as test proposals to contract/_proposals/<domain>.json")
+  .option("--propose", "write majority answers as test proposals to contract/_proposals/<domain>.json (kebab-case)")
   .option("--unanimous", "with --propose: only inputs where every lib that answered agrees")
   .option("--min-libs <n>", "with --propose: minimum number of agreeing libs", "3")
-  .option("--apply", "with --propose: append the proposals straight into contract/<domain>.json")
+  .option("--apply", "with --propose: append the proposals straight into contract/<domain>/contract.json")
   .option("--show-agreement", "also list inputs where every lib agrees")
   .option("--network", "include functions that call remote services")
   .option("--baseline", "record how libs split today as known divergences (baselines/_divergences.json)")
@@ -761,18 +761,18 @@ program
     console.log(`\n${divergent ? c.yellow(`${divergent} divergent inputs`) : c.green("no divergence")} across ${rows.length} compared calls. Report: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, "diff.md"))}`);
     if (opts.apply) {
       for (const [domain, ops] of proposals) {
-        const n = appendTests(path.join(CONTRACT_DIR, `${domain}.json`), ops);
-        console.log(c.cyan(`contract/${domain}.json: +${n} tests`));
+        const n = appendTests(contractFile(CONTRACT_DIR, domain), ops);
+        console.log(c.cyan(`${path.relative(PACKAGE_ROOT, contractFile(CONTRACT_DIR, domain))}: +${n} tests`));
       }
       formatDir(CONTRACT_DIR, "contract");
       return;
     }
     for (const [domain, ops] of proposals) {
-      const file = path.join(CONTRACT_DIR, "_proposals", `${domain}.json`);
+      const file = path.join(CONTRACT_DIR, "_proposals", `${slugOf(domain)}.json`);
       writeFile(
         file,
         formatJson({
-          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${domain}.json under the function's tests, delete this file.`,
+          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${slugOf(domain)}/contract.json under the function's tests, delete this file.`,
           functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
         })
       );
@@ -795,7 +795,7 @@ program
       console.log(formatJson({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }));
     }
     if (orphans.length) {
-      console.log("Not in the contract -> propose in contract/<domain>.json, or add to \"ignore\":");
+      console.log("Not in the contract -> propose in contract/<domain>/contract.json, or add to \"ignore\":");
       for (const u of orphans) console.log(`  ${u.symbol}${u.location ? `  (${u.location.file}:${u.location.line})` : ""}`);
     }
   });

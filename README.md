@@ -4,7 +4,7 @@ Use this repository to keep the [brazilian-utils](https://github.com/brazilian-u
 implementations in JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang and .NET working as
 one library in seven languages.
 
-- **Same API**: one language-agnostic contract (`contract/*.json`) declares every function
+- **Same API**: one language-agnostic contract (`contract/<domain>/contract.json`) declares every function
   with its inputs and outputs. Each language adapter extracts the real API and checks it
   against the contract in the idiom of that language (`cpf.isValid` → `isValidCpf` ·
   `cpf.is_valid` · `cpf.IsValid` · `CPFUtils.valid?` · `brutils:is_valid_cpf/1` ·
@@ -157,9 +157,9 @@ implements them, changes the code until the shared tests pass and opens a PR for
 ## How it works
 
 ```
-contract/*.json ──┐
-                  ├─► match (conventions + bindings) ─► signature check ─► shared tests ─► report
-libs/*.json ──────┤         ▲
+contract/*/contract.json ─┐
+                          ├─► match (conventions + bindings) ─► signature check ─► shared tests ─► report
+libs/*.json ──────────────┤         ▲
 lib checkout ─► adapter.extract (native parser / reflection / scanner)
 ```
 

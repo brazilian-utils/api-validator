@@ -115,5 +115,5 @@
   },
   "required": ["domain", "functions"],
   "additionalProperties": false,
-  "title": "brazilian-utils contract: one domain (contract/<domain>.json)"
+  "title": "brazilian-utils contract: one domain (contract/<domain>/contract.json)"
 }

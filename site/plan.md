@@ -3,7 +3,7 @@
 > **Histórico.** Este é o plano original, de quando as specs moravam no repositório `docs`
 > (`specs/<util>/meta.yaml`, `test-cases.json`, `libs.yaml`). O desenho mudou: a spec agora é o
 > contrato do api-validator (`contract/<domínio>.json`), as bibliotecas estão em `libs/*.json`
-> e os casos de teste são os do contrato. Como o site funciona hoje: `SITE.md`.
+> e os casos de teste são os do contrato. Como o site funciona hoje: `README.md`.
 
 Data: 2026-09-09. Pesquisa feita ao vivo nos repos da org `brazilian-utils`, no site atual e nas docs dos frameworks. Links das fontes no fim.
 

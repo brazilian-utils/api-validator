@@ -1,0 +1,52 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "vin",
+  "title": { "en": "VIN (chassis)", "pt-BR": "Chassi (VIN)" },
+  "summary": {
+    "en": "Vehicle identification numbers, structural and check-digit validation.",
+    "pt-BR": "Números de identificação veicular (chassi): validação estrutural e do dígito verificador."
+  },
+  "category": "vehicles",
+  "order": 3,
+  "related": ["renavam"],
+  "functions": {
+    "isValid": {
+      "summary": {
+        "en": "Validates a VIN (Vehicle Identification Number / chassi).",
+        "pt-BR": "Valida um chassi (VIN, Vehicle Identification Number)."
+      },
+      "description": {
+        "en": [
+          "Validates the structure of a VIN (chassi): 17 characters, none of the excluded letters `I`, `O`, `Q`, and the check digit at position 9 (North American rule). The check ignores case.",
+          "",
+          "- A VIN whose characters are all the same is rejected even when the check digit matches.",
+          "- Brazilian rules do not require the check digit, so many Brazilian-built VINs fail it."
+        ],
+        "pt-BR": [
+          "Valida a estrutura de um chassi (VIN): 17 caracteres, nenhuma das letras excluídas `I`, `O`, `Q` e o dígito verificador na posição 9 (regra norte-americana). A validação ignora maiúsculas e minúsculas.",
+          "",
+          "- Um VIN com todos os caracteres iguais é rejeitado mesmo quando o dígito verificador confere.",
+          "- As regras brasileiras não exigem o dígito verificador, então muitos chassis fabricados no Brasil falham nele."
+        ]
+      },
+      "references": [
+        "https://www.iso.org/standard/52200.html",
+        "https://www.ecfr.gov/current/title-49/section-565.15",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9682022.pdf",
+        "https://vpic.nhtsa.dot.gov/api/"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["1HGCM82633A004352"], "returns": true },
+        { "name": "check-digit-x", "args": ["1M8GDM9AXKP042788"], "returns": true },
+        { "name": "lowercase", "args": ["1m8gdm9axkp042788"], "returns": true },
+        { "name": "wrong-check-digit", "args": ["1HGCM82633A004353"], "returns": false },
+        { "name": "letter-i", "args": ["1HGCM8263IA004352"], "returns": false },
+        { "name": "too-short", "args": ["1HGCM82633A00435"], "returns": false },
+        { "name": "zeros", "args": ["00000000000000000"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false }
+      ]
+    }
+  }
+}

@@ -11,7 +11,7 @@ import { Note } from '@/components/note';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { ArrowRight, BookOpen, ExternalLink, FileJson, Pencil } from 'lucide-react';
-import { CONTRACT_DIR, REPO_URL, coverage, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
+import { CONTRACT_DIR, REPO_URL, contractPath, specName, coverage, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
 import { demote, linkFindings, slug, splitPending } from '@/lib/prose';
@@ -33,8 +33,8 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
   const status = loadStatus();
   const guides = loadGuides().filter((g: any) => g.fns.some((fn: string) => spec.operations.some((op: any) => op.fnId === fn)));
   const related = spec.related.map((r: string) => loadSpec(r)).filter(Boolean);
-  const specFile = path.join(CONTRACT_DIR, spec.domain, `spec.${locale}.md`);
-  const other = path.join(CONTRACT_DIR, spec.domain, `spec.${locale === 'en' ? 'pt-BR' : 'en'}.md`);
+  const specFile = path.join(CONTRACT_DIR, spec.id, specName(locale));
+  const other = path.join(CONTRACT_DIR, spec.id, specName(locale === 'en' ? 'pt-BR' : 'en'));
   // The long-form spec in the page's language, else the other one with a notice.
   const specIsFallback = !fs.existsSync(specFile) && fs.existsSync(other);
   const longSpec = fs.existsSync(specFile) ? fs.readFileSync(specFile, 'utf8') : specIsFallback ? fs.readFileSync(other, 'utf8') : null;
@@ -56,10 +56,10 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
       <DocsDescription className="mb-0">{pick(spec.summary, locale)}</DocsDescription>
 
       <div className="flex flex-wrap gap-2 not-prose">
-        <a className={buttonVariants({ color: 'secondary', size: 'sm', className: 'gap-1.5' })} href={`${REPO_URL}/blob/main/contract/${spec.domain}.json`} target="_blank" rel="noopener noreferrer">
+        <a className={buttonVariants({ color: 'secondary', size: 'sm', className: 'gap-1.5' })} href={`${REPO_URL}/blob/main/${contractPath(spec)}/contract.json`} target="_blank" rel="noopener noreferrer">
           <FileJson className="size-3.5" /> {L(locale, 'Contract', 'Contrato')}
         </a>
-        <a className={buttonVariants({ color: 'secondary', size: 'sm', className: 'gap-1.5' })} href={`${REPO_URL}/edit/main/contract/${spec.domain}.json`} target="_blank" rel="noopener noreferrer">
+        <a className={buttonVariants({ color: 'secondary', size: 'sm', className: 'gap-1.5' })} href={`${REPO_URL}/edit/main/${contractPath(spec)}/contract.json`} target="_blank" rel="noopener noreferrer">
           <Pencil className="size-3.5" /> {L(locale, 'Edit', 'Editar')}
         </a>
       </div>
@@ -158,7 +158,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
           </p>
         )}
       </DocsBody>
-      <LastUpdate date={lastCommit(`contract/${spec.domain}.json`, `contract/${spec.domain}`)} />
+      <LastUpdate date={lastCommit(contractPath(spec))} />
     </DocsPage>
   );
 }

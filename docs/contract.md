@@ -1,8 +1,10 @@
 # Contract reference
 
 Use this page to write or change a contract file or a library config. The contract has one
-JSON file per domain in `contract/`, named after the domain. The validator ignores files whose
-names start with `_` (for example, `contract/_proposals/`). Validate the files with
+folder per domain in `contract/`, named after the domain in kebab-case (`cpf/`,
+`license-plate/`). The folder holds `contract.json` and, optionally, the long spec (`spec.en.md`,
+`spec.pt-br.md`), `references.md` and `references/*.pdf`. The validator ignores names that start
+with `_` (for example, `contract/_proposals/`). Validate the files with
 `api-validator lint` and format them with `api-validator fmt` (CI runs `fmt --check`). Every
 file points at `schema/contract.schema.json`, so editors (VS Code, JetBrains…) validate and
 autocomplete it as you type.
@@ -12,7 +14,7 @@ lines. A file looks like this:
 
 ```json
 {
-  "$schema": "../schema/contract.schema.json",
+  "$schema": "../../schema/contract.schema.json",
   "domain": "legalProcess",
   "title": "Legal process (número único de processo, CNJ)",
   "aliases": ["processoJuridico"],

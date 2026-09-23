@@ -2,13 +2,13 @@
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle, EditOnGitHub, PageLastUpdate } from 'fumadocs-ui/layouts/notebook/page';
 import { lastCommit } from '@/lib/git';
-import { source } from '@/lib/source';
+import { fileLocale, source } from '@/lib/source';
 import { REPO_URL } from '@/lib/data';
 import { getMDXComponents } from '@/components/mdx';
 import { pageMetadata } from '@/lib/meta';
 import type { Locale } from '@/lib/i18n';
 
-const pageOf = (locale: Locale, slugs: string[]) => source.getPage(slugs, locale) ?? notFound();
+const pageOf = (locale: Locale, slugs: string[]) => source.getPage(slugs, fileLocale(locale)) ?? notFound();
 
 export function MdxPage({ locale, slugs }: { locale: Locale; slugs: string[] }) {
   const page = pageOf(locale, slugs);

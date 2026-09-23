@@ -1,5 +1,5 @@
 /**
- * Canonical JSON for the files people edit by hand (contract/*.json, libs/*.json): a stable
+ * Canonical JSON for the files people edit by hand (contract/<domain>/contract.json, libs/*.json): a stable
  * key order, 2-space indent, and any object or array that fits on one line kept on one line,
  * so a test case reads as one row:
  *

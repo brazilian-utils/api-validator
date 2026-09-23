@@ -1,5 +1,5 @@
 import en from '../content/i18n/en.json';
-import pt from '../content/i18n/pt-BR.json';
+import pt from '../content/i18n/pt-br.json';
 
 export type Locale = 'en' | 'pt-BR';
 export const LOCALES: Locale[] = ['en', 'pt-BR'];

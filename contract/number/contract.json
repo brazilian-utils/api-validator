@@ -1,0 +1,54 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "number",
+  "title": { "en": "Numbers in words", "pt-BR": "Números por extenso" },
+  "summary": {
+    "en": "Integers written out in Brazilian Portuguese (por extenso).",
+    "pt-BR": "Números inteiros escritos por extenso em português."
+  },
+  "category": "text-and-dates",
+  "order": 2,
+  "related": ["currency"],
+  "functions": {
+    "convertToWords": {
+      "summary": {
+        "en": "Formats an integer as its Brazilian Portuguese cardinal number words (\"por extenso\"). For example, `1235` becomes `\"mil duzentos e trinta e cinco\"`.",
+        "pt-BR": "Formata um inteiro como número cardinal por extenso em português. Por exemplo, `1235` vira `\"mil duzentos e trinta e cinco\"`."
+      },
+      "description": {
+        "en": [
+          "Writes an integer in Brazilian Portuguese cardinal words (\"por extenso\"), e.g. 1235 is \"mil duzentos e trinta e cinco\".",
+          "",
+          "- Accepts integers from -999 999 999 999 999 to 999 999 999 999 999. The function truncates a non-integer toward zero and puts \"menos\" before a negative number.",
+          "- `options` selects the grammatical gender (default masculine). The gender applies to \"um/uma\", \"dois/duas\" and the hundreds.",
+          "- Returns an empty string for a value outside that range or not finite."
+        ],
+        "pt-BR": [
+          "Escreve um inteiro por extenso em português, como número cardinal. Por exemplo, 1235 é \"mil duzentos e trinta e cinco\".",
+          "",
+          "- Aceita inteiros de -999 999 999 999 999 a 999 999 999 999 999. A função trunca um não inteiro em direção a zero e coloca \"menos\" antes de um número negativo.",
+          "- `options` escolhe o gênero gramatical (masculino por padrão). O gênero vale para \"um/uma\", \"dois/duas\" e as centenas.",
+          "- Retorna uma string vazia para um valor fora desse intervalo ou não finito."
+        ]
+      },
+      "flatName": "convertNumberToWords",
+      "params": [
+        { "name": "value", "type": "number" },
+        { "name": "options", "type": "ConvertNumberToWordsOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": [0], "returns": "zero" },
+        { "args": [1], "returns": "um" },
+        { "args": [3], "returns": "três" },
+        { "args": [100], "returns": "cem" },
+        { "args": [101], "returns": "cento e um" },
+        { "args": [123], "returns": "cento e vinte e três" },
+        { "args": [1000], "returns": "mil" },
+        { "args": [1000000], "returns": "um milhão" },
+        { "name": "negative", "args": [-3], "returns": "menos três" },
+        { "name": "truncates-fraction", "args": [12.9], "returns": "doze", "note": "the fractional part is dropped; asserted by the reference (JS) unit tests" }
+      ]
+    }
+  }
+}

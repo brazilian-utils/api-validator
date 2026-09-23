@@ -7,7 +7,7 @@ that checks every implementation against it. Read [docs/workflow.md](docs/workfl
 
 The contract is the single source of truth for names, inputs, outputs and behaviour.
 
-- **New function:** add it to `contract/<domain>.json` with a `summary`, `params`, `returns`
+- **New function:** add it to `contract/<domain>/contract.json` with a `summary`, `params`, `returns`
   and test vectors. If some lib already has it, run `npx tsx src/cli.ts diff --fn '<domain>.*'`
   to see how the existing implementations behave before writing the vectors.
 - **Bug fix in any lib:** add the vector that exposes the bug here first. It then runs against

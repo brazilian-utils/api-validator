@@ -14,7 +14,7 @@ to fix.
 ```
                     ┌──────────────────────────────────────────────┐
                     │ api-validator (this repo)                    │
-                    │  contract/*.json  = names + input/output     │
+                    │  contract/*/contract.json = names, in/out    │
                     │                     + shared test vectors    │
                     └───────┬───────────────────────────▲──────────┘
              contract change│ merged                    │ PR: new function,
@@ -45,7 +45,7 @@ In this diagram, "test vectors" are the shared test cases.
 
 ### 1. Add a function
 
-1. **Contract PR** (this repo): add the function to `contract/<domain>.json` with its
+1. **Contract PR** (this repo): add the function to `contract/<domain>/contract.json` with its
    signature and test cases. If other libraries already have something similar, run
    `api-validator diff --fn '<domain>.*'` to see how they behave today.
 2. The Conformance run of the PR shows which libraries have the function (usually none yet).
@@ -151,7 +151,7 @@ Nobody has to remember a step. A merged contract change reaches every library in
 
 A new function, from start to end:
 
-1. A contract PR adds the function to `contract/<domain>.json` with its cases (and
+1. A contract PR adds the function to `contract/<domain>/contract.json` with its cases (and
    `spec.*.md` prose if it needs any). The `summary` and `description` of the function can be
    English only or bilingual (`{ "en": ..., "pt-BR": ... }`). The job summary of the PR shows
    the changelog and the issues that the merge will open.

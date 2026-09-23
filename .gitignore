@@ -23,3 +23,5 @@ pnpm-debug.log*
 .cache/
 output/
 contract/_proposals/
+__pycache__/
+*.pyc

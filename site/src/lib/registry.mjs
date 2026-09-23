@@ -3,8 +3,10 @@
 // Plain ESM (no TypeScript) so the scripts run without a build step.
 //
 // Everything is read from the api-validator repository this site lives in:
-//   ../contract/<domain>.json          the spec: functions, signatures, cases, summaries, labels
-//   ../contract/<domain>/spec.*.md     optional long-form spec per language, and references.md
+//   ../contract/<domain>/contract.json  the spec: functions, signatures, cases, summaries, labels
+//   ../contract/<domain>/spec.*.md     optional long-form spec per language (spec.en.md, spec.pt-br.md),
+//                                      references.md and references/*.pdf
+//   (<domain> is the kebab-case domain id: licensePlate -> license-plate)
 //   ../contract/_categories.json       sidebar groups
 //   ../libs/<lib>.json                 the libraries ("site" block: tab label, install line, usage files)
 //   .generated/status.json             written by `api-validator site-data` from the latest check run
@@ -30,7 +32,7 @@ export const LOCAL_REPOS = path.join(REPO_ROOT, '.repos');
 /** Files the libraries' live demos load, served at <base>/lib-assets/<lib>/. */
 export const LIB_ASSETS_DIR = path.join(ROOT, 'public', 'lib-assets');
 export const FIXTURES_DIR = path.join(ROOT, 'fixtures', 'usage');
-/** Hand-written pages: <page>.mdx in English, <page>.pt-BR.mdx in Portuguese. */
+/** Hand-written pages: <page>.mdx in English, <page>.pt-br.mdx in Portuguese. */
 export const DOCS_DIR = path.join(ROOT, 'content', 'docs');
 const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
 
@@ -75,8 +77,10 @@ export { isImplemented };
  * @type {() => Array<SpecMeta>}
  */
 export const loadSpecs = once(() => {
-  const files = fs.readdirSync(CONTRACT_DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
-  const specs = files.map((f) => normalize(readJson(path.join(CONTRACT_DIR, f))));
+  const dirs = fs
+    .readdirSync(CONTRACT_DIR, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !e.name.startsWith('_') && fs.existsSync(path.join(CONTRACT_DIR, e.name, 'contract.json')));
+  const specs = dirs.map((e) => normalize(readJson(path.join(CONTRACT_DIR, e.name, 'contract.json'))));
   const catIndex = new Map(CATEGORIES.map((c, i) => [c.id, i]));
   return specs.sort((a, b) => {
     const ca = catIndex.get(a.category) ?? 99;
@@ -98,6 +102,12 @@ export function loadOperation(fnId) {
   return operationsById().get(fnId) ?? null;
 }
 
+/** A domain's folder in the repository, relative to its root: `contract/license-plate`. */
+export const contractPath = (spec) => `contract/${spec.id}`;
+
+/** The long-form spec of a language: `spec.en.md`, `spec.pt-br.md` (file names are kebab-case). */
+export const specName = (locale) => `spec.${locale.toLowerCase()}.md`;
+
 function normalize(doc) {
   const domain = doc.domain;
   const title = typeof doc.title === 'string' ? { en: doc.title, 'pt-BR': doc.title } : doc.title ?? { en: domain, 'pt-BR': domain };
@@ -118,7 +128,7 @@ function normalize(doc) {
       returns: fn.returns,
       tests: fn.tests ?? [],
     }));
-  const dir = path.join(CONTRACT_DIR, domain);
+  const dir = path.join(CONTRACT_DIR, slugOf(domain));
   return {
     id: slugOf(domain),
     domain,
@@ -128,7 +138,7 @@ function normalize(doc) {
     summary,
     related: (doc.related ?? []).map(slugOf),
     operations,
-    hasSpec: { en: fs.existsSync(path.join(dir, 'spec.en.md')), 'pt-BR': fs.existsSync(path.join(dir, 'spec.pt-BR.md')) },
+    hasSpec: { en: fs.existsSync(path.join(dir, specName('en'))), 'pt-BR': fs.existsSync(path.join(dir, specName('pt-BR'))) },
   };
 }
 
@@ -174,7 +184,7 @@ export function loadReferences(id) {
     seen.add(url);
     out.push({ title, url });
   };
-  const file = path.join(CONTRACT_DIR, spec.domain, 'references.md');
+  const file = path.join(CONTRACT_DIR, spec.id, 'references.md');
   if (fs.existsSync(file)) {
     for (const m of fs.readFileSync(file, 'utf8').matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) add(m[1].trim(), m[2].trim());
   }
@@ -185,12 +195,12 @@ export function loadReferences(id) {
 /** Local PDFs kept next to the references, so links survive when the official source goes offline. */
 export function loadReferenceFiles(id) {
   const spec = loadSpec(id);
-  const dir = spec && path.join(CONTRACT_DIR, spec.domain, 'references');
+  const dir = spec && path.join(CONTRACT_DIR, spec.id, 'references');
   if (!dir || !fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
     .filter((f) => f.toLowerCase().endsWith('.pdf'))
-    .map((f) => ({ name: f, repoPath: `contract/${spec.domain}/references/${f}` }));
+    .map((f) => ({ name: f, repoPath: `${contractPath(spec)}/references/${f}` }));
 }
 
 /**

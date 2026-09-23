@@ -3,6 +3,7 @@ import path from "node:path";
 import { z } from "zod";
 import { parseCType } from "./ctype.js";
 import { camel, pascal } from "./naming.js";
+import { slugOf } from "../../site/src/lib/usage-format.mjs";
 import type { Contract, ContractFunction, ContractTest, Expectation } from "./model.js";
 
 /** Markdown text: a string, or an array of lines (how the formatter writes multi-line text). */
@@ -109,7 +110,20 @@ function defaultFlatName(domain: string, operation: string): string {
   return camel(operation) + pascal(domain);
 }
 
-/** Load every `*.json` in the contract dir (files starting with `_` are skipped). */
+/** Where a domain lives: `contract/<kebab-domain>/contract.json`, next to its specs and references. */
+export const CONTRACT_FILE = "contract.json";
+export const contractFile = (dir: string, domain: string) => path.join(dir, slugOf(domain), CONTRACT_FILE);
+
+/** The domain files of a contract dir, relative to it (folders starting with `_` are skipped). */
+export function contractFiles(dir: string): string[] {
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !e.name.startsWith("_") && fs.existsSync(path.join(dir, e.name, CONTRACT_FILE)))
+    .map((e) => path.posix.join(e.name, CONTRACT_FILE))
+    .sort();
+}
+
+/** Load every `<domain>/contract.json` in the contract dir (folders starting with `_` are skipped). */
 export function loadContract(dir: string): Contract {
   const problems: string[] = [];
   const contract: Contract = { functions: new Map(), domains: new Map() };
@@ -119,12 +133,10 @@ export function loadContract(dir: string): Contract {
     : undefined;
   const flatNames = new Map<string, string>();
 
-  const files = fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".json") && !f.startsWith("_"))
-    .sort();
+  const stray = fs.readdirSync(dir).filter((f) => f.endsWith(".json") && !f.startsWith("_"));
+  for (const f of stray) problems.push(`${path.join(path.basename(dir), f)}: a domain lives in ${path.basename(dir)}/<domain>/${CONTRACT_FILE} (kebab-case folder)`);
 
-  for (const file of files) {
+  for (const file of contractFiles(dir)) {
     const rel = path.join(path.basename(dir), file);
     let raw: unknown;
     try {
@@ -141,8 +153,8 @@ export function loadContract(dir: string): Contract {
       continue;
     }
     const doc = parsed.data;
-    const expectedFile = `${doc.domain}.json`;
-    if (file !== expectedFile) problems.push(`${rel}: domain "${doc.domain}" must live in ${expectedFile}`);
+    const expectedFile = path.posix.join(slugOf(doc.domain), CONTRACT_FILE);
+    if (file !== expectedFile) problems.push(`${rel}: domain "${doc.domain}" must live in ${path.basename(dir)}/${expectedFile}`);
     if (contract.domains.has(doc.domain)) problems.push(`${rel}: duplicate domain "${doc.domain}"`);
     const title = typeof doc.title === "string" ? { en: doc.title, "pt-BR": doc.title } : doc.title;
     if (categories && !doc.category) problems.push(`${rel}: "category" is required (one of ${[...categories].join(", ")})`);

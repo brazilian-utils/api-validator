@@ -16,7 +16,10 @@ import type { LanguageAdapter } from "../src/languages/types.js";
 
 function tmpContract(files: Record<string, object>): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "contract-"));
-  for (const [name, doc] of Object.entries(files)) fs.writeFileSync(path.join(dir, name), JSON.stringify(doc));
+  for (const [name, doc] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(dir, name)), { recursive: true });
+    fs.writeFileSync(path.join(dir, name), JSON.stringify(doc));
+  }
   return dir;
 }
 
@@ -103,14 +106,14 @@ describe("type mapping per language", () => {
 describe("contract loader", () => {
   it("reports every problem with file and path", () => {
     const dir = tmpContract({
-      "cpf.json": {
+      "cpf/contract.json": {
         domain: "cpf",
         functions: {
           isValid: { params: [{ name: "cpf", type: "strin g" }], returns: "boolean" },
           generate: { returns: "string", tests: [{ args: [], satisfies: "cpf.nope" }] }
         }
       },
-      "cnpj.json": { domain: "cnpj", functions: { isValid: { returns: "boolean", tests: [{ args: [], returns: true, throws: true }] } } }
+      "cnpj/contract.json": { domain: "cnpj", functions: { isValid: { returns: "boolean", tests: [{ args: [], returns: true, throws: true }] } } }
     });
     assert.throws(
       () => loadContract(dir),
@@ -120,9 +123,23 @@ describe("contract loader", () => {
         e.problems.some((p) => p.includes('satisfies unknown function "cpf.nope"'))
     );
   });
+  it("wants one kebab-case folder per domain", () => {
+    const doc = { domain: "licensePlate", functions: { isValid: { params: [{ name: "v", type: "string" }], returns: "boolean" } } };
+    for (const [file, message] of [
+      ["licensePlate/contract.json", 'must live in contract-'],
+      ["licensePlate.json", "a domain lives in"]
+    ]) {
+      assert.throws(
+        () => loadContract(tmpContract({ [file]: doc })),
+        (e: ContractError) => e.problems.some((p) => p.includes(message)),
+        file
+      );
+    }
+    assert.ok(loadContract(tmpContract({ "license-plate/contract.json": doc })).functions.has("licensePlate.isValid"));
+  });
   it("test ids are stable when vectors are added around them", () => {
     const mk = (tests: object[]) =>
-      loadContract(tmpContract({ "cpf.json": { domain: "cpf", functions: { isValid: { params: [{ name: "c", type: "string" }], returns: "boolean", tests } } } }));
+      loadContract(tmpContract({ "cpf/contract.json": { domain: "cpf", functions: { isValid: { params: [{ name: "c", type: "string" }], returns: "boolean", tests } } } }));
     const a = mk([{ args: ["1"], returns: false }]);
     const b = mk([{ args: ["0"], returns: false }, { args: ["1"], returns: false }, { name: "named", args: ["2"], returns: false }]);
     assert.equal(a.functions.get("cpf.isValid")!.tests[0].id, 'cpf.isValid#["1"]');
@@ -130,7 +147,7 @@ describe("contract loader", () => {
   });
   it("derives flat names and alias spellings", () => {
     const dir = tmpContract({
-      "legalProcess.json": {
+      "legal-process/contract.json": {
         domain: "legalProcess",
         aliases: ["processoJuridico"],
         functions: { isValid: { aliases: ["lawsuit.check"], params: [{ name: "v", type: "string" }], returns: "boolean" } }
@@ -184,7 +201,7 @@ const sym = (name: string, params: string[], returns: string, extra: Partial<Nat
 describe("matching", () => {
   const contract = loadContract(
     tmpContract({
-      "cpf.json": {
+      "cpf/contract.json": {
         domain: "cpf",
         functions: {
           isValid: { params: [{ name: "cpf", type: "string" }], returns: "boolean" },
@@ -215,7 +232,7 @@ describe("matching", () => {
 
 describe("analysis + conformance (fake lib)", () => {
   const dir = tmpContract({
-    "cpf.json": {
+    "cpf/contract.json": {
       domain: "cpf",
       functions: {
         isValid: {

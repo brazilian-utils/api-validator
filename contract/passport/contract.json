@@ -1,0 +1,137 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "passport",
+  "title": { "en": "Passport", "pt-BR": "Passaporte" },
+  "summary": {
+    "en": "Brazilian passport numbers (2 letters and 6 digits).",
+    "pt-BR": "Números de passaporte brasileiro (2 letras e 6 dígitos)."
+  },
+  "category": "documents",
+  "order": 5,
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a Brazilian passport number for display. It converts the value to uppercase and removes all non-alphanumeric characters.",
+        "pt-BR": "Formata um número de passaporte brasileiro para exibição. Converte o valor para maiúsculas e remove todos os caracteres não alfanuméricos."
+      },
+      "description": {
+        "en": [
+          "Formats a passport number: upper-cased, without symbols, capped to 8 characters (the same operation as `passport.parse`).",
+          "",
+          "- Pending decision (findings §1b, §2 #8): the reference (JS) upper-cases lowercase and masked input. Erlang and Python accept only the strict uppercase form."
+        ],
+        "pt-BR": [
+          "Formata um número de passaporte: em maiúsculas, sem símbolos, com no máximo 8 caracteres (a mesma operação de `passport.parse`).",
+          "",
+          "- Decisão pendente (findings §1b, §2 #8): a referência (JS) converte para maiúsculas a entrada em minúsculas e com máscara. Erlang e Python aceitam apenas a forma estrita em maiúsculas."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte",
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e"
+      ],
+      "params": [{ "name": "passport", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["AB123456"], "returns": "AB123456" },
+        { "name": "lowercase", "args": ["acd12736"], "returns": "ACD12736" },
+        { "name": "strips-symbols", "args": ["AB-123.456"], "returns": "AB123456" },
+        { "name": "partial", "args": ["AB12"], "returns": "AB12" },
+        { "name": "empty", "args": [""], "returns": "", "note": "some libs return null/None for input they cannot format; the reference returns an empty string (asserted by its tests)" },
+        { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456", "note": "reference truncates to 8 characters; asserted by the reference (JS) unit tests" }
+      ]
+    },
+    "generate": {
+      "summary": {
+        "en": "Generates a random valid Brazilian passport number.",
+        "pt-BR": "Gera um número de passaporte brasileiro aleatório e válido."
+      },
+      "description": {
+        "en": ["Generates a random valid passport number: 2 uppercase letters followed by 6 digits."],
+        "pt-BR": ["Gera um número de passaporte aleatório e válido: 2 letras maiúsculas seguidas de 6 dígitos."]
+      },
+      "references": [
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte",
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e"
+      ],
+      "params": [],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "passport.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Checks if a Brazilian passport number is valid. The sanitized input must contain exactly two letters followed by exactly six digits. The check is case-insensitive. It ignores any non-alphanumeric characters (spaces, dots, hyphens, etc.), with the same sanitization as `formatPassport`/`parsePassport`. This function does not check if the input is a real passport number, because the Brazilian passport has no checksum. The function accepts a number for symmetry with `formatPassport`/`parsePassport`, but a number is never valid. The decimal form of a number never starts with the two letters that a passport number needs.",
+        "pt-BR": "Verifica se um número de passaporte brasileiro é válido. A entrada sanitizada deve conter exatamente duas letras seguidas de exatamente seis dígitos. A verificação não diferencia maiúsculas de minúsculas. Ela ignora qualquer caractere não alfanumérico (espaços, pontos, hífens etc.), com a mesma sanitização de `formatPassport`/`parsePassport`. Esta função não verifica se a entrada é um número de passaporte real, porque o passaporte brasileiro não tem dígito verificador. A função aceita um valor numérico por simetria com `formatPassport`/`parsePassport`, mas um valor numérico nunca é válido. A forma decimal de um número nunca começa com as duas letras que um número de passaporte exige."
+      },
+      "description": {
+        "en": [
+          "Validates a Brazilian passport number: 2 letters followed by 6 digits, after removing non-alphanumeric characters.",
+          "",
+          "- There is no check digit, so a well-formed number is not necessarily a real passport.",
+          "- A number is never valid (it cannot start with the two letters).",
+          "- Pending decision (findings §1b, §2 #8): the reference (JS) is case-insensitive and ignores symbols (`ab123456`, `AB-123.456` are valid). Erlang and Python accept only the strict uppercase form."
+        ],
+        "pt-BR": [
+          "Valida um número de passaporte brasileiro: 2 letras seguidas de 6 dígitos, depois de remover os caracteres não alfanuméricos.",
+          "",
+          "- Não há dígito verificador, então um número bem formado não é necessariamente um passaporte real.",
+          "- Um valor numérico nunca é válido (ele não pode começar com as duas letras).",
+          "- Decisão pendente (findings §1b, §2 #8): a referência (JS) não diferencia maiúsculas de minúsculas e ignora símbolos (`ab123456` e `AB-123.456` são válidos). Erlang e Python aceitam apenas a forma estrita em maiúsculas."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte",
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e"
+      ],
+      "params": [{ "name": "passport", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["AA111111"], "returns": true },
+        { "args": ["CL125167"], "returns": true },
+        { "name": "lowercase", "args": ["ab123456"], "returns": true, "note": "case-insensitive per the contract summary; asserted by the reference (JS) unit tests" },
+        { "name": "masked", "args": ["AB-123456"], "returns": true },
+        { "name": "dotted", "args": ["AB.123.456"], "returns": true },
+        { "args": ["1"], "returns": false },
+        { "args": ["1112223334-"], "returns": false },
+        { "name": "number", "args": [1], "returns": false, "note": "a number is accepted but never valid (see summary)" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes non-alphanumeric characters from a passport number, converts it to uppercase, and caps it to 8 characters.",
+        "pt-BR": "Remove os caracteres não alfanuméricos de um número de passaporte, converte-o para maiúsculas e limita-o a 8 caracteres."
+      },
+      "description": {
+        "en": [
+          "Removes every non-alphanumeric character from a passport number, upper-cases it and caps it to 8 characters."
+        ],
+        "pt-BR": [
+          "Remove todo caractere não alfanumérico de um número de passaporte, converte-o para maiúsculas e limita-o a 8 caracteres."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte",
+        "https://www.gov.br/pf/pt-br/assuntos/passaporte/ajuda/duvidas_/caderneta/caderneta-numero-onde-fica-e"
+      ],
+      "params": [{ "name": "passport", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["Ab123456"], "returns": "AB123456" },
+        { "name": "spaces", "args": [" AB 123 456 "], "returns": "AB123456" },
+        { "name": "hyphens", "args": ["-AB1-23-4-56-"], "returns": "AB123456" },
+        { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456" },
+        { "name": "empty", "args": [""], "returns": "" }
+      ]
+    },
+    "removeSymbols": {
+      "summary": {
+        "en": "Removes the formatting symbols (keeps everything else).",
+        "pt-BR": "Remove os símbolos de formatação (mantém todo o resto)."
+      },
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string"
+    }
+  }
+}

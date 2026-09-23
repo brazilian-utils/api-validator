@@ -7,7 +7,7 @@ import { Provider } from './provider';
 import type { Locale } from '@/lib/i18n';
 import '@/app/global.css';
 
-const samba = localFont({ src: '../app/Samba.ttf', variable: '--font-samba', display: 'swap' });
+const samba = localFont({ src: '../app/samba.ttf', variable: '--font-samba', display: 'swap' });
 
 const base = process.env.NEXT_PUBLIC_BASE ?? '';
 
