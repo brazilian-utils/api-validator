@@ -73,3 +73,24 @@ the spec, then one section per operation.
   use the brand blue (8.9:1), the green is darkened to `#00692a` where it carries text.
 - Considered a cream paper background: that is a generated-page default. White stays, with the
   ink drawn from the brand blue.
+
+## Notes from the first pass
+
+What was measured, so the next pass starts from numbers:
+
+- Accessibility (axe-core 4.10, WCAG 2.1 A and AA plus best practices, 13 pages, light and dark, every
+  `<details>` open): 328 failing elements before, 0 after. The audit script and the keyboard walk
+  live outside the repo. Run them again after any change to colors or components.
+- The keyboard reaches every control on the home page, with a visible focus ring on each one. The
+  specimen and the try-it box work without a mouse.
+- JavaScript on the home page: 6 KB. The specimen imports each function from its own entry point
+  (`@brazilian-utils/brazilian-utils/format-cpf`). A plain import of the package pulls in 605 KB,
+  because Vite shares one chunk with the try-it box, which loads the whole package when it opens.
+- Contrast pairs used for text are all 5.8:1 or more. The brand green `#009c3b` (3.6:1 on white)
+  only draws marks and the header stripe.
+
+Tried and dropped:
+
+- Pills with borders for the status of each library under a function: noise at 7 libraries × 5
+  functions per page. Plain marks with the library name read faster.
+- A giant mascot in the hero: the brand already shows it in the header. The specimen took its place.

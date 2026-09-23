@@ -40,3 +40,10 @@ jobs:
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # axe-core, WCAG 2.1 A and AA plus best practices, every page type, light and dark theme.
+      # The two tools are installed for this step only; they are not dependencies of the site.
+      - name: Accessibility
+        run: |
+          npm i --no-save --ignore-scripts playwright@1.55.1 axe-core@4.10.3
+          npx playwright install --with-deps chromium
+          npm run a11y

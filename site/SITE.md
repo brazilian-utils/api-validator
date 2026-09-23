@@ -17,7 +17,13 @@ npm run dev       # busca os arquivos de uso, gera as páginas e sobe o Astro
 npm run build     # mesmo fluxo, saída em dist/
 npm run check:i18n
 npm audit         # precisa sair limpo; o CI falha em qualquer severidade
+npm run a11y      # depois do build: axe-core em cada tipo de página, tema claro e escuro
 ```
+
+O `npm run a11y` precisa de `playwright` e `axe-core`, que não são dependências do site. Instale
+os dois só para rodar: `npm i --no-save playwright axe-core && npx playwright install chromium`.
+Ele falha quando alguma regra do WCAG 2.1 (A e AA) ou das boas práticas do axe quebra. Se o site
+foi gerado com um caminho (`SITE_URL=https://…/api-validator`), passe `BASE_PATH=/api-validator`.
 
 Sem rede? `USAGE_SOURCE=fixtures npm run dev` monta as abas só a partir de `fixtures/usage/`.
 `USAGE_SOURCE=local` lê os checkouts em `../.repos/` (os que o validador usou), com guias e
@@ -143,8 +149,9 @@ issues), o `site-data` e o build do site. Ele publica no GitHub Pages quando
 por dia, e quando uma biblioteca manda `repository_dispatch` com `event_type=lib-released` na
 release. `SITE_URL` é a URL pública com o caminho (padrão
 `https://<org>.github.io/api-validator`). O caminho vira o `base` do Astro. `site-check.yml`
-roda `npm audit`, `check:i18n --strict` e o build (com os fixtures) em todo PR que toca
-`contract/`, `libs/` ou `site/`.
+roda em todo PR que toca `contract/`, `libs/` ou `site/`: `npm audit`, `check:i18n --strict`, o
+build (com os arquivos de uso e os guias das bibliotecas) e a verificação de acessibilidade
+(`npm run a11y`).
 
 ## Pendências conhecidas
 

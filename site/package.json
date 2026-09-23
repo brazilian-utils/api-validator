@@ -14,7 +14,8 @@
     "generate:pages": "node scripts/generate-pages.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "audit": "npm audit --audit-level=low",
-    "astro": "astro"
+    "astro": "astro",
+    "a11y": "node scripts/a11y.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.0",
