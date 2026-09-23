@@ -12,7 +12,7 @@ const WIDTH = 120;
 const ROW_MAX = 400;
 
 /** Key order per object kind; keys not listed keep their relative order, after the listed ones. */
-export const KEY_ORDER = {
+const KEY_ORDER = {
   domain: ["$schema", "domain", "title", "summary", "category", "order", "related", "aliases", "functions"],
   fn: ["summary", "label", "description", "references", "flatName", "aliases", "level", "network", "fallible", "deprecated", "params", "returns", "tests"],
   param: ["name", "type", "optional", "description"],
@@ -40,7 +40,6 @@ function lines(v: Json | undefined): Json | undefined {
 /** Put the keys of a contract domain file in canonical order. */
 export function orderDomain(doc: { [k: string]: Json }): { [k: string]: Json } {
   const out = ordered(doc, KEY_ORDER.domain);
-  if (out.description !== undefined) out.description = lines(out.description)!;
   const fns = out.functions as { [k: string]: { [k: string]: Json } } | undefined;
   if (fns && typeof fns === "object") {
     out.functions = Object.fromEntries(

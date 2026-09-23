@@ -1,10 +1,10 @@
 ---
 /**
  * The shared test cases of one contract operation, with each library's result from the last
- * api-validator run: these are the cases every implementation must pass.
+ * api-validator run: the cases every implementation must pass.
  */
 import { loadLibs, loadSpec, loadStatus } from '@lib/registry.mjs';
-import { expectation, testIds } from '@lib/text.mjs';
+import { CASE_MARK, expectation, testIds } from '@lib/text.mjs';
 
 interface Props {
   util: string;
@@ -13,23 +13,22 @@ interface Props {
 
 const { util, op } = Astro.props;
 const t = Astro.locals.t;
-const spec = loadSpec(util);
-const operation = spec?.operations.find((o) => o.id === op);
+const operation = loadSpec(util)?.operations.find((o) => o.id === op);
 const tests = operation?.tests ?? [];
 const ids = operation ? testIds(operation.fnId, tests) : [];
 const status = loadStatus();
 const libs = status ? loadLibs().filter((lib) => status.libs[lib.id]) : [];
-const MARK: Record<string, string> = { pass: '●', fail: '✕', 'known-failure': '✕', skip: '·' };
 
 function result(libId: string, caseId: string) {
   const f = status?.libs[libId]?.functions?.[operation!.fnId];
-  if (!f || f.status === 'missing' || f.status === 'waived') return { cls: 'none', mark: '○', title: t('status.missing') };
+  if (!f || f.status === 'missing' || f.status === 'waived') return { cls: 'bu-none', mark: '–', label: t(`status.${f?.status === 'waived' ? 'waived' : 'missing'}`) };
   const r = f.results?.[caseId];
-  if (!r) return { cls: 'none', mark: '·', title: t('cases.notRun') };
-  return { cls: r === 'pass' ? 'ok' : r === 'skip' ? 'none' : 'bad', mark: MARK[r] ?? '·', title: r };
+  if (!r) return { cls: 'bu-none', mark: '–', label: t('cases.notRun') };
+  return { cls: r === 'pass' ? 'bu-ok' : r === 'skip' ? 'bu-none' : 'bu-fail', mark: CASE_MARK[r as keyof typeof CASE_MARK] ?? '–', label: t(`cases.${r}` as any) };
 }
 
 const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
+// Starlight lets a wide table scroll: tabindex makes it reachable by keyboard, the label names it.
 ---
 
 {tests.length === 0 ? (
@@ -37,13 +36,12 @@ const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
 ) : (
   <details class="cases">
     <summary>{t('cases.summary', { count: tests.length })}</summary>
-    <div class="table-wrap">
-      <table>
+    <table tabindex="0" aria-label={`${t('cases.summary', { count: tests.length })}: ${operation!.fnId}`}>
         <thead>
           <tr>
-            <th>{t('testcases.input')}</th>
-            <th>{t('testcases.expected')}</th>
-            {libs.map((lib) => <th class="lib">{lib.label}</th>)}
+            <th scope="col">{t('testcases.input')}</th>
+            <th scope="col">{t('testcases.expected')}</th>
+            {libs.map((lib) => <th scope="col" class="lib">{lib.label}</th>)}
           </tr>
         </thead>
         <tbody>
@@ -57,26 +55,44 @@ const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
               <td><code>{expectation(test)}</code></td>
               {libs.map((lib) => {
                 const r = result(lib.id, ids[i]);
-                return <td class={`dot ${r.cls}`} title={r.title}>{r.mark}</td>;
+                return (
+                  <td class="mark">
+                    <span class={r.cls} aria-hidden="true" title={r.label}>{r.mark}</span>
+                    <span class="sr-only">{r.label}</span>
+                  </td>
+                );
               })}
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+    </table>
   </details>
 )}
 
 <style>
-  .cases summary { cursor: pointer; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
-  .table-wrap { overflow-x: auto; }
-  table { font-size: var(--sl-text-sm); }
-  .lib { text-align: center; white-space: nowrap; }
-  .dot { text-align: center; }
-  .dot.ok { color: var(--sl-color-green); }
-  .dot.bad { color: var(--sl-color-red); }
-  .dot.none { color: var(--sl-color-gray-4); }
-  .note { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); margin-top: 0.2rem; }
-  .muted { color: var(--sl-color-gray-3); }
-  .no-cases { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+  .cases summary {
+    cursor: pointer;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+  }
+  table {
+    font-size: var(--sl-text-sm);
+  }
+  .lib,
+  .mark {
+    text-align: center;
+    white-space: nowrap;
+  }
+  .note {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+    margin-top: 0.2rem;
+  }
+  .muted,
+  .no-cases {
+    color: var(--sl-color-gray-3);
+  }
+  .no-cases {
+    font-size: var(--sl-text-sm);
+  }
 </style>

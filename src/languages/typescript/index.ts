@@ -18,7 +18,7 @@ function isDeprecatedNode(node: Node): boolean {
 }
 
 /** A checker type -> the shared structured type tree. */
-export function tsNode(type: Type, depth = 0): TypeNode {
+function tsNode(type: Type, depth = 0): TypeNode {
   if (depth > 8) return { kind: "unknown", text: type.getText() };
   if (type.isUnion()) {
     const members = type.getUnionTypes();

@@ -1,93 +1,70 @@
 ---
 /**
- * Top of a utility page: one-line summary, one badge per library (how many of the domain's
- * operations it implements, from the last api-validator run; from the usage files when the
- * site is built without status), and links to related utilities.
+ * Top of a utility page: the one-line summary; how many of the domain's operations each library
+ * implements (from the last api-validator run, or from the usage files without one); the guides
+ * that use it; related utilities.
  */
 import { getCollection } from 'astro:content';
-import { Badge } from '@astrojs/starlight/components';
-import { loadGuides, loadLibs, loadSpec, loadSpecs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
+import { coverage, loadGuides, loadLibs, loadSpec } from '@lib/registry.mjs';
+import { STATUS_CLASS, STATUS_MARK } from '@lib/text.mjs';
+import { pageContext } from '@lib/page';
 
 interface Props {
   util: string;
 }
 
 const { util } = Astro.props;
-const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
-const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
-const meta = loadSpec(util);
+const { locale, prefix } = pageContext(Astro);
+const spec = loadSpec(util);
 const libs = loadLibs();
-const status = loadStatus();
-const allSpecs = loadSpecs();
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
-const total = meta?.operations.length ?? 0;
 const usage = await getCollection('usage', (entry) => entry.data.util === util);
+const STATE = { full: 'ok', partial: 'ok', failing: 'failing', none: 'missing' } as const;
 
-const availability = libs.map((lib) => {
-  const fns = status?.libs[lib.id]?.functions;
-  let count;
-  let failing = 0;
-  if (fns) {
-    const mine = (meta?.operations ?? []).map((op) => fns[op.fnId]).filter(Boolean);
-    count = mine.filter((f) => f.status === 'ok' || f.status === 'failing').length;
-    failing = mine.filter((f) => f.status === 'failing').length;
-  } else {
-    count = new Set(usage.filter((e) => e.data.lib === lib.id).map((e) => e.data.op)).size;
-  }
-  const since = usage.find((e) => e.data.lib === lib.id && e.data.since)?.data.since;
-  return { lib, count, failing, since };
-});
+const availability = spec
+  ? libs.map((lib) => {
+      const { count, failing, total, state } = coverage(spec, lib.id);
+      // The version the library first shipped this utility in, when its usage file says (`since:`).
+      const since = usage.find((e) => e.data.lib === lib.id && e.data.since)?.data.since;
+      return { lib, count, failing, total, since, mark: STATUS_MARK[STATE[state]], cls: STATUS_CLASS[STATE[state]] };
+    })
+  : [];
 
-const related = (meta?.related ?? []).map((id) => allSpecs.find((s) => s.id === id)).filter(Boolean);
-// Library guides that call one of this utility's functions.
-const fnIds = new Set((meta?.operations ?? []).map((op) => op.fnId));
+const related = (spec?.related ?? []).map((id) => loadSpec(id)).filter(Boolean);
+const fnIds = new Set((spec?.operations ?? []).map((op) => op.fnId));
 const guides = loadGuides().filter((g) => g.fns.some((fn: string) => fnIds.has(fn)));
 const libLabel = (id: string) => libs.find((l) => l.id === id)?.label ?? id;
 ---
 
-{meta && (
+{spec && (
   <div class="util-header not-content">
-    <p class="summary">{meta.summary[locale]}</p>
+    <p class="summary">{spec.summary[locale]}</p>
 
-    <div class="availability">
+    <p class="row">
       <span class="label">{t('util.implementedIn')}</span>
-      <ul>
-        {availability.map(({ lib, count, failing, since }) => (
-          <li>
-            <a href={`${prefix}/libs/${lib.id}/`}>
-              <Badge
-                text={`${lib.label} ${count}/${total}` + (since ? ` · ${t('util.since', { version: since })}` : '')}
-                variant={count === 0 ? 'default' : failing > 0 ? 'caution' : count >= total ? 'success' : 'tip'}
-                size="medium"
-                class:list={[{ 'is-missing': count === 0 }]}
-              />
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
+      {availability.map(({ lib, count, failing, total, mark, cls, since }) => (
+        <a href={`${prefix}/libs/${lib.id}/`} class:list={['lib', { none: count === 0 }]}>
+          <span class={cls} aria-hidden="true">{mark}</span>
+          {lib.label}
+          <span class="count">{t('util.count', { count, total })}{since && ` ${t('util.since', { version: since })}`}</span>
+          {failing > 0 && <span class="sr-only">{t('status.failing')}</span>}
+        </a>
+      ))}
+    </p>
 
     {guides.length > 0 && (
-      <p class="related">
+      <p class="row">
         <span class="label">{t('util.guides')}</span>
-        {guides.map((g, i) => (
-          <>
-            <a href={`${prefix}/guides/${g.lib}/${g.slug}/`}>{g.title[locale] ?? g.title.en}</a> <Badge text={libLabel(g.lib)} size="small" />{i < guides.length - 1 ? ' ' : ''}
-          </>
+        {guides.map((g) => (
+          <a href={`${prefix}/guides/${g.lib}/${g.slug}/`}>{t('util.guideFrom', { title: g.title[locale] ?? g.title.en, lib: libLabel(g.lib) })}</a>
         ))}
       </p>
     )}
 
     {related.length > 0 && (
-      <p class="related">
+      <p class="row">
         <span class="label">{t('util.related')}</span>
-        {related.map((spec, i) => (
-          <>
-            <a href={`${prefix}/utils/${spec!.id}/`}>{spec!.title[locale]}</a>{i < related.length - 1 ? ', ' : ''}
-          </>
-        ))}
+        {related.map((r) => <a href={`${prefix}/utils/${r!.id}/`}>{r!.title[locale]}</a>)}
       </p>
     )}
   </div>
@@ -96,45 +73,47 @@ const libLabel = (id: string) => libs.find((l) => l.id === id)?.label ?? id;
 <style>
   .util-header {
     display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
     padding-bottom: 1.25rem;
     border-bottom: 1px solid var(--sl-color-hairline);
   }
   .summary {
-    font-size: var(--sl-text-lg);
-    color: var(--sl-color-gray-2);
-    max-width: 70ch;
-    margin: 0;
+    font-size: var(--sl-text-xl);
+    line-height: 1.45;
+    color: var(--sl-color-white);
+    max-width: 60ch;
+    margin: 0 0 0.4rem;
   }
-  .availability,
-  .related {
+  .row {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
     margin: 0;
     font-size: var(--sl-text-sm);
   }
   .label {
     color: var(--sl-color-gray-3);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: var(--sl-text-xs);
-    font-weight: 600;
-    margin-inline-end: 0.25rem;
+    min-width: 7.5rem;
   }
-  ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .row a {
+    color: var(--bu-link);
   }
-  li { margin: 0; }
-  li a { text-decoration: none; }
-  :global(.util-header .is-missing) {
-    opacity: 0.55;
+  .lib {
+    display: inline-flex;
+    gap: 0.3rem;
+    text-decoration: none;
+    color: var(--sl-color-gray-1) !important;
+  }
+  .lib:hover {
+    text-decoration: underline;
+  }
+  .lib.none {
+    color: var(--sl-color-gray-3) !important;
+  }
+  .count {
+    color: var(--sl-color-gray-3);
+    font-variant-numeric: tabular-nums;
   }
 </style>

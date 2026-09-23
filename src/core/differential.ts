@@ -18,6 +18,7 @@ import type { ApiSurface, Contract, ContractFunction, NativeSymbol, RunnerCall }
 import { flat } from "./naming.js";
 import { bestOverload } from "./signature.js";
 import { parseCType, type CType } from "./ctype.js";
+import { shortName } from "../../site/src/lib/usage-format.mjs";
 
 export interface DiffLib {
   name: string;
@@ -41,7 +42,8 @@ function acceptsString(t: CType): boolean {
   return t.k === "union" && t.of.some(acceptsString);
 }
 
-function answerKey(r: { ok: boolean; value?: unknown; error?: string }): string {
+/** An answer compared by value: object keys normalized (`zip_code` = `zipCode`), null fields dropped; any error is one answer. */
+export function answerKey(r: { ok: boolean; value?: unknown; error?: string }): string {
   if (!r.ok) return "<error>";
   const norm = (v: unknown): unknown => {
     if (Array.isArray(v)) return v.map(norm);
@@ -58,8 +60,12 @@ function answerKey(r: { ok: boolean; value?: unknown; error?: string }): string 
   return JSON.stringify(norm(r.value));
 }
 
+const indexes = new WeakMap<DiffLib, SymbolIndex>();
+
 function bind(lib: DiffLib, fn: ContractFunction): NativeSymbol | undefined {
-  const res = resolve(fn, lib.ctx.lib, lib.adapter, new SymbolIndex(lib.surface.symbols));
+  let index = indexes.get(lib);
+  if (!index) indexes.set(lib, (index = new SymbolIndex(lib.surface.symbols)));
+  const res = resolve(fn, lib.ctx.lib, lib.adapter, index);
   return res.overloads.length ? bestOverload(fn, res.overloads, lib.adapter).symbol : undefined;
 }
 
@@ -162,7 +168,7 @@ export async function differential(
       g.libs.push(lib);
       groups.set(key, g);
     }
-    if (groups.size === 0 || [...groups.values()].reduce((n, g) => n + g.libs.length, 0) < 2) return;
+    if ([...groups.values()].reduce((n, g) => n + g.libs.length, 0) < 2) return;
     const ref = reference?.name ?? "";
     const sorted = [...groups.entries()]
       .map(([answer, g]) => ({ answer, ...g }))
@@ -185,10 +191,9 @@ export function proposal(
   if (row.answers.length > 1 && row.answers[1].libs.length === top.libs.length && !top.libs.includes(reference)) return undefined;
   if (existing.tests.some((t) => valuesEqual(t.args, row.args))) return undefined;
   const others = row.answers.slice(1).map((a) => `${a.libs.join(", ")} → ${a.answer}`);
-  const short = (l: string) => l.replace("brazilian-utils-", "");
   const note = row.agree
-    ? `consensus of ${top.libs.length} libs (${top.libs.map(short).join(", ")})`
-    : `majority: ${top.libs.map(short).join(", ")}; differs: ${others.map((o) => o.replaceAll("brazilian-utils-", "")).join(" | ")}`;
+    ? `consensus of ${top.libs.length} libs (${top.libs.map(shortName).join(", ")})`
+    : `majority: ${top.libs.map(shortName).join(", ")}; differs: ${others.map((o) => o.replaceAll("brazilian-utils-", "")).join(" | ")}`;
   return top.answer === "<error>" ? { args: row.args, throws: true, note } : { args: row.args, returns: top.value ?? null, note };
 }
 
@@ -199,9 +204,8 @@ export function proposal(
  * the divergence baseline records.
  */
 export function partition(row: DiffRow): string {
-  const short = (l: string) => l.replace("brazilian-utils-", "");
   return row.answers
-    .map((a) => a.libs.map(short).sort().join(","))
+    .map((a) => a.libs.map(shortName).sort().join(","))
     .sort()
     .join(" | ");
 }

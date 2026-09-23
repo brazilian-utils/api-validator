@@ -1,0 +1,81 @@
+---
+/**
+ * The libraries, one row each: language (links to its status page), package, install command and
+ * how much of the contract it implements in the last validator run.
+ */
+import { loadLibs, loadStatus } from '@lib/registry.mjs';
+import { pageContext } from '@lib/page';
+
+const t = Astro.locals.t;
+const { locale, prefix } = pageContext(Astro);
+const status = loadStatus();
+const libs = loadLibs().map((lib) => ({ lib, summary: status?.libs?.[lib.id]?.summary }));
+const pct = (n: number) => `${Math.round(n)}%`;
+---
+
+<div class="lib-table not-content">
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">{t('libs.language')}</th>
+        <th scope="col">{t('libs.install')}</th>
+        {status && <th scope="col">{t('libs.coverage')}</th>}
+      </tr>
+    </thead>
+    <tbody>
+      {libs.map(({ lib, summary }) => (
+        <tr>
+          <th scope="row">
+            <a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a>
+            <span class="sub"><a href={lib.registry}>{lib.package}</a> <a href={`https://github.com/${lib.repo}`}>{t('libs.source')}</a></span>
+          </th>
+          <td><code>{lib.install}</code></td>
+          {status && (
+            <td>{summary ? t('libs.coverageValue', { core: pct(summary.coreCoverage), done: summary.ok + summary.failing, total: summary.total }) : '–'}</td>
+          )}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .lib-table {
+    overflow-x: auto;
+    margin: 1rem 0 2.5rem;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--sl-text-sm);
+  }
+  th,
+  td {
+    text-align: start;
+    vertical-align: top;
+    padding: 0.6rem 0.75rem 0.6rem 0;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+  thead th {
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+  }
+  tbody th > a {
+    display: block;
+    font-weight: 700;
+    color: var(--sl-color-white);
+  }
+  .sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.75rem;
+    font-size: var(--sl-text-xs);
+    font-weight: 400;
+  }
+  .sub a {
+    color: var(--bu-link);
+  }
+  code {
+    white-space: nowrap;
+  }
+</style>

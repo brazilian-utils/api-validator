@@ -1,35 +1,30 @@
 ---
 title: Getting started
-description: What Brazilian Utils is, how the documentation is organized, and how to read a utility page.
+description: What Brazilian Utils is, how to read a utility page, and how to install a library.
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+Brazilian Utils is a set of libraries that validate, format and generate Brazilian data: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library for each language. The [brazilian-utils](https://github.com/brazilian-utils) organization maintains all of them. This site documents all of them in one place.
 
-Brazilian Utils is a family of libraries that validate, format and generate data specific to Brazil: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library per language, all maintained under the [brazilian-utils](https://github.com/brazilian-utils) organization.
+## Read a utility page
 
-This site documents all of them in one place.
+Each utility has one page for all languages. Each page has the same parts, in this order:
 
-## How the docs are organized
+1. **The rule.** What the identifier is, its format, the algorithm and the regular expressions. Some utilities have this long text, others have only a summary.
+2. **Usage.** One section for each function, such as validate, format or generate. Each section shows:
+   - the signature from the contract,
+   - which libraries implement the function and whether they pass all shared test cases,
+   - a tab for each library, with an example in that language,
+   - a "Try it" box that runs the JavaScript library in your browser,
+   - the shared test cases, with the result in each library.
+3. **Official sources.** The law, decree or government document that defines the rule.
 
-Every utility has **one page**, no matter how many languages implement it. Each page has the same sections:
+Select JavaScript, Python, Go, Ruby, Rust, .NET or Erlang in a tab once. Every page then opens that tab.
 
-<Steps>
+All libraries behave the same because the shared contract defines the behavior, and the test cases check it. The contract lives in [api-validator](https://github.com/brazilian-utils/api-validator). No single library defines it.
 
-1. **What it is and how it works.** The identifier, its rules, the algorithm and the regexes, when the utility has a long-form spec. This part, like everything below, comes from the shared contract in [api-validator](https://github.com/brazilian-utils/api-validator), not from any single library.
+## Install a library
 
-2. **Usage.** One section per operation (validate, format, generate…): its signature, which libraries implement it and whether they pass every case, the contract's description, one tab per language with the example, and the test cases. Pick JavaScript, Python, Go, Ruby, Rust, .NET or Erlang once and every page follows.
-
-3. **Official sources.** The law, decree or agency document the rule comes from.
-
-</Steps>
-
-<Aside type="tip">
-The language tabs only show *how to call* the library. The behaviour is the same everywhere because it is defined by the spec, not by any single implementation.
-</Aside>
-
-## Installing a library
-
-Pick your language on the [home page](/) for the install command, or go straight to the package registry:
+Select your language on the [home page](/) to see the install command, or go to the package registry:
 
 | Language | Package | Repository |
 | --- | --- | --- |
@@ -43,10 +38,11 @@ Pick your language on the [home page](/) for the install command, or go straight
 
 ## What the libraries do not do
 
-The libraries validate **structure**: length, allowed characters, check digits. They do not query government databases, so a "valid" CPF or CNPJ is a well-formed one, not necessarily one that exists or is active. Operations that call an external service (like looking up an address by CEP) say so explicitly on their tab.
+The libraries check the **structure** of a value: its length, its characters and its check digits. They do not query government databases. A valid CPF or CNPJ is a well-formed number. It does not mean that the person or the company exists. A function that calls an external service, such as the address lookup by CEP, says so on its section.
 
-## Where to go next
+## Next steps
 
-- Browse the utilities in the sidebar, grouped by category.
-- Check the [parity matrix](/reference/parity/) to see which language implements what, or a library's own page (for example [Python](/libs/python/)) for what it is missing.
-- Want to contribute? Start with [writing a spec](/contributing/specs/) or [porting to a new language](/contributing/new-language/).
+- Find a utility in the sidebar. The sidebar groups the utilities by category.
+- See which library implements what in the [parity matrix](/reference/parity/).
+- See what one library is missing on its own page, for example [Python](/libs/python/).
+- To contribute, read [write a spec](/contributing/specs/) or [port to a new language](/contributing/new-language/).

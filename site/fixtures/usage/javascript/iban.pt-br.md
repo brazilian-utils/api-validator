@@ -73,5 +73,3 @@ getIbanInfo('BR15 000 00000 0000 1093 2840 814P 2'); // null (separador dentro d
 ```
 
 Fonte: [Diretrizes de Implementação do IBAN no Brasil](https://www.bcb.gov.br/content/estabilidadefinanceira/Documents/sistema_pagamentos_brasileiro/IBAN-Guidelines_%20port.pdf), [Circular BCB nº 3.625/2013](https://www.bcb.gov.br/pre/normativos/circ/2013/pdf/circ_3625_v1_O.pdf), [ISO 13616-1:2020](https://www.iso.org/standard/81090.html).
-
-## Moeda, números e datas por extenso

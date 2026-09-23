@@ -45,5 +45,3 @@ getAreaCodesByState('XX'); // []
 ```
 
 Fonte: [Resolução Anatel nº 749/2022](https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749), [Códigos Nacionais da Anatel](https://www.gov.br/anatel/pt-br/regulado/numeracao/codigos-nacionais).
-
-## Placa de veículo

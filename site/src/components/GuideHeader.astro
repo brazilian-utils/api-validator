@@ -1,69 +1,85 @@
 ---
 /**
- * Top of a library guide: which library it is from, a note when it is shown in English because
- * the library has no translation, the contract functions it uses (links to their operations),
- * and the source file.
+ * Top of a library guide: which library it comes from (and its source file in this language), a
+ * note when the library has no translation of it, and the contract operations it calls.
  */
-import { Badge } from '@astrojs/starlight/components';
-import { loadGuides, loadLibs, loadSpecs, LANG_PREFIX } from '@lib/registry.mjs';
-import { headingSlug } from '@lib/text.mjs';
+import { loadGuides, loadLibs, loadSpecs } from '@lib/registry.mjs';
+import { opPath } from '@lib/text.mjs';
+import { pageContext } from '@lib/page';
 
 interface Props {
   lib: string;
   slug: string;
+  /** Language the guide is shown in (the library may not have this page's language). */
   shown: string;
+  /** The guide's file in the library, in the language shown. */
+  source: string;
 }
-const { lib: libId, slug, shown } = Astro.props;
-const { lang } = Astro.locals.starlightRoute;
+const { lib: libId, slug, shown, source } = Astro.props;
 const t = Astro.locals.t;
-const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
+const { locale, prefix } = pageContext(Astro);
 const lib = loadLibs().find((l) => l.id === libId)!;
 const guide = loadGuides().find((g) => g.lib === libId && g.slug === slug)!;
 const specs = loadSpecs();
-const uses = guide.fns
-  .map((fnId: string) => {
-    const spec = specs.find((s) => fnId.startsWith(`${s.domain}.`));
-    const op = spec?.operations.find((o) => o.fnId === fnId);
-    return spec && op ? { spec, op } : null;
-  })
-  .filter(Boolean) as Array<{ spec: any; op: any }>;
+const uses = guide.fns.flatMap((fnId: string) => {
+  const spec = specs.find((s) => s.operations.some((o) => o.fnId === fnId));
+  const op = spec?.operations.find((o) => o.fnId === fnId);
+  return spec && op ? [{ href: opPath(prefix, spec, op, locale), label: `${spec.title[locale]}: ${op.label[locale]}` }] : [];
+});
 ---
 
 <div class="guide-header not-content">
   <p>
-    <Badge text={lib.label} variant="note" />
-    <span>{t('guide.from', { lib: lib.label })}</span>
-    <a href={guide.source}>{t('usage.source')}</a>
+    {t('guide.from', { lib: lib.label })} <a href={source} rel="noopener noreferrer">{t('guide.source')}</a>
   </p>
   {shown !== locale && <p class="fallback">{t('guide.englishOnly')}</p>}
   {uses.length > 0 && (
-    <p class="uses">
-      <span class="label">{t('guide.uses')}</span>
-      <span class="list">{uses.map(({ spec, op }) => <span><a href={`${prefix}/utils/${spec.id}/#${headingSlug(op.label[locale])}`}>{`${spec.title[locale]} · ${op.label[locale]}`}</a></span>)}</span>
-    </p>
+    <div class="uses">
+      <p id={`uses-${slug}`}>{t('guide.uses')}</p>
+      <ul aria-labelledby={`uses-${slug}`}>
+        {uses.map((u) => <li><a href={u.href}>{u.label}</a></li>)}
+      </ul>
+    </div>
   )}
 </div>
 
 <style>
   .guide-header {
     display: grid;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    gap: 0.6rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
     border-bottom: 1px solid var(--sl-color-hairline);
     font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-2);
+  }
+  p {
+    margin: 0;
+  }
+  a {
+    color: var(--bu-link);
+  }
+  .fallback {
+    font-style: italic;
+  }
+  .uses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    align-items: baseline;
+  }
+  .uses p {
     color: var(--sl-color-gray-3);
   }
-  .guide-header p { margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-  .guide-header a { color: var(--sl-color-text-accent); }
-  .fallback { font-style: italic; }
-  .list > span:not(:last-child)::after { content: ','; color: var(--sl-color-gray-3); margin-inline-end: 0.35rem; }
-  .label {
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: var(--sl-text-xs);
-    font-weight: 600;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li {
+    margin: 0;
   }
 </style>

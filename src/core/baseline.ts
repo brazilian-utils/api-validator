@@ -5,6 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { json } from "./cases.js";
 import type { LibReport } from "./model.js";
 
 export interface Baseline {
@@ -20,7 +21,7 @@ export interface Baseline {
   unmapped?: string[];
 }
 
-export function baselinePath(dir: string, lib: string): string {
+function baselinePath(dir: string, lib: string): string {
   return path.join(dir, `${lib}.json`);
 }
 
@@ -44,7 +45,7 @@ export function baselineFrom(report: LibReport, previous?: Baseline): Baseline {
 
 export function writeBaseline(dir: string, baseline: Baseline): void {
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(baselinePath(dir, baseline.library), `${JSON.stringify(baseline, null, 2)}\n`);
+  fs.writeFileSync(baselinePath(dir, baseline.library), json(baseline));
 }
 
 export interface Regression {

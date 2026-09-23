@@ -57,8 +57,6 @@ generatePixPayload({ merchantName: 'Fulano', merchantCity: 'Brasília' }); // nu
 
 Source: [Manual do BR Code](https://www.bcb.gov.br/content/estabilidadefinanceira/spb_docs/ManualBRCode.pdf), [Manual de Padrões para Iniciação do Pix](https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf).
 
-## NF-e key
-
 ## getInfo
 
 Parse a Pix BR Code payload into its fields. Accepts what `isValidPixPayload` accepts and returns `null` for anything else, never a partial result.

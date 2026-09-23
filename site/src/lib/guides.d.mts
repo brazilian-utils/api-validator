@@ -15,3 +15,15 @@ export interface GuideContext {
 }
 export function parseGuide(ctx: GuideContext): Guide;
 export function frontmatter(text: string): [Record<string, unknown>, string];
+export interface LinkOptions {
+  fromFile: string;
+  srcDir: string;
+  srcUrl: string;
+  docsRoot?: string;
+  reference?: string[];
+  anchor?: (hash: string) => string | null | undefined;
+  page?: (target: string, hash: string) => string | null | undefined;
+}
+export function absolutizeLinks(md: string, options: LinkOptions): string;
+export function referenceFiles(ctx: Pick<GuideContext, 'lib' | 'src'>): string[];
+export function referenceAnchor(ctx: Pick<GuideContext, 'lib' | 'locale' | 'status' | 'specs'>): (hash: string) => string | null;

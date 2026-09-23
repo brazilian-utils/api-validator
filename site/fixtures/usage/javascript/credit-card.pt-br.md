@@ -22,5 +22,3 @@ isValidCreditCard(4111111111111111111); // false (acima de 2^53 - 1, passe como 
 ```
 
 Fonte: [ISO/IEC 7812-1](https://www.iso.org/standard/70484.html).
-
-## Registro profissional

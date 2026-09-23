@@ -13,7 +13,9 @@ import { summarize } from "../src/core/analyze.js";
 import { badgeSvg } from "../src/reporters/badge.js";
 import { siteDataFiles } from "../src/reporters/sitedata.js";
 import { closeReason, keyOf, marker, scopeFrom, wantedIssues } from "../src/core/issues.js";
-import { materializeUsage, parseReference, parseUsageDir, scaffoldUsage, usageStatus } from "../src/core/usage.js";
+import { materializeUsage, ownUsage, parseReference, parseUsageDir, scaffoldUsage, summarizeUsage, usageStatus } from "../src/core/usage.js";
+import { operationLabel, resolveOperation } from "../site/src/lib/usage-format.mjs";
+import { execFileSync } from "node:child_process";
 
 const lib = (over: Partial<LibConfig> = {}): LibConfig => ({
   name: "brazilian-utils-demo",
@@ -214,6 +216,53 @@ describe("usage files", () => {
     assert.ok(cpf.startsWith("## isValid\n\n```python\nis_valid_cpf('40364478081')  # True"), "existing content first, untouched");
     assert.match(cpf, /## generate\n\n```python\nfrom brutils import generate_cpf\n\ngenerate_cpf\(\)  # random valid value\n```/);
     assert.doesNotMatch(cpf, /## format/, "not implemented: no section");
+  });
+
+  const site = { label: "Demo", order: 1, package: "brutils", install: "", registry: "", usage: { ref: "main", path: "docs/usage", assets: [] } };
+
+  it("scaffolds English sections into the English file, even when only a pt-BR file exists", () => {
+    const dir = usageDir({ "cpf.pt-br.md": "## isValid\n\n```python\nis_valid_cpf('1')  # Verdadeiro\n```\n" });
+    const out = scaffoldUsage({ contract, lib: lib({ site }), report, natives: new Map(), existing: parseUsageDir(contract, dir) }, (f) =>
+      fs.existsSync(path.join(dir, f)) ? fs.readFileSync(path.join(dir, f), "utf8") : undefined
+    );
+    assert.deepEqual([...out.keys()], ["cpf.md"]);
+    assert.match(out.get("cpf.md")!, /## isValid[\s\S]*## generate/);
+  });
+
+  it("own usage: the usage files, plus the reference page for what they leave out", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "lib-"));
+    fs.mkdirSync(path.join(root, "docs/usage"), { recursive: true });
+    fs.writeFileSync(path.join(root, "docs/api.md"), "Conventions.\n\n## CPF helpers\n\n### is_valid_cpf\n\nFrom the page.\n\n### generate_cpf\n\n```py\ngenerate_cpf()\n```\n");
+    const withRef = lib({ site: { ...site, usage: { ...site.usage, reference: { en: "docs/api.md" } } } });
+    const onlyPage = ownUsage(contract, withRef, root, report);
+    assert.equal(onlyPage.dir, path.join(root, "docs/api.md"));
+    assert.deepEqual(onlyPage.sections.map((s) => s.fn), ["cpf.isValid", "cpf.generate"]);
+    fs.writeFileSync(path.join(root, "docs/usage/cpf.md"), "## isValid\n\n```py\nis_valid_cpf('1')\n```\n");
+    const both = ownUsage(contract, withRef, root, report);
+    assert.equal(both.dir, path.join(root, "docs/usage"));
+    assert.deepEqual(both.sections.map((s) => [s.fn, s.file]), [["cpf.isValid", "cpf.md"], ["cpf.generate", "docs/api.md"]]);
+  });
+
+  it("resolves headings like the site: default labels too (`## Decode` is getInfo)", () => {
+    const info = contractFrom({ domain: "cnh", functions: { getInfo: { params: string, returns: "string?" }, isValid: { params: string, returns: "boolean" } } });
+    const files = parseUsageDir(info, usageDir({ "cnh.md": "## Decode\n\n```js\nx\n```\n\n## Validate\n\n```js\ny\n```\n" }));
+    assert.deepEqual(files.sections.map((s) => s.fn), ["cnh.getInfo", "cnh.isValid"]);
+    assert.deepEqual(files.warnings, []);
+    const ops = ["getInfo", "isValid"].map((id) => ({ id, label: operationLabel(id) }));
+    assert.equal(resolveOperation(ops, "Decode"), "getInfo");
+  });
+
+  it("summary counts contract functions only", () => {
+    const extra: LibReport = { ...report, functions: [...report.functions, { id: "cpf.gone", level: "core", status: "ok", symbol: "gone", issues: [], suggestions: [], tests: [] }] };
+    const sum = summarizeUsage(extra, usageStatus(contract, extra, { sections: [], warnings: [] }));
+    assert.deepEqual(sum, { implemented: 2, documented: 0, problems: 0, undocumented: ["cpf.isValid", "cpf.generate"] });
+  });
+
+  it("usage --materialize --out needs exactly one lib", () => {
+    const out = fs.mkdtempSync(path.join(os.tmpdir(), "out-"));
+    const run = () => execFileSync(process.execPath, ["--import", "tsx", "src/cli.ts", "usage", "--materialize", "--out", out], { stdio: "pipe" });
+    assert.throws(run, (e: { status: number; stderr: Buffer }) => e.status === 2 && /--out needs exactly one --lib/.test(String(e.stderr)));
+    assert.deepEqual(fs.readdirSync(out), []);
   });
 });
 

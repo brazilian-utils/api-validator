@@ -43,8 +43,6 @@ convertDateToWords('invalid'); // ""
 convertDateToWords('29/02/1900'); // "" (1900 não é bissexto)
 ```
 
-## Estados e municípios
-
 ## differenceInBusinessDays
 
 Conta os dias úteis entre duas datas. Assinatura: `differenceInBusinessDays(laterDate, earlierDate, options?)`, a mesma do date-fns.

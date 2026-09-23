@@ -1,12 +1,16 @@
 ---
 /**
  * "Try it": runs one contract operation in the browser with the reference library (JavaScript,
- * loaded from the CDN only when the box is opened), one input per contract parameter, prefilled
- * with the first shared case. When the inputs are those of a shared case, the answer is compared
- * with what the contract expects. Built from the contract and the last validator run (the
- * library's symbol), so every operation the reference implements gets one without writing it.
+ * the version pinned in site/package.json, loaded only when the box opens). One input per contract
+ * parameter, prefilled with the first shared case. When the inputs are a shared case, it says
+ * whether the answer is the one the contract expects. Built from the contract and the last
+ * validator run (the library's symbol), so every operation the published package has gets one.
  */
+import fs from 'node:fs';
+import path from 'node:path';
+import * as reference from '@brazilian-utils/brazilian-utils';
 import { loadLibs, loadSpec, loadStatus } from '@lib/registry.mjs';
+import { isImplemented } from '@lib/text.mjs';
 
 interface Props {
   util: string;
@@ -18,7 +22,9 @@ const LIB = 'javascript';
 const lib = loadLibs().find((l) => l.id === LIB);
 const op = loadSpec(util)?.operations.find((o) => o.id === opId);
 const fn = op && loadStatus()?.libs?.[LIB]?.functions?.[op.fnId];
-const usable = lib && op && fn?.symbol && ['ok', 'failing'].includes(fn.status);
+// The symbol comes from the library's main branch; the box needs it in the published package.
+const usable = lib && op && isImplemented(fn) && typeof (reference as Record<string, unknown>)[fn.symbol] === 'function';
+const version = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'node_modules/@brazilian-utils/brazilian-utils/package.json'), 'utf8')).version;
 
 const kind = (type: string) => {
   const parts = type.split('|').map((s) => s.trim());
@@ -33,37 +39,36 @@ const params = (op?.params ?? []).map((p: any, i: number) => {
   const k = kind(p.type);
   const v = first.args[i];
   const value = v === undefined ? '' : k === 'json' ? JSON.stringify(v) : String(v);
-  return { ...p, kind: k, value };
+  return { ...p, kind: k, value, id: `try-${op!.fnId.replace('.', '-')}-${p.name}` };
 });
 // Shared cases with a fixed answer, to say whether the answer shown is the contract's.
 const cases = (op?.tests ?? []).filter((c: any) => 'returns' in c).map((c: any) => ({ args: c.args, returns: c.returns }));
-const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
 ---
 
 {usable && (
-  <details class="try-it not-content" data-cdn={cdn} data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
+  <details class="try-it not-content" data-symbol={fn.symbol} data-cases={JSON.stringify(cases)} data-kinds={JSON.stringify(params.map((p: any) => p.kind))} data-msg-ok={t('try.matches')} data-msg-differs={t('try.differs')}>
     <summary>{t('try.title', { lib: lib!.label })} <code>{fn.symbol}</code></summary>
     <form>
       {params.map((p: any) => (
-        <label>
+        <label for={p.id}>
           <span>{p.name}{p.optional ? '?' : ''} <small>{p.type}</small></span>
           {p.kind === 'boolean' ? (
-            <input name={p.name} type="checkbox" checked={p.value === 'true'} />
+            <input id={p.id} name={p.name} type="checkbox" checked={p.value === 'true'} />
           ) : (
-            <input name={p.name} type={p.kind === 'number' ? 'number' : 'text'} step="any" value={p.value} placeholder={p.kind === 'json' ? '{ } JSON' : p.kind === 'date' ? '2026-01-31' : ''} autocomplete="off" spellcheck="false" />
+            <input id={p.id} name={p.name} type={p.kind === 'number' ? 'number' : 'text'} step="any" value={p.value} placeholder={p.kind === 'json' ? '{ } JSON' : p.kind === 'date' ? '2026-01-31' : ''} autocomplete="off" spellcheck="false" />
           )}
         </label>
       ))}
       <button type="submit">{t('try.run')}</button>
     </form>
     <output aria-live="polite"><span class="muted">{t('try.hint')}</span></output>
-    <p class="note">{t('try.note', { lib: lib!.label })}</p>
+    <p class="note">{t('try.note', { package: `${lib!.package} ${version}` })}</p>
   </details>
 )}
 
 <script>
-  const load = new Map<string, Promise<any>>();
-  const text = (v: unknown) => (v === undefined ? 'undefined' : typeof v === 'string' ? JSON.stringify(v) : JSON.stringify(v, (_, x) => (x instanceof Date ? x.toISOString() : x)));
+  let reference: Promise<Record<string, (...args: unknown[]) => unknown>> | undefined;
+  const text = (v: unknown) => (v === undefined ? 'undefined' : JSON.stringify(v, (_, x) => (x instanceof Date ? x.toISOString() : x)));
 
   for (const box of document.querySelectorAll<HTMLDetailsElement>('details.try-it')) {
     const form = box.querySelector('form')!;
@@ -71,11 +76,12 @@ const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
     const kinds: string[] = JSON.parse(box.dataset.kinds!);
     const cases: Array<{ args: unknown[]; returns: unknown }> = JSON.parse(box.dataset.cases!);
     const inputs = [...form.querySelectorAll('input')];
+    let seq = 0;
 
     const args = () => {
       const list = inputs.map((input, i) => {
         const kind = kinds[i];
-        if (kind === 'boolean') return (input as HTMLInputElement).checked;
+        if (kind === 'boolean') return input.checked;
         const v = input.value;
         if (v === '') return undefined;
         if (kind === 'number') return Number(v);
@@ -87,32 +93,25 @@ const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
       return list;
     };
 
+    const show = (...parts: Array<[string, string]>) =>
+      out.replaceChildren(...parts.map(([cls, content]) => Object.assign(document.createElement(cls === 'value' ? 'code' : 'span'), { className: cls, textContent: content })));
+
     const run = async () => {
-      const cdn = box.dataset.cdn!;
-      if (!load.has(cdn)) load.set(cdn, import(/* @vite-ignore */ cdn));
-      out.textContent = '…';
+      const n = ++seq;
+      // The library loads once, on the first run; a failed load is retried on the next one.
+      reference ??= import('@brazilian-utils/brazilian-utils').catch((error) => {
+        reference = undefined;
+        throw error;
+      }) as typeof reference;
       try {
-        const mod = await load.get(cdn);
         const input = args();
-        const result = await mod[box.dataset.symbol!](...input);
+        const result = await (await reference!)[box.dataset.symbol!](...input);
+        if (n !== seq) return; // a newer run started while this one waited
         const known = cases.find((c) => JSON.stringify(c.args) === JSON.stringify(input));
-        out.innerHTML = '';
-        const code = document.createElement('code');
-        code.textContent = text(result);
-        out.append(code);
-        if (known) {
-          const same = JSON.stringify(known.returns) === JSON.stringify(result ?? null);
-          const tag = document.createElement('span');
-          tag.className = same ? 'ok' : 'differs';
-          tag.textContent = same ? box.dataset.msgOk! : `${box.dataset.msgDiffers!} ${text(known.returns)}`;
-          out.append(tag);
-        }
+        const same = known && JSON.stringify(known.returns) === JSON.stringify(result ?? null);
+        show(['value', text(result)], ...(known ? [[same ? 'bu-ok' : 'bu-fail', same ? box.dataset.msgOk! : `${box.dataset.msgDiffers!} ${text(known.returns)}`] as [string, string]] : []));
       } catch (error) {
-        out.innerHTML = '';
-        const e = document.createElement('span');
-        e.className = 'differs';
-        e.textContent = String((error as Error)?.message ?? error);
-        out.append(e);
+        if (n === seq) show(['bu-fail', String((error as Error)?.message ?? error)]);
       }
     };
 
@@ -158,7 +157,7 @@ const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
     color: var(--sl-color-gray-3);
     flex: 1 1 12rem;
   }
-  small { opacity: 0.8; font-family: var(--sl-font-mono); }
+  small { font-family: var(--sl-font-mono); }
   input[type='text'],
   input[type='number'] {
     font: inherit;
@@ -192,8 +191,7 @@ const cdn = `https://cdn.jsdelivr.net/npm/${lib?.package}/+esm`;
     font-size: var(--sl-text-sm);
     min-height: 2.4rem;
   }
-  output :global(.ok) { color: var(--sl-color-green); font-size: var(--sl-text-xs); }
-  output :global(.differs) { color: var(--sl-color-orange); font-size: var(--sl-text-xs); }
+  output :global(span) { font-size: var(--sl-text-xs); }
   .muted,
   .note { color: var(--sl-color-gray-3); }
   .note { font-size: var(--sl-text-xs); margin: 0 0.9rem 0.7rem; }

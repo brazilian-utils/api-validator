@@ -1,47 +1,31 @@
 ---
 title: Brazilian Utils
-description: Validate, format and generate Brazilian data in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang. One spec, one site, every language.
+description: Validate, format and generate Brazilian documents in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang.
 template: splash
-hero:
-  tagline: One spec for every Brazilian document, format and code. Seven libraries that follow it. One place to read about all of them.
-  image:
-    file: ../../assets/icon.png
-    alt: Brazilian Utils
-  actions:
-    - text: Get started
-      link: /getting-started/
-      icon: right-arrow
-    - text: Browse utilities
-      link: /utils/cpf/
-      variant: minimal
-    - text: GitHub
-      link: https://github.com/brazilian-utils
-      icon: external
-      variant: minimal
+editUrl: false
+lastUpdated: false
 ---
 
-import LibCards from '@components/LibCards.astro';
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import Specimen from '@components/Specimen.astro';
+import LibTable from '@components/LibTable.astro';
 
-## Pick your language
+Seven libraries validate, format and generate Brazilian documents: CPF, CNPJ, CEP, license plates, boletos and more. One contract defines each function and its test cases. This site shows the contract and how each library follows it.
 
-Every library exposes the same operations, named the way that language expects. The tabs on each utility page remember your choice across the whole site.
+<Specimen />
 
-<LibCards />
+## Libraries
 
-## How each utility is documented
+Each library has the same functions, with names in the style of its language. Select a language in a usage tab once. The site keeps that tab open on every page.
 
-<CardGrid>
-  <Card title="The rule, once" icon="document">
-    What the identifier is, how it is validated and formatted, and the official government source, written once in the spec and shared by every library.
-  </Card>
-  <Card title="Usage, per language" icon="laptop">
-    Import, call, result. One tab per library, pulled straight from each repository so it never drifts from the released package.
-  </Card>
-  <Card title="Test cases you can read" icon="approve-check">
-    The cases every implementation must pass are on the page, so you can see exactly what "valid" means before you depend on it.
-  </Card>
-  <Card title="Português e English" icon="translate">
-    The site follows your browser language on the first visit. Switch any time; your choice is remembered.
-  </Card>
-</CardGrid>
+<LibTable />
+
+## How the site stays correct
+
+1. A new function goes into the contract first, with its test cases.
+2. Each library that does not have the function gets an issue.
+3. Each library runs the shared test cases with its own test command.
+4. The site shows the contract, an example from each library and the result of the last test run.
+
+The site opens in Portuguese when your browser prefers it. The language menu changes it, and the site keeps your choice.
+
+Start with [getting started](/getting-started/), compare the libraries in the [parity matrix](/reference/parity/), or [add a function to the contract](/contributing/specs/).

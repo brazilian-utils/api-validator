@@ -43,5 +43,3 @@ import { parseCaepf } from '@brazilian-utils/brazilian-utils';
 
 parseCaepf('293.118.610/001-84'); // '29311861000184'
 ```
-
-## Códigos de classificação (CBO, CNAE, NCM, CFOP, CST, CSOSN)

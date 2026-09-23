@@ -19,5 +19,3 @@ isValidVin('1HGCM82633A00435'); // false (16 caracteres)
 ```
 
 Fonte: [ISO 3779:2009](https://www.iso.org/standard/52200.html), [49 CFR 565.15](https://www.ecfr.gov/current/title-49/section-565.15) e [Resolução CONTRAN nº 968/2022](https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9682022.pdf).
-
-## Standard Schema

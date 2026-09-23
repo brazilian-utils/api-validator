@@ -38,7 +38,7 @@ function sourceFiles(dir: string): string[] {
 const TOOL = () => path.join(LANGUAGES_DIR, "erlang", "tool.escript");
 
 /** Compile the lib into `<workDir>/ebin` with debug_info (the checkout is never touched). */
-export function compileErlang(ctx: AdapterContext): { ebin: string } | { error: string } {
+function compileErlang(ctx: AdapterContext): { ebin: string } | { error: string } {
   const srcDir = path.join(ctx.root, ctx.lib.entry === "." ? "src" : ctx.lib.entry);
   const ebin = path.join(ctx.workDir, "ebin");
   fs.rmSync(ebin, { recursive: true, force: true });
@@ -71,7 +71,7 @@ export function extractFromBeams(ctx: AdapterContext): BeamModule[] {
 }
 
 /** `[module, function]` a symbol is called as. */
-export function callTarget(symbol: NativeSymbol): [string, string] {
+function callTarget(symbol: NativeSymbol): [string, string] {
   return [(symbol.meta?.module as string) ?? symbol.name.split(".")[0], symbol.name.split(".").pop()!];
 }
 

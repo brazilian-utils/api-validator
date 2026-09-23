@@ -12,8 +12,11 @@ import { LibSchema } from "./libs.js";
 
 type Kind = "contract" | "lib";
 
-/** Format every `*.json` of a dir in place; returns the names of the files that changed. */
-export function formatDir(dir: string, kind: Kind): string[] {
+/**
+ * Format every `*.json` of a dir in place (or only check, with `write` false); returns the
+ * names of the files that are (were) not formatted.
+ */
+export function formatDir(dir: string, kind: Kind, write = true): string[] {
   const changed: string[] = [];
   for (const f of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
     const file = path.join(dir, f);
@@ -26,16 +29,11 @@ export function formatDir(dir: string, kind: Kind): string[] {
     }
     const after = formatJson(kind === "contract" ? orderDomain(doc) : orderLib(doc));
     if (after !== before) {
-      fs.writeFileSync(file, after);
+      if (write) fs.writeFileSync(file, after);
       changed.push(f);
     }
   }
   return changed;
-}
-
-/** Back-compat name used by `diff --apply`. */
-export function formatContractDir(dir: string): string[] {
-  return formatDir(dir, "contract");
 }
 
 /** JSON Schemas of the edited files, generated from the validation schemas (never drift). */

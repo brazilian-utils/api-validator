@@ -1,35 +1,30 @@
 ---
 title: Primeiros passos
-description: O que é o Brazilian Utils, como a documentação é organizada e como ler a página de um utilitário.
+description: O que é o Brazilian Utils, como ler a página de um utilitário e como instalar uma biblioteca.
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+O Brazilian Utils é um conjunto de bibliotecas que validam, formatam e geram dados brasileiros: CPF, CNPJ, CEP, placas, telefones, boletos e outros. Existe uma biblioteca para cada linguagem. A organização [brazilian-utils](https://github.com/brazilian-utils) mantém todas elas. Este site documenta todas num lugar só.
 
-Brazilian Utils é uma família de bibliotecas que validam, formatam e geram dados específicos do Brasil: CPF, CNPJ, CEP, placas de veículo, telefones, boletos e mais. Existe uma biblioteca por linguagem, todas mantidas na organização [brazilian-utils](https://github.com/brazilian-utils).
+## Leia a página de um utilitário
 
-Este site documenta todas elas em um só lugar.
+Cada utilitário tem uma página para todas as linguagens. Toda página tem as mesmas partes, nesta ordem:
 
-## Como a documentação é organizada
+1. **A regra.** O que é o identificador, o formato, o algoritmo e as expressões regulares. Alguns utilitários têm esse texto longo, outros têm só um resumo.
+2. **Uso.** Uma seção para cada função, como validar, formatar ou gerar. Cada seção mostra:
+   - a assinatura do contrato,
+   - quais bibliotecas implementam a função e se passam em todos os casos de teste compartilhados,
+   - uma aba para cada biblioteca, com um exemplo naquela linguagem,
+   - uma caixa "Teste" que roda a biblioteca JavaScript no seu navegador,
+   - os casos de teste compartilhados, com o resultado em cada biblioteca.
+3. **Fontes oficiais.** A lei, o decreto ou o documento do governo que define a regra.
 
-Cada utilitário tem **uma página**, não importa quantas linguagens o implementam. Toda página tem as mesmas seções:
+Escolha JavaScript, Python, Go, Ruby, Rust, .NET ou Erlang numa aba uma vez. Toda página abre então nessa aba.
 
-<Steps>
+Todas as bibliotecas se comportam igual porque o contrato compartilhado define o comportamento, e os casos de teste o verificam. O contrato fica no [api-validator](https://github.com/brazilian-utils/api-validator). Nenhuma biblioteca sozinha o define.
 
-1. **O que é e como funciona.** O identificador, suas regras, o algoritmo e os regexes, quando o utilitário tem uma spec por extenso. Essa parte, como tudo abaixo, vem do contrato compartilhado no [api-validator](https://github.com/brazilian-utils/api-validator), não de uma biblioteca específica.
+## Instale uma biblioteca
 
-2. **Uso.** Uma seção por operação (validar, formatar, gerar…): a assinatura, quais bibliotecas implementam e se passam em todos os casos, a descrição do contrato, uma aba por linguagem com o exemplo, e os casos de teste. Escolha JavaScript, Python, Go, Ruby, Rust, .NET ou Erlang uma vez e todas as páginas seguem.
-
-3. **Fontes oficiais.** A lei, o decreto ou o documento do órgão de onde a regra vem.
-
-</Steps>
-
-<Aside type="tip">
-As abas de linguagem mostram só *como chamar* a biblioteca. O comportamento é o mesmo em todas porque é definido pela spec, não por uma implementação específica.
-</Aside>
-
-## Instalando uma biblioteca
-
-Escolha sua linguagem na [página inicial](/pt-br/) para ver o comando de instalação, ou vá direto ao registro de pacotes:
+Escolha a sua linguagem na [página inicial](/pt-br/) para ver o comando de instalação, ou vá ao registro de pacotes:
 
 | Linguagem | Pacote | Repositório |
 | --- | --- | --- |
@@ -43,10 +38,11 @@ Escolha sua linguagem na [página inicial](/pt-br/) para ver o comando de instal
 
 ## O que as bibliotecas não fazem
 
-As bibliotecas validam **estrutura**: tamanho, caracteres permitidos, dígitos verificadores. Elas não consultam bases do governo, então um CPF ou CNPJ "válido" é um bem formado, não necessariamente um que existe ou está ativo. Operações que chamam um serviço externo (como buscar endereço pelo CEP) dizem isso explicitamente na aba.
+As bibliotecas verificam a **estrutura** de um valor: o tamanho, os caracteres e os dígitos verificadores. Elas não consultam bases do governo. Um CPF ou CNPJ válido é um número bem formado. Isso não quer dizer que a pessoa ou a empresa existe. Uma função que chama um serviço externo, como a busca de endereço pelo CEP, avisa isso na seção dela.
 
-## Para onde ir agora
+## Próximos passos
 
-- Navegue pelos utilitários na barra lateral, agrupados por categoria.
-- Veja a [matriz de paridade](/pt-br/reference/parity/) para saber qual linguagem implementa o quê, ou a página de uma biblioteca (por exemplo [Python](/pt-br/libs/python/)) para o que falta nela.
-- Quer contribuir? Comece por [escrever uma spec](/pt-br/contributing/specs/) ou [portar para uma nova linguagem](/pt-br/contributing/new-language/).
+- Encontre um utilitário na barra lateral. A barra agrupa os utilitários por categoria.
+- Veja qual biblioteca implementa o quê na [matriz de paridade](/pt-br/reference/parity/).
+- Veja o que falta numa biblioteca na página dela, por exemplo [Python](/pt-br/libs/python/).
+- Para contribuir, leia [escrever uma spec](/pt-br/contributing/specs/) ou [portar para uma nova linguagem](/pt-br/contributing/new-language/).

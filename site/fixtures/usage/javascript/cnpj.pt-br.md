@@ -61,5 +61,3 @@ generateCnpj(2); // CNPJ alfanumérico, ex. 'Q0SLFMBD7VX439'
 generateCnpj({ branch: 3 }); // bloco de ordem '0003', ex. '12345678000372'
 generateCnpj({ version: 2, branch: 1 }); // CNPJ alfanumérico cujo bloco de ordem é '0001'
 ```
-
-## CEP e endereço

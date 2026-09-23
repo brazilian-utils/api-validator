@@ -55,7 +55,8 @@ export function wantedIssues(contract: Contract, report: LibReport, scope: Scope
     const f = byId.get(fn.id);
     if (f?.status === "waived") continue;
     const inBackfill = backfill === "all" || (backfill === "core" && fn.level === "core");
-    if (!implemented(f) && f?.status !== "signature" && (scope.added.has(fn.id) || inBackfill)) {
+    // Missing (waived ones were skipped above; a signature mismatch is a different problem).
+    if ((!f || f.status === "missing") && (scope.added.has(fn.id) || inBackfill)) {
       out.push({ key: `implement:${fn.id}`, kind: "implement", fn: fn.id, title: `[api-contract] Implement ${fn.id}` });
       continue;
     }
@@ -73,7 +74,7 @@ export function closeReason(key: string, contract: Contract, report: LibReport):
   if (!contract.functions.has(fnId)) return `\`${fnId}\` is no longer in the contract.`;
   const f = report.functions.find((x) => x.id === fnId);
   if (f?.status === "waived") return `waived in the lib config: ${f.waiver}`;
-  if (kind === "implement" && implemented(f)) return `implemented as \`${f!.symbol}\`${f!.status === "failing" ? " (some cases still fail: see the fix issue)" : ", and every shared case passes"}.`;
+  if (kind === "implement" && implemented(f)) return `implemented as \`${f!.symbol}\`${f!.status === "failing" ? " (some cases still fail)" : ", and every shared case passes"}.`;
   if (kind === "fix" && implemented(f) && failingCases(f).length === 0) return "every shared case passes now.";
   return undefined;
 }

@@ -6,6 +6,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { blobUrl } from "../core/libs.js";
 import type { ContractFunction, LibConfig, LibReport } from "../core/model.js";
 import { sig } from "../core/signature.js";
 import type { LanguageAdapter } from "../languages/types.js";
@@ -21,11 +22,11 @@ const show = (v: unknown) => (v === undefined ? "" : JSON.stringify(v));
 
 function link(ref: ImplRef, file: string, line: number): string {
   if (!ref.lib.repo || !ref.report.revision) return `${file}:${line}`;
-  return `${ref.lib.repo.replace(/\.git$/, "")}/blob/${ref.report.revision}/${file}#L${line}`;
+  return blobUrl(ref.lib.repo, ref.report.revision, file, line);
 }
 
 /** Source of the top-level block starting at `line` (until the next top-level line). */
-export function sourceBlock(file: string, line: number, max = 80): string | undefined {
+function sourceBlock(file: string, line: number, max = 80): string | undefined {
   if (!fs.existsSync(file)) return undefined;
   const lines = fs.readFileSync(file, "utf8").split("\n");
   // Include the doc comment right above.

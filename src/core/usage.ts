@@ -16,11 +16,20 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import {
+  keyOf,
+  shortName,
+  operationLabel,
+  opRank,
+  parseUsageFileName,
+  referenceSections,
+  resolveOperation,
+  slugOf,
+  splitSections,
+  stripFrontMatter,
+  symbolMap
+} from "../../site/src/lib/usage-format.mjs";
 import type { Contract, ContractFunction, FunctionReport, LibConfig, LibReport } from "./model.js";
-
-export const slugOf = (domain: string) => domain.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-const keyOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-const HEADING_ALIASES: Record<string, string> = { validate: "isValid" };
 
 export interface UsageSection {
   file: string;
@@ -42,23 +51,12 @@ export interface FunctionUsage {
   problems: string[];
 }
 
-/** Resolve a `## heading` of a domain's usage file to a contract function id. */
-export function resolveHeading(contract: Contract, domain: string, heading: string): string | undefined {
-  const fns = [...contract.functions.values()].filter((f) => f.domain === domain);
-  const key = keyOf(heading);
-  const alias = HEADING_ALIASES[key];
-  if (alias && fns.some((f) => f.operation === alias)) return `${domain}.${alias}`;
-  return fns.find((f) => keyOf(f.operation) === key || (f.label && keyOf(f.label.en) === key))?.id;
-}
-
-/** Split one usage file into its `##` sections (text before the first heading is ignored). */
-export function splitSections(content: string): Array<{ heading: string; body: string }> {
-  const body = content.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
-  const marks = [...body.matchAll(/^##\s+(.+?)\s*$/gm)];
-  return marks.map((m, i) => ({
-    heading: m[1].trim(),
-    body: body.slice(m.index! + m[0].length, marks[i + 1]?.index).trim()
-  }));
+/** A domain's operations the way the site lists them: display order, label (the contract's or the default). */
+function operationsOf(contract: Contract, domain: string) {
+  return [...contract.functions.values()]
+    .filter((f) => f.domain === domain)
+    .map((f) => ({ id: f.operation, label: operationLabel(f.operation, f.label) }))
+    .sort((a, b) => opRank(a.id) - opRank(b.id) || a.id.localeCompare(b.id));
 }
 
 export function parseUsageDir(contract: Contract, dir: string): UsageFiles {
@@ -66,20 +64,21 @@ export function parseUsageDir(contract: Contract, dir: string): UsageFiles {
   if (!fs.existsSync(dir)) return out;
   const domains = new Map([...contract.domains.keys()].flatMap((d) => [[keyOf(d), d], [keyOf(slugOf(d)), d]]));
   for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".md")).sort()) {
-    const m = /^(.+?)(\.pt-br)?\.md$/i.exec(file)!;
-    const domain = domains.get(keyOf(m[1]));
+    const { stem, locale } = parseUsageFileName(file)!;
+    const domain = domains.get(keyOf(stem));
     if (!domain) {
-      if (!/^readme$/i.test(m[1])) out.warnings.push(`${file}: no contract domain named "${m[1]}"`);
+      if (!/^readme$/i.test(stem)) out.warnings.push(`${file}: no contract domain named "${stem}"`);
       continue;
     }
-    for (const s of splitSections(fs.readFileSync(path.join(dir, file), "utf8"))) {
-      const fn = resolveHeading(contract, domain, s.heading);
-      if (!fn) {
-        const ops = [...contract.functions.values()].filter((f) => f.domain === domain).map((f) => f.operation);
-        out.warnings.push(`${file}: "## ${s.heading}" is not an operation of ${domain} (${ops.join(", ")})`);
+    const ops = operationsOf(contract, domain);
+    for (const s of splitSections(stripFrontMatter(fs.readFileSync(path.join(dir, file), "utf8")))) {
+      const op = resolveOperation(ops, s.heading);
+      if (!op) {
+        const known = [...contract.functions.values()].filter((f) => f.domain === domain).map((f) => f.operation);
+        out.warnings.push(`${file}: "## ${s.heading}" is not an operation of ${domain} (${known.join(", ")})`);
         continue;
       }
-      out.sections.push({ file, locale: m[2] ? "pt-BR" : "en", fn, body: s.body });
+      out.sections.push({ file, locale, fn: `${domain}.${op}`, body: s.body });
     }
   }
   return out;
@@ -88,27 +87,16 @@ export function parseUsageDir(contract: Contract, dir: string): UsageFiles {
 /**
  * A reference page: one Markdown file whose `##`/`###` headings are the lib's own symbol names
  * (`### isValidCpf`), the way many libs already document their API. Each section documents the
- * contract function the validator bound to that symbol; other headings are ignored. The text
- * before the first heading (after any front matter title) is returned as `intro`.
+ * contract function the validator bound to that symbol; other headings are ignored. `intro` is
+ * what the site shows on the lib's page (see referenceSections in site/src/lib/usage-format.mjs).
  */
 export function parseReference(report: LibReport, file: string, content: string, locale: "en" | "pt-BR"): { sections: UsageSection[]; intro: string } {
-  const bySymbol = new Map<string, string>();
-  for (const f of report.functions) if (f.symbol) for (const name of new Set([f.symbol, callName(f.symbol)])) if (!bySymbol.has(name)) bySymbol.set(name, f.id);
-  const body = content.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, "");
-  const marks = [...body.matchAll(/^(#{2,3})\s+`?([^`\s]+)`?\s*$/gm)];
-  const sections: UsageSection[] = [];
-  marks.forEach((m, i) => {
-    const fn = bySymbol.get(m[2]);
-    if (!fn) return;
-    const end = marks[i + 1]?.index;
-    sections.push({ file, locale, fn, body: body.slice(m.index! + m[0].length, end).trim() });
-  });
-  const first = marks[0]?.index ?? body.length;
-  return { sections, intro: body.slice(0, first).trim() };
+  const { sections, intro } = referenceSections(stripFrontMatter(content), symbolMap(report.functions.map((f) => [f.id, f.symbol] as const)));
+  return { sections: sections.map((s) => ({ file, locale, fn: s.fnId, body: s.body })), intro };
 }
 
 /** The reference pages a lib declares (`site.usage.reference`), per locale. */
-export function referenceFilesFor(lib: LibConfig, root: string, report: LibReport): UsageSection[] {
+function referenceFilesFor(lib: LibConfig, root: string, report: LibReport): UsageSection[] {
   const ref = lib.site?.usage.reference;
   if (!ref) return [];
   const out: UsageSection[] = [];
@@ -120,23 +108,29 @@ export function referenceFilesFor(lib: LibConfig, root: string, report: LibRepor
 }
 
 /**
- * The lib's own usage: its usage files, plus its reference page for the functions they do not
- * cover. Without either, the site's fixtures for it.
+ * What a lib documents itself, in its checkout at `root`: its usage files, plus its reference
+ * page for the function/locale pairs they do not cover (the site reads them the same way).
+ * `dir` is the reference page when only the page contributes.
  */
-export function usageFilesFor(contract: Contract, lib: LibConfig, root: string | undefined, fixturesDir: string, report?: LibReport): UsageFiles {
-  const own = root && lib.site ? parseUsageDir(contract, path.join(root, lib.site.usage.path)) : undefined;
-  if (own && root && report) {
-    const have = new Set(own.sections.map((s) => `${s.fn}/${s.locale}`));
-    const fromReference = referenceFilesFor(lib, root, report).filter((s) => !have.has(`${s.fn}/${s.locale}`));
-    if (fromReference.length && !have.size) own.dir = path.join(root, lib.site!.usage.reference!.en);
-    own.sections.push(...fromReference);
-  }
-  if (own && own.sections.length) return own;
-  const fixtures = parseUsageDir(contract, path.join(fixturesDir, shortName(lib)));
-  return fixtures.sections.length || fixtures.warnings.length ? fixtures : { sections: [], warnings: [] };
+export function ownUsage(contract: Contract, lib: LibConfig, root: string, report: LibReport): UsageFiles {
+  if (!lib.site) return { sections: [], warnings: [] };
+  const own = parseUsageDir(contract, path.join(root, lib.site.usage.path));
+  const have = new Set(own.sections.map((s) => `${s.fn}/${s.locale}`));
+  const fromReference = referenceFilesFor(lib, root, report).filter((s) => !have.has(`${s.fn}/${s.locale}`));
+  if (fromReference.length && !have.size) own.dir = path.join(root, lib.site.usage.reference!.en);
+  own.sections.push(...fromReference);
+  return own;
 }
 
-export const shortName = (lib: LibConfig) => lib.name.replace(/^brazilian-utils-/, "");
+/** The lib's own usage (ownUsage); without any, the site's fixtures for it. */
+export function usageFilesFor(contract: Contract, lib: LibConfig, root: string | undefined, fixturesDir: string, report: LibReport): UsageFiles {
+  const own = root && lib.site ? ownUsage(contract, lib, root, report) : undefined;
+  if (own && own.sections.length) return own;
+  const fixtures = parseUsageDir(contract, path.join(fixturesDir, shortName(lib.name)));
+  const warnings = [...(own?.warnings ?? []), ...fixtures.warnings];
+  return fixtures.sections.length || fixtures.warnings.length ? { ...fixtures, warnings } : { sections: [], warnings };
+}
+
 const implemented = (f?: FunctionReport) => f?.status === "ok" || f?.status === "failing" || f?.status === "signature";
 /** The name an example must mention: the last segment of the native symbol. */
 const callName = (symbol: string) => symbol.split(/[.:]/).pop()!;
@@ -166,14 +160,18 @@ export interface UsageSummary {
   implemented: number;
   documented: number;
   problems: number;
+  /** Contract functions the lib implements without a usage section. */
+  undocumented: string[];
 }
 
+/** Totals over the contract functions (the ones `usage` has an entry for). */
 export function summarizeUsage(report: LibReport, usage: Record<string, FunctionUsage>): UsageSummary {
-  const impl = report.functions.filter(implemented);
+  const impl = report.functions.filter((f) => implemented(f) && usage[f.id]);
   return {
     implemented: impl.length,
-    documented: impl.filter((f) => usage[f.id]?.documented).length,
-    problems: Object.values(usage).reduce((n, u) => n + u.problems.length, 0)
+    documented: impl.filter((f) => usage[f.id].documented).length,
+    problems: Object.values(usage).reduce((n, u) => n + u.problems.length, 0),
+    undocumented: impl.filter((f) => !usage[f.id].documented).map((f) => f.id)
   };
 }
 
@@ -204,8 +202,6 @@ interface Target {
 type Renderer = { fence: string; render: (t: Target) => string[] | undefined };
 
 const RANDOM = "random valid value";
-/** Same order as the site shows operations in. */
-const OP_ORDER = ["isValid", "format", "parse", "removeSymbols", "generate", "getInfo", "get", "list"];
 const truncate = (s: string, n = 90) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 
 function quote(s: string, q: "'" | '"'): string {
@@ -224,16 +220,25 @@ function literal(v: unknown, o: { q: "'" | '"'; t: string; f: string; nil: strin
   return `${o.map[0]}${entries.join(", ")}${o.map[1]}`;
 }
 
-const JS = { q: "'" as const, t: "true", f: "false", nil: "null", key: (k: string) => `${k}: `, map: ["{ ", " }"] as [string, string], arr: ["[", "]"] as [string, string] };
-const PY = { q: "'" as const, t: "True", f: "False", nil: "None", key: (k: string) => `'${k}': `, map: ["{", "}"] as [string, string], arr: ["[", "]"] as [string, string] };
-const RB = { q: "'" as const, t: "true", f: "false", nil: "nil", key: (k: string) => `${k}: `, map: ["{ ", " }"] as [string, string], arr: ["[", "]"] as [string, string] };
-const DQ = { q: '"' as const, t: "true", f: "false", nil: "null", key: (k: string) => `${k}: `, map: ["{ ", " }"] as [string, string], arr: ["[", "]"] as [string, string] };
-const ERL = {
-  q: '"' as const, t: "true", f: "false", nil: "undefined",
-  key: (k: string) => `${k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)} => `,
-  map: ["#{", "}"] as [string, string], arr: ["[", "]"] as [string, string]
-};
-const erl = (v: unknown): string => (typeof v === "string" ? `<<${quote(v, '"')}${/^[\x00-\x7f]*$/.test(v) ? "" : "/utf8"}>>` : Array.isArray(v) ? `[${v.map(erl).join(", ")}]` : v && typeof v === "object" ? `#{${Object.entries(v).map(([k, x]) => `${ERL.key(k)}${erl(x)}`).join(", ")}}` : literal(v, ERL));
+type Syntax = Parameters<typeof literal>[1];
+const JS: Syntax = { q: "'", t: "true", f: "false", nil: "null", key: (k) => `${k}: `, map: ["{ ", " }"], arr: ["[", "]"] };
+const PY: Syntax = { q: "'", t: "True", f: "False", nil: "None", key: (k) => `'${k}': `, map: ["{", "}"], arr: ["[", "]"] };
+const RB: Syntax = { ...JS, nil: "nil" };
+const DQ: Syntax = { ...JS, q: '"' };
+const GO: Syntax = { ...DQ, nil: "nil" };
+const RS: Syntax = { ...DQ, nil: "None" };
+/** Erlang terms: binaries for strings, maps with snake_case atom keys, `undefined` for null. */
+const erl = (v: unknown): string =>
+  typeof v === "string"
+    ? `<<${quote(v, '"')}${/^[\x00-\x7f]*$/.test(v) ? "" : "/utf8"}>>`
+    : Array.isArray(v)
+      ? `[${v.map(erl).join(", ")}]`
+      : v && typeof v === "object"
+        ? `#{${Object.entries(v).map(([k, x]) => `${k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`)} => ${erl(x)}`).join(", ")}}`
+        : v === null || v === undefined
+          ? "undefined"
+          : String(v);
+const argList = (args: unknown[], syntax: Syntax) => args.map((a) => literal(a, syntax)).join(", ");
 
 /** Lines `call  <comment> result`, aligned. */
 function calls(rows: Array<[string, string | undefined]>, comment: string): string[] {
@@ -251,7 +256,7 @@ const RENDERERS: Record<string, Renderer> = {
       return [
         `import { ${name} } from '${t.lib.site?.package ?? t.lib.name}';`,
         "",
-        ...calls(t.examples.map((e) => [`${name}(${e.args.map((a) => literal(a, JS)).join(", ")});`, isRandom(e) ? RANDOM : truncate(literal(e.value, JS))]), "//")
+        ...calls(t.examples.map((e) => [`${name}(${argList(e.args, JS)});`, isRandom(e) ? RANDOM : truncate(literal(e.value, JS))]), "//")
       ];
     }
   },
@@ -264,7 +269,7 @@ const RENDERERS: Record<string, Renderer> = {
       return [
         `from ${from} import ${name}`,
         "",
-        ...calls(t.examples.map((e) => [`${name}(${e.args.map((a) => literal(a, PY)).join(", ")})`, isRandom(e) ? RANDOM : truncate(literal(e.value, PY))]), "#")
+        ...calls(t.examples.map((e) => [`${name}(${argList(e.args, PY)})`, isRandom(e) ? RANDOM : truncate(literal(e.value, PY))]), "#")
       ];
     }
   },
@@ -273,10 +278,10 @@ const RENDERERS: Record<string, Renderer> = {
     render: (t) => {
       const ns = (t.lib.options.namespace as string | undefined) ?? "BrazilianUtils";
       const req = t.file?.replace(/^lib\//, "").replace(/\.rb$/, "");
-      const call = `${ns}::${t.symbol.replace(/\.([^.]+)$/, ".$1")}`;
+      const call = `${ns}::${t.symbol}`;
       return [
         ...(req ? [`require '${req}'`, ""] : []),
-        ...calls(t.examples.map((e) => [`${call}(${e.args.map((a) => literal(a, RB)).join(", ")})`, isRandom(e) ? RANDOM : truncate(literal(e.value, RB))]), "# =>")
+        ...calls(t.examples.map((e) => [`${call}(${argList(e.args, RB)})`, isRandom(e) ? RANDOM : truncate(literal(e.value, RB))]), "# =>")
       ];
     }
   },
@@ -287,11 +292,11 @@ const RENDERERS: Record<string, Renderer> = {
       const fallible = /\berror\)?\s*$/.test(t.returns ?? "");
       const rows: Array<[string, string | undefined]> = [];
       for (const e of t.examples) {
-        const call = `${pkg}.${name}(${e.args.map((a) => literal(a, DQ)).join(", ")})`;
+        const call = `${pkg}.${name}(${argList(e.args, DQ)})`;
         if (isRandom(e)) rows.push([call, RANDOM]);
         else if (e.value === null) {
           if (fallible) rows.push([call, "error"]);
-        } else rows.push([call, truncate(fallible ? `${literal(e.value, { ...DQ, nil: "nil" })}, nil` : literal(e.value, { ...DQ, nil: "nil" }))]);
+        } else rows.push([call, truncate(fallible ? `${literal(e.value, GO)}, nil` : literal(e.value, GO))]);
       }
       if (!rows.length) return undefined;
       return [`import "${t.lib.site?.package ?? "github.com/brazilian-utils/go"}/${pkg}"`, "", ...calls(rows, "//")];
@@ -303,14 +308,14 @@ const RENDERERS: Record<string, Renderer> = {
       const [mod, name] = t.symbol.split(".");
       const ret = t.returns ?? "";
       const wrap = (v: unknown) => {
-        const lit = literal(v, { ...DQ, nil: "None" });
+        const lit = literal(v, RS);
         if (/^Option</.test(ret)) return v === null ? "None" : `Some(${lit})`;
         if (/^Result</.test(ret)) return v === null ? "Err(_)" : `Ok(${lit})`;
         return v === null ? undefined : lit;
       };
       const rows: Array<[string, string | undefined]> = [];
       for (const e of t.examples) {
-        const call = `${mod}::${name}(${e.args.map((a) => literal(a, DQ)).join(", ")});`;
+        const call = `${mod}::${name}(${argList(e.args, DQ)});`;
         const r = isRandom(e) ? RANDOM : wrap(e.value);
         if (r !== undefined) rows.push([call, truncate(r)]);
       }
@@ -353,7 +358,7 @@ const RENDERERS: Record<string, Renderer> = {
 };
 
 /** Up to `max` examples from the cases the lib passes: distinct results first, short inputs first. */
-export function pickExamples(fn: ContractFunction, f: FunctionReport, max = 3): Example[] {
+function pickExamples(fn: ContractFunction, f: FunctionReport, max = 3): Example[] {
   const passed = new Set(f.tests.filter((t) => t.status === "pass").map((t) => t.id));
   const tests = fn.tests.filter((t) => passed.has(t.id) && (t.expect.kind === "returns" || t.expect.kind === "satisfies"));
   const random = tests.find((t) => t.expect.kind === "satisfies");
@@ -402,10 +407,7 @@ export function scaffoldUsage(input: ScaffoldInput, read: (file: string) => stri
   if (!renderer) return out;
   const documented = new Set([...input.existing.sections, ...(input.alsoDocumented ?? [])].filter((s) => s.locale === "en").map((s) => s.fn));
   const byDomain = new Map<string, string[]>();
-  const order = (id: string) => {
-    const i = OP_ORDER.indexOf(input.contract.functions.get(id)?.operation ?? "");
-    return i < 0 ? OP_ORDER.length : i;
-  };
+  const order = (id: string) => opRank(input.contract.functions.get(id)?.operation ?? "");
   const fns = [...input.report.functions].sort((a, b) => a.id.split(".")[0].localeCompare(b.id.split(".")[0]) || order(a.id) - order(b.id) || a.id.localeCompare(b.id));
   for (const f of fns) {
     const fn = input.contract.functions.get(f.id);
@@ -425,7 +427,8 @@ export function scaffoldUsage(input: ScaffoldInput, read: (file: string) => stri
     if (!code) continue;
     byDomain.set(fn.domain, [...(byDomain.get(fn.domain) ?? []), `## ${fn.operation}\n\n\`\`\`${renderer.fence}\n${code.join("\n")}\n\`\`\`\n`]);
   }
-  const fileOf = new Map(input.existing.sections.map((s) => [input.contract.functions.get(s.fn)!.domain, s.file]));
+  // English sections only: a scaffold is English and never goes into `<slug>.pt-br.md`.
+  const fileOf = new Map(input.existing.sections.filter((s) => s.locale === "en").map((s) => [input.contract.functions.get(s.fn)!.domain, s.file]));
   for (const [domain, sections] of byDomain) {
     const file = fileOf.get(domain) ?? `${slugOf(domain)}.md`;
     const current = read(file);
@@ -435,7 +438,7 @@ export function scaffoldUsage(input: ScaffoldInput, read: (file: string) => stri
   return out;
 }
 
-export const SCAFFOLD_HEADER =
+const SCAFFOLD_HEADER =
   "<!-- Usage examples for the brazilian-utils docs site: one `## <operation>` section per contract function.\n" +
   "     Sections were scaffolded by `api-validator usage --scaffold` from the shared cases this lib passes; edit them freely. -->";
 
@@ -446,7 +449,6 @@ export const SCAFFOLD_HEADER =
  * a reference page to usage files.
  */
 export function materializeUsage(contract: Contract, sections: UsageSection[], source: string): Map<string, string> {
-  const rank = (op: string) => (OP_ORDER.includes(op) ? OP_ORDER.indexOf(op) : OP_ORDER.length);
   const groups = new Map<string, UsageSection[]>();
   for (const s of sections) {
     const fn = contract.functions.get(s.fn);
@@ -459,7 +461,7 @@ export function materializeUsage(contract: Contract, sections: UsageSection[], s
   const out = new Map<string, string>();
   for (const [file, list] of [...groups].sort(([a], [b]) => a.localeCompare(b))) {
     const op = (s: UsageSection) => contract.functions.get(s.fn)!.operation;
-    list.sort((a, b) => rank(op(a)) - rank(op(b)) || op(a).localeCompare(op(b)));
+    list.sort((a, b) => opRank(op(a)) - opRank(op(b)) || op(a).localeCompare(op(b)));
     out.set(file, [`<!-- Generated by \`api-validator usage --materialize\` from ${source}. -->`, "", ...list.map((s) => `## ${op(s)}\n\n${s.body}\n`)].join("\n"));
   }
   return out;

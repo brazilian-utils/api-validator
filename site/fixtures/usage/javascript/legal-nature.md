@@ -135,5 +135,3 @@ getLegalNaturesByCategory('2').length; // 30
 getLegalNaturesByCategory('2', { includeLegacy: true }).length; // 33
 getLegalNaturesByCategory('9'); // []
 ```
-
-## Voter ID (título de eleitor)

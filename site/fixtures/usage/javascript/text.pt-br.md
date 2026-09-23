@@ -54,5 +54,3 @@ removeAccents('Ceará'); // 'Ceara'
 removeAccents('Açaí'); // 'Acai'
 removeAccents(''); // ''
 ```
-
-## Inscrição estadual (IE)

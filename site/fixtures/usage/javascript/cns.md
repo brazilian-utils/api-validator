@@ -44,5 +44,3 @@ import { parseCns } from '@brazilian-utils/brazilian-utils';
 
 parseCns('123 4567 8901 0000'); // '123456789010000'
 ```
-
-## Certidão (civil registry certificate)

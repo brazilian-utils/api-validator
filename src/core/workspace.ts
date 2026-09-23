@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { LanguageAdapter } from "../languages/types.js";
+import type { AdapterContext, LanguageAdapter } from "../languages/types.js";
 import { getAdapter } from "../languages/registry.js";
 import type { LibConfig } from "./model.js";
 import { CACHE_DIR, REPOS_DIR } from "./paths.js";
@@ -11,6 +11,8 @@ export interface LibWorkspace {
   adapter: LanguageAdapter;
   root: string;
   workDir: string;
+  /** What adapters take: the lib, its root and its work dir. */
+  ctx: AdapterContext;
 }
 
 /** Where a lib lives: an explicit `--path` (a lib's own CI) or the synced clone. */
@@ -21,7 +23,7 @@ export function workspaceFor(lib: LibConfig, explicitPath?: string): LibWorkspac
   }
   const workDir = path.join(CACHE_DIR, lib.name);
   fs.mkdirSync(workDir, { recursive: true });
-  return { lib, adapter: getAdapter(lib.language), root, workDir };
+  return { lib, adapter: getAdapter(lib.language), root, workDir, ctx: { lib, root, workDir } };
 }
 
 export function syncRepo(lib: LibConfig, opts: { branch?: string; shallow?: boolean } = {}): void {

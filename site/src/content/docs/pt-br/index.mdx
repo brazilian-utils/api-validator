@@ -1,47 +1,31 @@
 ---
 title: Brazilian Utils
-description: Valide, formate e gere dados brasileiros em JavaScript, Python, Go, Ruby, Rust, .NET e Erlang. Uma spec, um site, todas as linguagens.
+description: Valide, formate e gere documentos brasileiros em JavaScript, Python, Go, Ruby, Rust, .NET e Erlang.
 template: splash
-hero:
-  tagline: Uma spec para cada documento, formato e código brasileiro. Sete bibliotecas que a seguem. Um só lugar para ler sobre todas.
-  image:
-    file: ../../../assets/icon.png
-    alt: Brazilian Utils
-  actions:
-    - text: Primeiros passos
-      link: /pt-br/getting-started/
-      icon: right-arrow
-    - text: Ver utilitários
-      link: /pt-br/utils/cpf/
-      variant: minimal
-    - text: GitHub
-      link: https://github.com/brazilian-utils
-      icon: external
-      variant: minimal
+editUrl: false
+lastUpdated: false
 ---
 
-import LibCards from '@components/LibCards.astro';
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import Specimen from '@components/Specimen.astro';
+import LibTable from '@components/LibTable.astro';
 
-## Escolha sua linguagem
+Sete bibliotecas validam, formatam e geram documentos brasileiros: CPF, CNPJ, CEP, placas, boletos e outros. Um contrato define cada função e os casos de teste dela. Este site mostra o contrato e como cada biblioteca o segue.
 
-Toda biblioteca expõe as mesmas operações, com o nome que aquela linguagem espera. As abas de cada página lembram sua escolha no site inteiro.
+<Specimen />
 
-<LibCards />
+## Bibliotecas
 
-## Como cada utilitário é documentado
+Todas as bibliotecas têm as mesmas funções, com nomes no estilo de cada linguagem. Escolha a linguagem uma vez numa aba de uso. O site mantém essa aba aberta em todas as páginas.
 
-<CardGrid>
-  <Card title="A regra, uma vez" icon="document">
-    O que é o identificador, como é validado e formatado, e a fonte oficial do governo. Escrito uma vez na spec e compartilhado por todas as bibliotecas.
-  </Card>
-  <Card title="Uso, por linguagem" icon="laptop">
-    Import, chamada, resultado. Uma aba por biblioteca, puxada direto de cada repositório, para nunca divergir do pacote publicado.
-  </Card>
-  <Card title="Casos de teste legíveis" icon="approve-check">
-    Os casos que toda implementação precisa passar ficam na página, para você ver o que "válido" significa antes de depender disso.
-  </Card>
-  <Card title="Português e English" icon="translate">
-    O site segue o idioma do seu navegador na primeira visita. Troque quando quiser; a escolha fica salva.
-  </Card>
-</CardGrid>
+<LibTable />
+
+## Como o site continua correto
+
+1. Uma função nova entra primeiro no contrato, com os casos de teste.
+2. Cada biblioteca que não tem a função recebe uma issue.
+3. Cada biblioteca roda os casos de teste compartilhados com o próprio comando de teste.
+4. O site mostra o contrato, um exemplo de cada biblioteca e o resultado da última execução dos testes.
+
+O site abre em português quando o navegador prefere português. O menu de idioma muda isso, e o site guarda a sua escolha.
+
+Comece por [primeiros passos](/pt-br/getting-started/), compare as bibliotecas na [matriz de paridade](/pt-br/reference/parity/) ou [adicione uma função ao contrato](/pt-br/contributing/specs/).

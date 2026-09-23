@@ -1,36 +1,32 @@
 ---
 /**
- * One chip per library for a contract operation: implemented and passing every shared case,
- * implemented with failing cases, implemented with a different signature, or missing.
- * Comes from the last api-validator run (.generated/status.json); renders nothing without it.
+ * Under each operation: its status in every library, from the last api-validator run
+ * (.generated/status.json). Each entry links to the library's status page. Nothing without a run.
  */
-import { loadLibs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
-import { STATUS_MARK } from '@lib/text.mjs';
+import { loadLibs, loadStatus } from '@lib/registry.mjs';
+import { STATUS_CLASS, STATUS_MARK } from '@lib/text.mjs';
+import { pageContext } from '@lib/page';
 
 interface Props {
   fn: string;
 }
 
 const { fn } = Astro.props;
-const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
-const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
+const { prefix } = pageContext(Astro);
 const status = loadStatus();
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
-const chips = status
-  ? loadLibs().map((lib) => ({ lib, f: status.libs[lib.id]?.functions?.[fn] })).filter(({ f }) => f)
-  : [];
+const entries = status ? loadLibs().map((lib) => ({ lib, f: status.libs[lib.id]?.functions?.[fn] })).filter(({ f }) => f) : [];
 ---
 
-{chips.length > 0 && (
+{entries.length > 0 && (
   <ul class="op-status not-content" aria-label={t('status.label')}>
-    {chips.map(({ lib, f }) => (
-      <li class={`chip s-${f.status}`}>
-        <a href={`${prefix}/libs/${lib.id}/`} title={[t(`status.${f.status}` as any), f.symbol, f.failed ? t('status.failedCases', { count: f.failed }) : ''].filter(Boolean).join(' · ')}>
-          <span class="mark" aria-hidden="true">{STATUS_MARK[f.status as keyof typeof STATUS_MARK]}</span>
+    {entries.map(({ lib, f }) => (
+      <li>
+        <a href={`${prefix}/libs/${lib.id}/`} title={f.symbol}>
+          <span class={STATUS_CLASS[f.status as keyof typeof STATUS_CLASS]} aria-hidden="true">{STATUS_MARK[f.status as keyof typeof STATUS_MARK]}</span>
           {lib.label}
-          {f.status === 'failing' && <span class="count">{f.failed}</span>}
+          <span class="sr-only">: {t(`status.${f.status}` as any)}</span>
+          {f.status === 'failing' && <span class="bu-fail">{t('status.failedCases', { count: f.failed })}</span>}
         </a>
       </li>
     ))}
@@ -41,30 +37,22 @@ const chips = status
   .op-status {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.25rem 1.1rem;
     list-style: none;
     padding: 0;
-    margin: 0.5rem 0 1rem;
+    margin: 0.75rem 0 1rem;
+    font-size: var(--sl-text-sm);
   }
-  .chip {
+  li {
     margin: 0;
   }
-  .chip a {
+  a {
     display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.1rem 0.55rem;
-    border-radius: 999px;
-    border: 1px solid var(--sl-color-hairline);
-    font-size: var(--sl-text-xs);
-    text-decoration: none;
+    gap: 0.35rem;
     color: var(--sl-color-gray-2);
+    text-decoration: none;
   }
-  .s-ok a { border-color: var(--sl-color-green); }
-  .s-ok .mark { color: var(--sl-color-green); }
-  .s-failing a { border-color: var(--sl-color-red); }
-  .s-failing .mark, .s-failing .count { color: var(--sl-color-red); }
-  .s-signature .mark { color: var(--sl-color-orange); }
-  .s-missing a, .s-waived a { color: var(--sl-color-gray-4); border-style: dashed; }
-  .count { font-variant-numeric: tabular-nums; font-weight: 600; }
+  a:hover {
+    text-decoration: underline;
+  }
 </style>

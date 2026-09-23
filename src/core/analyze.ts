@@ -16,7 +16,7 @@ import type {
 import { bestOverload } from "./signature.js";
 import { which } from "./shell.js";
 
-export function gitRevision(root: string): string | undefined {
+function gitRevision(root: string): string | undefined {
   try {
     return execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
   } catch {
@@ -130,6 +130,7 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
   const unmappedSymbols = surface.symbols.filter(
     (s) => !s.deprecated && !mappedTargets.has(index.target(s)) && !isIgnored(lib, s.name)
   );
+  const missingFns = allFns.filter((fn) => functions.find((r) => r.id === fn.id)?.status === "missing");
   const seenTargets = new Set<string>();
   const unmapped = unmappedSymbols
     .filter((s) => {
@@ -142,10 +143,7 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
     .map((s) => ({
       symbol: s.name,
       location: index.definition(s).location ?? s.location,
-      suggestions: suggestFunctions(
-        s.name,
-        allFns.filter((fn) => functions.find((r) => r.id === fn.id)?.status === "missing")
-      )
+      suggestions: suggestFunctions(s.name, missingFns)
     }));
 
   for (const report of functions) {

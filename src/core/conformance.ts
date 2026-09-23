@@ -49,7 +49,8 @@ interface Planned {
   callIds: string[];
 }
 
-function knownFailure(lib: LibConfig, test: ContractTest, fn: ContractFunction): string | undefined {
+/** Why a case is known to fail in a lib (listed by case id, or for the whole function), if it is. */
+export function knownFailure(lib: LibConfig, test: ContractTest, fn: ContractFunction): string | undefined {
   return lib.knownFailures[test.id] ?? lib.knownFailures[fn.id];
 }
 

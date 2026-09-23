@@ -51,13 +51,13 @@ export function fsharpLiteral(t: TypeNode | undefined, value: unknown): string {
 }
 
 /** F# call of `call.symbol` with its JSON args (curried or tupled as the function declares). */
-export function callExpr(call: Pick<RunnerCall, "symbol" | "args">): string {
+function callExpr(call: Pick<RunnerCall, "symbol" | "args">): string {
   const params = call.symbol.params;
   return applyExpr(call.symbol, call.args.map((a, k) => () => fsharpLiteral(params[k]?.typeNode, a)));
 }
 
 /** F# application of `symbol` to already rendered argument expressions (thunks, rendered in order). */
-export function applyExpr(symbol: NativeSymbol, args: Array<() => string>): string {
+function applyExpr(symbol: NativeSymbol, args: Array<() => string>): string {
   const meta = symbol.meta as { qualified?: string; groups?: number[] } | undefined;
   if (!meta?.qualified) throw new Unsupported("symbol has no .NET metadata");
   const groups = meta.groups ?? [symbol.params.length];
@@ -102,7 +102,7 @@ function findProject(dir: string): string | undefined {
 const ENV = { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: "1", DOTNET_NOLOGO: "1" };
 
 /** Build the lib into the work dir and return its assembly (the checkout stays clean). */
-export function buildDotnetLib(ctx: AdapterContext): { dll: string } | { error: string } {
+function buildDotnetLib(ctx: AdapterContext): { dll: string } | { error: string } {
   const project = findProject(path.join(ctx.root, ctx.lib.entry)) ?? findProject(ctx.root);
   if (!project) return { error: "no .fsproj/.csproj found" };
   const artifacts = path.join(ctx.workDir, "lib-artifacts");

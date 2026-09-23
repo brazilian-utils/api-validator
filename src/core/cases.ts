@@ -14,9 +14,10 @@
  */
 import crypto from "node:crypto";
 import type { Baseline } from "./baseline.js";
+import { knownFailure } from "./conformance.js";
 import type { Contract, ContractFunction, ContractTest, LibConfig } from "./model.js";
 
-export const CASES_FORMAT = 1;
+const CASES_FORMAT = 1;
 
 export interface CaseJson {
   id: string;
@@ -46,7 +47,7 @@ export interface DomainJson {
   functions: FunctionJson[];
 }
 
-export const COMPARISON_RULES = [
+const COMPARISON_RULES = [
   "returns: the result equals the value. Numbers: |a - b| <= 1e-9 * max(1, |a|). Objects: keys compared after lowercasing and removing every character that is not a-z or 0-9 (zipCode == zip_code == ZipCode); a null field equals an absent one. Arrays: same length, element-wise.",
   "returns null: the idiomatic 'no result' (null, None, nil, Option::None, undefined, an Erlang {error, _}).",
   "throws: the call fails the idiomatic way (exception, Err, (T, error) with error, {error, _}).",
@@ -118,11 +119,11 @@ const EQUALITY_PAIRS: Array<{ expected: unknown; actual: unknown; equal: boolean
 /** Pairs a harness's comparison function must judge like the validator does, with stable ids. */
 export const EQUALITY_SELF_TEST = EQUALITY_PAIRS.map((p) => ({ id: `equality#${p.why.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "")}`, ...p }));
 
-export function digestOf(files: Map<string, DomainJson>): string {
+function digestOf(files: Map<string, DomainJson>): string {
   return crypto.createHash("sha256").update(JSON.stringify([...files])).digest("hex").slice(0, 16);
 }
 
-export function indexJson(contract: Contract, files: Map<string, DomainJson>) {
+function indexJson(files: Map<string, DomainJson>) {
   const fns = [...files.values()].flatMap((d) => d.functions);
   return {
     format: CASES_FORMAT,
@@ -152,7 +153,7 @@ export function skipsFor(lib: LibConfig, contract: Contract, implemented: Set<st
     if (!implemented.has(f.id)) continue;
     for (const t of f.tests) {
       if (t.expect.kind === "satisfies" && !implemented.has(t.expect.fn)) continue;
-      const known = lib.knownFailures[t.id] ?? lib.knownFailures[f.id];
+      const known = knownFailure(lib, t, f);
       const last = outcomes?.get(t.id);
       const detail = last && last.status !== "pass" && last.message ? `: ${last.message.replace(/ \[known: .*\]$/, "")}` : "";
       if (known) out[t.id] = `known failure: ${known}`;
@@ -167,7 +168,7 @@ export function skipsFor(lib: LibConfig, contract: Contract, implemented: Set<st
   return out;
 }
 
-export const CASES_SCHEMA = {
+const CASES_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
   $id: "cases.schema.json",
   title: "brazilian-utils contract cases (one domain)",
@@ -230,7 +231,7 @@ export function suiteFiles(contract: Contract): Map<string, unknown> {
   const files = domainFiles(contract);
   const out = new Map<string, unknown>();
   out.set("cases.schema.json", CASES_SCHEMA);
-  out.set("cases/index.json", indexJson(contract, files));
+  out.set("cases/index.json", indexJson(files));
   out.set("cases/equality.json", EQUALITY_SELF_TEST);
   for (const [d, json] of files) out.set(`cases/${d}.json`, json);
   return out;

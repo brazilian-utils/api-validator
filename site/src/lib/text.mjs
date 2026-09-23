@@ -36,4 +36,13 @@ export function testIds(fnId, tests) {
   });
 }
 
-export const STATUS_MARK = { ok: '●', failing: '✕', signature: '◐', missing: '○', waived: '–' };
+/** Marks for a function's status in a library, and for one shared case. Text first, color second. */
+export const STATUS_MARK = { ok: '✓', failing: '✕', signature: '!', missing: '–', waived: '–' };
+export const STATUS_CLASS = { ok: 'bu-ok', failing: 'bu-fail', signature: 'bu-warn', missing: 'bu-none', waived: 'bu-none' };
+export const CASE_MARK = { pass: '✓', fail: '✕', 'known-failure': '✕', skip: '–' };
+
+/** Implemented: present in the library, whatever its cases do. */
+export const isImplemented = (f) => f?.status === 'ok' || f?.status === 'failing';
+
+/** Link to one operation on its utility page (the heading id Starlight gives its label). */
+export const opPath = (prefix, spec, op, locale) => `${prefix}/utils/${spec.id}/#${headingSlug(op.label[locale] ?? op.label.en)}`;

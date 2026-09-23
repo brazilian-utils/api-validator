@@ -1,42 +1,42 @@
 ---
-title: Portando para outra linguagem
-description: Como implementar um utilitário numa biblioteca que ainda não tem, ou começar uma biblioteca nova.
+title: Porte para uma nova linguagem
+description: Implemente um utilitário numa biblioteca que ainda não o tem, ou comece uma biblioteca numa linguagem nova.
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas, e a [página de cada biblioteca](/pt-br/libs/python/) lista o que falta nela. Cada lacuna é uma contribuição fechada: a regra está escrita, os casos de teste existem e, na maioria das vezes, já há uma issue `implement` aberta no repositório da biblioteca com a implementação de referência e os casos.
+A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas. A página de cada biblioteca, por exemplo [Python](/pt-br/libs/python/), lista o que falta nela. Cada lacuna é uma contribuição separada. A regra e os casos de teste já existem. Em geral, o repositório da biblioteca já tem uma issue `implement` com o código de referência e os casos de teste.
 
-## Adicionando um utilitário a uma biblioteca existente
+## Adicione um utilitário a uma biblioteca
 
 <Steps>
 
-1. **Leia a página do utilitário.** A spec e os casos de teste são o comportamento inteiro. As abas das outras bibliotecas mostram como elas fizeram.
+1. **Leia a página do utilitário.** A spec e os casos de teste definem o comportamento inteiro. As abas das outras bibliotecas mostram o código delas.
 
-2. **Implemente** seguindo o `CONTRIBUTING.md` da biblioteca. Dê nomes do jeito da linguagem (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); o contrato não impõe nomes, o validador os encontra por convenção ou por um binding em `libs/<lib>.json`.
+2. **Implemente a função.** Siga o `CONTRIBUTING.md` da biblioteca. Use os nomes que a linguagem espera, por exemplo `isValidCpf`, `is_valid_cpf` ou `cpf.IsValid`. O contrato não define os nomes. O validador encontra uma função pelo nome, ou por um binding em `libs/<lib>.json`.
 
-3. **Registre no harness da biblioteca.** O harness lê o `api-contract/cases/*.json` vendorizado e roda todos os casos de cada função que conhece, com o comando de teste da própria biblioteca.
+3. **Registre a função no harness da biblioteca.** O harness lê a cópia de `api-contract/cases/*.json` na biblioteca. Ele roda todos os casos de todas as funções que conhece, com o próprio comando de teste da biblioteca.
 
-4. **Adicione a seção de uso** em `docs/usage/<util>.md` ([arquivos de uso](/pt-br/contributing/usage-files/)); `api-validator usage --scaffold` escreve a partir dos casos que você agora passa.
+4. **Adicione o exemplo de uso** em `docs/usage/<util>.md`. A página [arquivos de uso](/pt-br/contributing/usage-files/) descreve o formato. `api-validator usage --scaffold` escreve o exemplo a partir dos casos que a biblioteca passa.
 
-5. **Faça release.** A issue fecha sozinha na próxima execução do api-validator; o próximo build do site mostra sua aba e situação.
+5. **Faça a release.** A próxima execução do api-validator fecha a issue. O próximo build deste site mostra a aba nova e a situação nova.
 
 </Steps>
 
-## Começando uma biblioteca numa linguagem nova
+## Comece uma biblioteca numa linguagem nova
 
 <Steps>
 
 1. Peça à organização um repositório em `brazilian-utils/<linguagem>`.
 
-2. No api-validator, adicione um adapter de linguagem (extração da API e um runner de testes) e `libs/brazilian-utils-<linguagem>.json` com o bloco `site` (rótulo, ícone, linha de instalação, link do registry). O guia é [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md).
+2. No api-validator, adicione um adapter de linguagem e `libs/brazilian-utils-<linguagem>.json`. O adapter lê a API e roda os testes. O arquivo tem um bloco `site` com o rótulo, o ícone, o comando de instalação e o link do registro. O [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md) mostra cada passo.
 
-3. Comece pelas funções core: `api-validator issues --backfill core --lib <linguagem> --apply` abre uma issue por função core faltando.
+3. Comece pelas funções core. `api-validator issues --backfill core --lib <linguagem> --apply` abre uma issue para cada função core que falta.
 
-4. Adote o harness ([docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md)) e publique `docs/usage/` desde a primeira release.
+4. Adicione o harness à biblioteca, como o [docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md) mostra. Publique `docs/usage/` desde a primeira release.
 
 </Steps>
 
 <Aside type="tip">
-Não documente diferenças em relação a outras bibliotecas. Se uma implementação discorda do contrato, é um caso falhando para corrigir (ou uma mudança no contrato para propor), não uma nota para escrever.
+Não documente uma diferença em relação às outras bibliotecas. Se uma implementação não bate com o contrato, corrija o caso que falha ou proponha uma mudança no contrato.
 </Aside>

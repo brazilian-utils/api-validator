@@ -5,19 +5,20 @@
  * nothing) and takes the height the demo reports with
  * `parent.postMessage({ type: 'example-height', height }, origin)`.
  */
+import { BASE } from '@lib/page';
+
 interface Props {
   src: string;
   title?: string;
 }
 const { src, title } = Astro.props;
 const t = Astro.locals.t;
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const url = /^https?:\/\//.test(src) ? src : `${base}${src}`;
+const url = /^https?:\/\//.test(src) ? src : `${BASE}${src}`;
 ---
 
 <figure class="live-demo not-content">
   <figcaption>
-    <span class="dot" aria-hidden="true"></span>{t('guide.liveDemo')}{title ? ` · ${title}` : ''}
+    <span class="dot" aria-hidden="true"></span>{title ? t('guide.liveDemoOf', { title }) : t('guide.liveDemo')}
     <a href={url} target="_blank" rel="noopener">{t('guide.openDemo')}</a>
   </figcaption>
   <iframe src={url} title={`${t('guide.liveDemo')}${title ? `: ${title}` : ''}`} loading="lazy" height="160"></iframe>
@@ -57,7 +58,7 @@ const url = /^https?:\/\//.test(src) ? src : `${base}${src}`;
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background: var(--sl-color-green, #1d9d4b);
+    background: var(--bu-brand-green);
   }
   iframe {
     display: block;

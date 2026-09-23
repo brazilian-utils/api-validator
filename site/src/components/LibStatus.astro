@@ -1,88 +1,87 @@
 ---
 /**
- * Status page of one library, from the last api-validator run: where it stands next to the
- * other libraries, what to do next (failing first, then signatures, then missing core, then
- * missing extended, each ordered by how many other libraries already have it), the failing
- * cases, operations implemented but not documented, and public API outside the contract.
+ * Status page of one library, from the last api-validator run: a summary, the library next to the
+ * others, what to do next (failing first, then signatures, then missing core, then missing
+ * extended, each ordered by how many other libraries already have it), the failing cases, the
+ * functions without a usage example, and public API outside the contract.
  */
-import { Aside, Badge } from '@astrojs/starlight/components';
-import { loadLibs, loadSpecs, loadStatus, LANG_PREFIX } from '@lib/registry.mjs';
-import { headingSlug } from '@lib/text.mjs';
+import { Aside } from '@astrojs/starlight/components';
+import { loadLibs, loadSpecs, loadStatus } from '@lib/registry.mjs';
+import { isImplemented, opPath } from '@lib/text.mjs';
+import { BASE, pageContext } from '@lib/page';
 
 interface Props {
   lib: string;
 }
 
 const { lib: libId } = Astro.props;
-const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
-const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
-
+const { locale, prefix } = pageContext(Astro);
 const libs = loadLibs();
 const lib = libs.find((l) => l.id === libId)!;
 const status = loadStatus();
 const mine = status?.libs[libId];
-const specs = loadSpecs();
 
-// contract function id -> where it is documented on the site
-const where = new Map<string, { href: string; label: string; level: string }>();
-for (const spec of specs) {
-  for (const op of spec.operations) {
-    where.set(op.fnId, { href: `${prefix}/utils/${spec.id}/#${headingSlug(op.label[locale])}`, label: `${spec.title[locale]} · ${op.label[locale]}`, level: op.level });
-  }
+// contract function id -> its operation on the site
+const where = new Map<string, { href: string; label: string }>();
+for (const spec of loadSpecs()) {
+  for (const op of spec.operations) where.set(op.fnId, { href: opPath(prefix, spec, op, locale), label: `${spec.title[locale]}: ${op.label[locale]}` });
 }
-const implementedBy = (fnId: string) =>
-  libs.filter((o) => o.id !== libId && ['ok', 'failing'].includes(status?.libs[o.id]?.functions?.[fnId]?.status)).map((o) => o.label);
+const implementedBy = (fnId: string) => libs.filter((o) => o.id !== libId && isImplemented(status?.libs[o.id]?.functions?.[fnId])).map((o) => o.label);
 
 const rank = (f: any) => ({ failing: 0, signature: 1, missing: f.level === 'core' ? 2 : 3 } as Record<string, number>)[f.status] ?? 9;
-const work = mine
-  ? Object.entries(mine.functions as Record<string, any>)
-      .filter(([, f]) => rank(f) < 9)
-      .map(([id, f]) => ({ id, f, by: implementedBy(id) }))
-      .sort((a, b) => rank(a.f) - rank(b.f) || b.by.length - a.by.length || a.id.localeCompare(b.id))
-  : [];
-const failures = mine ? Object.entries(mine.functions as Record<string, any>).flatMap(([id, f]) => (f.failures ?? []).map((x: any) => ({ fn: id, ...x }))) : [];
-const undocumented = mine
-  ? Object.entries(mine.functions as Record<string, any>).filter(([, f]) => ['ok', 'failing'].includes(f.status) && f.usage && !f.usage.documented)
-  : [];
+const fns = Object.entries((mine?.functions ?? {}) as Record<string, any>);
+const work = fns
+  .filter(([, f]) => rank(f) < 9)
+  .map(([id, f]) => ({ id, f, by: implementedBy(id) }))
+  .sort((a, b) => rank(a.f) - rank(b.f) || b.by.length - a.by.length || a.id.localeCompare(b.id));
+const failures = fns.flatMap(([id, f]) => (f.failures ?? []).map((x: any) => ({ fn: id, ...x })));
+const undocumented = fns.filter(([, f]) => isImplemented(f) && f.usage && !f.usage.documented);
 const others = status ? libs.filter((l) => status.libs[l.id]).sort((a, b) => status.libs[b.id].summary.coreCoverage - status.libs[a.id].summary.coreCoverage) : [];
 const s = mine?.summary;
 const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stringify(v));
+const external = { rel: 'noopener noreferrer' };
 ---
 
-<p class="links not-content">
-  <a href={`https://github.com/${lib.repo}`}>github.com/{lib.repo}</a> · <a href={lib.registry}>{lib.registry.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a>
-  {mine?.revision && <> · <code>{mine.revision.slice(0, 7)}</code></>}
-  {' · '}<img src={`${base}/badges/${lib.id}.svg`} alt="API contract badge" height="20" />
-</p>
-<pre class="install not-content"><code>{lib.install}</code></pre>
+<dl class="facts not-content">
+  <dt>{t('lib.repository')}</dt>
+  <dd><a href={`https://github.com/${lib.repo}`} {...external}>github.com/{lib.repo}</a>{mine?.revision && <> <code>{mine.revision.slice(0, 7)}</code></>}</dd>
+  <dt>{t('lib.package')}</dt>
+  <dd><a href={lib.registry} {...external}>{lib.package}</a></dd>
+  <dt>{t('libs.install')}</dt>
+  <dd><code>{lib.install}</code></dd>
+  {mine && (
+    <>
+      <dt>{t('lib.badge')}</dt>
+      <dd><img src={`${BASE}/badges/${lib.id}.svg`} alt={t('lib.badgeAlt', { core: s.coreCoverage, passed: s.testsPassed })} height="20" /></dd>
+    </>
+  )}
+</dl>
 
 {!mine ? (
   <Aside type="note">{t('lib.noStatus')}</Aside>
 ) : (
   <>
-    <div class="stats not-content">
-      <div><b>{s.coreCoverage}%</b><span>{t('lib.core')}</span></div>
-      <div><b>{s.ok + s.failing}/{s.total}</b><span>{t('lib.implemented')}</span></div>
-      <div><b>{s.testsPassed}</b><span>{t('lib.passing')}</span></div>
-      <div><b class={s.testsFailed ? 'bad' : ''}>{s.testsFailed}</b><span>{t('lib.failing')}</span></div>
-      <div><b>{s.signature}</b><span>{t('lib.signatures')}</span></div>
-      <div><b>{mine.unmapped.length}</b><span>{t('lib.outside')}</span></div>
-    </div>
+    <p class="summary">
+      {t('lib.summary', { lib: lib.label, done: s.ok + s.failing, total: s.total, core: s.coreCoverage })}{' '}
+      {t('lib.summaryCases', { passed: s.testsPassed, failed: s.testsFailed })}{' '}
+      {s.signature > 0 && t('lib.summarySignatures', { count: s.signature })}{' '}
+      {mine.unmapped.length > 0 && t('lib.summaryOutside', { count: mine.unmapped.length })}
+    </p>
 
     <h2 id="compare">{t('lib.compare')}</h2>
     <div class="table-wrap not-content">
       <table>
-        <thead><tr><th>{t('lib.library')}</th><th>{t('lib.core')}</th><th>{t('lib.implemented')}</th><th>{t('lib.passing')}</th></tr></thead>
+        <thead>
+          <tr><th scope="col">{t('lib.library')}</th><th scope="col">{t('lib.core')}</th><th scope="col">{t('lib.implemented')}</th><th scope="col">{t('lib.passing')}</th></tr>
+        </thead>
         <tbody>
           {others.map((o) => {
             const os = status.libs[o.id].summary;
             return (
-              <tr class={o.id === libId ? 'me' : ''}>
-                <td>{o.id === libId ? <strong>{o.label}</strong> : <a href={`${prefix}/libs/${o.id}/`}>{o.label}</a>}</td>
-                <td class="num"><span class="bar"><i style={`width:${os.coreCoverage}%`} /></span> {os.coreCoverage}%</td>
+              <tr class:list={[{ me: o.id === libId }]}>
+                <th scope="row">{o.id === libId ? o.label : <a href={`${prefix}/libs/${o.id}/`}>{o.label}</a>}</th>
+                <td class="num"><span class="bar" aria-hidden="true"><i style={`width:${os.coreCoverage}%`} /></span> {os.coreCoverage}%</td>
                 <td class="num">{os.ok + os.failing}/{os.total}</td>
                 <td class="num">{os.testsPassed}</td>
               </tr>
@@ -97,14 +96,19 @@ const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stri
     {work.length === 0 ? <p>{t('lib.workDone')}</p> : (
       <div class="table-wrap not-content">
         <table>
-          <thead><tr><th>{t('lib.function')}</th><th>{t('lib.status')}</th><th>{t('lib.why')}</th><th>{t('lib.implementedBy')}</th></tr></thead>
+          <thead>
+            <tr><th scope="col">{t('lib.function')}</th><th scope="col">{t('lib.status')}</th><th scope="col">{t('lib.why')}</th><th scope="col">{t('lib.implementedBy')}</th></tr>
+          </thead>
           <tbody>
             {work.map(({ id, f, by }) => (
               <tr>
-                <td><a href={where.get(id)?.href}>{where.get(id)?.label ?? id}</a><div class="muted"><code>{id}</code>{f.level === 'core' && <> · <Badge text="core" size="small" /></>}</div></td>
-                <td><span class={`st st-${f.status}`} title={t(`status.${f.status}` as any)}>{t(`status.short.${f.status}` as any)}</span></td>
-                <td class="small">{f.status === 'failing' ? t('status.failedCases', { count: f.failed }) : f.status === 'signature' ? f.issues.join('; ') : f.suggestions?.length ? t('lib.maybe', { symbols: f.suggestions.join(', ') }) : ''}</td>
-                <td class="small">{by.length ? `${by.length}: ${by.join(', ')}` : t('lib.nobody')}</td>
+                <td>
+                  <a href={where.get(id)?.href}>{where.get(id)?.label ?? id}</a>
+                  <div class="muted"><code>{id}</code>{f.level === 'core' && ` ${t('lib.coreTag')}`}</div>
+                </td>
+                <td class:list={['nowrap', { 'bu-fail': f.status === 'failing', 'bu-warn': f.status === 'signature', 'bu-none': f.status === 'missing' }]}>{t(`status.short.${f.status}` as any)}</td>
+                <td class="small">{f.status === 'failing' ? t('status.failedCases', { count: f.failed }) : f.status === 'signature' ? f.issues.join('. ') : f.suggestions?.length ? t('lib.maybe', { symbols: f.suggestions.join(', ') }) : ''}</td>
+                <td class="small">{by.length ? by.join(', ') : t('lib.nobody')}</td>
               </tr>
             ))}
           </tbody>
@@ -117,7 +121,7 @@ const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stri
         <h2 id="failures">{t('lib.failures')}</h2>
         <div class="table-wrap not-content">
           <table>
-            <thead><tr><th>{t('lib.case')}</th><th>{t('testcases.expected')}</th><th>{t('lib.actual')}</th></tr></thead>
+            <thead><tr><th scope="col">{t('lib.case')}</th><th scope="col">{t('testcases.expected')}</th><th scope="col">{t('lib.actual')}</th></tr></thead>
             <tbody>
               {failures.map((x) => (
                 <tr><td><a href={where.get(x.fn)?.href}><code>{x.id}</code></a></td><td><code>{show(x.expected)}</code></td><td><code>{x.actual === null && x.message ? x.message : show(x.actual)}</code></td></tr>
@@ -140,31 +144,74 @@ const show = (v: unknown) => (v === undefined || v === null ? 'null' : JSON.stri
       <>
         <h2 id="outside">{t('lib.outsideTitle')}</h2>
         <p>{t('lib.outsideIntro')}</p>
-        <ul>{mine.unmapped.map((u: any) => <li><code>{u.symbol}</code>{u.suggestions.length > 0 && <span class="muted"> · {t('lib.maybe', { symbols: u.suggestions.join(', ') })}</span>}</li>)}</ul>
+        <ul>{mine.unmapped.map((u: any) => <li><code>{u.symbol}</code>{u.suggestions.length > 0 && <span class="muted"> {t('lib.maybe', { symbols: u.suggestions.join(', ') })}</span>}</li>)}</ul>
       </>
     )}
   </>
 )}
 
 <style>
-  .links { font-size: var(--sl-text-sm); display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
-  .links img { vertical-align: middle; }
-  .install { font-size: var(--sl-text-sm); padding: 0.6rem 0.8rem; border: 1px solid var(--sl-color-hairline); border-radius: 0.4rem; background: var(--sl-color-gray-6); overflow-x: auto; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1px; background: var(--sl-color-hairline); border: 1px solid var(--sl-color-hairline); border-radius: 0.5rem; overflow: hidden; margin: 1.25rem 0; }
-  .stats div { background: var(--sl-color-bg); padding: 0.75rem 0.9rem; }
-  .stats b { display: block; font-size: var(--sl-text-2xl); font-variant-numeric: tabular-nums; }
-  .stats span { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
-  .bad { color: var(--sl-color-red); }
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; font-size: var(--sl-text-sm); }
-  tr.me td { background: var(--sl-color-accent-low); }
-  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .bar { display: inline-block; width: 90px; height: 7px; border-radius: 99px; background: var(--sl-color-gray-5); overflow: hidden; vertical-align: middle; }
-  .bar i { display: block; height: 100%; background: var(--sl-color-green); }
-  .muted { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
-  .small { font-size: var(--sl-text-xs); }
-  .st { font-size: var(--sl-text-xs); font-weight: 600; white-space: nowrap; }
-  .st-failing { color: var(--sl-color-red); }
-  .st-signature { color: var(--sl-color-orange); }
-  .st-missing { color: var(--sl-color-gray-3); }
+  .facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1.25rem;
+    margin: 0 0 1.5rem;
+    font-size: var(--sl-text-sm);
+  }
+  .facts dt {
+    color: var(--sl-color-gray-3);
+  }
+  .facts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .facts a {
+    color: var(--bu-link);
+  }
+  .facts img {
+    vertical-align: middle;
+  }
+  .summary {
+    font-size: var(--sl-text-lg);
+    max-width: 62ch;
+  }
+  .table-wrap {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    font-size: var(--sl-text-sm);
+  }
+  tbody th {
+    font-weight: 400;
+  }
+  tr.me > * {
+    background: var(--sl-color-accent-low);
+    font-weight: 700;
+  }
+  .num,
+  .nowrap {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .bar {
+    display: inline-block;
+    width: 90px;
+    height: 7px;
+    background: var(--sl-color-gray-5);
+    overflow: hidden;
+    vertical-align: middle;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--bu-brand-green);
+  }
+  .muted {
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+  }
+  .small {
+    font-size: var(--sl-text-xs);
+  }
 </style>

@@ -9,10 +9,10 @@ import { baselineFrom, diffBaseline, loadBaseline, writeBaseline, type BaselineD
 import { changelog, changelogMarkdown, contractAt } from "./core/changelog.js";
 import { LABEL, closeReason, keyOf, marker, scopeFrom, wantedIssues, type Scope } from "./core/issues.js";
 import { loadContract } from "./core/contract.js";
-import { formatContractDir, formatDir, schemaFiles } from "./core/format-contract.js";
+import { formatDir, schemaFiles } from "./core/format-contract.js";
 import { formatJson, orderDomain } from "./core/jsonfmt.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
-import { differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
+import { answerKey, differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
@@ -20,12 +20,13 @@ import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, PACKAGE_ROOT, REPOS_
 import { bestOverload, nativeSig } from "./core/signature.js";
 import { run, which } from "./core/shell.js";
 import { getAdapter } from "./languages/registry.js";
-import type { Tool } from "./languages/types.js";
+import type { LanguageAdapter, Tool } from "./languages/types.js";
 import { syncRepo, workspaceFor } from "./core/workspace.js";
 import { c, consoleSummary } from "./reporters/console.js";
 import { siteDataFiles, type SiteDataLib } from "./reporters/sitedata.js";
-import { materializeUsage, parseUsageDir, referenceFilesFor, scaffoldUsage, shortName, slugOf, summarizeUsage, usageFilesFor, usageStatus } from "./core/usage.js";
-import { briefMarkdown, sourceBlock, type ImplRef } from "./reporters/brief.js";
+import { materializeUsage, ownUsage, parseUsageDir, scaffoldUsage, summarizeUsage, usageFilesFor, usageStatus } from "./core/usage.js";
+import { repoSlug, shortName, slugOf } from "../site/src/lib/usage-format.mjs";
+import { briefMarkdown, type ImplRef } from "./reporters/brief.js";
 import { libMarkdown, overviewMarkdown } from "./reporters/markdown.js";
 
 type FailOn = "regression" | "error" | "never";
@@ -39,6 +40,18 @@ function selectLibs(all: LibConfig[], names: string[] | undefined): LibConfig[] 
   });
 }
 
+/** `--lib` names (short ones too); `--path` is one lib's checkout. */
+function libsFor(opts: { lib?: string[]; path?: string }): LibConfig[] {
+  const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
+  if (opts.path && libs.length !== 1) throw new Error("--path needs exactly one --lib");
+  return libs;
+}
+
+const readJson = <T>(file: string): T => JSON.parse(fs.readFileSync(file, "utf8")) as T;
+/** The report of the last `check` run for a lib. */
+const reportFile = (lib: LibConfig) => path.join(OUTPUT_DIR, `${lib.name}.report.json`);
+const noReport = (lib: LibConfig, then: string) => `${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), ${then}`;
+
 function writeFile(file: string, content: string) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, content.endsWith("\n") ? content : `${content}\n`);
@@ -46,7 +59,7 @@ function writeFile(file: string, content: string) {
 
 /** Append tests to functions of a contract file (then `fmt` puts it in canonical form). */
 function appendTests(file: string, ops: Record<string, Array<Record<string, unknown>>>): number {
-  const doc = JSON.parse(fs.readFileSync(file, "utf8")) as { functions: Record<string, { tests?: unknown[] }> };
+  const doc = readJson<{ functions: Record<string, { tests?: unknown[] }> }>(file);
   let added = 0;
   for (const [op, tests] of Object.entries(ops)) {
     const fn = doc.functions[op];
@@ -59,6 +72,8 @@ function appendTests(file: string, ops: Record<string, Array<Record<string, unkn
 }
 
 const REFERENCE_LIB = "brazilian-utils-javascript";
+/** `--reference` accepts short names too (`javascript`): the full lib name. */
+const referenceName = (name: string) => selectLibs(loadLibConfigs(LIBS_DIR), [name])[0].name;
 const USAGE_FIXTURES = path.join(PACKAGE_ROOT, "site", "fixtures", "usage");
 
 function listFiles(dir: string, prefix = ""): string[] {
@@ -94,7 +109,7 @@ function writeSnapshot(surface: ApiSurface) {
     ...surface,
     symbols: surface.symbols.map(({ meta: _meta, returnsNode: _r, ...s }) => ({ ...s, params: s.params.map(({ typeNode: _t, ...p }) => p) }))
   };
-  writeFile(path.join(SNAPSHOTS_DIR, `${surface.library}.api.json`), JSON.stringify(clean, null, 2));
+  writeFile(path.join(SNAPSHOTS_DIR, `${surface.library}.api.json`), json(clean));
 }
 
 interface RunOptions {
@@ -106,12 +121,10 @@ interface RunOptions {
 }
 
 async function analyzeMany(contract: Contract, opts: RunOptions): Promise<Array<{ report: LibReport; lib: LibConfig; root: string }>> {
-  const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
-  if (opts.path && libs.length !== 1) throw new Error("--path needs exactly one --lib");
   const out: Array<{ report: LibReport; lib: LibConfig; root: string }> = [];
-  for (const lib of libs) {
+  for (const lib of libsFor(opts)) {
     const ws = workspaceFor(lib, opts.path);
-    const ctx = { lib, root: ws.root, workDir: ws.workDir };
+    const { ctx } = ws;
     const started = Date.now();
     process.stderr.write(c.dim(`• ${lib.name}: extracting…`));
     const surface = await extractSurface(ws.adapter, ctx);
@@ -154,8 +167,7 @@ program
   .description("List the configured libs as `<name> <owner/repo>` lines (for scripts)")
   .action(() => {
     for (const lib of loadLibConfigs(LIBS_DIR)) {
-      const slug = lib.repo ? new URL(lib.repo).pathname.replace(/^\/|\.git$/g, "") : "";
-      console.log(`${lib.name} ${slug}`);
+      console.log(`${lib.name} ${lib.repo ? repoSlug(lib.repo) : ""}`);
     }
   });
 
@@ -164,26 +176,28 @@ program
   .description("Check the toolchains every configured lib needs (extraction, shared tests)")
   .option("-l, --lib <names...>", "only these libs")
   .action((opts) => {
-    const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
-    const adapters = [...new Map(libs.map((l) => [getAdapter(l.language).id, getAdapter(l.language)])).values()];
+    // Libs grouped by the adapter (language) they use, in first-use order.
+    const byAdapter = new Map<string, { adapter: LanguageAdapter; users: LibConfig[] }>();
+    for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
+      const adapter = getAdapter(lib.language);
+      const group = byAdapter.get(adapter.id) ?? byAdapter.set(adapter.id, { adapter, users: [] }).get(adapter.id)!;
+      group.users.push(lib);
+    }
     let missing = 0;
-    for (const adapter of adapters) {
-      const users = libs.filter((l) => getAdapter(l.language).id === adapter.id).map((l) => l.name);
-      console.log(`\n${c.bold(adapter.displayName)} ${c.dim(`(${users.join(", ")})`)}`);
+    for (const { adapter, users } of byAdapter.values()) {
+      console.log(`\n${c.bold(adapter.displayName)} ${c.dim(`(${users.map((l) => l.name).join(", ")})`)}`);
       const tools: Tool[] = adapter.tools ?? (adapter.runner?.requires ?? []).map((bin) => ({ bin, purpose: "shared tests", install: "see docs/adding-a-language.md" }));
       for (const t of tools) {
         const found = which(t.bin);
         // Presence decides; the version line is informational (not every tool has a flag for it).
         const v = found && t.version !== null ? run(t.bin, t.version ?? ["--version"], { timeoutMs: 60_000 }) : undefined;
-        const ok = found;
         const version = v?.status === 0 ? (v.stdout || v.stderr).trim().split("\n")[0] : "installed";
-        if (!ok && !t.optional) missing++;
-        const mark = ok ? c.green("✓") : t.optional ? c.yellow("○") : c.red("✗");
-        console.log(`  ${mark} ${t.bin.padEnd(8)} ${ok ? c.dim(version) : c.yellow(`missing — ${t.install}`)}  ${c.dim(`[${t.purpose}]`)}`);
+        if (!found && !t.optional) missing++;
+        const mark = found ? c.green("✓") : t.optional ? c.yellow("○") : c.red("✗");
+        console.log(`  ${mark} ${t.bin.padEnd(8)} ${found ? c.dim(version) : c.yellow(`missing — ${t.install}`)}  ${c.dim(`[${t.purpose}]`)}`);
       }
-      for (const name of users) {
-        const lib = libs.find((l) => l.name === name)!;
-        const checkout = fs.existsSync(path.join(REPOS_DIR, lib.name));
+      for (const { name } of users) {
+        const checkout = fs.existsSync(path.join(REPOS_DIR, name));
         const base = loadBaseline(BASELINES_DIR, name);
         console.log(
           `  ${checkout ? c.green("✓") : c.yellow("○")} ${name}: ${checkout ? "checked out" : "not checked out (run sync)"}, ${base ? `baseline with ${base.tests.length} tests` : "no baseline"}`
@@ -228,13 +242,10 @@ program
     ];
     let bad = 0;
     for (const [dir, kind, label] of dirs) {
-      const tmp = opts.check ? fs.mkdtempSync(path.join(os.tmpdir(), "api-validator-fmt-")) : dir;
-      if (opts.check) fs.cpSync(dir, tmp, { recursive: true });
-      for (const f of formatDir(tmp, kind)) {
+      for (const f of formatDir(dir, kind, !opts.check)) {
         console.log(`${opts.check ? "not formatted" : "formatted"}: ${label}/${f}`);
         bad++;
       }
-      if (opts.check) fs.rmSync(tmp, { recursive: true, force: true });
     }
     for (const [name, content] of schemaFiles()) {
       const file = path.join(SCHEMA_DIR, name);
@@ -262,7 +273,7 @@ program
   .action(async (opts) => {
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
       const ws = workspaceFor(lib, opts.path);
-      const surface = await extractSurface(ws.adapter, { lib, root: ws.root, workDir: ws.workDir });
+      const surface = await extractSurface(ws.adapter, ws.ctx);
       writeSnapshot(surface);
       console.log(`${lib.name}: ${surface.symbols.length} public symbols${surface.warnings.length ? `, ${surface.warnings.length} warnings` : ""}`);
       for (const w of surface.warnings) console.log(`  warning: ${w}`);
@@ -290,7 +301,7 @@ program
       console.log(consoleSummary(report, diff, opts.verbose || results.length === 1));
       // Usage examples for the docs site: the lib's own docs/usage/, else the site fixtures.
       const usage = usageStatus(contract, report, usageFilesFor(contract, lib, root, USAGE_FIXTURES, report));
-      writeFile(path.join(OUTPUT_DIR, `${report.library}.report.json`), JSON.stringify({ ...report, baseline: diff, usage }, null, 2));
+      writeFile(reportFile(lib), json({ ...report, baseline: diff, usage }));
       const md = libMarkdown(report, contract, diff);
       writeFile(path.join(OUTPUT_DIR, `${report.library}.md`), md);
       markdown.push(md);
@@ -315,24 +326,22 @@ program
   .option("--strict", "exit non-zero when an implemented function has no usage section or a section has problems")
   .action((opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
-    if (opts.path && libs.length !== 1) throw new Error("--path needs exactly one --lib");
+    const libs = libsFor(opts);
+    if (opts.materialize && opts.out && libs.length !== 1) throw new Error("--out needs exactly one --lib");
     let bad = false;
     for (const lib of libs) {
-      const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
-      if (!fs.existsSync(file)) {
-        console.log(c.yellow(`${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), skipped`));
+      if (!fs.existsSync(reportFile(lib))) {
+        console.log(c.yellow(noReport(lib, "skipped")));
         continue;
       }
       if (!lib.site) continue;
-      const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
-      const dir = opts.path ? path.join(opts.path, lib.site.usage.path) : path.join(USAGE_FIXTURES, shortName(lib));
+      const report = readJson<LibReport>(reportFile(lib));
+      // The lib's checkout: an explicit --path, else the synced clone.
+      const root = opts.path ?? path.join(REPOS_DIR, lib.name);
+      const dir = opts.path ? path.join(opts.path, lib.site.usage.path) : path.join(USAGE_FIXTURES, shortName(lib.name));
       if (opts.materialize) {
-        const root = opts.path ?? path.join(REPOS_DIR, lib.name);
-        const own = parseUsageDir(contract, path.join(root, lib.site.usage.path)).sections;
-        const have = new Set(own.map((s) => `${s.fn}/${s.locale}`));
-        const sections = [...own, ...referenceFilesFor(lib, root, report).filter((s) => !have.has(`${s.fn}/${s.locale}`))];
-        const out = opts.out ?? path.join(USAGE_FIXTURES, shortName(lib));
+        const { sections } = ownUsage(contract, lib, root, report);
+        const out = opts.out ?? path.join(USAGE_FIXTURES, shortName(lib.name));
         if (sections.length) {
           fs.rmSync(out, { recursive: true, force: true });
           const files = materializeUsage(contract, sections, `${lib.repo ?? lib.name}@${report.revision?.slice(0, 7) ?? "?"}`);
@@ -342,26 +351,23 @@ program
       }
       if (opts.scaffold) {
         const snapshot = path.join(SNAPSHOTS_DIR, `${lib.name}.api.json`);
-        const natives = new Map(
-          (fs.existsSync(snapshot) ? (JSON.parse(fs.readFileSync(snapshot, "utf8")) as ApiSurface).symbols : []).map((s) => [s.name, { returns: s.returns, params: s.params }])
-        );
-        const alsoDocumented = opts.path ? referenceFilesFor(lib, opts.path, report) : [];
+        const natives = new Map((fs.existsSync(snapshot) ? readJson<ApiSurface>(snapshot).symbols : []).map((s) => [s.name, { returns: s.returns, params: s.params }]));
+        const alsoDocumented = ownUsage(contract, lib, root, report).sections;
         const files = scaffoldUsage({ contract, lib, report, natives, existing: parseUsageDir(contract, dir), alsoDocumented }, (f) =>
           fs.existsSync(path.join(dir, f)) ? fs.readFileSync(path.join(dir, f), "utf8") : undefined
         );
         for (const [name, content] of files) writeFile(path.join(dir, name), content);
         console.log(c.dim(`${lib.name}: scaffolded ${files.size} file(s) in ${path.relative(process.cwd(), dir)}`));
       }
-      const files = opts.path ? parseUsageDir(contract, dir) : usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES, report);
+      const files = opts.path ? ownUsage(contract, lib, opts.path, report) : usageFilesFor(contract, lib, root, USAGE_FIXTURES, report);
       const usage = usageStatus(contract, report, files);
       const sum = summarizeUsage(report, usage);
       const where = files.dir ? path.relative(process.cwd(), files.dir) : "no usage files";
       console.log(`${c.bold(lib.name)}: ${sum.documented}/${sum.implemented} implemented functions documented, ${sum.problems} problem(s) (${where})`);
-      const missing = report.functions.filter((f) => ["ok", "failing", "signature"].includes(f.status) && !usage[f.id]?.documented).map((f) => f.id);
-      if (missing.length) console.log(c.dim(`  undocumented: ${missing.join(", ")}`));
+      if (sum.undocumented.length) console.log(c.dim(`  undocumented: ${sum.undocumented.join(", ")}`));
       for (const [fn, u] of Object.entries(usage)) for (const p of u.problems) console.log(`  ${c.yellow("problem")} ${fn}: ${p}`);
       for (const w of files.warnings) console.log(`  ${c.yellow("warning")} ${w}`);
-      if (sum.problems || files.warnings.length || missing.length) bad = true;
+      if (sum.problems || files.warnings.length || sum.undocumented.length) bad = true;
     }
     if (opts.strict && bad) process.exitCode = 1;
   });
@@ -384,12 +390,11 @@ program
     const contract = loadContract(CONTRACT_DIR);
     const libs: SiteDataLib[] = [];
     for (const lib of loadLibConfigs(LIBS_DIR)) {
-      const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
-      if (!fs.existsSync(file)) {
-        console.error(c.yellow(`${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), shown without status`));
+      if (!fs.existsSync(reportFile(lib))) {
+        console.error(c.yellow(noReport(lib, "shown without status")));
         continue;
       }
-      const report = JSON.parse(fs.readFileSync(file, "utf8")) as LibReport;
+      const report = readJson<LibReport>(reportFile(lib));
       // Recomputed rather than read from the report, so edits to the usage fixtures show up.
       const usage = usageStatus(contract, report, usageFilesFor(contract, lib, path.join(REPOS_DIR, lib.name), USAGE_FIXTURES, report));
       libs.push({ lib, report, usage });
@@ -398,7 +403,7 @@ program
     const files = siteDataFiles({
       contract,
       libs,
-      diff: fs.existsSync(diffFile) ? JSON.parse(fs.readFileSync(diffFile, "utf8")) : undefined,
+      diff: fs.existsSync(diffFile) ? readJson(diffFile) : undefined,
       generatedAt: new Date().toISOString().replace(/\.\d+Z$/, "Z")
     });
     for (const [rel, content] of files) writeFile(path.join(opts.out, rel), content);
@@ -413,19 +418,16 @@ program
   .option("--check", "only verify the vendored copy is current (for the lib's CI); exit 1 if stale")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const libs = selectLibs(loadLibConfigs(LIBS_DIR), opts.lib);
-    if (opts.path && libs.length !== 1) throw new Error("--path needs exactly one --lib");
+    const suite = suiteFiles(contract);
     let stale = 0;
-    for (const lib of libs) {
+    for (const lib of libsFor(opts)) {
       const ws = workspaceFor(lib, opts.path);
-      const ctx = { lib, root: ws.root, workDir: ws.workDir };
-      const { bound } = bindLib(contract, ws.adapter, lib, await extractSurface(ws.adapter, ctx));
+      const { bound } = bindLib(contract, ws.adapter, lib, await extractSurface(ws.adapter, ws.ctx));
       const implemented = new Set(bound.map((b) => b.fn.id));
       const dir = typeof lib.options.casesDir === "string" ? lib.options.casesDir : "api-contract";
-      const files = suiteFiles(contract);
-      const reportFile = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
-      const outcomes: Outcomes | undefined = fs.existsSync(reportFile)
-        ? new Map((JSON.parse(fs.readFileSync(reportFile, "utf8")) as LibReport).functions.flatMap((f) => f.tests.map((t) => [t.id, t] as const)))
+      const files = new Map(suite);
+      const outcomes: Outcomes | undefined = fs.existsSync(reportFile(lib))
+        ? new Map(readJson<LibReport>(reportFile(lib)).functions.flatMap((f) => f.tests.map((t) => [t.id, t] as const)))
         : undefined;
       files.set("skip.json", skipsFor(lib, contract, implemented, loadBaseline(BASELINES_DIR, lib.name), outcomes));
       const wanted = new Map([...files].map(([rel, v]) => [rel, json(v)]));
@@ -520,7 +522,7 @@ async function allImpls(contract: Contract, target: string, opts: { path?: strin
     }
   }
   const mine = refs.find((r) => r.lib.name === targetLib.name)!;
-  return { mine, others: refs.filter((r) => r !== mine), adapter: workspaceFor(mine.lib, mine.root).adapter };
+  return { mine, others: refs.filter((r) => r !== mine), adapter: getAdapter(mine.lib.language) };
 }
 
 program
@@ -529,14 +531,15 @@ program
   .argument("<function>", "contract function id or glob, e.g. cpf.isValid or 'pis.*'")
   .requiredOption("-l, --lib <name>", "lib that should implement it")
   .option("-p, --path <dir>", "checkout of that lib")
-  .option("--reference <lib>", "lib whose source is embedded", "brazilian-utils-javascript")
+  .option("--reference <lib>", "lib whose source is embedded", REFERENCE_LIB)
   .option("--no-tests", "skip running the shared tests on the target lib")
   .action(async (pattern: string, opts) => {
     const contract = loadContract(CONTRACT_DIR);
     const fns = [...contract.functions.values()].filter((f) => globMatch(pattern, f.id));
     if (!fns.length) throw new Error(`No contract function matches ${pattern}`);
+    const reference = referenceName(opts.reference);
     const { mine, others, adapter } = await allImpls(contract, opts.lib, opts);
-    for (const fn of fns) console.log(briefMarkdown(fn, mine, adapter, others, opts.reference));
+    for (const fn of fns) console.log(briefMarkdown(fn, mine, adapter, others, reference));
   });
 
 program
@@ -555,16 +558,16 @@ program
       : { added: new Set(), cases: new Set() };
     if (opts.since) console.log(c.dim(`since ${opts.since}: ${scope.added.size} new functions, ${scope.cases.size} new or changed cases`));
     // Reports from the last `check --tests` (the pipeline runs it right before).
+    const reference = referenceName(opts.reference);
     const refs: ImplRef[] = [];
     for (const lib of loadLibConfigs(LIBS_DIR)) {
-      const file = path.join(OUTPUT_DIR, `${lib.name}.report.json`);
-      if (fs.existsSync(file)) refs.push({ lib, report: JSON.parse(fs.readFileSync(file, "utf8")) as LibReport, root: path.join(REPOS_DIR, lib.name) });
+      if (fs.existsSync(reportFile(lib))) refs.push({ lib, report: readJson<LibReport>(reportFile(lib)), root: path.join(REPOS_DIR, lib.name) });
     }
     const site = process.env.SITE_URL?.replace(/\/$/, "");
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
       const mine = refs.find((r) => r.lib.name === lib.name);
       if (!mine) {
-        console.log(c.yellow(`${lib.name}: no report in ${path.relative(process.cwd(), OUTPUT_DIR)} (run check --tests first), skipped`));
+        console.log(c.yellow(noReport(lib, "skipped")));
         continue;
       }
       const adapter = getAdapter(lib.language);
@@ -575,19 +578,19 @@ program
           kind === "implement"
             ? `\`${fnId}\` is in the [shared contract](https://github.com/brazilian-utils/api-validator) and this lib does not implement it yet.`
             : `Shared cases of \`${fnId}\` fail in this lib.`,
-          site ? `Spec, every implementation and results: ${site}/utils/${slugOf(fnId.split(".")[0])}/ · this lib: ${site}/libs/${shortName(lib)}/` : "",
+          site ? `Spec, every implementation and results: ${site}/utils/${slugOf(fnId.split(".")[0])}/ · this lib: ${site}/libs/${shortName(lib.name)}/` : "",
           "",
-          briefMarkdown(contract.functions.get(fnId)!, mine, adapter, others, opts.reference),
+          briefMarkdown(contract.functions.get(fnId)!, mine, adapter, others, reference),
           "Add the function to the harness registry; its cases then run with this repo's own tests. This issue closes automatically once the api-validator run sees it done.",
           "",
           kind === "implement" && lib.site
-            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`api-validator usage --lib ${shortName(lib)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/api-validator/blob/main/site/src/content/docs/contributing/usage-files.mdx"}`
+            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`api-validator usage --lib ${shortName(lib.name)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/api-validator/blob/main/site/src/content/docs/contributing/usage-files.mdx"}`
             : "",
           "",
           "_Maintained by [api-validator](https://github.com/brazilian-utils/api-validator): opened, refreshed and closed automatically._"
         ].join("\n");
       const wanted = wantedIssues(contract, mine.report, scope, opts.backfill);
-      const slug = lib.repo ? new URL(lib.repo).pathname.replace(/^\/|\.git$/g, "") : undefined;
+      const slug = lib.repo ? repoSlug(lib.repo) : undefined;
       if (!opts.apply || !slug) {
         console.log(`${c.bold(lib.name)}: ${wanted.length} issues wanted${slug ? "" : " (no repo configured)"}`);
         for (const w of wanted) {
@@ -653,26 +656,28 @@ program
         return a; // bare strings are fine: probe cpf.format 82178537464
       }
     });
+    // Answers compared by value (like `diff`), not by how they print.
+    const NO_ANSWER = ["not implemented", "no runner"];
     const answers = new Map<string, string[]>();
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
-      const ws = workspaceFor(lib);
-      const ctx = { lib, root: ws.root, workDir: ws.workDir };
-      const surface = await extractSurface(ws.adapter, ctx);
-      const res = resolve(fn, lib, ws.adapter, new SymbolIndex(surface.symbols));
+      const { adapter, ctx } = workspaceFor(lib);
+      const surface = await extractSurface(adapter, ctx);
+      const res = resolve(fn, lib, adapter, new SymbolIndex(surface.symbols));
       let line: string;
-      if (res.overloads.length === 0) line = c.dim("(not implemented)");
-      else if (!ws.adapter.runner) line = c.dim(`(no ${ws.adapter.displayName} runner)`);
+      let key: string;
+      if (res.overloads.length === 0) [line, key] = [c.dim("(not implemented)"), "not implemented"];
+      else if (!adapter.runner) [line, key] = [c.dim(`(no ${adapter.displayName} runner)`), "no runner"];
       else {
-        const symbol = bestOverload(fn, res.overloads, ws.adapter).symbol;
-        const [r] = await ws.adapter.runner.run(ctx, [{ id: "probe", symbol, args }]);
+        const symbol = bestOverload(fn, res.overloads, adapter).symbol;
+        const [r] = await adapter.runner.run(ctx, [{ id: "probe", symbol, args }]);
         line = r.ok ? JSON.stringify(r.value) : r.absent ? `null ${c.dim(`(${r.error})`)}` : `${r.unsupported ? "unsupported" : "error"}: ${r.error}`;
         line = `${line}  ${c.dim(nativeSig(symbol))}`;
+        key = r.ok ? answerKey(r) : r.absent ? "null" : r.unsupported ? "unsupported" : "error";
       }
-      const key = line.split("  ")[0];
       answers.set(key, [...(answers.get(key) ?? []), lib.name]);
       console.log(`${lib.name.padEnd(28)} ${line}`);
     }
-    const distinct = [...answers.keys()].filter((k) => !k.includes("not implemented") && !k.includes("runner)"));
+    const distinct = [...answers.keys()].filter((k) => !NO_ANSWER.includes(k));
     console.log(distinct.length <= 1 ? c.green("\nall implementations agree") : c.yellow(`\n${distinct.length} different answers`));
   });
 
@@ -681,7 +686,7 @@ program
   .description("Differential testing: feed the same mined inputs to every lib and report where answers diverge")
   .option("-f, --fn <glob>", "contract functions to test, e.g. 'cpf.*' (default: all)")
   .option("-l, --lib <names...>", "only these libs")
-  .option("--reference <lib>", "lib used to generate inputs and break ties", "brazilian-utils-javascript")
+  .option("--reference <lib>", "lib used to generate inputs and break ties", REFERENCE_LIB)
   .option("--propose", "write majority answers as test proposals to contract/_proposals/<domain>.json")
   .option("--unanimous", "with --propose: only inputs where every lib that answered agrees")
   .option("--min-libs <n>", "with --propose: minimum number of agreeing libs", "3")
@@ -694,19 +699,18 @@ program
     const contract = loadContract(CONTRACT_DIR);
     const fns = [...contract.functions.values()].filter((f) => (!opts.fn || globMatch(opts.fn, f.id)) && (opts.network || !f.network));
     if ((opts.baseline || opts.failOnNew) && opts.lib) throw new Error("--baseline/--fail-on-new compare splits across all libs: do not pass --lib");
+    const reference = referenceName(opts.reference);
     const libs: DiffLib[] = [];
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
-      const ws = workspaceFor(lib);
-      if (!ws.adapter.runner) {
-        console.log(c.dim(`skipping ${lib.name}: no ${ws.adapter.displayName} runner`));
+      const { adapter, ctx } = workspaceFor(lib);
+      if (!adapter.runner) {
+        console.log(c.dim(`skipping ${lib.name}: no ${adapter.displayName} runner`));
         continue;
       }
-      const ctx = { lib, root: ws.root, workDir: ws.workDir };
-      libs.push({ name: lib.name, adapter: ws.adapter, ctx, surface: await extractSurface(ws.adapter, ctx) });
+      libs.push({ name: lib.name, adapter, ctx, surface: await extractSurface(adapter, ctx) });
     }
     process.stderr.write(c.dim(`running ${fns.length} functions across ${libs.length} libs…\n`));
-    const rows = await differential(contract, fns, libs, opts.reference);
-    const short = (n: string) => n.replace("brazilian-utils-", "");
+    const rows = await differential(contract, fns, libs, reference);
     const md: string[] = ["# Differential test report", "", "| Function | Input | Answers |", "|---|---|---|"];
     const byFn = new Map<string, typeof rows>();
     for (const r of rows) byFn.set(r.fn, [...(byFn.get(r.fn) ?? []), r]);
@@ -718,14 +722,14 @@ program
       const shown = opts.showAgreement ? fnRows : bad;
       if (shown.length) console.log(`\n${c.bold(fnId)} ${c.dim(`${bad.length}/${fnRows.length} inputs diverge`)}`);
       for (const r of shown) {
-        const answers = r.answers.map((a) => `${a.answer === "<error>" ? c.red(`error`) : a.answer} ${c.dim(`← ${a.libs.map(short).join(", ")}`)}`);
+        const answers = r.answers.map((a) => `${a.answer === "<error>" ? c.red(`error`) : a.answer} ${c.dim(`← ${a.libs.map(shortName).join(", ")}`)}`);
         console.log(`  ${JSON.stringify(r.args)}${r.agree ? c.green(" ✓") : ""}\n    ${answers.join("\n    ")}`);
-        if (!r.agree) md.push(`| \`${fnId}\` | \`${JSON.stringify(r.args)}\` | ${r.answers.map((a) => `\`${a.answer.replaceAll("|", "\\|")}\` ← ${a.libs.map(short).join(", ")}`).join("<br>")} |`);
+        if (!r.agree) md.push(`| \`${fnId}\` | \`${JSON.stringify(r.args)}\` | ${r.answers.map((a) => `\`${a.answer.replaceAll("|", "\\|")}\` ← ${a.libs.map(shortName).join(", ")}`).join("<br>")} |`);
       }
       if (opts.propose) {
         const fn = contract.functions.get(fnId)!;
         for (const r of fnRows) {
-          const p = proposal(r, opts.reference, fn, { unanimous: opts.unanimous, minLibs: Number(opts.minLibs) });
+          const p = proposal(r, reference, fn, { unanimous: opts.unanimous, minLibs: Number(opts.minLibs) });
           if (!p) continue;
           const domain = proposals.get(fn.domain) ?? {};
           (domain[fn.operation] ??= []).push(p);
@@ -734,7 +738,7 @@ program
       }
     }
     const divFile = path.join(BASELINES_DIR, "_divergences.json");
-    const known: DivergenceBaseline = fs.existsSync(divFile) ? JSON.parse(fs.readFileSync(divFile, "utf8")) : {};
+    const known: DivergenceBaseline = fs.existsSync(divFile) ? readJson(divFile) : {};
     const dd = diffDivergences(rows, known, fns.map((f) => f.id));
     if (dd.fresh.length || dd.gone.length) md.push("", "## Compared with the divergence baseline", "");
     for (const { row, split } of dd.fresh) md.push(`- 🆕 \`${row.fn}\` splits **${split}** (e.g. \`${JSON.stringify(row.args)}\`)`);
@@ -747,7 +751,7 @@ program
     );
     if (opts.baseline) {
       const merged = { ...Object.fromEntries(Object.entries(known).filter(([fn]) => !fns.some((f) => f.id === fn))), ...divergenceBaseline(rows) };
-      writeFile(divFile, JSON.stringify(Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b))), null, 2));
+      writeFile(divFile, json(Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)))));
       console.log(c.cyan(`divergence baseline: ${Object.values(merged).flat().length} known splits in ${path.relative(process.cwd(), divFile)}`));
     } else {
       for (const { row, split } of dd.fresh) console.log(c.red(`new divergence: ${row.fn} splits ${split} (e.g. ${JSON.stringify(row.args)})`));
@@ -758,9 +762,9 @@ program
     if (opts.apply) {
       for (const [domain, ops] of proposals) {
         const n = appendTests(path.join(CONTRACT_DIR, `${domain}.json`), ops);
-        formatContractDir(CONTRACT_DIR);
         console.log(c.cyan(`contract/${domain}.json: +${n} tests`));
       }
+      formatDir(CONTRACT_DIR, "contract");
       return;
     }
     for (const [domain, ops] of proposals) {
@@ -768,7 +772,7 @@ program
       writeFile(
         file,
         formatJson({
-          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${opts.reference}). Review each one, move the good ones into contract/${domain}.json under the function's tests, delete this file.`,
+          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${domain}.json under the function's tests, delete this file.`,
           functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
         })
       );

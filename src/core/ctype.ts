@@ -170,7 +170,7 @@ function atoms(t: CType): CType[] {
   return t.k === "union" ? t.of : [t];
 }
 
-export function isNullable(t: CType): boolean {
+function isNullable(t: CType): boolean {
   return atoms(t).some((a) => a.k === "null");
 }
 

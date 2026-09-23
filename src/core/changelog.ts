@@ -9,6 +9,7 @@ import path from "node:path";
 import { loadContract } from "./contract.js";
 import type { Contract, ContractFunction, ContractTest } from "./model.js";
 import { runOrThrow } from "./shell.js";
+import { paramList } from "./signature.js";
 
 /** Load the contract as it was at a git ref (`WORKTREE` = files on disk). */
 export function contractAt(repo: string, dir: string, ref: string): Contract {
@@ -38,8 +39,7 @@ export interface ContractChangelog {
   changed: FunctionChange[];
 }
 
-const signature = (f: ContractFunction) =>
-  `(${f.params.map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type}`).join(", ")}) -> ${f.returns}`;
+const signature = (f: ContractFunction) => `(${paramList(f.params)}) -> ${f.returns}`;
 const expectation = (t: ContractTest) => JSON.stringify([t.expect, t.repeat]);
 
 export function changelog(before: Contract, after: Contract): ContractChangelog {

@@ -8,7 +8,7 @@ import type { LanguageAdapter } from "./types.js";
 import { typescript } from "./typescript/index.js";
 
 /** Every supported language. To add one, implement LanguageAdapter and list it here. */
-export const ADAPTERS: LanguageAdapter[] = [typescript, python, go, rust, ruby, erlang, dotnet];
+const ADAPTERS: LanguageAdapter[] = [typescript, python, go, rust, ruby, erlang, dotnet];
 
 export function getAdapter(language: string): LanguageAdapter {
   const key = language.toLowerCase();

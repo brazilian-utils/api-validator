@@ -27,7 +27,7 @@ export interface Meta {
 }
 
 /** Go source for a type of the lib's package `self` (imported as `alias`). */
-export function goType(t: TypeNode, alias: string, self: string): string {
+function goType(t: TypeNode, alias: string, self: string): string {
   switch (t.kind) {
     case "ref":
       return `*${goType(t.of, alias, self)}`;
@@ -86,7 +86,7 @@ export function goLiteral(t: TypeNode, value: unknown, alias: string, self: stri
  * results like the api-validator does: `(T, error)` err -> error, `(T, bool)` false -> nil.
  * `literal` renders one argument (default: the typed Go literal of the JSON value).
  */
-export function callBody(
+function callBody(
   symbol: NativeSymbol,
   meta: Meta,
   args: unknown[],

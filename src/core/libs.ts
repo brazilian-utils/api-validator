@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
-import type { Contract, Issue, LibConfig } from "./model.js";
+import type { Contract, Issue } from "./model.js";
 
 /** A path per site language; `en` is required, other languages fall back to it. */
 const localizedPath = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1).optional() }).strict();
@@ -15,11 +15,17 @@ export const LibSchema = z
     notes: z.string().optional(),
     repo: z.string().url().optional(),
     branch: z.string().optional(),
+    /** Entry point / package root, relative to the repo root. Meaning is language-specific. */
     entry: z.string().default("."),
+    /** Explicit contract id -> native symbol(s). Overrides naming conventions. */
     bindings: z.record(z.string(), z.union([z.string(), z.array(z.string()).min(1)])).default({}),
+    /** Native symbols that are intentionally outside the contract (glob-like `*` allowed). */
     ignore: z.array(z.string()).default([]),
+    /** Contract ids the lib deliberately does not implement, with the reason. */
     waivers: z.record(z.string(), z.string().min(1)).default({}),
+    /** Contract test ids known to fail, with the reason (reported, but never fail CI). */
     knownFailures: z.record(z.string(), z.string().min(1)).default({}),
+    /** Free-form adapter options. */
     options: z.record(z.string(), z.unknown()).default({}),
     /** How the docs site shows this lib: tab label and order, install line, where its usage files live. */
     site: z
@@ -57,6 +63,12 @@ export const LibSchema = z
       .optional()
   })
   .strict();
+
+/** A validated lib config; `source` is the file it came from (for messages). */
+export type LibConfig = Omit<z.output<typeof LibSchema>, "$schema" | "notes"> & { source: string };
+
+/** Link to a line of a lib's source at a revision. */
+export const blobUrl = (repo: string, revision: string, file: string, line: number) => `${repo.replace(/\.git$/, "")}/blob/${revision}/${file}#L${line}`;
 
 export function loadLibConfigs(dir: string): LibConfig[] {
   const problems: string[] = [];

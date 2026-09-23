@@ -12,11 +12,15 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { isImplemented } from './text.mjs';
+import { keyOf, operationLabel, opRank, resolveOperation as resolveIn, shortName, repoSlug, slugOf } from './usage-format.mjs';
+
+export { keyOf, slugOf };
 
 // The site root. Resolved from the working directory (not import.meta.url) because Astro
 // bundles this module into dist/ at build time, where a relative path would point nowhere.
-export const ROOT = path.resolve(process.env.DOCS_ROOT || process.cwd());
-export const REPO_ROOT = path.resolve(process.env.API_VALIDATOR_ROOT || path.join(ROOT, '..'));
+const ROOT = path.resolve(process.env.DOCS_ROOT || process.cwd());
+const REPO_ROOT = path.resolve(process.env.API_VALIDATOR_ROOT || path.join(ROOT, '..'));
 export const CONTRACT_DIR = path.join(REPO_ROOT, 'contract');
 export const LIBS_DIR = path.join(REPO_ROOT, 'libs');
 export const CACHE_DIR = path.join(ROOT, '.cache', 'usage');
@@ -27,7 +31,10 @@ export const LOCAL_REPOS = path.join(REPO_ROOT, '.repos');
 export const LIB_ASSETS_DIR = path.join(ROOT, 'public', 'lib-assets');
 export const FIXTURES_DIR = path.join(ROOT, 'fixtures', 'usage');
 export const DOCS_DIR = path.join(ROOT, 'src', 'content', 'docs');
-export const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
+const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
+
+/** The api-validator repository (contract, validator, this site). */
+export const REPO_URL = 'https://github.com/brazilian-utils/api-validator';
 
 /** Site languages. `en` is the root locale, `pt-BR` lives under /pt-br/. */
 export const LANGS = ['en', 'pt-BR'];
@@ -37,82 +44,70 @@ export const LANG_PREFIX = { en: '', 'pt-BR': 'pt-br' };
 
 const readJson = (file) => JSON.parse(fs.readFileSync(file, 'utf8'));
 const lines = (v) => (Array.isArray(v) ? v.join('\n') : v);
-
-/** `licensePlate` → `license-plate`: the URL slug and usage file name of a domain. */
-export const slugOf = (domain) => domain.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
-
-/** Case/separator-insensitive key: `remove-symbols`, `removeSymbols`, `Remove symbols` → `removesymbols`. */
-export const keyOf = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+/**
+ * Compute once per process (every page of a build reads the same files).
+ * @template T
+ * @param {() => T} fn
+ * @returns {() => T}
+ */
+const once = (fn) => {
+  let done = false;
+  let value;
+  return () => {
+    if (!done) [value, done] = [fn(), true];
+    return value;
+  };
+};
 
 /** Sidebar groups, in display order. */
 export const CATEGORIES = readJson(path.join(CONTRACT_DIR, '_categories.json')).categories;
 
-// Names of the operations the libraries share, used when the contract gives no `label`.
-const LABELS = {
-  isValid: { en: 'Validate', 'pt-BR': 'Validar' },
-  format: { en: 'Format', 'pt-BR': 'Formatar' },
-  parse: { en: 'Parse', 'pt-BR': 'Extrair' },
-  removeSymbols: { en: 'Remove symbols', 'pt-BR': 'Remover símbolos' },
-  generate: { en: 'Generate', 'pt-BR': 'Gerar' },
-  getInfo: { en: 'Decode', 'pt-BR': 'Decodificar' },
-  get: { en: 'Look up', 'pt-BR': 'Consultar' },
-  list: { en: 'List', 'pt-BR': 'Listar' },
-  convertToWords: { en: 'Write out in words', 'pt-BR': 'Escrever por extenso' },
-};
-// Display order of operations on a page; the rest follow alphabetically.
-const OP_ORDER = ['isValid', 'format', 'parse', 'removeSymbols', 'generate', 'getInfo', 'get', 'list'];
-// Older usage-file headings that name the same operations.
-const OP_ALIASES = { validate: 'isValid' };
-
-function humanize(op) {
-  const words = op.replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase();
-  return words[0].toUpperCase() + words.slice(1);
-}
-
 /** Resolve a usage-file heading to one of the domain's operation ids, or undefined. */
 export function resolveOperation(spec, heading) {
-  const key = keyOf(heading);
-  const alias = OP_ALIASES[key];
-  if (alias && spec.operations.some((o) => o.id === alias)) return alias;
-  return spec.operations.find((o) => keyOf(o.id) === key || keyOf(o.label.en) === key)?.id;
+  return resolveIn(spec.operations, heading);
 }
 
-let specsCache;
+/** A function the lib has and runs (it may still fail cases), from a status.json entry. */
+export { isImplemented };
 
 /**
  * Every contract domain, as a page: sorted by category order, then `order`, then title.
- * @returns {Array<SpecMeta>}
+ * @type {() => Array<SpecMeta>}
  */
-export function loadSpecs() {
-  if (specsCache) return specsCache;
+export const loadSpecs = once(() => {
   const files = fs.readdirSync(CONTRACT_DIR).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
   const specs = files.map((f) => normalize(readJson(path.join(CONTRACT_DIR, f))));
   const catIndex = new Map(CATEGORIES.map((c, i) => [c.id, i]));
-  specsCache = specs.sort((a, b) => {
+  return specs.sort((a, b) => {
     const ca = catIndex.get(a.category) ?? 99;
     const cb = catIndex.get(b.category) ?? 99;
     if (ca !== cb) return ca - cb;
     if ((a.order ?? 99) !== (b.order ?? 99)) return (a.order ?? 99) - (b.order ?? 99);
     return a.title.en.localeCompare(b.title.en);
   });
-  return specsCache;
-}
+});
 
 export function loadSpec(id) {
   return loadSpecs().find((s) => s.id === id || s.domain === id) ?? null;
+}
+
+const operationsById = once(() => new Map(loadSpecs().flatMap((spec) => spec.operations.map((op) => [op.fnId, { spec, op }]))));
+
+/** A contract function id (`licensePlate.isValid`) → its page and operation, or null. */
+export function loadOperation(fnId) {
+  return operationsById().get(fnId) ?? null;
 }
 
 function normalize(doc) {
   const domain = doc.domain;
   const title = typeof doc.title === 'string' ? { en: doc.title, 'pt-BR': doc.title } : doc.title ?? { en: domain, 'pt-BR': domain };
   const summary = doc.summary ?? { en: '', 'pt-BR': '' };
-  const rank = (op) => (OP_ORDER.includes(op) ? OP_ORDER.indexOf(op) : OP_ORDER.length);
   const operations = Object.entries(doc.functions)
-    .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+    .sort(([a], [b]) => opRank(a) - opRank(b) || a.localeCompare(b))
     .map(([op, fn]) => ({
       id: op,
       fnId: `${domain}.${op}`,
-      label: fn.label ?? LABELS[op] ?? { en: humanize(op), 'pt-BR': humanize(op) },
+      label: operationLabel(op, fn.label),
       summary: fn.summary,
       description: lines(fn.description),
       references: fn.references ?? [],
@@ -137,20 +132,20 @@ function normalize(doc) {
   };
 }
 
-/** @returns {Array<{id:string,name:string,label:string,icon?:string,repo:string,ref:string,path:string,package:string,install:string,registry:string}>} */
-export function loadLibs() {
-  return fs
+/** @type {() => Array<{id:string,name:string,label:string,icon?:string,repo:string,ref:string,path:string,reference?:Record<string,string>,guides?:Record<string,string>,root:string,assets:string[],prepare?:string[],package:string,install:string,registry:string}>} */
+export const loadLibs = once(() =>
+  fs
     .readdirSync(LIBS_DIR)
     .filter((f) => f.endsWith('.json'))
     .map((f) => readJson(path.join(LIBS_DIR, f)))
     .filter((lib) => lib.site)
     .sort((a, b) => a.site.order - b.site.order)
     .map((lib) => ({
-      id: lib.name.replace(/^brazilian-utils-/, ''),
+      id: shortName(lib.name),
       name: lib.name,
       label: lib.site.label,
       icon: lib.site.icon,
-      repo: new URL(lib.repo).pathname.replace(/^\/|\.git$/g, ''),
+      repo: repoSlug(lib.repo),
       ref: lib.site.usage?.ref ?? 'latest-release',
       path: lib.site.usage?.path ?? 'docs/usage',
       reference: lib.site.usage?.reference,
@@ -161,8 +156,8 @@ export function loadLibs() {
       package: lib.site.package,
       install: lib.site.install,
       registry: lib.site.registry,
-    }));
-}
+    })),
+);
 
 /**
  * Links from `contract/<domain>/references.md` (a Markdown list) followed by the official
@@ -200,18 +195,18 @@ export function loadReferenceFiles(id) {
 
 /**
  * Guides fetched from the libraries (scripts/fetch-libs.mjs), [] before the first fetch.
- * @returns {Array<{lib:string,slug:string,title:{en:string,'pt-BR'?:string},description:{en:string,'pt-BR'?:string},fns:string[],source:string}>}
+ * @type {() => Array<{lib:string,slug:string,title:{en:string,'pt-BR'?:string},description:{en:string,'pt-BR'?:string},fns:string[],source:string}>}
  */
-export function loadGuides() {
+export const loadGuides = once(() => {
   const file = path.join(GUIDES_DIR, 'manifest.json');
   if (!fs.existsSync(file)) return [];
   const libs = loadLibs().map((l) => l.id);
   return readJson(file).guides.sort((a, b) => libs.indexOf(a.lib) - libs.indexOf(b.lib) || a.order - b.order);
-}
+});
 
-/** One guide's content for a language (falls back to English), or null. */
+/** One guide's content for a language (falls back to English, then any language it has), or null. */
 export function loadGuide(lib, slug, locale) {
-  for (const l of [locale, 'en']) {
+  for (const l of new Set([locale, 'en', ...LANGS])) {
     const file = path.join(GUIDES_DIR, lib, `${slug}.${l}.json`);
     if (fs.existsSync(file)) return { ...readJson(file), locale: l };
   }
@@ -219,20 +214,43 @@ export function loadGuide(lib, slug, locale) {
 }
 
 /** Manifest written by scripts/fetch-libs.mjs. Null before the first fetch. */
-export function loadUsageManifest() {
+export const loadUsageManifest = once(() => {
   const file = path.join(CACHE_DIR, 'manifest.json');
-  if (!fs.existsSync(file)) return null;
-  return readJson(file);
-}
+  return fs.existsSync(file) ? readJson(file) : null;
+});
 
 /**
  * Status of every lib from the last api-validator run, or null when the site is built without it.
  * `libs[<id>].functions[<fnId>]` = { status: ok|failing|signature|missing|waived, symbol?, source?,
  * passed, failed, failures: [{ id, expected, actual }] }.
  */
-export function loadStatus() {
-  if (!fs.existsSync(STATUS_FILE)) return null;
-  return readJson(STATUS_FILE);
+export const loadStatus = once(() => (fs.existsSync(STATUS_FILE) ? readJson(STATUS_FILE) : null));
+
+/**
+ * How much of a utility a lib covers, for the parity views. With a validator run (status.json,
+ * for every lib alike): the operations it implements, and whether they pass the shared cases.
+ * Without one: the operations its usage files document (.cache/usage/manifest.json).
+ *   state   full | partial | failing | none
+ *   count   operations implemented (or documented); failing: how many of them fail cases
+ *   detail  per operation, in page order: { op, status } where status is the function's
+ *           status.json status (ok|failing|signature|missing|waived), or ok|missing for documented
+ * @returns {{state:'full'|'partial'|'failing'|'none',count:number,failing:number,total:number,detail:Array<{op:SpecMeta['operations'][number],status:string}>}}
+ */
+export function coverage(spec, libId) {
+  const total = spec.operations.length;
+  const status = loadStatus();
+  let detail;
+  if (status) {
+    const fns = status.libs?.[libId]?.functions ?? {};
+    detail = spec.operations.map((op) => ({ op, status: fns[op.fnId]?.status ?? 'missing' }));
+  } else {
+    const documented = new Set(Object.values(loadUsageManifest()?.libs?.[libId]?.utils?.[spec.id] ?? {}).flat());
+    detail = spec.operations.map((op) => ({ op, status: documented.has(op.id) ? 'ok' : 'missing' }));
+  }
+  const count = detail.filter((d) => isImplemented(d)).length;
+  const failing = detail.filter((d) => d.status === 'failing').length;
+  const state = count === 0 ? 'none' : failing ? 'failing' : count >= total ? 'full' : 'partial';
+  return { state, count, failing, total, detail };
 }
 
 /**

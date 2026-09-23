@@ -116,7 +116,7 @@ export function score(fn: ContractFunction, symbol: string): number {
   return Math.round(value * 100) / 100;
 }
 
-export const SUGGESTION_THRESHOLD = 0.55;
+const SUGGESTION_THRESHOLD = 0.55;
 
 export function suggestSymbols(fn: ContractFunction, candidates: NativeSymbol[], limit = 3) {
   return candidates

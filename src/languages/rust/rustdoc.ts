@@ -47,7 +47,7 @@ function pathNode(p: Json): TypeNode {
 }
 
 /** Render a rustdoc JSON type as Rust source, for display and for the generated runner. */
-export function typeText(t: Json): string {
+function typeText(t: Json): string {
   if (!t || typeof t !== "object") return "_";
   if ("primitive" in t) return t.primitive;
   if ("generic" in t) return t.generic;

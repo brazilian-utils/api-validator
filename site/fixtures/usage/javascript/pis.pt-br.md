@@ -45,5 +45,3 @@ import { generatePis } from '@brazilian-utils/brazilian-utils';
 
 generatePis(); // '91077906857'
 ```
-
-## Processo jurídico

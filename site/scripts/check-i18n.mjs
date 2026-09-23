@@ -12,17 +12,19 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
-import { CONTRACT_DIR, DOCS_DIR, loadSpecs } from '../src/lib/registry.mjs';
+import { execFileSync } from 'node:child_process';
+import { CONTRACT_DIR, DOCS_DIR, LANGS, loadSpecs } from '../src/lib/registry.mjs';
 
 const strict = process.argv.includes('--strict');
 const problems = [];
 const notes = [];
 
 for (const spec of loadSpecs()) {
-  for (const lang of ['en', 'pt-BR']) {
-    if (!spec.title?.[lang]) problems.push(`contract/${spec.domain}.json: title.${lang} is missing`);
-    if (!spec.summary?.[lang]) problems.push(`contract/${spec.domain}.json: summary.${lang} is missing`);
+  // The raw file: loadSpecs fills a missing language in, so it would never look missing.
+  const raw = JSON.parse(fs.readFileSync(path.join(CONTRACT_DIR, `${spec.domain}.json`), 'utf8'));
+  for (const lang of LANGS) {
+    if (typeof raw.title !== 'string' && !raw.title?.[lang]) problems.push(`contract/${spec.domain}.json: title.${lang} is missing`);
+    if (!raw.summary?.[lang]) problems.push(`contract/${spec.domain}.json: summary.${lang} is missing`);
   }
   const pt = path.join(CONTRACT_DIR, spec.domain, 'spec.pt-BR.md');
   const en = path.join(CONTRACT_DIR, spec.domain, 'spec.en.md');
@@ -37,8 +39,8 @@ for (const spec of loadSpecs()) {
   }
 }
 
-// pages
-const skip = new Set(['utils', 'libs']);
+// pages (utils/, libs/ and guides/ are generated in both languages)
+const skip = new Set(['utils', 'libs', 'guides']);
 for (const file of walk(DOCS_DIR)) {
   const rel = path.relative(DOCS_DIR, file);
   const top = rel.split(path.sep)[0];
@@ -63,7 +65,7 @@ function* walk(dir) {
 
 function lastCommitDate(file) {
   try {
-    const out = execSync(`git log -1 --format=%cI -- "${file}"`, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+    const out = execFileSync('git', ['log', '-1', '--format=%cI', '--', file], { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
     return out ? new Date(out) : null;
   } catch {
     return null;

@@ -3,7 +3,7 @@
  * Official sources for a utility: the links in contract/<domain>/references.md, the references of
  * each operation in the contract, and any PDF copies kept in contract/<domain>/references/.
  */
-import { loadReferences, loadReferenceFiles } from '@lib/registry.mjs';
+import { loadReferences, loadReferenceFiles, REPO_URL } from '@lib/registry.mjs';
 
 interface Props {
   util: string;
@@ -13,7 +13,7 @@ const { util } = Astro.props;
 const t = Astro.locals.t;
 const links = loadReferences(util);
 const files = loadReferenceFiles(util);
-const repoBlob = 'https://github.com/brazilian-utils/api-validator/blob/main/';
+const repoBlob = `${REPO_URL}/blob/main/`;
 ---
 
 {links.length === 0 && files.length === 0 ? (

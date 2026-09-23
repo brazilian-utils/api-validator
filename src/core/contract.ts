@@ -96,7 +96,7 @@ function toExpectation(t: z.infer<typeof TestSchema>): Expectation {
   return { kind: "returns", value: t.returns };
 }
 
-export function defaultFlatName(domain: string, operation: string): string {
+function defaultFlatName(domain: string, operation: string): string {
   return camel(operation) + pascal(domain);
 }
 

@@ -1,42 +1,30 @@
 ---
 /**
  * Utility × library matrix. With a validator run (.generated/status.json): how many of the
- * domain's operations each library implements, and whether they pass the shared cases. Without
- * it: how many operations each library documents in its usage files.
+ * domain's functions each library implements, and whether they pass the shared cases. Without
+ * it: how many functions each library documents in its usage files.
  */
-import { getCollection } from 'astro:content';
-import { loadLibs, loadSpecs, loadStatus, loadUsageManifest, CATEGORIES, LANG_PREFIX } from '@lib/registry.mjs';
+import { CATEGORIES, coverage, loadLibs, loadSpecs, loadStatus, loadUsageManifest } from '@lib/registry.mjs';
+import { STATUS_MARK } from '@lib/text.mjs';
+import { pageContext } from '@lib/page';
 
-const { lang } = Astro.locals.starlightRoute;
 const t = Astro.locals.t;
-const locale = lang === 'pt-BR' ? 'pt-BR' : 'en';
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const prefix = LANG_PREFIX[locale] ? `${base}/${LANG_PREFIX[locale]}` : base;
-
+const { locale, prefix } = pageContext(Astro);
 const libs = loadLibs();
 const specs = loadSpecs();
 const status = loadStatus();
 const manifest = loadUsageManifest();
-const usage = await getCollection('usage');
 
 function cell(spec: any, libId: string) {
-  const total = spec.operations.length;
-  const fns = status?.libs[libId]?.functions;
-  if (fns) {
-    const mine = spec.operations.map((op: any) => ({ op, f: fns[op.fnId] }));
-    const have = mine.filter(({ f }: any) => f && (f.status === 'ok' || f.status === 'failing'));
-    const failing = have.filter(({ f }: any) => f.status === 'failing').length;
-    const state = have.length === 0 ? 'none' : failing ? 'failing' : have.length >= total ? 'full' : 'partial';
-    const detail = mine.map(({ op, f }: any) => `${f?.status === 'ok' ? '✓' : f?.status === 'failing' ? '✕' : '·'} ${op.label[locale]}`).join('\n');
-    return { state, count: have.length, total, detail };
-  }
-  const ops = new Set(usage.filter((e) => e.data.util === spec.id && e.data.lib === libId).map((e) => e.data.op));
-  const state = ops.size === 0 ? 'none' : ops.size >= total ? 'full' : 'partial';
-  return { state, count: ops.size, total, detail: spec.operations.map((op: any) => `${ops.has(op.id) ? '✓' : '·'} ${op.label[locale]}`).join('\n') };
+  const c = coverage(spec, libId);
+  const detail = c.detail.map((d: any) => `${STATUS_MARK[d.status as keyof typeof STATUS_MARK] ?? '–'} ${d.op.label[locale]}`).join('\n');
+  return { ...c, detail };
 }
 
 const groups = CATEGORIES.map((c: any) => ({ c, specs: specs.filter((s: any) => s.category === c.id) })).filter((g: any) => g.specs.length);
-const mark: Record<string, string> = { full: '●', partial: '◐', failing: '✕', none: '○' };
+// Marks: text first, color second. The legend is built from the same map.
+const MARKS: Array<[state: string, mark: string, cls: string]> = [['full', '✓', 'bu-ok'], ['partial', '◐', 'bu-warn'], ['failing', '✕', 'bu-fail'], ['none', '–', 'bu-none']];
+const mark = Object.fromEntries(MARKS.map(([state, m, cls]) => [state, { m, cls }]));
 ---
 
 <div class="parity not-content">
@@ -44,22 +32,23 @@ const mark: Record<string, string> = { full: '●', partial: '◐', failing: '�
     <table>
       <thead>
         <tr>
-          <th>{t('parity.utility')}</th>
-          {libs.map((lib) => <th><a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a></th>)}
+          <th scope="col">{t('parity.utility')}</th>
+          {libs.map((lib) => <th scope="col"><a href={`${prefix}/libs/${lib.id}/`}>{lib.label}</a></th>)}
         </tr>
       </thead>
       <tbody>
         {groups.map(({ c, specs }: any) => (
           <>
-            <tr class="group"><th colspan={libs.length + 1}>{c.label[locale]}</th></tr>
+            <tr class="group"><th colspan={libs.length + 1} scope="colgroup">{c.label[locale]}</th></tr>
             {specs.map((spec: any) => (
               <tr>
                 <th scope="row"><a href={`${prefix}/utils/${spec.id}/`}>{spec.title[locale]}</a></th>
                 {libs.map((lib) => {
                   const x = cell(spec, lib.id);
                   return (
-                    <td class={`cell cell-${x.state}`} title={x.detail}>
-                      <span class="mark" aria-label={t(`parity.${x.state}` as any)}>{mark[x.state]}</span>
+                    <td class="cell" title={x.detail}>
+                      <span class={`mark ${mark[x.state].cls}`} aria-hidden="true">{mark[x.state].m}</span>
+                      <span class="sr-only">{t(`parity.${x.state}` as any)}</span>
                       {x.state !== 'none' && <span class="count">{x.count}/{x.total}</span>}
                     </td>
                   );
@@ -73,11 +62,9 @@ const mark: Record<string, string> = { full: '●', partial: '◐', failing: '�
   </div>
 
   <p class="legend">
-    <strong>{t('parity.legend')}:</strong>
-    <span class="cell-full">● {t('parity.full')}</span>
-    <span class="cell-partial">◐ {t('parity.partial')}</span>
-    {status && <span class="cell-failing">✕ {t('parity.failing')}</span>}
-    <span class="cell-none">○ {t('parity.none')}</span>
+    {MARKS.filter(([state]) => status || state !== 'failing').map(([state, m, cls]) => (
+      <span><span class={cls} aria-hidden="true">{m}</span> {t(`parity.${state}` as any)}</span>
+    ))}
   </p>
   <p class="fetched">
     {status ? t('parity.fromRun', { date: new Date(status.generatedAt).toLocaleString(locale) }) : manifest?.fetchedAt ? `${t('parity.fetchedAt')} ${new Date(manifest.fetchedAt).toLocaleString(locale)}.` : ''}
@@ -87,16 +74,14 @@ const mark: Record<string, string> = { full: '●', partial: '◐', failing: '�
 <style>
   .table-wrap { overflow-x: auto; }
   table { border-collapse: collapse; width: 100%; font-size: var(--sl-text-sm); }
-  th, td { padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--sl-color-hairline); text-align: left; white-space: nowrap; }
-  thead th { font-size: var(--sl-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--sl-color-gray-3); }
-  tr.group th { background: var(--sl-color-gray-6); font-size: var(--sl-text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--sl-color-gray-2); }
+  th, td { padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--sl-color-hairline); text-align: start; white-space: nowrap; }
+  thead th { font-weight: 400; color: var(--sl-color-gray-3); }
+  thead a, tbody th a { color: var(--bu-link); }
+  tbody th { font-weight: 400; }
+  tr.group th { padding-top: 1.1rem; font-weight: 700; color: var(--sl-color-white); border-bottom-color: var(--sl-color-gray-5); }
   .cell { font-variant-numeric: tabular-nums; }
-  .mark { font-size: 1.1em; margin-inline-end: 0.35rem; }
-  .cell-full .mark { color: var(--sl-color-green); }
-  .cell-partial .mark { color: var(--sl-color-orange); }
-  .cell-failing .mark { color: var(--sl-color-red); }
-  .cell-none .mark { color: var(--sl-color-gray-4); }
+  .mark { display: inline-block; width: 1.1em; }
   .count { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
-  .legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: var(--sl-text-sm); margin-top: 1rem; }
-  .fetched { font-size: var(--sl-text-xs); color: var(--sl-color-gray-4); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: var(--sl-text-sm); margin-top: 1rem; }
+  .fetched { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
 </style>

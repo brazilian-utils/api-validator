@@ -19,6 +19,35 @@ const shouldDetect = lang !== 'pt-BR';
 
 <Default><slot /></Default>
 
+<script>
+  // Expressive Code makes a code block that scrolls sideways focusable, as role="region" without
+  // a name. Several unnamed regions on one page are ambiguous for screen readers: name each one
+  // after its file title, or its language.
+  const code = document.documentElement.lang.startsWith('pt') ? 'Código' : 'Code';
+  const used = new Map<string, number>();
+  /** The last heading before the element, the section it belongs to. */
+  const section = (el: Element) => {
+    const headings = [...document.querySelectorAll('.sl-markdown-content :is(h2, h3)')];
+    return headings.filter((h) => h.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).pop()?.textContent?.trim();
+  };
+  const name = (pre: Element) => {
+    if (pre.getAttribute('role') !== 'region' || pre.hasAttribute('aria-label')) return;
+    const title = pre.closest('figure')?.querySelector('.title')?.textContent?.trim();
+    const lang = pre.getAttribute('data-language');
+    const tab = pre.closest('[role="tabpanel"]')?.getAttribute('aria-labelledby');
+    const parts = [title ?? (lang && lang !== 'plaintext' ? `${code} (${lang})` : code), tab && document.getElementById(tab)?.textContent?.trim(), section(pre)];
+    let label = [...new Set(parts.filter(Boolean))].join(', ');
+    const n = (used.get(label) ?? 0) + 1;
+    used.set(label, n);
+    if (n > 1) label += ` (${n})`;
+    pre.setAttribute('aria-label', label);
+  };
+  new MutationObserver((changes) => changes.forEach((c) => name(c.target as Element))).observe(document.body, {
+    subtree: true,
+    attributeFilter: ['role'],
+  });
+</script>
+
 <script is:inline define:vars={{ base, ptPrefix, shouldDetect }}>
   (function () {
     var KEY = 'bu:lang';

@@ -108,5 +108,3 @@ getCertidaoInfo('invalid'); // null
 ```
 
 Source: [art. 473 of the Código Nacional de Normas da Corregedoria Nacional de Justiça](https://atos.cnj.jus.br/atos/detalhar/5243); book codes 8 and 9 per [ghiorzi.org](http://ghiorzi.org/DVnew.htm) and [validation-br](https://github.com/klawdyo/validation-br/blob/feat-certidao/src/certidao.ts).
-
-## CEI, CNO and CAEPF

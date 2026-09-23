@@ -43,8 +43,6 @@ convertDateToWords('invalid'); // ""
 convertDateToWords('29/02/1900'); // "" (1900 is not a leap year)
 ```
 
-## States and municipalities
-
 ## differenceInBusinessDays
 
 Count the Brazilian business days (dias úteis) between two dates. Signature: `differenceInBusinessDays(laterDate, earlierDate, options?)`, the same as date-fns.

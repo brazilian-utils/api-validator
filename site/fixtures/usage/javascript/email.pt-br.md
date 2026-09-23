@@ -15,5 +15,3 @@ isValidEmail('invalid.email'); // false
 ```
 
 Fonte: [HTML da WHATWG, valid e-mail address](https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address) e [RFC 5322](https://www.rfc-editor.org/rfc/rfc5322).
-
-## Cartão de crédito

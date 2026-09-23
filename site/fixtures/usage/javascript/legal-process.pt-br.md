@@ -62,5 +62,3 @@ generateProcessoJuridico({ court: 10 }); // null (órgão inexistente)
 ```
 
 Fonte: [Resolução CNJ nº 65/2008](https://atos.cnj.jus.br/atos/detalhar/119).
-
-## Contas bancárias e bancos

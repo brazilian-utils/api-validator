@@ -13,6 +13,9 @@
  */
 import type { Contract, LibConfig, LibReport } from "../core/model.js";
 import type { DiffRow } from "../core/differential.js";
+import { blobUrl } from "../core/libs.js";
+import type { FunctionUsage } from "../core/usage.js";
+import { shortName as short } from "../../site/src/lib/usage-format.mjs";
 import { json, suiteFiles } from "../core/cases.js";
 import { badge, badgeSvg } from "./badge.js";
 
@@ -20,7 +23,7 @@ export interface SiteDataLib {
   lib: LibConfig;
   report: LibReport;
   /** Contract ops the lib's usage files document, per function id (see core/usage.ts). */
-  usage?: Record<string, { documented: boolean; problems: string[] }>;
+  usage?: Record<string, FunctionUsage>;
 }
 
 export interface SiteDataInput {
@@ -30,15 +33,12 @@ export interface SiteDataInput {
   generatedAt: string;
 }
 
-const short = (name: string) => name.replace(/^brazilian-utils-/, "");
-
 function sourceUrl(lib: LibConfig, report: LibReport, loc?: { file: string; line: number }): string | undefined {
-  const repo = lib.repo?.replace(/\.git$/, "");
-  if (!repo || !loc || !report.revision || loc.file.startsWith("/") || loc.file.startsWith("..")) return undefined;
-  return `${repo}/blob/${report.revision}/${loc.file}#L${loc.line}`;
+  if (!lib.repo || !loc || !report.revision || loc.file.startsWith("/") || loc.file.startsWith("..")) return undefined;
+  return blobUrl(lib.repo, report.revision, loc.file, loc.line);
 }
 
-export function statusJson(input: SiteDataInput) {
+function statusJson(input: SiteDataInput) {
   const libs = Object.fromEntries(
     input.libs.map(({ lib, report, usage }) => [
       short(lib.name),

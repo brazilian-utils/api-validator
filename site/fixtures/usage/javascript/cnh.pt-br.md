@@ -49,5 +49,3 @@ import { generateCnh } from '@brazilian-utils/brazilian-utils';
 
 generateCnh(); // '02650306461'
 ```
-
-## Natureza jurídica

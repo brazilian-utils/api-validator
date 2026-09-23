@@ -29,7 +29,7 @@ export type Expectation =
   | { kind: "satisfies"; fn: string };
 
 export interface ContractTest {
-  /** Stable id, `<fnId>#<index>` unless `name` is given. */
+  /** Stable id: `<fnId>#<name>`, else `<fnId>#<args as JSON>`; `~2`, `~3`… for repeats of the same key. */
   id: string;
   name?: string;
   args: unknown[];
@@ -94,42 +94,8 @@ export interface Contract {
 // Library configuration
 // ---------------------------------------------------------------------------
 
-export interface LibConfig {
-  name: string;
-  language: string;
-  repo?: string;
-  branch?: string;
-  /** Entry point / package root, relative to the repo root. Meaning is language-specific. */
-  entry: string;
-  /** Explicit contract id -> native symbol(s). Overrides naming conventions. */
-  bindings: Record<string, string | string[]>;
-  /** Native symbols that are intentionally outside the contract (glob-like `*` allowed). */
-  ignore: string[];
-  /** Contract ids the lib deliberately does not implement, with the reason. */
-  waivers: Record<string, string>;
-  /** Contract test ids known to fail, with the reason (reported, but never fail CI). */
-  knownFailures: Record<string, string>;
-  /** Free-form adapter options. */
-  options: Record<string, unknown>;
-  site?: {
-    label: string;
-    icon?: string;
-    order: number;
-    package: string;
-    install: string;
-    registry: string;
-    usage: {
-      ref: string;
-      path: string;
-      reference?: { en: string; "pt-BR"?: string };
-      guides?: { en: string; "pt-BR"?: string };
-      root?: string;
-      assets: string[];
-      prepare?: string[];
-    };
-  };
-  source: string;
-}
+/** A lib config (libs/<name>.json), as validated by LibSchema in libs.ts. */
+export type { LibConfig } from "./libs.js";
 
 // ---------------------------------------------------------------------------
 // Extracted API surface

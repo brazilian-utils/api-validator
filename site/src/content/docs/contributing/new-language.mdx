@@ -1,42 +1,42 @@
 ---
-title: Porting to a new language
-description: How to implement a utility in a library that does not have it yet, or start a whole new library.
+title: Port to a new language
+description: Implement a utility in a library that does not have it yet, or start a library in a new language.
 ---
 
 import { Steps, Aside } from '@astrojs/starlight/components';
 
-The [parity matrix](/reference/parity/) shows every gap, and each [library page](/libs/python/) lists what that library is missing. Each gap is a self-contained contribution: the rule is written, the test cases exist, and in most cases an `implement` issue is already open in the library repository with the reference implementation and the cases inline.
+The [parity matrix](/reference/parity/) shows every gap. The page of each library, for example [Python](/libs/python/), lists what that library is missing. Each gap is a separate contribution. The rule and the test cases already exist. Usually, the library repository already has an `implement` issue with the reference code and the test cases.
 
-## Adding a utility to an existing library
+## Add a utility to a library
 
 <Steps>
 
-1. **Read the utility page.** The spec and the test cases are the whole behaviour. Other libraries' tabs show how they did it.
+1. **Read the utility page.** The spec and the test cases define the full behavior. The tabs of the other libraries show their code.
 
-2. **Implement it** following the library's `CONTRIBUTING.md`. Name functions the way the language expects (`isValidCpf`, `is_valid_cpf`, `cpf.IsValid`…); the contract does not dictate names, the validator matches them by convention or by a binding in `libs/<lib>.json`.
+2. **Implement the function.** Follow the `CONTRIBUTING.md` of the library. Use the names that the language expects, for example `isValidCpf`, `is_valid_cpf` or `cpf.IsValid`. The contract does not set the names. The validator finds a function by its name, or by a binding in `libs/<lib>.json`.
 
-3. **Register it in the library's harness.** The harness reads the vendored `api-contract/cases/*.json` and runs every case of every function it knows with the library's own test command.
+3. **Register the function in the harness of the library.** The harness reads the copy of `api-contract/cases/*.json` in the library. It runs every case of every function it knows, with the library's own test command.
 
-4. **Add the usage section** in `docs/usage/<util>.md` ([usage files](/contributing/usage-files/)); `api-validator usage --scaffold` writes it from the cases you now pass.
+4. **Add the usage example** to `docs/usage/<util>.md`. The [usage files](/contributing/usage-files/) page describes the format. `api-validator usage --scaffold` writes the example from the cases that the library passes.
 
-5. **Release.** The issue closes by itself on the next api-validator run; the next site build shows your tab and status.
+5. **Release.** The next api-validator run closes the issue. The next build of this site shows the new tab and the new status.
 
 </Steps>
 
-## Starting a library in a new language
+## Start a library in a new language
 
 <Steps>
 
-1. Ask the organization for a repository under `brazilian-utils/<language>`.
+1. Ask the organization for a repository at `brazilian-utils/<language>`.
 
-2. In api-validator, add a language adapter (API extraction and a test runner) and `libs/brazilian-utils-<language>.json` with its `site` block (label, icon, install line, registry link). The guide is [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md).
+2. In api-validator, add a language adapter and `libs/brazilian-utils-<language>.json`. The adapter reads the API and runs the tests. Its `site` block has the label, the icon, the install command and the registry link. [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md) shows each step.
 
-3. Start with the core functions: `api-validator issues --backfill core --lib <language> --apply` opens one issue per missing core function.
+3. Start with the core functions. `api-validator issues --backfill core --lib <language> --apply` opens one issue for each missing core function.
 
-4. Adopt the harness ([docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md)) and ship `docs/usage/` from the first release.
+4. Add the harness to the library, as [docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md) shows. Publish `docs/usage/` from the first release.
 
 </Steps>
 
 <Aside type="tip">
-Do not document differences from other libraries. If an implementation disagrees with the contract, that is a failing case to fix (or a contract change to propose), not a note to write.
+Do not document a difference from the other libraries. If an implementation does not match the contract, fix the failing case, or propose a change to the contract.
 </Aside>

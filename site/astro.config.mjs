@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './src/lib/registry.mjs';
+import { CATEGORIES, REPO_URL, loadGuides, loadLibs, loadSpecs } from './src/lib/registry.mjs';
 
 import baseLinks from './src/integrations/base-links.mjs';
 
@@ -14,6 +14,8 @@ const BASE_PATH = process.env.BASE_PATH || `${PUBLIC_URL.pathname.replace(/\/$/,
 // Sidebar entries for every utility that has a spec, grouped by category.
 // Adding a utility = adding a domain to ../contract (with its category). Nothing to edit here.
 const specs = loadSpecs();
+const libs = loadLibs();
+const guides = loadGuides();
 const utilityGroups = CATEGORIES.map((category) => ({
   label: category.label.en,
   translations: { 'pt-BR': category.label['pt-BR'] },
@@ -35,7 +37,8 @@ export default defineConfig({
     starlight({
       title: 'Brazilian Utils',
       description: 'Utilities to validate, format and generate Brazilian data, in every language.',
-      logo: { src: './src/assets/icon.png', alt: 'Brazilian Utils' },
+      // The logo sits next to the site name, which says the same: decorative, empty alt.
+      logo: { src: './src/assets/icon.png', alt: '' },
       favicon: '/favicon.ico',
       defaultLocale: 'root',
       locales: {
@@ -45,10 +48,16 @@ export default defineConfig({
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/brazilian-utils' },
       ],
-      editLink: { baseUrl: 'https://github.com/brazilian-utils/api-validator/edit/main/site/' },
+      editLink: { baseUrl: `${REPO_URL}/edit/main/site/` },
       // Needs git history; the site lives in a git repository now.
       lastUpdated: true,
-      customCss: ['./src/styles/brand.css'],
+      customCss: [
+        '@fontsource/atkinson-hyperlegible-next/400.css',
+        '@fontsource/atkinson-hyperlegible-next/400-italic.css',
+        '@fontsource/atkinson-hyperlegible-next/700.css',
+        '@fontsource/atkinson-hyperlegible-mono/400.css',
+        './src/styles/brand.css',
+      ],
       components: {
         Head: './src/components/Head.astro',
       },
@@ -65,16 +74,16 @@ export default defineConfig({
         },
         ...utilityGroups,
         // Longer, library-specific pages (a form field, an address form…), from each library's guides.
-        ...(loadGuides().length
+        ...(guides.length
           ? [
               {
                 label: 'Guides',
                 translations: { 'pt-BR': 'Guias' },
-                items: loadGuides().map((g) => ({
+                items: guides.map((g) => ({
                   slug: `guides/${g.lib}/${g.slug}`,
                   label: g.title.en ?? Object.values(g.title)[0],
                   translations: g.title['pt-BR'] ? { 'pt-BR': g.title['pt-BR'] } : {},
-                  badge: { text: loadLibs().find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' },
+                  badge: { text: libs.find((l) => l.id === g.lib)?.label ?? g.lib, variant: 'note' },
                 })),
               },
             ]
@@ -84,7 +93,7 @@ export default defineConfig({
           translations: { 'pt-BR': 'Bibliotecas' },
           items: [
             { slug: 'reference/parity', label: 'Parity matrix', translations: { 'pt-BR': 'Matriz de paridade' } },
-            ...loadLibs().map((lib) => ({ slug: `libs/${lib.id}`, label: lib.label })),
+            ...libs.map((lib) => ({ slug: `libs/${lib.id}`, label: lib.label })),
           ],
         },
         {

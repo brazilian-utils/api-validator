@@ -9,7 +9,7 @@ import type { ContractFunction, Issue, NativeSymbol } from "./model.js";
  * contract (positional args, optional ones may be omitted) must work against the lib,
  * and whatever the lib returns must be something the contract allows.
  */
-export function checkSignature(fn: ContractFunction, symbol: NativeSymbol, adapter: LanguageAdapter): Issue[] {
+function checkSignature(fn: ContractFunction, symbol: NativeSymbol, adapter: LanguageAdapter): Issue[] {
   const issues: Issue[] = [];
   const positional = symbol.params.filter((p) => !p.rest && !p.keyword);
   const hasRest = symbol.params.some((p) => p.rest && !p.keyword);
@@ -77,9 +77,11 @@ export function checkSignature(fn: ContractFunction, symbol: NativeSymbol, adapt
   return issues;
 }
 
+/** `cpf: string, strict?: boolean`: a contract function's parameters as text. */
+export const paramList = (params: ContractFunction["params"]) => params.map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type}`).join(", ");
+
 export function sig(fn: ContractFunction): string {
-  const params = fn.params.map((p) => `${p.name}${p.optional ? "?" : ""}: ${p.type}`).join(", ");
-  return `${fn.flatName}(${params}) -> ${fn.returns}`;
+  return `${fn.flatName}(${paramList(fn.params)}) -> ${fn.returns}`;
 }
 
 export function nativeSig(s: NativeSymbol): string {

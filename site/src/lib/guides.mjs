@@ -123,7 +123,7 @@ function finish(node, ctx) {
     }
     return;
   }
-  node.name = node.kind === 'variant' ? node.variant ?? node.name : node.name;
+  if (node.kind === 'variant') node.name = node.variant ?? node.name;
   delete node.variant;
   if (text) node.intro = rewriteLinks(text, ctx);
   if (node.demo) node.demo = demoUrl(node.demo, ctx);
@@ -140,44 +140,96 @@ function demoUrl(url, ctx) {
 }
 
 /**
- * Links in a guide: to a sibling guide → that guide here; to the library's reference page with a
- * symbol anchor (`utilities.md#formatcpf`) → the operation on its utility page here; anything
- * else relative → the file on GitHub. Relative links resolve from the guide's folder and, the
- * way docsify does, from the docs root.
+ * Links in a guide: to a sibling guide → that guide here; the rest as absolutizeLinks does
+ * (reference anchors → the operation here, other relative links → GitHub).
  */
 function rewriteLinks(md, ctx) {
   const prefix = ctx.locale === 'pt-BR' ? '/pt-br' : '';
-  const root = path.join(ctx.src.dir, ctx.lib.root);
   const guidesDir = path.join(ctx.src.dir, ctx.lib.guides[ctx.locale]);
-  const reference = ctx.lib.reference && Object.values(ctx.lib.reference).map((r) => path.join(ctx.src.dir, r));
-  return md.replace(/(\]\()([^)\s]+)(\))/g, (all, a, url, z) => {
-    if (/^(https?:|mailto:|#|\/)/.test(url)) return all;
-    const [p, hash = ''] = url.split('#');
-    const candidates = [path.resolve(path.dirname(ctx.file), p), path.resolve(root, p)];
-    const target = candidates.find((c) => fs.existsSync(c)) ?? candidates[0];
-    if (path.dirname(target) === guidesDir && target.endsWith('.md') && ctx.siblings.includes(path.basename(target, '.md'))) {
-      return `${a}${prefix}/guides/${ctx.lib.id}/${path.basename(target, '.md')}/${hash ? `#${hash}` : ''}${z}`;
-    }
-    if (reference?.includes(target)) {
-      const here = operationAnchor(ctx, hash);
-      if (here) return `${a}${prefix}${here}${z}`;
-    }
-    const rel = path.relative(ctx.src.dir, target).split(path.sep).join('/');
-    return `${a}${ctx.src.url}${rel}${hash ? `#${hash}` : ''}${z}`;
+  return absolutizeLinks(md, {
+    fromFile: ctx.file,
+    srcDir: ctx.src.dir,
+    srcUrl: ctx.src.url,
+    docsRoot: path.join(ctx.src.dir, ctx.lib.root),
+    reference: referenceFiles(ctx),
+    anchor: referenceAnchor(ctx),
+    page: (target, hash) =>
+      path.dirname(target) === guidesDir && target.endsWith('.md') && ctx.siblings.includes(path.basename(target, '.md'))
+        ? `${prefix}/guides/${ctx.lib.id}/${path.basename(target, '.md')}/${hash ? `#${hash}` : ''}`
+        : null,
   });
 }
 
-/** `formatcpf` (a reference anchor) → `/utils/cpf/#format`, when the symbol implements a contract function. */
-function operationAnchor(ctx, anchor) {
-  if (!anchor) return null;
-  const locale = ctx.locale;
+/** The library's reference pages (every language), as absolute paths. ctx: { lib: { reference }, src: { dir } }. */
+export const referenceFiles = (ctx) => Object.values(ctx.lib.reference ?? {}).map((r) => path.join(ctx.src.dir, r));
+
+/** Fenced blocks and code spans: what looks like a link inside them is code. */
+const CODE = /^(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^\1[^\S\n]*$|(?![\s\S]))|(`+)(?!`)[\s\S]*?(?<!`)\2(?!`)/gm;
+const IMAGE = /(!\[[^\]\n]*\]\()([^)\s]+)((?:\s+"[^"]*")?\))/g;
+const HTML_IMAGE = /(<img\b[^>]*?\bsrc=")([^"]+)(")/g;
+const LINK = /(\]\()([^)\s]+)((?:\s+"[^"]*")?\))/g;
+
+/** Apply `fn` to the parts of a Markdown text outside code. */
+function outsideCode(md, fn) {
+  let out = '';
+  let last = 0;
+  for (const m of md.matchAll(CODE)) {
+    out += fn(md.slice(last, m.index)) + m[0];
+    last = m.index + m[0].length;
+  }
+  return out + fn(md.slice(last));
+}
+
+/**
+ * Relative links and images of a library's Markdown, made to work on this site. A link resolves
+ * from the file's folder and, the way docsify does, from the docs root (`/x.md` is docs-root
+ * relative), and becomes the file on GitHub (`srcUrl`); an image becomes its raw file. Absolute
+ * URLs, `mailto:` and anything inside code stay as they are. Optional hooks, tried first:
+ *   anchor(hash)         a symbol anchor of a reference page (`reference`: absolute paths; a bare
+ *                        `#hash` counts when `fromFile` is one) → a path on this site, or null
+ *   page(target, hash)   any other resolved file → a path on this site, or null
+ */
+export function absolutizeLinks(md, { fromFile, srcDir, srcUrl, docsRoot = srcDir, reference = [], anchor, page }) {
+  const raw = srcUrl.replace(/^https:\/\/github\.com\/([^/]+\/[^/]+)\/blob\//, 'https://raw.githubusercontent.com/$1/');
+  const external = (url) => /^([a-z][a-z0-9+.-]*:|\/\/)/i.test(url);
+  const resolve = (p) => {
+    const candidates = p.startsWith('/') ? [path.join(docsRoot, p)] : [path.resolve(path.dirname(fromFile), p), path.resolve(docsRoot, p)];
+    const target = candidates.find((c) => fs.existsSync(c)) ?? candidates[0];
+    return { target, rel: path.relative(srcDir, target).split(path.sep).join('/') };
+  };
+  const image = (all, a, url, z) => {
+    if (external(url) || url.startsWith('#')) return all;
+    const [p, rest = ''] = url.split(/(?=[?#])/);
+    return `${a}${raw}${resolve(p).rel}${rest}${z}`;
+  };
+  const link = (all, a, url, z) => {
+    if (external(url)) return all;
+    const [p, hash = ''] = url.split('#');
+    if (!p) {
+      const here = reference.includes(fromFile) && anchor?.(hash);
+      return here ? `${a}${here}${z}` : all;
+    }
+    const { target, rel } = resolve(p);
+    const here = (reference.includes(target) && anchor?.(hash)) || page?.(target, hash);
+    return `${a}${here || `${srcUrl}${rel}${hash ? `#${hash}` : ''}`}${z}`;
+  };
+  return outsideCode(md, (text) => text.replace(IMAGE, image).replace(HTML_IMAGE, image).replace(LINK, link));
+}
+
+/**
+ * `formatcpf` (a reference anchor) → `/utils/cpf/#format` (with the locale prefix) when the
+ * symbol implements a contract function, else null. ctx: { lib: { id }, locale, status, specs }.
+ */
+export function referenceAnchor(ctx) {
+  const prefix = ctx.locale === 'pt-BR' ? '/pt-br' : '';
   const fns = ctx.status?.libs?.[ctx.lib.id]?.functions ?? {};
-  const hit = Object.entries(fns).find(([, f]) => f.symbol && f.symbol.split(/[.:]/).pop().toLowerCase() === anchor.toLowerCase());
-  if (!hit) return null;
-  const dot = hit[0].lastIndexOf('.');
-  const spec = ctx.specs.find((s) => s.domain === hit[0].slice(0, dot));
-  const op = spec?.operations.find((o) => o.id === hit[0].slice(dot + 1));
-  return op ? `/utils/${spec.id}/#${headingSlug(op.label[locale] ?? op.label.en)}` : null;
+  const ops = new Map(ctx.specs.flatMap((spec) => spec.operations.map((op) => [`${spec.domain}.${op.id}`, { spec, op }])));
+  return (hash) => {
+    if (!hash) return null;
+    const hit = Object.entries(fns).find(([, f]) => f.symbol && f.symbol.split(/[.:]/).pop().toLowerCase() === hash.toLowerCase());
+    const found = hit && ops.get(hit[0]);
+    return found ? `${prefix}/utils/${found.spec.id}/#${headingSlug(found.op.label[ctx.locale] ?? found.op.label.en)}` : null;
+  };
 }
 
 /** Contract functions a guide calls: the library's symbols (from the last validator run) found in its code. */

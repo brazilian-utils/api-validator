@@ -38,17 +38,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import {
-  CACHE_DIR, FIXTURES_DIR, GUIDES_DIR, LIB_ASSETS_DIR, LOCAL_REPOS, REPOS_CACHE, keyOf, loadLibs, loadSpecs, loadStatus, resolveOperation,
+  CACHE_DIR, FIXTURES_DIR, GUIDES_DIR, LANGS, LIB_ASSETS_DIR, LOCAL_REPOS, REPOS_CACHE, keyOf, loadLibs, loadOperation, loadSpecs, loadStatus, resolveOperation,
 } from '../src/lib/registry.mjs';
-import { parseGuide } from '../src/lib/guides.mjs';
+import { absolutizeLinks, parseGuide, referenceAnchor, referenceFiles } from '../src/lib/guides.mjs';
+import { parseUsageFileName, referenceSections, splitSections, stripFrontMatter, symbolMap } from '../src/lib/usage-format.mjs';
 
 const MODE = process.env.USAGE_SOURCE ?? 'github';
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
-const LOCALES = ['en', 'pt-BR'];
 
 const specs = loadSpecs();
 const specByKey = new Map(specs.flatMap((s) => [[keyOf(s.id), s], [keyOf(s.domain), s]]));
-const specByDomain = new Map(specs.map((s) => [s.domain, s]));
 const status = loadStatus();
 const warnings = [];
 const manifest = { fetchedAt: new Date().toISOString(), libs: {} };
@@ -68,7 +67,7 @@ for (const lib of loadLibs()) {
   let sections = src ? usageFiles(lib, src) : [];
   if (src) {
     const have = new Set(sections.map((s) => `${s.spec.id}/${s.op}/${s.locale}`));
-    sections.push(...referenceSections(lib, src, result).filter((s) => !have.has(`${s.spec.id}/${s.op}/${s.locale}`)));
+    sections.push(...referencePage(lib, src, result).filter((s) => !have.has(`${s.spec.id}/${s.op}/${s.locale}`)));
   }
   if (!sections.length) {
     sections = fixtureSections(lib);
@@ -100,7 +99,11 @@ for (const w of warnings) console.warn(`warn   ${w}`);
 async function sourceOf(lib) {
   if (MODE === 'fixtures') return null;
   const local = path.join(LOCAL_REPOS, lib.name);
-  const localSource = () => (fs.existsSync(local) ? { dir: local, ref: gitHead(local) ?? 'local', origin: 'local', url: blobBase(lib, gitHead(local) ?? 'main') } : null);
+  const localSource = () => {
+    if (!fs.existsSync(local)) return null;
+    const head = gitHead(local);
+    return { dir: local, ref: head ?? 'local', origin: 'local', url: blobBase(lib, head ?? 'main') };
+  };
   if (MODE === 'local') return localSource();
   try {
     // Without the API (rate limit, bad token) the clone takes the default branch.
@@ -179,9 +182,24 @@ function usageFiles(lib, src) {
   if (!fs.existsSync(dir)) return [];
   const out = [];
   for (const name of fs.readdirSync(dir).filter((n) => n.endsWith('.md'))) {
-    out.push(...usageSections(lib, name, fs.readFileSync(path.join(dir, name), 'utf8'), src.url + `${lib.path}/${name}`));
+    const file = path.join(dir, name);
+    const sections = usageSections(lib, name, fs.readFileSync(file, 'utf8'), src.url + `${lib.path}/${name}`);
+    out.push(...sections.map((s) => ({ ...s, body: siteLinks(lib, src, file, s.locale, s.body) })));
   }
   return out;
+}
+
+/** Relative links of a library's Markdown → GitHub (or the operation here, for reference anchors). */
+function siteLinks(lib, src, fromFile, locale, md) {
+  const ctx = { lib, src, locale, status, specs };
+  return absolutizeLinks(md, {
+    fromFile,
+    srcDir: src.dir,
+    srcUrl: src.url,
+    docsRoot: path.join(src.dir, lib.root),
+    reference: referenceFiles(ctx),
+    anchor: referenceAnchor(ctx),
+  });
 }
 
 function fixtureSections(lib) {
@@ -195,17 +213,17 @@ function fixtureSections(lib) {
 
 /** `cpf.md` / `cpf.pt-br.md`: sections are `## <operation id>`; text before the first heading is ignored. */
 function usageSections(lib, name, content, url) {
-  const m = /^(.+?)(?:\.(pt-br))?\.md$/i.exec(name);
-  const spec = m && specByKey.get(keyOf(m[1]));
+  const file = parseUsageFileName(name);
+  const spec = file && specByKey.get(keyOf(file.stem));
   if (!spec) {
-    if (m && !/^readme$/i.test(m[1])) warnings.push(`${lib.id}/${name}: no contract domain named "${m[1]}"; skipped`);
+    if (file && !/^readme$/i.test(file.stem)) warnings.push(`${lib.id}/${name}: no contract domain named "${file.stem}"; skipped`);
     return [];
   }
-  const locale = m[2] ? 'pt-BR' : 'en';
+  const { locale } = file;
   const fm = /^---\s*\n([\s\S]*?)\n---\s*\n?/.exec(content);
   const since = fm && /^since:\s*["']?([^"'\n]+)["']?\s*$/m.exec(fm[1])?.[1].trim();
   const out = [];
-  for (const s of split(fm ? content.slice(fm[0].length) : content, /^##\s+(.+?)\s*$/gm)) {
+  for (const s of splitSections(stripFrontMatter(content))) {
     const op = resolveOperation(spec, s.heading);
     if (!op) {
       warnings.push(`${lib.id}/${name}: unknown operation "## ${s.heading}" (known: ${spec.operations.map((o) => o.id).join(', ')}); skipped`);
@@ -217,43 +235,26 @@ function usageSections(lib, name, content, url) {
 }
 
 /** Headings that are the library's symbol names, mapped to contract functions by the last validator run. */
-function referenceSections(lib, src, result) {
+function referencePage(lib, src, result) {
   if (!lib.reference) return [];
   const fns = status?.libs?.[lib.id]?.functions;
   if (!fns) {
     warnings.push(`${lib.id}: reference page not read, no validator run to map its symbols (run api-validator site-data)`);
     return [];
   }
-  const bySymbol = new Map();
-  for (const [fnId, f] of Object.entries(fns)) {
-    if (!f.symbol) continue;
-    for (const name of [f.symbol, f.symbol.split(/[.:]/).pop()]) if (!bySymbol.has(name)) bySymbol.set(name, fnId);
-  }
+  const bySymbol = symbolMap(Object.entries(fns).filter(([fnId]) => loadOperation(fnId)).map(([fnId, f]) => [fnId, f.symbol]));
   const out = [];
-  for (const locale of LOCALES) {
+  for (const locale of LANGS) {
     const rel = lib.reference[locale];
     const file = rel && path.join(src.dir, rel);
     if (!file || !fs.existsSync(file)) continue;
-    const body = fs.readFileSync(file, 'utf8').replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '');
-    const marks = [...body.matchAll(/^(#{2,3})\s+`?([^`\s]+)`?\s*$/gm)];
-    let first = null;
-    marks.forEach((m, i) => {
-      const fnId = bySymbol.get(m[2]);
-      if (!fnId) return;
-      const dot = fnId.lastIndexOf('.');
-      const spec = specByDomain.get(fnId.slice(0, dot));
-      if (!spec) return;
-      first ??= i;
-      out.push({ spec, op: fnId.slice(dot + 1), locale, body: body.slice(m.index + m[0].length, marks[i + 1]?.index).trim(), source: `${src.url}${rel}#${m[2].toLowerCase()}` });
-    });
-    // What comes before the first documented function (conventions every function follows), minus
-    // the family heading right above it, goes on the library's page.
-    if (first !== null) {
-      let cut = marks[first].index;
-      const parent = marks.slice(0, first).reverse().find((m) => m[1].length < marks[first][1].length);
-      if (parent && marks[first][1].length === 3) cut = parent.index;
-      result.intro[locale] = body.slice(0, cut).trim();
+    const { sections, intro } = referenceSections(stripFrontMatter(fs.readFileSync(file, 'utf8')), bySymbol);
+    for (const s of sections) {
+      const { spec, op } = loadOperation(s.fnId);
+      out.push({ spec, op: op.id, locale, body: siteLinks(lib, src, file, locale, s.body), source: `${src.url}${rel}#${s.symbol.toLowerCase()}` });
     }
+    // Conventions every function follows go on the library's page.
+    if (sections.length) result.intro[locale] = siteLinks(lib, src, file, locale, intro);
   }
   return out;
 }
@@ -266,17 +267,12 @@ function writeUsage(lib, s, result) {
   ((result.utils[s.spec.id] ??= {})[s.locale] ??= []).push(s.op);
 }
 
-function split(text, re) {
-  const marks = [...text.matchAll(re)];
-  return marks.map((m, i) => ({ heading: m[1].trim(), body: text.slice(m.index + m[0].length, marks[i + 1]?.index) }));
-}
-
 // ---------------------------------------------------------------------------
 // Guides
 
 function readGuides(lib, src) {
   const found = new Map();
-  for (const locale of LOCALES) {
+  for (const locale of LANGS) {
     const rel = lib.guides[locale];
     const dir = rel && path.join(src.dir, rel);
     if (!dir || !fs.existsSync(dir)) continue;
@@ -293,5 +289,5 @@ function readGuides(lib, src) {
       found.set(slug, entry);
     }
   }
-  guides.push(...[...found.values()].filter((g) => g.title.en ?? Object.values(g.title)[0]));
+  guides.push(...found.values());
 }

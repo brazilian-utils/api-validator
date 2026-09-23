@@ -62,5 +62,3 @@ generateProcessoJuridico({ court: 10 }); // null (no such órgão)
 ```
 
 Source: [Resolução CNJ nº 65/2008](https://atos.cnj.jus.br/atos/detalhar/119).
-
-## Bank accounts and banks

@@ -93,14 +93,14 @@ interface Prepared {
 }
 
 /** Path of the symbol inside its crate (`cpf::is_valid`). */
-export function rustPathOf(symbol: NativeSymbol): string {
+function rustPathOf(symbol: NativeSymbol): string {
   const meta = symbol.meta as { rustPath?: string } | undefined;
   if (!meta?.rustPath) throw new Unsupported("symbol has no Rust metadata");
   return meta.rustPath;
 }
 
 /** Typed argument literals of a call (Rust has no optional parameters: counts must match). */
-export function rustArgs(symbol: NativeSymbol, values: unknown[]): string[] {
+function rustArgs(symbol: NativeSymbol, values: unknown[]): string[] {
   const params = symbol.params;
   if (values.length !== params.length) throw new Unsupported(`${values.length} args for ${params.length} params (Rust has no optional parameters)`);
   return params.map((p, i) => {
@@ -110,7 +110,7 @@ export function rustArgs(symbol: NativeSymbol, values: unknown[]): string[] {
 }
 
 /** `Result<T, E>`: an Err is the idiomatic "throws". */
-export const isResultType = (t: TypeNode | undefined): t is Extract<TypeNode, { kind: "name" }> => t?.kind === "name" && last(t.name) === "Result";
+const isResultType = (t: TypeNode | undefined): t is Extract<TypeNode, { kind: "name" }> => t?.kind === "name" && last(t.name) === "Result";
 
 function prepare(call: RunnerCall, crate: string): Prepared {
   const rustPath = rustPathOf(call.symbol);
