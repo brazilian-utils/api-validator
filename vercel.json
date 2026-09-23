@@ -5,7 +5,7 @@
   "buildCommand": "npm run build --prefix site",
   "outputDirectory": "site/out",
   "trailingSlash": true,
-  "ignoreCommand": "git diff --quiet \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD -- site contract libs schema vercel.json",
+  "ignoreCommand": "if [ -n \"$VERCEL_GIT_PREVIOUS_SHA\" ] && git cat-file -e \"$VERCEL_GIT_PREVIOUS_SHA^{commit}\" 2>/dev/null; then git diff --quiet \"$VERCEL_GIT_PREVIOUS_SHA\" HEAD -- site contract libs schema vercel.json || exit 1; else exit 1; fi",
   "headers": [
     {
       "source": "/(.*)",
