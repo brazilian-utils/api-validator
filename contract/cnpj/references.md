@@ -7,3 +7,9 @@
 - [Perguntas e respostas - CNPJ Alfanumérico](https://www.in.gov.br/web/dou/-/resolucao-n-780-de-26-de-junho-de-2019-179414765)
 
 - [Cálculo dos dígitos verificadores de CNPJ alfanumérico](https://www.serpro.gov.br/menu/noticias/videos/calculodvcnpjalfanaumerico.pdf)
+
+- [CNPJ, Receita Federal](https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj)
+
+- [Manual de cálculo do dígito verificador do CNPJ, Receita Federal](https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf)
+
+- [CNPJ Alfanumérico, Receita Federal](https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico)

@@ -24,6 +24,21 @@ import { Disclosure } from '@/components/disclosure';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
+// A reference with no title in references.md: hostname and the first two path segments, not the full URL.
+function linkLabel(r: { title: string; url: string }) {
+  if (r.title !== r.url.replace(/^https?:\/\//, '').replace(/\/$/, '')) return r.title;
+  try {
+    const u = new URL(r.url);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const shown = parts.slice(0, 2).map((x) => decodeURIComponent(x));
+    // Past two segments, the last one too, so two documents from the same folder stay apart.
+    if (parts.length > 2) shown.push('…', decodeURIComponent(parts[parts.length - 1]));
+    return [u.hostname.replace(/^www\./, ''), ...shown].join('/');
+  } catch {
+    return r.title;
+  }
+}
+
 export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
   const spec = loadSpec(id);
   if (!spec) notFound();
@@ -51,7 +66,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
   ];
 
   return (
-    <DocsPage toc={toc} tableOfContent={{ style: 'clerk' }}>
+    <DocsPage toc={toc} tableOfContent={{ style: 'clerk' }} breadcrumb={{ enabled: false }}>
       <DocsTitle>{pick(spec.title, locale)}</DocsTitle>
       <DocsDescription className="mb-0">{pick(spec.summary, locale)}</DocsDescription>
 
@@ -64,30 +79,25 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
         </a>
       </div>
 
-      {/* Which library implements how much of this utility. */}
-      {/* One surface, one cell per library: how much of this utility each one implements. */}
-      <ul className="not-prose grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-fd-border sm:grid-cols-4 [&>li]:bg-fd-background">
+      {/* How much of this utility each library implements. */}
+      <ul className="not-prose flex flex-wrap gap-x-5 gap-y-2 text-sm">
         {libs.map((lib: any) => {
           const c = coverage(spec, lib.id);
           const since = sinceOf(lib.id, spec.id);
           return (
             <li key={lib.id}>
-              <Link href={`${p}/libs/${lib.id}/`} className="flex h-full flex-col gap-1 px-4 py-3 transition-colors hover:bg-fd-accent">
-                <span className="flex items-center gap-2 text-sm font-medium">
-                  <LangIcon lib={lib.id} className="size-4" />
-                  <span className="truncate">{lib.label}</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-xs text-fd-muted-foreground">
-                  <StatusIcon status={c.state as Status} label={t(`parity.${c.state}`)} className="size-3.5" />
-                  {c.count}/{c.total}
-                  {since && <span className="truncate">{t('util.since', { version: since })}</span>}
-                </span>
+              <Link href={`${p}/libs/${lib.id}/`} className="inline-flex items-center gap-1.5 hover:text-fd-primary">
+                <LangIcon lib={lib.id} className="size-4" />
+                <span className="font-medium">{lib.label}</span>
+                <StatusIcon status={c.state as Status} label={t(`parity.${c.state}`)} className="size-3.5" />
+                <span className="tabular-nums">{t('util.count', { count: c.count, total: c.total })}</span>
+                {since && <span className="text-fd-muted-foreground">{t('util.since', { version: since })}</span>}
               </Link>
             </li>
           );
         })}
         <li>
-          <Link href={`${p}/reference/parity/`} className="flex h-full items-center gap-1.5 px-4 py-3 text-sm text-fd-muted-foreground transition-colors hover:bg-fd-accent hover:text-fd-foreground">
+          <Link href={`${p}/reference/parity/`} className="inline-flex items-center gap-1.5 text-fd-muted-foreground hover:text-fd-foreground">
             {L(locale, 'Parity matrix', 'Matriz de paridade')}
             <ArrowRight aria-hidden className="size-3.5" />
           </Link>
@@ -102,7 +112,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
 
         {guides.length > 0 && (
           <>
-            <h2 id="guides">{L(locale, 'Guides', 'Guias')}</h2>
+            <h2 id="guides">{t('util.guides')}</h2>
             <Cards>
               {guides.map((g: any) => (
                 <Card key={g.slug} icon={<BookOpen />} title={pick(g.title, locale)} description={pick(g.description, locale)} href={`${p}/guides/${g.lib}/${g.slug}/`} />
@@ -126,7 +136,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
             {references.map((r: any) => (
               <li key={r.url}>
                 <a href={r.url} target="_blank" rel="noopener noreferrer">
-                  {r.title}
+                  {linkLabel(r)}
                 </a>
               </li>
             ))}
@@ -184,13 +194,13 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
       <Markdown source={'```ts\n' + signature(op) + '\n```'} />
 
       {/* Status of this function in every library. */}
-      <ul className="not-prose flex flex-wrap gap-1.5 !my-4 p-0 list-none">
+      <ul className="not-prose flex flex-wrap gap-x-4 gap-y-1 !my-4 p-0 list-none">
         {usage.map(({ lib, fn }: any) => (
           <li key={lib.id}>
             <Link
               href={`${p}/libs/${lib.id}/`}
               title={[t(`status.${fn?.status ?? 'missing'}`), fn?.symbol].filter(Boolean).join(' · ')}
-              className="inline-flex items-center gap-1.5 rounded-full border bg-fd-card px-2.5 py-1 text-xs hover:bg-fd-accent"
+              className="inline-flex items-center gap-1 text-xs text-fd-muted-foreground hover:text-fd-foreground"
             >
               <StatusIcon status={(fn?.status ?? 'missing') as Status} label={t(`status.${fn?.status ?? 'missing'}`)} className="size-3.5" />
               {lib.label}
@@ -211,7 +221,8 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
       {op.network && <Note type="info">{t('ops.network')}</Note>}
       {op.deprecated && <Note type="warn">{t('ops.deprecated')}</Note>}
 
-      {op.params.length > 0 && (
+      {/* The signature already says it all unless there is more than one parameter or an optional one. */}
+      {showParams(op) && (
         <table>
           <thead>
             <tr>
@@ -254,7 +265,7 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
               <Markdown source={entry.body} />
               {entry.source && (
                 <a href={entry.source} target="_blank" rel="noopener noreferrer" className="not-prose mt-2 inline-flex items-center gap-1 text-xs text-fd-muted-foreground no-underline hover:text-fd-foreground">
-                  {t('usage.source')}: {lib.repo} <ExternalLink className="size-3" />
+                  {t('usage.code')}: {lib.repo} <ExternalLink className="size-3" />
                 </a>
               )}
             </>
@@ -279,8 +290,14 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
   );
 }
 
+function showParams(op: any) {
+  const params: any[] = op.params ?? [];
+  return params.length > 1 || params.some((x) => x.optional || x.description || x.default !== undefined || x.enum || x.allowed);
+}
+
 function Cases({ op, locale, libs, status }: any) {
   const t = translator(locale);
+  if (!op.tests?.length) return <p className="text-sm text-fd-muted-foreground">{t('testcases.none')}</p>;
   const ids = testIds(op.fnId, op.tests);
   const withStatus = libs.filter((lib: any) => status?.libs?.[lib.id]);
   const result = (libId: string, caseId: string): [Status, string] => {
@@ -293,13 +310,13 @@ function Cases({ op, locale, libs, status }: any) {
   const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
   return (
     <div className="relative overflow-x-auto">
-      <table className="!my-0 text-sm">
+      <table className="w-full border-collapse text-sm">
         <thead>
-          <tr>
-            <th>{t('testcases.input')}</th>
-            <th>{t('testcases.expected')}</th>
+          <tr className="border-b">
+            <th scope="col" className="px-2 py-1.5 text-start font-medium">{t('testcases.input')}</th>
+            <th scope="col" className="px-2 py-1.5 text-start font-medium">{t('testcases.expected')}</th>
             {withStatus.map((lib: any) => (
-              <th key={lib.id} className="text-center" title={lib.label}>
+              <th key={lib.id} scope="col" className="w-8 px-2 py-1.5 text-center font-medium" title={lib.label}>
                 <span role="img" aria-label={lib.label} className="inline-flex justify-center"><LangIcon lib={lib.id} /></span>
               </th>
             ))}
@@ -307,16 +324,16 @@ function Cases({ op, locale, libs, status }: any) {
         </thead>
         <tbody>
           {op.tests.map((test: any, i: number) => (
-            <tr key={ids[i]}>
-              <td>
-                <code>{show(test.args)}</code>
-                {test.note && <div className="text-xs text-fd-muted-foreground mt-1">{test.note}</div>}
+            <tr key={ids[i]} className="border-b">
+              <td className="px-2 py-1.5 text-start align-top">
+                <code className="whitespace-nowrap">{show(test.args)}</code>
+                {test.note && <div className="mt-1 min-w-40 text-xs text-fd-muted-foreground">{test.note}</div>}
               </td>
-              <td><code>{expectation(test)}</code></td>
+              <td className="px-2 py-1.5 text-start align-top"><code className="whitespace-nowrap">{expectation(test)}</code></td>
               {withStatus.map((lib: any) => {
                 const [s, label] = result(lib.id, ids[i]);
                 return (
-                  <td key={lib.id} className="text-center">
+                  <td key={lib.id} className="w-8 px-2 py-1.5 text-center align-top">
                     <span className="inline-flex justify-center" title={label}><StatusIcon status={s} label={label} /></span>
                   </td>
                 );

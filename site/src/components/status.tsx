@@ -1,10 +1,10 @@
 // Status marks, icon first and text for screen readers: the same everywhere on the site.
-import { AlertTriangle, CheckCircle2, Circle, Contrast, MinusCircle, XCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Circle, CircleDot, MinusCircle, XCircle } from 'lucide-react';
 
 const ICON = {
   ok: [CheckCircle2, 'text-ok'],
   full: [CheckCircle2, 'text-ok'],
-  partial: [Contrast, 'text-warn'],
+  partial: [CircleDot, 'text-warn'],
   failing: [XCircle, 'text-fail'],
   signature: [AlertTriangle, 'text-warn'],
   missing: [Circle, 'text-fd-muted-foreground'],
