@@ -6,7 +6,9 @@ import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { FlatTabs } from '@/components/flat-tabs';
 import { ArrowRight } from 'lucide-react';
-import { CATEGORIES, coverage, isImplemented, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
+import { CATEGORIES, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
+import { Breakdown } from '@/components/breakdown.client';
+import { libraryBreakdown } from '@/lib/breakdown';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions } from '@/lib/layout';
 import { Markdown } from '@/lib/markdown';
@@ -43,17 +45,13 @@ export function HomePage({ locale }: { locale: Locale }) {
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
   const others = specs.length - 4;
 
-  // Each document of the field: a number from its contract cases, and its isValid in every library.
+  // Each document of the field and a number from its contract cases.
   const kinds: Kind[] = KINDS.flatMap(({ domain, check }) => {
     const spec = specs.find((s: any) => s.domain === domain);
     const op = spec?.operations.find((o: any) => o.id === 'isValid');
     const sample = (op?.tests as any[] | undefined)?.find((c: any) => c.returns === true && typeof c.args[0] === 'string')?.args[0];
     if (!spec || !op || !sample) return [];
-    const names = libs.flatMap((lib: any) => {
-      const f = status?.libs?.[lib.id]?.functions?.[op.fnId];
-      return f && isImplemented(f) ? [{ lib: lib.id, label: lib.label, symbol: f.symbol }] : [];
-    });
-    return [{ domain, check, title: pick(spec.title, locale), href: `${p}/utils/${spec.id}/`, sample: sample.toUpperCase().replace(/[^0-9A-Z]/g, ''), names }];
+    return [{ domain, check, title: pick(spec.title, locale), href: `${p}/utils/${spec.id}/`, sample: sample.toUpperCase().replace(/[^0-9A-Z]/g, '') }];
   });
   // The frameworks of the JavaScript library's document-field guide, as its tabs name them.
   const names = guideExamples(locale, 'javascript', 'document-field')?.map((e: any) => e.name).filter(Boolean) ?? [];
@@ -107,7 +105,6 @@ export function HomePage({ locale }: { locale: Locale }) {
                   valid: t('specimen.valid'),
                   invalid: t('specimen.invalid'),
                   unknown: t('specimen.unknown'),
-                  same: t('specimen.sameCheck'),
                   empty: t('specimen.empty'),
                   generate: t('specimen.generate'),
                   checkOne: t('specimen.checkDigits', { count: 1 }),
@@ -184,7 +181,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 md:py-24">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">{L(locale, 'Every utility', 'Todos os utilitários')}</h2>
-          <p className="mt-3 text-fd-muted-foreground">{L(locale, 'Next to each one: how many of the seven libraries have it.', 'Ao lado de cada um: quantas das sete bibliotecas o implementam.')}</p>
+          <p className="mt-3 max-w-[62ch] text-fd-muted-foreground text-pretty">{L(locale, 'Under each one: which libraries have it. Hover over or tap it for each library.', 'Embaixo de cada um: quais bibliotecas o têm. Passe o mouse ou toque para ver cada biblioteca.')}</p>
           <div className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {CATEGORIES.map((c: any) => {
               const items = specs.filter((s: any) => s.category === c.id);
@@ -192,18 +189,26 @@ export function HomePage({ locale }: { locale: Locale }) {
               return (
                 <div key={c.id}>
                   <h3 className="text-sm font-semibold">{pick(c.label, locale)}</h3>
-                  <ul className="mt-3 space-y-2 text-sm">
+                  <ul className="mt-3 space-y-2.5 text-sm">
                     {items.map((s: any) => {
-                      const done = libs.filter((lib: any) => coverage(s, lib.id).count > 0).length;
+                      const b = libraryBreakdown(s, locale);
+                      const util = pick(s.title, locale);
                       return (
-                        <li key={s.id} className="flex items-baseline justify-between gap-3">
-                          <Link href={`${p}/utils/${s.id}/`} className="text-fd-muted-foreground transition-colors hover:text-fd-foreground">
-                            {pick(s.title, locale)}
+                        <li key={s.id} className="flex flex-col gap-0.5">
+                          <Link href={`${p}/utils/${s.id}/`} className="transition-colors hover:text-fd-primary">
+                            {util}
                           </Link>
-                          <span className="inline-flex items-center gap-1 text-xs text-fd-muted-foreground">
-                            <StatusIcon status={done === libs.length ? 'full' : done ? 'partial' : 'none'} label={L(locale, `${done} of ${libs.length} libraries`, `${done} de ${libs.length} bibliotecas`)} className="size-3 self-center" />
-                            <span aria-hidden>{done}/{libs.length}</span>
-                          </span>
+                          <Breakdown
+                            title={t('cov.inLibs', { util })}
+                            items={b.items}
+                            label={`${util}: ${b.short}`}
+                            href={`${p}/utils/${s.id}/`}
+                            hrefText={t('cov.openUtil', { util })}
+                            className="text-xs text-fd-muted-foreground"
+                          >
+                            <StatusIcon status={b.state} className="size-3" />
+                            {b.short}
+                          </Breakdown>
                         </li>
                       );
                     })}

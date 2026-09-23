@@ -2,10 +2,12 @@
 // they pass the shared cases (with a validator run), else how many its usage files document.
 import Link from '@/components/link';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/notebook/page';
-import { CATEGORIES, STATUS_MARK, coverage, loadLibs, loadSpecs, loadStatus, loadUsageManifest } from '@/lib/data';
+import { CATEGORIES, loadLibs, loadSpecs, loadStatus, loadUsageManifest } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
+import { Breakdown } from '@/components/breakdown.client';
+import { functionBreakdown } from '@/lib/breakdown';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const parityText = (locale: Locale) => ({
@@ -39,8 +41,8 @@ export function ParityPage({ locale }: { locale: Locale }) {
         <p>
           {L(
             locale,
-            'Each cell shows how many functions of the utility the library implements. The icon shows their state. Hover over or tap a cell to see each function, or open a library for the details.',
-            'Cada célula mostra quantas funções do utilitário a biblioteca implementa. O ícone mostra a situação delas. Passe o mouse ou toque numa célula para ver cada função, ou abra uma biblioteca para os detalhes.',
+            'Each cell says what the library is missing of the utility, and the icon shows the state. Hover over or tap a cell to see each function.',
+            'Cada célula diz o que falta do utilitário na biblioteca, e o ícone mostra a situação. Passe o mouse ou toque numa célula para ver cada função.',
           )}
         </p>
         <p className="not-prose flex flex-wrap gap-x-5 gap-y-2 text-sm">
@@ -82,14 +84,21 @@ export function ParityPage({ locale }: { locale: Locale }) {
                       <Link href={`${p}/utils/${spec.id}/`} className="hover:underline">{pick(spec.title, locale)}</Link>
                     </th>
                     {libs.map((lib: any) => {
-                      const x = coverage(spec, lib.id);
-                      const detail = x.detail.map((d: any) => `${STATUS_MARK[d.status] ?? '-'} ${pick(d.op.label, locale)}`).join('\n');
+                      const b = functionBreakdown(spec, lib.id, locale, { names: false });
+                      const util = pick(spec.title, locale);
                       return (
-                        <td key={lib.id} className="border-b px-3 py-2 tabular-nums" title={detail}>
-                          <span className="inline-flex items-center gap-1.5">
-                            <StatusIcon status={x.state as Status} label={t(`parity.${x.state}`)} />
-                            {x.state !== 'none' && <span className="text-xs text-fd-muted-foreground">{x.count}/{x.total}</span>}
-                          </span>
+                        <td key={lib.id} className="border-b px-3 py-2">
+                          <Breakdown
+                            title={t('cov.inLib', { util, lib: lib.label })}
+                            items={b.items}
+                            label={`${util}, ${lib.label}: ${b.short}`}
+                            href={`${p}/utils/${spec.id}/`}
+                            hrefText={t('cov.openUtil', { util })}
+                            className="text-xs text-fd-muted-foreground"
+                          >
+                            <StatusIcon status={b.state} className="size-4" />
+                            {b.short}
+                          </Breakdown>
                         </td>
                       );
                     })}

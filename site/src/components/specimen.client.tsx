@@ -1,7 +1,6 @@
 'use client';
 // Type a Brazilian document number: the field masks it as you type, the page says which document
-// it is, shows it with the check digits highlighted, whether it is valid, and the same check in
-// every library. All of it is the JavaScript library (format*, parse*, isValid*, generate*), one
+// it is, shows it with the check digits highlighted, and whether it is valid. All of it is the JavaScript library (format*, parse*, isValid*, generate*), one
 // entry point per function so the page stays light; the mask works like the library's "Document
 // field" guide: format what was typed, and format what comes before the caret to place the caret.
 import { formatCep } from '@brazilian-utils/brazilian-utils/format-cep';
@@ -34,7 +33,7 @@ import { parsePis } from '@brazilian-utils/brazilian-utils/parse-pis';
 import { parseVoterId } from '@brazilian-utils/brazilian-utils/parse-voter-id';
 import Link from '@/components/link';
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Dices, XCircle } from 'lucide-react';
 
 export interface Kind {
   domain: string;
@@ -44,7 +43,6 @@ export interface Kind {
   href: string;
   /** A number from the contract's cases that passes validation, without its mask. */
   sample: string;
-  names: Array<{ lib: string; label: string; symbol: string }>;
 }
 
 type Rule = {
@@ -185,9 +183,22 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
 
   return (
     <section aria-labelledby={`${id}-label`} className="rounded-2xl border bg-fd-background p-5 sm:p-6">
-      <label id={`${id}-label`} htmlFor={`${id}-input`} className="text-sm font-medium">
-        {text.label}
-      </label>
+      <div className="flex items-center justify-between gap-3">
+        <label id={`${id}-label`} htmlFor={`${id}-input`} className="text-sm font-medium">
+          {text.label}
+        </label>
+        {kind && (
+          <button
+            type="button"
+            onClick={() => pick(kind.domain, rule!.parse(rule!.generate()))}
+            aria-label={text.generate}
+            title={text.generate}
+            className="-m-1.5 rounded-md p-1.5 text-fd-muted-foreground transition-colors hover:bg-fd-accent hover:text-fd-foreground"
+          >
+            <Dices aria-hidden className="size-4" />
+          </button>
+        )}
+      </div>
       <input
         ref={input}
         id={`${id}-input`}
@@ -231,21 +242,6 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
             )}
           </>
         )}
-        {kind && kind.names.length > 0 && (
-          <>
-            <p className="mt-4 mb-1 text-xs text-fd-muted-foreground">{text.same}</p>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-              {kind.names.map((n) => (
-                <div key={n.lib} className="contents">
-                  <dt className="text-fd-muted-foreground">{n.label}</dt>
-                  <dd>
-                    <code className="font-mono">{n.symbol}</code>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </>
-        )}
       </div>
       <div className="mt-5 flex flex-wrap items-center gap-1.5 border-t pt-4 text-xs">
         <span className="me-1 text-fd-muted-foreground">{text.examples}</span>
@@ -260,11 +256,6 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
             {k.title}
           </button>
         ))}
-        {kind && (
-          <button type="button" onClick={() => pick(kind.domain, rule!.parse(rule!.generate()))} className="ms-auto px-1 py-1 font-medium underline underline-offset-4 hover:text-fd-primary">
-            {text.generate}
-          </button>
-        )}
       </div>
     </section>
   );

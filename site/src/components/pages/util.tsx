@@ -11,7 +11,9 @@ import { Note } from '@/components/note';
 import { Card, Cards } from 'fumadocs-ui/components/card';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { ArrowRight, BookOpen, ExternalLink, FileJson, Pencil } from 'lucide-react';
-import { CONTRACT_DIR, REPO_URL, contractPath, specName, coverage, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
+import { Breakdown } from '@/components/breakdown.client';
+import { functionBreakdown } from '@/lib/breakdown';
+import { CONTRACT_DIR, REPO_URL, contractPath, specName, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
 import { demote, linkFindings, slug, splitPending } from '@/lib/prose';
@@ -79,20 +81,27 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
         </a>
       </div>
 
-      {/* How much of this utility each library implements. */}
+      {/* How much of this utility each library implements: what is missing, in words; the list of
+          functions on hover or click. */}
       <ul className="not-prose flex flex-wrap gap-x-5 gap-y-2 text-sm">
         {libs.map((lib: any) => {
-          const c = coverage(spec, lib.id);
+          const b = functionBreakdown(spec, lib.id, locale);
           const since = sinceOf(lib.id, spec.id);
           return (
             <li key={lib.id}>
-              <Link href={`${p}/libs/${lib.id}/`} className="inline-flex items-center gap-1.5 hover:text-fd-primary">
+              <Breakdown
+                title={t('cov.inLib', { util: pick(spec.title, locale), lib: lib.label })}
+                items={b.items}
+                label={`${lib.label}: ${b.short}`}
+                href={`${p}/libs/${lib.id}/`}
+                hrefText={t('cov.openLib', { lib: lib.label })}
+              >
                 <LangIcon lib={lib.id} className="size-4" />
                 <span className="font-medium">{lib.label}</span>
-                <StatusIcon status={c.state as Status} label={t(`parity.${c.state}`)} className="size-3.5" />
-                <span className="tabular-nums">{t('util.count', { count: c.count, total: c.total })}</span>
+                <StatusIcon status={b.state} className="size-3.5" />
+                <span className="text-fd-muted-foreground underline decoration-dotted underline-offset-4">{b.short}</span>
                 {since && <span className="text-fd-muted-foreground">{t('util.since', { version: since })}</span>}
-              </Link>
+              </Breakdown>
             </li>
           );
         })}
