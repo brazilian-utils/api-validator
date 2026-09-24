@@ -9,7 +9,7 @@ import { ArrowRight } from 'lucide-react';
 import { CATEGORIES, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
 import { Breakdown } from '@/components/breakdown.client';
 import { libraryBreakdown } from '@/lib/breakdown';
-import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
+import { type Locale, countWord, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions, headerProps } from '@/lib/layout';
 import { HomeHeader } from '@/components/site-header.client';
 import { SiteFooter } from '@/components/site-footer';
@@ -41,6 +41,9 @@ export function HomePage({ locale }: { locale: Locale }) {
   const p = prefixOf(locale);
   const specs = loadSpecs();
   const libs = loadLibs();
+  // The number of libraries, from libs/: the sentences follow the data.
+  const n = countWord(libs.length, locale);
+  const cap = (w: string) => w[0].toUpperCase() + w.slice(1);
   const status = loadStatus();
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
@@ -73,19 +76,19 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   return (
     <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, component: <HomeHeader {...headerProps(locale)} /> }}>
-      <HomeJsonLd locale={locale} description={L(locale, 'Validate, format, parse and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate, interprete e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
+      <HomeJsonLd locale={locale} description={L(locale, `Validate, format, parse and generate Brazilian documents in ${n} languages, with one shared contract.`, `Valide, formate, interprete e gere documentos brasileiros em ${n} linguagens, com um contrato compartilhado.`)} />
       <div className="flex flex-1 flex-col">
         <section className="band">
           <div className="mx-auto grid w-full max-w-(--site-width) items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
             <div>
               <h1 className="text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:leading-[1.05]">
-                {L(locale, 'Validate Brazilian documents in seven languages.', 'Valide documentos brasileiros em sete linguagens.')}
+                {L(locale, `Validate Brazilian documents in ${n} languages.`, `Valide documentos brasileiros em ${n} linguagens.`)}
               </h1>
               <p className="mt-5 max-w-[34rem] text-lg text-fd-muted-foreground text-pretty">
                 {L(
                   locale,
-                  `CPF, CNPJ, CEP, license plates and ${others} more. Seven libraries, checked against the same ${cases.toLocaleString('en')} shared test cases.`,
-                  `CPF, CNPJ, CEP, placas e mais ${others}. Sete bibliotecas, verificadas pelos mesmos ${cases.toLocaleString('pt-BR')} casos de teste compartilhados.`,
+                  `CPF, CNPJ, CEP, license plates and ${others} more. ${cap(n)} libraries, checked against the same ${cases.toLocaleString('en')} shared test cases.`,
+                  `CPF, CNPJ, CEP, placas e mais ${others}. ${cap(n)} bibliotecas, verificadas pelos mesmos ${cases.toLocaleString('pt-BR')} casos de teste compartilhados.`,
                 )}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -167,7 +170,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="band band-top">
           <div className="mx-auto w-full max-w-(--site-width) px-4 py-16 sm:px-6 md:py-20">
-            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How seven libraries stay the same', 'Como as sete bibliotecas se mantêm iguais')}</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, `How ${n} libraries stay the same`, `Como as ${n} bibliotecas se mantêm iguais`)}</h2>
             <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map(([title, body]) => (
                 <li key={title} className="border-t pt-4">

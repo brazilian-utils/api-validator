@@ -21,4 +21,13 @@ export function translator(locale: Locale) {
 }
 
 /** Text in the page's language from a contract value `{ en, pt-BR? }`, falling back to English. */
+/** A small count as a word in a sentence ("seven libraries", "sete bibliotecas"); digits past ten.
+ *  Portuguese one and two agree in gender with the noun (feminine by default: as bibliotecas). */
+export function countWord(n: number, locale: Locale, gender: 'f' | 'm' = 'f'): string {
+  const en = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+  const pt = ['zero', gender === 'f' ? 'uma' : 'um', gender === 'f' ? 'duas' : 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez'];
+  const words = locale === 'en' ? en : pt;
+  return words[n] ?? String(n);
+}
+
 export const pick = (v: Record<string, string | undefined> | undefined, locale: Locale) => v?.[locale] ?? v?.en ?? '';
