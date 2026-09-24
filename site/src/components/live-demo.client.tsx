@@ -9,7 +9,7 @@
 import { LoaderCircle } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-const TOKENS = ['background', 'foreground', 'card', 'muted-foreground', 'border', 'primary', 'primary-foreground', 'ring']
+const TOKENS = ['background', 'foreground', 'card', 'muted-foreground', 'border', 'primary', 'primary-foreground', 'secondary', 'secondary-foreground', 'accent', 'accent-foreground', 'ring']
   .map((t) => `--color-fd-${t}`)
   .concat('--color-fd-border-strong', '--color-fail', '--color-ok', '--font-geist-sans', '--font-geist-mono', '--font-sans', '--font-mono');
 
@@ -22,6 +22,10 @@ body {
   font: 14px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased;
 }
 *, *::before, *::after { box-sizing: border-box; }
+/* The element a framework mounts its example into takes no part in the layout: the runner does
+   this for React's and Vue's div; an Angular example mounts into its own element (ng-version),
+   which would otherwise sit in the body's first column as a box of its own. */
+body > [ng-version] { display: contents; }
 label { font-weight: 500; font-size: 13px; color: var(--color-fd-foreground); }
 input, select {
   font: 15px/1.4 var(--font-mono); padding: 7px 10px; color: var(--color-fd-foreground);
@@ -50,11 +54,13 @@ output:not(:empty) { color: var(--color-fd-primary); }
 @media (prefers-reduced-motion: reduce) {
   :is(input, select)[aria-busy="true"] + :is(p, output)::before { animation: none; border-color: var(--color-fd-primary); border-top-color: var(--color-fd-border); }
 }
+/* The site's secondary button (Fumadocs' "secondary" variant): paper with a rule, not the
+   accent color, which a demo's one button does not deserve. */
 button {
-  font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 0; border-radius: 6px; cursor: pointer;
-  color: var(--color-fd-primary-foreground); background: var(--color-fd-primary); transition: opacity .15s ease;
+  font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 1px solid var(--color-fd-border); border-radius: 6px; cursor: pointer;
+  color: var(--color-fd-secondary-foreground); background: var(--color-fd-secondary); transition: background-color .15s ease, color .15s ease;
 }
-button:hover { opacity: .9; }
+button:hover { background: var(--color-fd-accent); color: var(--color-fd-accent-foreground); }
 button:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 2px; }
 @media (max-width: 480px) {
   body, form { grid-template-columns: minmax(0, 1fr) !important; }
