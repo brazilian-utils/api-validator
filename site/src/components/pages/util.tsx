@@ -92,7 +92,6 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
               <Breakdown
                 title={t('cov.inLib', { util: pick(spec.title, locale), lib: lib.label })}
                 items={b.items}
-                label={`${lib.label} ${b.short}`}
                 href={`${p}/libs/${lib.id}/`}
                 hrefText={t('cov.openLib', { lib: lib.label })}
               >

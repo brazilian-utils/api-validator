@@ -1,6 +1,6 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import Image from 'next/image';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo.webp';
 import { siGithub } from 'simple-icons';
 import { type Locale, prefixOf } from './i18n';
 import { loadGuides } from './data';

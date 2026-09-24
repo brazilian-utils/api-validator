@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { LOCALE_NAMES, type Locale } from '@/lib/i18n';
 import { A11yFixes } from './a11y.client';
+import { BreakdownHost } from './breakdown.client';
 import dynamic from 'next/dynamic';
 
 // The search engine and its index load when the reader opens the search, not with the page.
@@ -74,7 +75,7 @@ export function Provider({ locale, children }: { locale: Locale; children: React
         toc={locale === 'en' ? 'On this page' : 'Nesta página'}
         scroll={locale === 'en' ? 'Scrollable content' : 'Conteúdo com rolagem'}
       />
-      {children}
+      <BreakdownHost>{children}</BreakdownHost>
     </RootProvider>
   );
 }

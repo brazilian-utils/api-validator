@@ -15,7 +15,7 @@ import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
 import { answerKey, corpora, differential, diffDivergences, minedValues, partition, divergenceBaseline, proposal, type Corpus, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, proposeBindings, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
-import { globMatch, kebab } from "./core/naming.js";
+import { globMatch } from "./core/naming.js";
 import { parseCType } from "./core/ctype.js";
 import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, PACKAGE_ROOT, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
@@ -251,7 +251,7 @@ program
     // owed the same as one in the other.
     const SPEC_FILES = ["spec.en.md", "spec.pt-br.md", "references.md"];
     const unspecified = [...contract.domains.keys()]
-      .map((id) => ({ id, missing: SPEC_FILES.filter((f) => !fs.existsSync(path.join(CONTRACT_DIR, kebab(id), f))) }))
+      .map((id) => ({ id, missing: SPEC_FILES.filter((f) => !fs.existsSync(path.join(CONTRACT_DIR, slugOf(id), f))) }))
       .filter((d) => d.missing.length);
     for (const d of unspecified) console.log(`${opts.strict ? "error" : "warning"}: ${d.id} has no ${d.missing.join(", ")}`);
     const tests = [...contract.functions.values()].reduce((n, f) => n + f.tests.length, 0);
