@@ -12,7 +12,7 @@ import { contractFile, loadContract } from "./core/contract.js";
 import { formatDir, schemaFiles } from "./core/format-contract.js";
 import { formatJson, orderDomain } from "./core/jsonfmt.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
-import { answerKey, differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
+import { answerKey, corpora, differential, diffDivergences, minedValues, partition, divergenceBaseline, proposal, type Corpus, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
 import { SymbolIndex, proposeBindings, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
@@ -743,7 +743,7 @@ program
   .option("--apply", "with --propose: append the proposals straight into contract/<domain>/contract.json")
   .option("--show-agreement", "also list inputs where every lib agrees")
   .option("--network", "include functions that call remote services")
-  .option("--baseline", "record how libs split today as known divergences (baselines/_divergences.json)")
+  .option("--baseline", "mine fresh inputs and record how libs split today (baselines/_corpus.json, baselines/_divergences.json)")
   .option("--fail-on-new", "exit 1 when libs split in a way the divergence baseline does not know (new bug or regression)")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
@@ -759,8 +759,13 @@ program
       }
       libs.push({ name: lib.name, adapter, ctx, surface: await extractSurface(adapter, ctx) });
     }
+    // The same inputs every run: the stored corpus; fresh random values only when recording the baseline.
+    const corpusFile = path.join(BASELINES_DIR, "_corpus.json");
+    const stored: Corpus = fs.existsSync(corpusFile) ? readJson(corpusFile) : {};
+    const referenceLib = libs.find((l) => l.name === reference) ?? libs[0];
+    const corpus = await corpora(contract, [...new Set(fns.map((f) => f.domain))], referenceLib, stored, !!opts.baseline);
     process.stderr.write(c.dim(`running ${fns.length} functions across ${libs.length} libs…\n`));
-    const rows = await differential(contract, fns, libs, reference);
+    const rows = await differential(contract, fns, libs, reference, corpus);
     const md: string[] = ["# Differential test report", "", "| Function | Input | Answers |", "|---|---|---|"];
     const byFn = new Map<string, typeof rows>();
     for (const r of rows) byFn.set(r.fn, [...(byFn.get(r.fn) ?? []), r]);
@@ -800,6 +805,8 @@ program
       JSON.stringify({ compared: rows.length, fresh: dd.fresh.map((f) => ({ fn: f.row.fn, split: f.split })), rows: rows.filter((r) => !r.agree).map((r) => ({ ...r, split: partition(r) })) })
     );
     if (opts.baseline) {
+      const mined = minedValues(contract, corpus);
+      writeFile(corpusFile, json({ ...Object.fromEntries(Object.entries(stored).filter(([d]) => !(d in mined) && !fns.some((f) => f.domain === d))), ...mined }));
       const merged = { ...Object.fromEntries(Object.entries(known).filter(([fn]) => !fns.some((f) => f.id === fn))), ...divergenceBaseline(rows) };
       writeFile(divFile, json(Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)))));
       console.log(c.cyan(`divergence baseline: ${Object.values(merged).flat().length} known splits in ${path.relative(process.cwd(), divFile)}`));

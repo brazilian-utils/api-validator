@@ -89,14 +89,22 @@ async function runBatch(lib: DiffLib, items: Array<{ symbol: NativeSymbol; args:
   });
 }
 
-/** Build the input corpus of every domain (two batched calls to the reference lib). */
-async function corpora(contract: Contract, domains: string[], reference: DiffLib | undefined): Promise<Map<string, string[]>> {
+/** Mined values per domain (baselines/_corpus.json): the ones that came out of the reference lib's
+ *  `generate`, `format` and `parse`, which are random. Kept on file so every run compares the same
+ *  inputs, and `--fail-on-new` never fails on a split that only a fresh random value shows; new
+ *  values enter the corpus only through `diff --baseline`. */
+export type Corpus = Record<string, string[]>;
+
+/** Build the input corpus of every domain: the contract's own test arguments, the stored corpus,
+ *  fresh values from the reference lib when `mine` (two batched calls), and the generic edges. */
+export async function corpora(contract: Contract, domains: string[], reference: DiffLib | undefined, stored: Corpus = {}, mine = true): Promise<Map<string, string[]>> {
   const values = new Map(domains.map((d) => [d, new Set<string>()]));
   for (const fn of contract.functions.values()) {
     const set = values.get(fn.domain);
     if (set) for (const t of fn.tests) for (const a of t.args) if (typeof a === "string") set.add(a);
   }
-  if (reference) {
+  for (const [d, set] of values) for (const v of stored[d] ?? []) set.add(v);
+  if (reference && mine) {
     const gens: Array<{ domain: string; symbol: NativeSymbol; args: unknown[] }> = [];
     for (const d of domains) {
       const gen = contract.functions.get(`${d}.generate`);
@@ -127,15 +135,32 @@ async function corpora(contract: Contract, domains: string[], reference: DiffLib
   return new Map([...values].map(([d, s]) => [d, [...s]]));
 }
 
+/** What a corpus adds beyond the contract's test arguments and the generic edges: the part worth storing. */
+export function minedValues(contract: Contract, corpus: Map<string, string[]>): Corpus {
+  const own = new Map<string, Set<string>>();
+  for (const fn of contract.functions.values()) {
+    const set = own.get(fn.domain) ?? new Set<string>();
+    for (const t of fn.tests) for (const a of t.args) if (typeof a === "string") set.add(a);
+    own.set(fn.domain, set);
+  }
+  const out: Corpus = {};
+  for (const [d, vals] of [...corpus].sort(([a], [b]) => a.localeCompare(b))) {
+    const kept = vals.filter((v) => !own.get(d)?.has(v) && !GENERIC_EDGE.includes(v)).sort();
+    if (kept.length) out[d] = kept;
+  }
+  return out;
+}
+
 export async function differential(
   contract: Contract,
   fns: ContractFunction[],
   libs: DiffLib[],
-  referenceName: string
+  referenceName: string,
+  corpus?: Map<string, string[]>
 ): Promise<DiffRow[]> {
   const runnable = libs.filter((l) => l.adapter.runner);
   const reference = runnable.find((l) => l.name === referenceName) ?? runnable[0];
-  const corpus = await corpora(contract, [...new Set(fns.map((f) => f.domain))], reference);
+  corpus ??= await corpora(contract, [...new Set(fns.map((f) => f.domain))], reference);
 
   // Plan: every (fn, args) pair.
   const plan: Array<{ fn: ContractFunction; args: unknown[] }> = [];

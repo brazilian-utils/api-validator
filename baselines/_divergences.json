@@ -47,11 +47,10 @@
     "go,python,ruby,rust | javascript"
   ],
   "legalNature.getDescription": [
-    "go | python,ruby | rust",
     "go | python,ruby,rust"
   ],
   "legalNature.isValid": [
-    "go,python,ruby | javascript,rust"
+    "go,python,ruby,rust | javascript"
   ],
   "legalNature.list": [
     "go | javascript | python,ruby"
@@ -89,7 +88,6 @@
   ],
   "phone.format": [
     "erlang,go,python,ruby,rust | javascript",
-    "erlang,python,ruby | go,rust | javascript",
     "erlang,python,ruby,rust | go | javascript",
     "erlang,python,ruby,rust | go,javascript"
   ],

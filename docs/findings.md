@@ -85,7 +85,7 @@ typed libraries, they also fail a few more cases that the runner could only skip
 `legalNature.list` in Rust).
 
 `diff` now compares 1138 calls. 390 divergent inputs fall into 59 known splits, recorded in
-`baselines/_divergences.json`. The nightly fails only on a split that is not in that file.
+`baselines/_divergences.json`. The nightly fails only on a split that is not in that file. The inputs `diff` compares are fixed too (`baselines/_corpus.json`): the random values mined from the reference library enter it only through `diff --baseline`, so a run never fails on a value another run never saw.
 
 "Core" means implemented by at least 4 of the 7 libraries when the contract was bootstrapped
 (46 functions). The contract has 138 functions in 42 domains and 791 cases. 12 functions still

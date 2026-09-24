@@ -201,7 +201,7 @@ For the contract and library config format, read [docs/contract.md](docs/contrac
 contract/        the shared contract: one folder per domain (kebab-case), contract.json with
                  functions and test cases, plus optional specs and references
 libs/            one JSON per implementation: repo, language, bindings, ignores, waivers
-baselines/       what conforms today, per lib (CI fails on regressions); _divergences.json = known splits
+baselines/       what conforms today, per lib (CI fails on regressions); _corpus.json = the mined inputs `diff` compares; _divergences.json = known splits
 snapshots/       extracted public API per lib (API changes show up in PR diffs)
 src/core/        contract, types, matching, signatures, conformance, diff, baselines
 src/languages/   one adapter per language (+ helper scripts in the language itself)
