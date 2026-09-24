@@ -4,8 +4,7 @@ Use esta página para rodar, montar e publicar o site de documentação do Brazi
 mora no api-validator. As páginas saem do contrato (`../contract`), das bibliotecas
 (`../libs/*.json`, bloco `site`), dos arquivos de uso de cada biblioteca e dos resultados da
 última execução do validador. Ninguém escreve aqui à mão o conteúdo de um utilitário. O
-`plan.md` guarda a pesquisa que levou ao primeiro desenho (histórico). O `DESIGN.md` explica o
-visual.
+`DESIGN.md` explica o visual.
 
 O site é um app [Next.js](https://nextjs.org) com [Fumadocs](https://fumadocs.dev), exportado
 como HTML estático (`output: 'export'`). Não há servidor: o GitHub Pages serve a pasta `out/`.
@@ -61,7 +60,7 @@ Todas as dependências estão em versão exata (sem `^`). As principais:
 | `tailwindcss`, `@tailwindcss/postcss` | estilos (o tema do Fumadocs é Tailwind) |
 | `shiki`, `unified`, `remark-*`, `hast-util-to-jsx-runtime` | Markdown do contrato e das bibliotecas, com destaque de código |
 | `geist`, `simple-icons`, `lucide-react` | fontes e ícones, sem CDN |
-| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (campo da home, caixa "Teste") |
+| `@brazilian-utils/brazilian-utils` | a biblioteca de referência que roda no navegador (campo da home, caixa "Teste com JavaScript") |
 
 `npm audit --audit-level=low` roda no CI e precisa sair limpo.
 
@@ -89,7 +88,7 @@ content/docs/                páginas escritas à mão: <página>.mdx em inglês
 src/content/i18n/            strings da interface (en.json, pt-br.json)
 src/lib/registry.mjs         único lugar que sabe ler tudo isso (também usado pelo validador e pelos testes)
 src/lib/guides.mjs           parser dos guias (example → variant → file, demos, links); testado em ../test/site.test.ts
-src/lib/tree.tsx             o menu: quatro seções (Utilitários, Bibliotecas, Guias, Contribuindo)
+src/lib/tree.tsx             o menu: cinco seções (Utilitários, Bibliotecas, Guias, Como contribuir, Sobre)
 src/lib/meta.ts              SEO: título, descrição, canonical, hreflang, Open Graph
 src/lib/search-index.ts      o que a busca encontra (inclusive o nome de cada função em cada linguagem)
 src/components/pages/        home, utilitário, biblioteca, paridade, guia, página MDX
@@ -110,7 +109,7 @@ Uma página de utilitário tem estas partes, nesta ordem:
    - a descrição do contrato, e as decisões pendentes como aviso
    - a tabela de parâmetros
    - uma aba por biblioteca, sincronizadas no site todo (a escolha fica salva)
-   - a caixa "Teste": roda a biblioteca JavaScript no navegador
+   - a caixa "Teste com JavaScript": roda a biblioteca JavaScript no navegador
    - os casos compartilhados, com o resultado em cada biblioteca
 3. Guias que usam o utilitário.
 4. A especificação longa (`spec.*.md`), quando existe.
@@ -157,7 +156,7 @@ Com `--strict`, o script falha no CI quando falta a versão de um idioma.
   só carregam quando alguém abre a busca.
 - Os links não fazem prefetch: num host estático, cada prefetch é uma requisição, e há páginas
   com centenas de links.
-- A biblioteca JavaScript (para a caixa "Teste") só carrega quando a caixa abre. O campo da home
+- A biblioteca JavaScript (para a caixa "Teste com JavaScript") só carrega quando a caixa abre. O campo da home
   carrega só as funções que usa (`format*`, `parse*`, `isValid*`, `generate*` de sete documentos).
 - Contraste AA em todo texto, nos dois temas, inclusive nos blocos de código (temas de alto
   contraste do Shiki). `src/components/a11y.client.tsx` completa a marcação do Fumadocs onde o

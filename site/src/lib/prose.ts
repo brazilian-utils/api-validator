@@ -21,12 +21,14 @@ const FINDINGS: Record<string, string> = {
   '2': '2-decisions-needed-not-encoded-yet',
 };
 
-/** "(findings §2 #1): text" → "Text See [findings §2 #1](…)." */
+/** "(findings §2 #1): text" → "Text See [the open decision in docs/findings.md](…)." */
 export function linkFindings(note: string, locale: string) {
   const m = /^\(findings (§(\w+)[^)]*)\):?\s*/.exec(note);
   if (!m) return note;
   const text = note.slice(m[0].length).replace(/^./, (c) => c.toUpperCase());
-  const link = FINDINGS[m[2]] ? `[findings ${m[1]}](${REPO_URL}/blob/main/docs/findings.md#${FINDINGS[m[2]]})` : `findings ${m[1]}`;
+  const label = locale === 'pt-BR' ? 'a decisão em aberto em docs/findings.md (em inglês)' : 'the open decision in docs/findings.md';
+  const anchor = FINDINGS[m[2]] ? `#${FINDINGS[m[2]]}` : '';
+  const link = `[${label}](${REPO_URL}/blob/main/docs/findings.md${anchor})`;
   return `${text} ${locale === 'pt-BR' ? 'Veja' : 'See'} ${link}.`;
 }
 

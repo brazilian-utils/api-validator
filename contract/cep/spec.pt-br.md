@@ -14,9 +14,9 @@ O CEP é um código numérico de oito algarismos. Os Correios atribuem esses có
 
 ## Funções
 
-- **Validação**: Verificar se um CEP sem formatação contém exatamente `8` dígitos.
+- **Validação**: Conferir se o CEP tem `8` dígitos.
 - **Formatação**: Mostrar o CEP no formato padrão `XXXXX-XXX`.
-- **Interpretação**: Remover os caracteres `.` e `-` da entrada.
+- **Interpretação**: Manter só os dígitos, até 8.
 - **Geração**: Gerar um CEP aleatório de `8` dígitos.
 
 ## Regras de validação
@@ -37,7 +37,7 @@ O CEP é um código numérico de oito algarismos. Os Correios atribuem esses có
 ## Exemplos
 
 - Válido: `01310200`
-- Inválido: `01310-200` (a validação aceita apenas CEPs sem formatação)
+- `01310-200`: decisão pendente. A referência (JS) aceita, as outras bibliotecas não.
 - Inválido: `12345` (deve conter exatamente `8` caracteres)
 - Inválido: `123456789` (deve conter exatamente `8` caracteres)
 - Inválido: `abcdefgh` (deve conter apenas dígitos)

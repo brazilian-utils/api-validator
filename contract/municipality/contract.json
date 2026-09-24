@@ -12,8 +12,8 @@
   "functions": {
     "getByCode": {
       "summary": {
-        "en": "Looks up a Brazilian municipality by its 7-digit IBGE code, published by the IBGE.",
-        "pt-BR": "Busca um município pelo código IBGE de 7 dígitos, publicado pelo IBGE."
+        "en": "Looks up a Brazilian municipality by its 7-digit IBGE code.",
+        "pt-BR": "Busca um município pelo código IBGE de 7 dígitos."
       },
       "description": {
         "en": [

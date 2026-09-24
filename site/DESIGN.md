@@ -96,6 +96,14 @@ density 5. Impeccable mode: Read (the home page leans Persuade).
    underline offset, tabular figures.
 7. The page loads what it shows. Search, the full reference library and the demos load on use.
 8. Both languages everywhere, from the same data.
+9. Motion follows Emil Kowalski's rules ([animations.dev](https://animations.dev), the `animate`
+   skill at github.com/emilkowalski/skills): only `transform` and `opacity` move; anything
+   entering uses the strong ease-out `cubic-bezier(0.23, 1, 0.32, 1)` (the site's default
+   transition curve, 150ms); nothing on the interface takes longer than 300ms; what people see
+   tens of times a day (a hover, a tab, an arrow) moves fast and little, and what they open from
+   the keyboard many times a day (search) does not move at all, it fades in 120ms. Fumadocs'
+   animations are retuned through its `--animate-fd-*` tokens in `global.css`. With
+   `prefers-reduced-motion`, things still fade but nothing slides or scales.
 
 `npm run design` runs Impeccable's detector (61 rules) on every page type, desktop and phone, and
 CI fails on any finding. Exceptions, each on purpose:

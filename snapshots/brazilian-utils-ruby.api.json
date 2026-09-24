@@ -26,6 +26,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "BoletoUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/boleto-utils.rb",
         "line": 42
@@ -433,6 +434,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "EmailUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/email-utils.rb",
         "line": 54
@@ -512,6 +514,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "LegalNatureUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/legal-nature-utils.rb",
         "line": 129
@@ -588,6 +591,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "LegalProcessUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/legal-process-utils.rb",
         "line": 104
@@ -616,6 +620,7 @@
         }
       ],
       "returns": "String | nil",
+      "aliasOf": "LicensePlateUtils.format_license_plate",
       "location": {
         "file": "lib/brazilian-utils/license-plate-utils.rb",
         "line": 76
@@ -711,6 +716,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "LicensePlateUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/license-plate-utils.rb",
         "line": 128
@@ -737,6 +743,7 @@
         }
       ],
       "returns": "String | nil",
+      "aliasOf": "PhoneUtils.format_phone",
       "location": {
         "file": "lib/brazilian-utils/phone-utils.rb",
         "line": 38
@@ -813,6 +820,7 @@
         }
       ],
       "returns": "String",
+      "aliasOf": "PhoneUtils.remove_symbols_phone",
       "location": {
         "file": "lib/brazilian-utils/phone-utils.rb",
         "line": 117
@@ -841,6 +849,7 @@
         }
       ],
       "returns": "String",
+      "aliasOf": "PhoneUtils.remove_symbols_phone",
       "location": {
         "file": "lib/brazilian-utils/phone-utils.rb",
         "line": 117
@@ -860,6 +869,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "PhoneUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/phone-utils.rb",
         "line": 80
@@ -874,6 +884,7 @@
         }
       ],
       "returns": "String | nil",
+      "aliasOf": "PISUtils.format_pis",
       "location": {
         "file": "lib/brazilian-utils/pis-utils.rb",
         "line": 61
@@ -939,6 +950,7 @@
         }
       ],
       "returns": "String",
+      "aliasOf": "PISUtils.remove_symbols",
       "location": {
         "file": "lib/brazilian-utils/pis-utils.rb",
         "line": 30
@@ -953,6 +965,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "PISUtils.is_valid",
       "location": {
         "file": "lib/brazilian-utils/pis-utils.rb",
         "line": 96
@@ -967,6 +980,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "RENAVAMUtils.is_valid_renavam",
       "location": {
         "file": "lib/brazilian-utils/renavam-utils.rb",
         "line": 41
@@ -995,6 +1009,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "RENAVAMUtils.is_valid_renavam",
       "location": {
         "file": "lib/brazilian-utils/renavam-utils.rb",
         "line": 41
@@ -1046,6 +1061,7 @@
         }
       ],
       "returns": "String | nil",
+      "aliasOf": "VoterIdUtils.format_voter_id",
       "location": {
         "file": "lib/brazilian-utils/voter-id-utils.rb",
         "line": 54
@@ -1103,6 +1119,7 @@
         }
       ],
       "returns": "Boolean",
+      "aliasOf": "VoterIdUtils.is_valid_voter_id",
       "location": {
         "file": "lib/brazilian-utils/voter-id-utils.rb",
         "line": 20

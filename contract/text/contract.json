@@ -11,12 +11,14 @@
   "functions": {
     "capitalize": {
       "summary": {
-        "en": "Capitalizes a string the way a Brazilian name, company name or address is written, with no configuration needed. For example, `\"jose da silva\"` becomes `\"Jose da Silva\"`, `\"empresa ltda\"` becomes `\"Empresa LTDA\"` and `\"santana/rs\"` becomes `\"Santana/RS\"`.",
-        "pt-BR": "Coloca em maiúsculas as iniciais de um texto do jeito que se escreve um nome de pessoa, de empresa ou um endereço no Brasil, sem configuração. Por exemplo, `\"jose da silva\"` vira `\"Jose da Silva\"`, `\"empresa ltda\"` vira `\"Empresa LTDA\"` e `\"santana/rs\"` vira `\"Santana/RS\"`."
+        "en": "Capitalizes a string the way a Brazilian name, company name or address is written.",
+        "pt-BR": "Coloca em maiúsculas as iniciais de um texto do jeito que se escreve um nome de pessoa, de empresa ou um endereço no Brasil."
       },
       "description": {
         "en": [
           "Capitalizes the first letter of each word the way a Brazilian name, company name or address is written.",
+          "",
+          "For example, `\"jose da silva\"` becomes `\"Jose da Silva\"`, `\"empresa ltda\"` becomes `\"Empresa LTDA\"` and `\"santana/rs\"` becomes `\"Santana/RS\"`.",
           "",
           "- Prepositions and articles (`de`, `da`, `do`, `e`, …) stay lower case between two words. Company designations and abbreviations (`LTDA`, `S.A.`, `ME`, `CNPJ`) and roman numerals are upper-cased. `options` can replace either list.",
           "- Words split at whitespace, `-`, `/`, apostrophes and adjoining punctuation. Runs of whitespace collapse into one space.",
@@ -24,6 +26,8 @@
         ],
         "pt-BR": [
           "Coloca em maiúscula a primeira letra de cada palavra do jeito que se escreve um nome de pessoa, de empresa ou um endereço no Brasil.",
+          "",
+          "Por exemplo, `\"jose da silva\"` vira `\"Jose da Silva\"`, `\"empresa ltda\"` vira `\"Empresa LTDA\"` e `\"santana/rs\"` vira `\"Santana/RS\"`.",
           "",
           "- Preposições e artigos (`de`, `da`, `do`, `e`, …) ficam em minúsculas entre duas palavras. Designações de empresa e abreviações (`LTDA`, `S.A.`, `ME`, `CNPJ`) e numerais romanos ficam em maiúsculas. `options` pode substituir qualquer uma das listas.",
           "- As palavras são separadas por espaços, `-`, `/`, apóstrofos e pontuação vizinha. Sequências de espaços viram um só espaço.",
@@ -57,8 +61,8 @@
     },
     "removeAccents": {
       "summary": {
-        "en": "Removes diacritical marks (accents, tildes, cedillas) from a string. It decomposes every accented character into its base letter plus combining marks (Unicode NFD). Then it drops every combining mark (Unicode general category M), so it removes accents from any script.",
-        "pt-BR": "Remove os sinais diacríticos (acentos, tis, cedilhas) de um texto. Decompõe cada caractere acentuado na letra base mais as marcas combinantes (Unicode NFD). Depois descarta toda marca combinante (categoria geral Unicode M), então remove acentos de qualquer escrita."
+        "en": "Removes diacritical marks (accents, tildes, cedillas) from a string.",
+        "pt-BR": "Remove os sinais diacríticos (acentos, tis, cedilhas) de um texto."
       },
       "description": {
         "en": [

@@ -11,9 +11,9 @@ Um conjunto de bibliotecas para os dados que todo sistema brasileiro trata: CPF,
 
 O Brazilian Utils começou com o [Hyan Mandian](https://github.com/hyanmandian) em 2018. Ele usava uma biblioteca de código aberto para validar CPF, e ela não rodava no Node.js. Ele corrigiu o problema e mandou um pull request. Depois de quase um mês sem resposta, decidiu escrever a própria biblioteca. No começo ela só validava CPF, mas cresceu rápido. Vieram mais documentos, e mais gente. O Hyan viu que nada reunia esses utilitários num lugar só, para todas as linguagens, então criou a organização [Brazilian Utils](https://github.com/brazilian-utils).
 
-Em 2023, a biblioteca Python ganhou fôlego novo com a [Cumbuca Dev](https://github.com/cumbucadev), uma comunidade que ensina programação com código aberto. O pessoal de lá organizou a documentação, fez oficinas e levou a biblioteca para conferências de Python. Em dezembro de 2024, eles abriram [uma issue](https://github.com/brazilian-utils/python/issues/461) propondo que a Cumbuca Dev cuidasse da biblioteca Python. Essa conversa virou uma parceria: em 2025, o Brazilian Utils e a Cumbuca Dev juntaram forças.
+Em 2023, a biblioteca Python voltou a ter atividade com a [Cumbuca Dev](https://github.com/cumbucadev), uma comunidade que ensina programação com código aberto. O pessoal de lá organizou a documentação, fez oficinas e levou a biblioteca para conferências de Python. Em dezembro de 2024, eles abriram [a issue #461 do repositório Python](https://github.com/brazilian-utils/python/issues/461) propondo que a Cumbuca Dev cuidasse da biblioteca Python. Em 2025, essa conversa virou uma parceria entre o Brazilian Utils e a Cumbuca Dev.
 
-Com sete bibliotecas, uma pergunta sempre voltava: será que todas concordam? Em 2026, a resposta virou o contrato compartilhado, os casos de teste que toda biblioteca roda, e este site. As pessoas por trás do projeto estão na página [Time](/pt-br/about/team/).
+Já eram sete bibliotecas, e as bibliotecas começaram a dar respostas diferentes para as mesmas entradas. Em 2026, a solução virou o contrato compartilhado, os casos de teste que toda biblioteca roda, e este site. As pessoas por trás do projeto estão na página [Time](/pt-br/about/team/).
 
 ## Por que o logo é um cachorro caramelo?
 
@@ -31,11 +31,11 @@ Esse é o objetivo. O contrato lista cada função e os casos de teste dela, e c
 
 ## Minha linguagem não está na lista
 
-Uma biblioteca nova pode começar pequena: poucas funções, com os testes compartilhados rodando desde o primeiro dia. [Adicione uma linguagem](/pt-br/contributing/new-language/) explica os passos.
+Uma biblioteca nova pode começar pequena: poucas funções, com os testes compartilhados rodando desde o primeiro dia. [Comece uma biblioteca numa linguagem nova](/pt-br/contributing/new-language/#comece-uma-biblioteca-numa-linguagem-nova) explica os passos.
 
 ## As bibliotecas enviam meus dados para algum lugar?
 
-Não. Elas rodam dentro do seu programa. A única exceção é a busca de endereço pelo CEP (`getAddressInfoByCep` e equivalentes), que consulta serviços públicos de CEP pela internet. A página de [privacidade](/pt-br/about/privacy/) trata deste site.
+Não. Elas rodam dentro do seu programa. As únicas exceções são as duas consultas de CEP, `cep.getAddressInfo` (o endereço de um CEP) e `cep.getInfoByAddress` (os CEPs de um logradouro), que consultam serviços públicos de CEP pela internet. A página de [privacidade](/pt-br/about/privacy/) trata deste site.
 
 ## Onde relato um bug ou tiro uma dúvida?
 

@@ -1,6 +1,6 @@
 ---
 id: license-plate
-title: "License Plate"
+title: "License plate"
 language: en-US
 references:
   - law-9503-1997
@@ -16,6 +16,7 @@ Vehicle license plates are the front and rear plates fixed to a vehicle. A plate
 
 - **Validation**: Check that the vehicle license plate is valid according to the official rules.
 - **Formatting**: Upper-case the plate and add a hyphen to old-format plates (`ABC-1234`). Mercosul plates (`ABC1D23`) have no separator. `L` is a letter and `N` is a digit.
+- **Parsing**: Keep only the letters and digits, in upper case.
 - **Generation**: Generate a valid license plate in the given format. If you give no format, the function returns a license plate in the Mercosul format.
 
 ## Validation rules
@@ -30,8 +31,8 @@ Vehicle license plates are the front and rear plates fixed to a vehicle. A plate
 
 ## Algorithm
 
-1. Remove the whitespace at the start and at the end of the input.
-2. Check that the input has exactly 7 characters.
+1. Remove the whitespace at the start and at the end, and one hyphen or space between the letters and the digits.
+2. Check that 7 characters remain.
 3. Check that all characters are alphanumeric.
 4. Check that the input follows one of the valid patterns:
    - Mercosul: `LLLNLNN`

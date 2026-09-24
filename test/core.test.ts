@@ -8,7 +8,7 @@ import { baselineFrom, diffBaseline } from "../src/core/baseline.js";
 import { valuesEqual } from "../src/core/conformance.js";
 import { ContractError, loadContract } from "../src/core/contract.js";
 import { checkParam, checkReturn, format, parseCType, T } from "../src/core/ctype.js";
-import { SymbolIndex, resolve, score } from "../src/core/match.js";
+import { SymbolIndex, proposeBindings, resolve, score, suggestFunctions, suggestSymbols } from "../src/core/match.js";
 import type { ApiSurface, LibConfig, NativeSymbol, RunnerCall, TypeNode } from "../src/core/model.js";
 import { lookupKey, snake, words } from "../src/core/naming.js";
 import { getAdapter } from "../src/languages/registry.js";
@@ -155,7 +155,21 @@ describe("contract loader", () => {
     });
     const fn = loadContract(dir).functions.get("legalProcess.isValid")!;
     assert.equal(fn.flatName, "isValidLegalProcess");
-    assert.deepEqual(fn.spellings.map((s) => s.flatName), ["isValidLegalProcess", "isValidProcessoJuridico", "checkLawsuit"]);
+    assert.deepEqual(fn.spellings.map((s) => s.flatName), ["isValidLegalProcess", "isValidProcessoJuridico", "checkLawsuit", "checkProcessoJuridico"]);
+  });
+  it("combines domain aliases with function aliases, and an alias naming its domain is its own flat name", () => {
+    const dir = tmpContract({
+      "date/contract.json": {
+        domain: "date",
+        aliases: ["dateUtils"],
+        functions: { convertToWords: { aliases: ["date.convertDateToText"], params: [{ name: "d", type: "string" }], returns: "string" } }
+      }
+    });
+    const fn = loadContract(dir).functions.get("date.convertToWords")!;
+    assert.ok(fn.spellings.some((s) => s.domain === "dateUtils" && s.operation === "convertDateToText"));
+    assert.ok(fn.spellings.some((s) => s.flatName === "convertDateToText"));
+    const names = new Set(fn.spellings.flatMap((sp) => getAdapter("python").candidates({ ...fn, ...sp }, lib())));
+    for (const n of ["date_utils.convert_date_to_text", "convert_date_to_text", "date.convert_date_to_text", "date_utils.convert_to_words"]) assert.ok(names.has(n), n);
   });
 });
 
@@ -228,6 +242,37 @@ describe("matching", () => {
     assert.ok(score(isValid, "cpf.validate") > 0.7);
     assert.ok(score(isValid, "cnpj.validate") < 0.5);
   });
+  it("suggestions score the operation: same domain with another verb is not a suggestion", () => {
+    const c = loadContract(
+      tmpContract({ "cpf/contract.json": { domain: "cpf", functions: { parse: { params: [{ name: "cpf", type: "string" }], returns: "string" }, isValid: { params: [{ name: "cpf", type: "string" }], returns: "boolean" } } } })
+    );
+    const parse = c.functions.get("cpf.parse")!;
+    assert.equal(score(parse, "brutils_cpf.is_valid"), 0);
+    assert.deepEqual(suggestSymbols(parse, [sym("brutils_cpf.is_valid", ["cpf:str"], "bool")]), []);
+    assert.deepEqual(suggestFunctions("brutils_cpf.is_valid", [parse]), []);
+  });
+  it("suggestions respect direction: getCodeByName is not name_from_code", () => {
+    const c = loadContract(
+      tmpContract({ "legal-nature/contract.json": { domain: "legalNature", functions: { getCodeByName: { params: [{ name: "n", type: "string" }], returns: "string" } } } })
+    );
+    const fn = c.functions.get("legalNature.getCodeByName")!;
+    assert.equal(score(fn, "legal_nature.name_from_code"), 0);
+    assert.equal(score(fn, "legal_nature.code_to_name"), 0);
+    assert.ok(score(fn, "legal_nature.code_from_name") >= 0.55);
+    assert.ok(score(fn, "legal_nature.name_to_code") >= 0.55);
+  });
+  it("suggestions list overloads once, and proposed bindings keep one symbol per function without ties", () => {
+    const overloads = [sym("cpf.validate", ["cpf:str"], "bool"), sym("cpf.validate", ["cpf:str", "strict?:bool"], "bool")];
+    assert.deepEqual(suggestSymbols(isValid, overloads).map((s) => s.symbol), ["cpf.validate"]);
+    const bindings = proposeBindings([
+      { symbol: "cpf.validate", suggestions: [{ id: "cpf.isValid", score: 1 }] },
+      { symbol: "cpf.check", suggestions: [{ id: "cpf.isValid", score: 0.7 }] },
+      { symbol: "cpf.tie", suggestions: [{ id: "cpf.format", score: 0.8 }, { id: "cpf.strip", score: 0.8 }] },
+      { symbol: "a", suggestions: [{ id: "cpf.generate", score: 0.9 }] },
+      { symbol: "b", suggestions: [{ id: "cpf.generate", score: 0.9 }] }
+    ]);
+    assert.deepEqual(bindings, { "cpf.isValid": "cpf.validate" });
+  });
 });
 
 describe("analysis + conformance (fake lib)", () => {
@@ -288,6 +333,31 @@ describe("analysis + conformance (fake lib)", () => {
     assert.equal(report.unmapped[0].symbol, "cpf.parse_digits");
     assert.equal(report.summary.testsPassed, 4);
     assert.equal(report.summary.testsFailed, 1);
+  });
+
+  it("a signature that mismatches only on optional params still runs the required-only cases", async () => {
+    const c = loadContract(
+      tmpContract({
+        "cpf/contract.json": {
+          domain: "cpf",
+          functions: {
+            isValid: {
+              params: [{ name: "cpf", type: "string" }, { name: "strict", type: "boolean", optional: true }],
+              returns: "boolean",
+              tests: [{ args: ["52998224725"], returns: true }, { args: ["52998224725", true], returns: true }]
+            },
+            generate: { params: [], returns: "string", tests: [{ args: [], satisfies: "cpf.isValid" }] }
+          }
+        }
+      })
+    );
+    const s: ApiSurface = { library: "lib", language: "fake", warnings: [], symbols: [sym("cpf.is_valid", ["cpf:str", "strict?:str"], "bool"), sym("cpf.generate", [], "str")] };
+    const report = await analyzeLib({ contract: c, adapter: fakeAdapter(impls), ctx: { lib: lib(), root: "/", workDir: "/tmp" }, surface: s, runTests: true });
+    const isValid = report.functions.find((f) => f.id === "cpf.isValid")!;
+    assert.equal(isValid.status, "signature");
+    assert.deepEqual(isValid.tests.map((t) => [t.id, t.status]), [['cpf.isValid#["52998224725"]', "pass"]]);
+    const gen = report.functions.find((f) => f.id === "cpf.generate")!;
+    assert.match(gen.tests[0].message!, /cpf\.isValid is implemented by this lib, but its signature does not match/);
   });
 
   it("knownFailures are reported but not counted as failures", async () => {

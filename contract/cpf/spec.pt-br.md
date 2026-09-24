@@ -15,9 +15,9 @@ O CPF é um identificador nacional de 11 dígitos. Os 8 primeiros dígitos são 
 
 ## Funções
 
-- **Validação**: Verificar se um CPF sem formatação é válido conforme as regras oficiais.
+- **Validação**: Conferir o tamanho e os dígitos verificadores.
 - **Formatação**: Mostrar o CPF no formato padrão `XXX.XXX.XXX-YY`.
-- **Interpretação**: Remover os caracteres `.` e `-` e manter apenas os dígitos.
+- **Interpretação**: Manter só os dígitos, até 11.
 - **Geração**: Gerar um CPF válido, ao acaso ou conforme regras específicas.
 
 ## Regras de validação
@@ -47,7 +47,7 @@ O CPF é um identificador nacional de 11 dígitos. Os 8 primeiros dígitos são 
 ## Exemplos
 
 - Válido: `11144477735`
-- Inválido: `111.444.777-35` (a validação aceita apenas CPFs sem formatação)
+- `111.444.777-35`: decisão pendente. A referência (JS) aceita, as outras bibliotecas não.
 - Inválido: `00000000000` (sequência repetida)
 - Inválido: `1114447773` (deve conter exatamente 11 caracteres)
 - Inválido: `111444777355` (deve conter exatamente 11 caracteres)

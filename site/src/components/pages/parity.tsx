@@ -13,7 +13,7 @@ import { DocsPager } from '@/components/docs-pager.client';
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const parityText = (locale: Locale) => ({
   title: L(locale, 'Parity matrix', 'Matriz de paridade'),
-  description: L(locale, 'Which library implements which utility, and how much of it.', 'Qual biblioteca implementa qual utilitário, e quanto dele.'),
+  description: L(locale, 'Which library implements which utility, and how much of it: every function of the contract in every language, from the latest run of the shared tests.', 'Qual biblioteca implementa qual utilitário, e quanto dele: cada função do contrato em cada linguagem, pela última execução dos testes compartilhados.'),
 });
 
 export function ParityPage({ locale }: { locale: Locale }) {
@@ -67,6 +67,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
                     <Link href={`${p}/libs/${lib.id}/`} className="inline-flex items-center gap-1.5 hover:underline">
                       <LangIcon lib={lib.id} />
                       {lib.label}
+                      <span className="sr-only-static">{t('cov.libraryWord')}</span>
                     </Link>
                   </th>
                 ))}
@@ -111,7 +112,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
         </div>
         <p>
           {L(locale, 'To fill an empty cell, read ', 'Para preencher uma célula vazia, leia ')}
-          <Link href={`${p}/contributing/new-language/`}>{L(locale, 'Port to a new language', 'Implemente em outra linguagem')}</Link>.
+          <Link href={`${p}/contributing/new-language/`}>{L(locale, 'Fill a gap in a library', 'Preencha uma lacuna numa biblioteca')}</Link>.
         </p>
       </DocsBody>
     </DocsPage>

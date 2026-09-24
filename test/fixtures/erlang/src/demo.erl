@@ -2,7 +2,7 @@
 -module(demo).
 -export([is_valid/1,
          format/1,
-         generate/0, generate/1, codes/0]).
+         generate/0, generate/1, codes/0, valid/1, swapped/2]).
 -deprecated([{generate, 1}]).
 
 -type cpf() :: <<_:88>>.
@@ -24,5 +24,11 @@ generate(_Kind) -> <<"00000000000">>.
 
 -spec codes() -> [integer()].
 codes() -> [61, 62].
+
+%% Pure delegation: an alias of demo:is_valid/1.
+valid(Cpf) -> demo:is_valid(Cpf).
+
+%% Arguments reordered: not an alias.
+swapped(A, B) -> lists:append(B, A).
 
 not_exported(X) -> X.

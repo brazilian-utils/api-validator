@@ -24,7 +24,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Utilities', 'Utilitários'),
-    description: L(locale, 'Validate, format and generate', 'Validar, formatar e gerar'),
+    description: L(locale, 'Validate, format, parse and generate', 'Validar, formatar, interpretar e gerar'),
     icon: <BookOpen />,
     children: [
       page(L(locale, 'Getting started', 'Primeiros passos'), '/getting-started/'),
@@ -48,7 +48,17 @@ export function pageTree(locale: Locale): PageTree.Root {
     children: [
       page(L(locale, 'Parity matrix', 'Matriz de paridade'), '/reference/parity/'),
       { type: 'separator', name: L(locale, 'Libraries', 'Bibliotecas') },
-      ...loadLibs().map((lib: any) => page(lib.label, `/libs/${lib.id}/`, <LangIcon lib={lib.id} />)),
+      // "Go" alone reads as a verb in a list of links: a hidden word names the library.
+      ...loadLibs().map((lib: any) =>
+        page(
+          <>
+            {lib.label}
+            <span className="sr-only">{L(locale, ' library', ', biblioteca')}</span>
+          </>,
+          `/libs/${lib.id}/`,
+          <LangIcon lib={lib.id} />,
+        ),
+      ),
     ],
   };
 

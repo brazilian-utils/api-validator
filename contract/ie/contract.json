@@ -12,8 +12,8 @@
   "functions": {
     "isValid": {
       "summary": {
-        "en": "Validates a Brazilian state tax registration number (IE).",
-        "pt-BR": "Valida uma inscrição estadual (IE)."
+        "en": "Checks whether a Brazilian state tax registration number (IE) is valid.",
+        "pt-BR": "Verifica se uma inscrição estadual (IE) é válida."
       },
       "description": {
         "en": [

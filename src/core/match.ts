@@ -1,6 +1,6 @@
 import type { LanguageAdapter } from "../languages/types.js";
 import type { ContractFunction, Issue, LibConfig, NativeSymbol } from "./model.js";
-import { globMatch, lookupKey, similarity, tokens } from "./naming.js";
+import { globMatch, lookupKey, similarity, tokens, words } from "./naming.js";
 
 export class SymbolIndex {
   private readonly byKey = new Map<string, NativeSymbol[]>();
@@ -98,19 +98,45 @@ export function isIgnored(lib: LibConfig, symbol: string): boolean {
   return lib.ignore.some((pattern) => globMatch(pattern, symbol));
 }
 
-function fnTokens(fn: ContractFunction): Set<string> {
-  return tokens(`${fn.domain} ${fn.operation} ${fn.flatName}`);
+/** The operation tokens of a contract function, without its domain tokens. */
+function operationTokens(fn: ContractFunction): Set<string> {
+  const domain = tokens(fn.domain);
+  return new Set([...tokens(`${fn.operation} ${fn.flatName}`)].filter((t) => !domain.has(t)));
 }
 
+const DIRECTION = new Set(["by", "from", "to"]);
+
 /**
- * Rank how likely `symbol` implements `fn`. Token similarity, with a bonus when the domain
- * is present (a CPF function almost never implements a CNPJ contract).
+ * The (result, input) halves of a directional name: `getCodeByName` and `code_from_name` give
+ * ({get, code}, {name}), `name_to_code` gives ({code}, {name}). Only the last name segment.
+ */
+function direction(name: string, drop: Set<string>): { out: Set<string>; in: Set<string> } | undefined {
+  const ws = words(name.split(".").pop() ?? name);
+  const i = ws.findIndex((w) => DIRECTION.has(w));
+  if (i <= 0 || i === ws.length - 1) return undefined;
+  const part = (xs: string[]) => new Set([...tokens(xs.join(" "))].filter((t) => !drop.has(t)));
+  const [before, after] = [part(ws.slice(0, i)), part(ws.slice(i + 1))];
+  return ws[i] === "to" ? { out: after, in: before } : { out: before, in: after };
+}
+
+const overlap = (a: Set<string>, b: Set<string>) => [...a].filter((t) => b.has(t)).length;
+
+/**
+ * Rank how likely `symbol` implements `fn`. Token similarity of the operation (the domain
+ * tokens are left out, and the operation must share at least one token), with a bonus when
+ * the domain is present (a CPF function almost never implements a CNPJ contract). Directional
+ * names must point the same way: `getCodeByName` is not `name_from_code`.
  */
 export function score(fn: ContractFunction, symbol: string): number {
-  const f = fnTokens(fn);
-  const s = tokens(symbol);
-  let value = similarity(f, s);
   const domainTokens = tokens(fn.domain);
+  const s = tokens(symbol);
+  const op = operationTokens(fn);
+  const symOp = new Set([...s].filter((t) => !domainTokens.has(t)));
+  if (overlap(op, symOp) === 0) return 0;
+  const fd = direction(fn.operation, domainTokens);
+  const sd = direction(symbol, domainTokens);
+  if (fd && sd && overlap(fd.out, sd.in) + overlap(fd.in, sd.out) > overlap(fd.out, sd.out) + overlap(fd.in, sd.in)) return 0;
+  let value = similarity(op, symOp);
   const hasDomain = [...domainTokens].every((t) => s.has(t));
   value = hasDomain ? Math.min(1, value + 0.15) : value * 0.6;
   return Math.round(value * 100) / 100;
@@ -118,18 +144,40 @@ export function score(fn: ContractFunction, symbol: string): number {
 
 const SUGGESTION_THRESHOLD = 0.55;
 
-export function suggestSymbols(fn: ContractFunction, candidates: NativeSymbol[], limit = 3) {
-  return candidates
-    .map((s) => ({ symbol: s.name, score: score(fn, s.name) }))
-    .filter((s) => s.score >= SUGGESTION_THRESHOLD)
+/** Whether a symbol could implement a function (its best overload has no signature error). */
+export type Compatible = (fn: ContractFunction, symbol: string) => boolean;
+
+/** Symbols that may implement a missing function: one entry per name (overloads are one symbol). */
+export function suggestSymbols(fn: ContractFunction, candidates: NativeSymbol[], limit = 3, compatible?: Compatible) {
+  return [...new Set(candidates.map((s) => s.name))]
+    .map((name) => ({ symbol: name, score: score(fn, name) }))
+    .filter((s) => s.score >= SUGGESTION_THRESHOLD && (!compatible || compatible(fn, s.symbol)))
     .sort((a, b) => b.score - a.score || a.symbol.localeCompare(b.symbol))
     .slice(0, limit);
 }
 
-export function suggestFunctions(symbol: string, fns: ContractFunction[], limit = 3) {
+export function suggestFunctions(symbol: string, fns: ContractFunction[], limit = 3, compatible?: Compatible) {
   return fns
-    .map((fn) => ({ id: fn.id, score: score(fn, symbol) }))
-    .filter((s) => s.score >= SUGGESTION_THRESHOLD)
+    .map((fn) => ({ id: fn.id, score: score(fn, symbol), fn }))
+    .filter((s) => s.score >= SUGGESTION_THRESHOLD && (!compatible || compatible(s.fn, symbol)))
     .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
-    .slice(0, limit);
+    .slice(0, limit)
+    .map(({ id, score }) => ({ id, score }));
+}
+
+/**
+ * Proposed lib-config `bindings` from the unmapped symbols' suggestions: a symbol whose two best
+ * suggestions tie is ambiguous and left out; when several symbols point at the same function,
+ * the best one wins, and a tie between them leaves the function out.
+ */
+export function proposeBindings(unmapped: Array<{ symbol: string; suggestions: Array<{ id: string; score: number }> }>): Record<string, string> {
+  const best = new Map<string, { symbol: string; score: number; tied: boolean }>();
+  for (const u of unmapped) {
+    const [top, next] = u.suggestions;
+    if (!top || (next && next.score === top.score)) continue;
+    const seen = best.get(top.id);
+    if (!seen || top.score > seen.score) best.set(top.id, { symbol: u.symbol, score: top.score, tied: false });
+    else if (top.score === seen.score && seen.symbol !== u.symbol) seen.tied = true;
+  }
+  return Object.fromEntries([...best].filter(([, b]) => !b.tied).sort(([a], [b]) => a.localeCompare(b)).map(([id, b]) => [id, b.symbol]));
 }

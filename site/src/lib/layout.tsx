@@ -68,5 +68,7 @@ export function headerProps(locale: Locale) {
     prefix: prefixOf(locale),
     github: { url: 'https://github.com/brazilian-utils', label: 'GitHub', icon: githubIcon },
     menuLabel: L(locale, 'Menu', 'Menu'),
+    sectionsLabel: L(locale, 'Sections', 'Seções'),
+    skipLabel: L(locale, 'Skip to content', 'Pular para o conteúdo'),
   };
 }

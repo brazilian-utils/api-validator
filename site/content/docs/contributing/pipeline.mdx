@@ -1,0 +1,146 @@
+---
+title: How the pipeline works
+description: What runs on a pull request, on a merge, every night and on a release. What each run writes, the secrets it needs and what to do when it fails.
+---
+
+The [Brazilian Utils](https://github.com/brazilian-utils) libraries follow one contract in [api-validator](https://github.com/brazilian-utils/api-validator). Three workflows in that repository keep the contract, the libraries and this site in step:
+
+| Workflow | File | What it does |
+| --- | --- | --- |
+| CI | `.github/workflows/ci.yml` | checks the validator itself |
+| site / check | `.github/workflows/site-check.yml` | checks this site on pull requests |
+| Conformance | `.github/workflows/conformance.yml` | checks every library against the contract, keeps the issues and the suite PRs in the library repositories, and builds and publishes this site |
+
+Vercel also builds a preview copy of the site. It is described below.
+
+## What runs on a pull request
+
+**CI** runs on every pull request. It runs actionlint on the workflows and on the library templates. Then it runs the typecheck, the lint and the unit tests. The language toolchains are installed, so the tests of each language adapter run too.
+
+**site / check** runs when the pull request changes `contract/`, `libs/` or `site/`. It runs these checks:
+
+- `npm audit` finds no known vulnerability
+- every page and every string has both languages (`check:i18n --strict`)
+- lint passes with no warnings
+- the site builds
+- the typecheck passes
+- accessibility (axe) and design checks pass on every page type
+
+This build does not run the validator. It takes the status of each library from the last published site.
+
+**Conformance** runs when the pull request changes the contract, the library configs, `baselines/`, `schema/`, `src/` or the package files. It clones every library at its default branch and runs `check --tests`. It fails on a regression against `baselines/`. Then it runs `diff`, which fails on a new divergence between libraries. The job summary shows the contract changelog and the issues that the merge would open. The run also builds the site with its own results. It writes nothing outside the run.
+
+A newer push to the same pull request cancels the run in progress. These jobs run the code of the libraries, so their token can only read. They never get `LIBS_TOKEN`.
+
+## What runs on a merge to main
+
+A merge to main starts the Conformance workflow when it changes the same paths as above, or `site/`. The workflow has three jobs.
+
+<Steps>
+
+1. **conformance** does everything that the pull request run does. It also exports the suite of each library: the JSON cases in `api-contract/` and the library's `skip.json`. It exports only into libraries that already have `api-contract/`. It clones each one, exports the suite and saves the difference as a patch. Then it builds the site with the results of this run.
+
+2. **lib-repos** runs only when `LIBS_TOKEN` is set. It starts from a clean checkout and runs no library code. It opens an `Implement <function>` issue in every library that lacks a function the merge added. It opens a `Fix <function>` issue in every library that fails a case the merge added or changed. It refreshes every open `api-contract` issue and closes the ones that are done. Last, it pushes each suite patch to an `api-contract/cases` branch in the library and opens a PR, if none is open.
+
+3. **publish** deploys the site to GitHub Pages. It runs only when the site is complete and `PUBLISH_SITE` is `true`.
+
+</Steps>
+
+A merge run is never cancelled, and a later run never replaces it. It is the only run that opens the issues for that merge.
+
+A failed check does not stop the issues or the site. A regression or a new divergence fails the run, but the next jobs still run.
+
+The site is complete when every library got a report and the site built. If a library crashed, or the build failed, the last site stays online. A library without a report gets no new issues in that run.
+
+If someone cancels a run, the jobs that have not started do not start. A cancelled run does not publish.
+
+## The nightly run
+
+The Conformance workflow runs every day at 09:00 UTC. It does what a merge run does, against the latest default branch of every library. It opens no issues, because no merge started it. It refreshes the open issues and closes the ones that are done. It refreshes the suite PRs and publishes the site again.
+
+## When a library releases
+
+A library can tell api-validator about a release. Its release workflow sends a `repository_dispatch` event of type `lib-released`. The [usage files](/contributing/usage-files/#update-the-site-on-each-release) page has the step to copy. This event starts the same run as the nightly. The site then shows the usage files of the new release at once.
+
+Nightly runs and release runs share one concurrency group. They run one at a time. A newer run that waits replaces an older run that waits.
+
+## Running it by hand
+
+Go to Actions, then Conformance, then Run workflow, and choose main. The run has two inputs:
+
+| Input | What it does |
+| --- | --- |
+| `since` | a git ref. The run opens the issues for every contract change since that ref. |
+| `backfill` | `core` or `all`. The run also opens issues for everything that is already missing or failing. |
+
+Use `since` when the run of a merge failed before its issues step. Set it to the commit just before the merge.
+
+A manual run has its own concurrency group. A nightly run or a release run that starts later does not replace it, so it keeps its inputs.
+
+<Callout type="info">
+The first merge that brings the contract into main opens no issues, on purpose. Before that merge there was no contract to compare with, so every function would count as new. Open those issues with a `backfill` run.
+</Callout>
+
+## In each library
+
+Each library copies `templates/lib-ci/<language>.yml` to `.github/workflows/api-contract.yml`. This workflow runs on pushes to main or master and on every pull request.
+
+It runs the api-validator Action, which checks the library against the contract. The check fails only on a regression or on public API that is not in the contract. The job summary lists what is still missing.
+
+Then the Action runs `export-cases --check`. When `api-contract/` is behind the contract, the Action warns. With `cases: check` it fails. To fix it, merge the `api-contract/cases` PR that the bot opened.
+
+The harness of the library runs the cases in `api-contract/` in the library's own test command.
+
+## Preview deployments
+
+Vercel builds a copy of the site for each push that changes `site/`, `contract/`, `libs/`, `schema/` or `vercel.json`. The link shows up on the pull request. A preview is served at the root of its own domain. Vercel does not run the validator, so the preview takes the status of each library from the published site.
+
+Search engines do not index any preview:
+
+- every response has the header `X-Robots-Tag: noindex, nofollow, noarchive`
+- every page has a `robots` meta tag with `noindex`
+- `robots.txt` lists no sitemap
+- canonical links point at `SITE_URL`
+
+The official site is the one on GitHub Pages. It is the only one that search engines index.
+
+## Publishing
+
+The publish job deploys to GitHub Pages. It has its own concurrency group, `github-pages`. One deploy runs at a time. A run that finishes late does not put an older site over a newer one.
+
+`SITE_URL` is the public address of the site, with its path. Its path becomes the base path of the site. The issues link to it, and so do the badges in the library READMEs. Without the variable, the workflow uses `https://<owner>.github.io/<repo>`, from the name of the repository.
+
+## Secrets and variables
+
+| Name | Kind | Where | What it does |
+| --- | --- | --- | --- |
+| `LIBS_TOKEN` | secret | api-validator | A fine-grained token or a GitHub App, with write access to Issues, Contents and Pull requests on the library repositories. Never give it the Workflows permission. It turns on the issues and the suite PRs. |
+| `PUBLISH_SITE` | variable | api-validator | `true` turns on the deploys to GitHub Pages from main. The Pages source must be GitHub Actions. |
+| `SITE_URL` | variable | api-validator | The public address of the site, with its path. Set it for a custom domain. |
+| `API_VALIDATOR_DISPATCH_TOKEN` | secret | each library | A token that can send `repository_dispatch` to api-validator (Contents: write). Without it, a release reaches the site at the next nightly run. |
+| `ANTHROPIC_API_KEY` | secret | each library | Optional. Used by `port-with-claude.yml`. |
+
+Vercel needs no variable. These are optional there:
+
+| Name | What it does |
+| --- | --- |
+| `SITE_URL` | the address that canonical links point at |
+| `SITE_DATA_URL` | where the build reads the status from (default: `SITE_URL`) |
+| `GITHUB_TOKEN` | raises the GitHub API limit when the build reads the libraries |
+| `SITE_DATA=skip` | builds without the status |
+| `SITE_INDEXABLE=true` | removes the `noindex` meta tag, for the day Vercel serves the official site. The header in `vercel.json` must go too. |
+
+## What can go wrong
+
+| Symptom | Cause | What to do |
+| --- | --- | --- |
+| Notice: `LIBS_TOKEN is not set` | the secret is missing | Add `LIBS_TOKEN`. Until then, no issues and no suite PRs. |
+| Notice: `vars.PUBLISH_SITE is not 'true'` | the variable is missing | Set `PUBLISH_SITE` to `true`. The site was built but not published. |
+| Warning: `the site did not build` | the site build failed | Read the log of the build step and fix it. The last site stays online. |
+| Warning: `N of M libs have a report` | a library crashed, for example its default branch does not build | Read the log of the check step. The last site stays online until every library gets a report. |
+| A merge opened no issues | the run failed before its issues step | Run the workflow by hand with `since` set to the commit before the merge. |
+| Warning: `<commit> is not in the repository` | a force-push removed the commit before the merge | Run the workflow by hand with `since` set to a commit before the merge. |
+| Two open issues for the same function | two runs opened it at the same time | Nothing. The next run closes the newer one and keeps the oldest. |
+| A `Fix` issue stays open after the fix | the tests of that library did not run | Nothing. The issue closes on a run where the tests run and pass. |
+| Error: `the patch touches files outside api-contract/` | the export changed other files | Nothing is pushed. Read the export log for that library. |
+| The library CI warns that `api-contract/` is behind | the suite PR is not merged | Merge the `api-contract/cases` PR. |

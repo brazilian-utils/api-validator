@@ -4,6 +4,7 @@
  */
 import type { BaselineDiff } from "../core/baseline.js";
 import type { Contract, FunctionReport, LibReport } from "../core/model.js";
+import { proposeBindings } from "../core/match.js";
 import { sig } from "../core/signature.js";
 
 const esc = (s: string) => s.replaceAll("|", "\\|").replaceAll("\n", " ");
@@ -114,13 +115,13 @@ export function libMarkdown(report: LibReport, contract: Contract, diff?: Baseli
       const hint = u.suggestions.length ? ` — maybe ${u.suggestions.map((x) => `${code(x.id)} (${Math.round(x.score * 100)}%)`).join(", ")}` : "";
       out.push(`- ${code(u.symbol)}${where(u)}${hint}`);
     }
-    const bindable = report.unmapped.filter((u) => u.suggestions.length > 0);
-    if (bindable.length > 0) {
+    const bindings = proposeBindings(report.unmapped);
+    if (Object.keys(bindings).length > 0) {
       out.push("");
       out.push("Suggested `bindings` (verify before copying into the lib config):");
       out.push("");
       out.push("```json");
-      out.push(JSON.stringify({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }, null, 2));
+      out.push(JSON.stringify({ bindings }, null, 2));
       out.push("```");
     }
     out.push("");

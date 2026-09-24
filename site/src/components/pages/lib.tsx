@@ -133,7 +133,14 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
                       <th scope="row" className="font-normal">
                         <span className="inline-flex items-center gap-2">
                           <LangIcon lib={o.id} />
-                          {me ? <span className="font-semibold">{o.label}</span> : <Link href={`${p}/libs/${o.id}/`}>{o.label}</Link>}
+                          {me ? (
+                            <span className="font-semibold">{o.label}</span>
+                          ) : (
+                            <Link href={`${p}/libs/${o.id}/`}>
+                              {o.label}
+                              <span className="sr-only">{t('cov.libraryWord')}</span>
+                            </Link>
+                          )}
                         </span>
                       </th>
                       <td>

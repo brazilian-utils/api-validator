@@ -65,7 +65,7 @@ export function Breakdown({
         }}
         onMouseEnter={() => hover(true)}
         onMouseLeave={() => hover(false)}
-        className={`inline-flex cursor-pointer items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
+        className={`inline-flex min-h-6 cursor-pointer items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
       >
         {children}
       </PopoverTrigger>

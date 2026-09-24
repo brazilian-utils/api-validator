@@ -48,12 +48,14 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a random valid Brazilian court case number. It follows the `NNNNNNNDDAAAAJTROOOO` layout of Resolução CNJ nº 65/2008.",
-        "pt-BR": "Gera um número de processo judicial aleatório e válido. Segue o formato `NNNNNNNDDAAAAJTROOOO` da Resolução CNJ nº 65/2008."
+        "en": "Generates a random valid Brazilian court case number.",
+        "pt-BR": "Gera um número de processo judicial aleatório e válido."
       },
       "description": {
         "en": [
           "Generates a random valid legal process number (20 digits, unformatted) in the layout of Resolução CNJ nº 65/2008.",
+          "",
+          "It follows the `NNNNNNNDDAAAAJTROOOO` layout of Resolução CNJ nº 65/2008.",
           "",
           "- `options.year` sets the `AAAA` field, from the current year to 9999 (default: the current year). `options.court` sets the segment `J`, 1 to 9 (default: random).",
           "- The function picks `TR` among the tribunals of the chosen segment. So the pair always names a court that exists.",
@@ -61,6 +63,8 @@
         ],
         "pt-BR": [
           "Gera um número do processo judicial aleatório e válido (20 dígitos, sem formatação) no formato da Resolução CNJ nº 65/2008.",
+          "",
+          "Segue o formato `NNNNNNNDDAAAAJTROOOO` da Resolução CNJ nº 65/2008.",
           "",
           "- `options.year` define o campo `AAAA`, do ano atual até 9999 (padrão: o ano atual). `options.court` define o segmento `J`, de 1 a 9 (padrão: aleatório).",
           "- A função escolhe `TR` entre os tribunais do segmento escolhido. Assim, o par sempre indica um tribunal que existe.",
@@ -77,8 +81,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a Brazilian court case number (NUP).",
-        "pt-BR": "Valida um número de processo judicial (NUP)."
+        "en": "Checks whether a Brazilian court case number (NUP) is valid.",
+        "pt-BR": "Verifica se um número de processo judicial (NUP) é válido."
       },
       "description": {
         "en": [
@@ -112,8 +116,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes court case number formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do processo judicial e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a court case number and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um número de processo judicial e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes court case number formatting and keeps only digits, capped at 20 digits."],

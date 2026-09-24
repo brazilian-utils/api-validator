@@ -15,9 +15,9 @@ The CPF is an 11-digit national identification number. The first eight digits ar
 
 ## Functions
 
-- **Validation**: Check whether an unformatted CPF is valid according to the official rules.
+- **Validation**: Check the length and the check digits.
 - **Formatting**: Show the CPF in the standard format `XXX.XXX.XXX-YY`.
-- **Parsing**: Remove the `.` and `-` characters and keep only the digits.
+- **Parsing**: Keep only the digits, up to 11.
 - **Generation**: Generate a valid CPF, at random or according to specific rules.
 
 ## Validation rules
@@ -47,7 +47,7 @@ The CPF is an 11-digit national identification number. The first eight digits ar
 ## Examples
 
 - Valid: `11144477735`
-- Invalid: `111.444.777-35` (validation accepts only unformatted CPFs)
+- `111.444.777-35`: pending decision. The reference (JS) accepts it, the other libraries do not.
 - Invalid: `00000000000` (repeated sequence)
 - Invalid: `1114447773` (must contain exactly 11 characters)
 - Invalid: `111444777355` (must contain exactly 11 characters)

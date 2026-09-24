@@ -6,7 +6,8 @@
 
 /* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent; ok/fail/warn mark state, the
    brand yellow marks check digits. Text
-   colors meet WCAG 2.1 AA on their backgrounds in both themes. */
+   colors meet WCAG 2.1 AA on their backgrounds in both themes; the edge of a field (border-strong)
+   meets the 3:1 of a control's boundary. */
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -23,6 +24,7 @@
   --color-fd-accent: #e6e4d9;
   --color-fd-accent-foreground: #100f0f;
   --color-fd-border: #dad8ce;
+  --color-fd-border-strong: #878580;
   --color-fd-primary: #1c6c66;
   --color-fd-primary-foreground: #fffcf0;
   --color-fd-ring: #24837b;
@@ -31,6 +33,47 @@
   --color-ok: #3d6a07;
   --color-fail: #af3029;
   --color-warn: #8c5a00;
+}
+
+/* Motion, after Emil Kowalski's rules (animations.dev): only transform and opacity move; a strong
+   ease-out on anything entering, so it lands at once; nothing on the interface takes over 300ms;
+   a thing seen tens of times a day (hover, a tab) moves fast and little. Fumadocs' own
+   animations are retuned through its tokens: the search dialog, opened from the keyboard many
+   times a day, only fades; a popover scales in from its trigger in 150ms; the phone's sidebar
+   drawer slides on the iOS curve. */
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-fade-in: fd-fade-in 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-fade-out: fd-fade-out 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-dialog-in: fd-fade-in 120ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-dialog-out: fd-fade-out 100ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-popover-in: fd-popover-in 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-popover-out: fd-popover-out 100ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-sidebar-in: fd-sidebar-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fd-sidebar-out: fd-sidebar-out 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fd-collapsible-down: fd-collapsible-down 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-collapsible-up: fd-collapsible-up 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-accordion-down: fd-accordion-down 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-accordion-up: fd-accordion-up 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* With reduced motion, things still fade (a change that is not announced at all is easy to miss),
+   but nothing slides or scales. Site code drops its own transforms with motion-reduce:. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animate-fd-popover-in: fd-fade-in 100ms ease;
+    --animate-fd-popover-out: fd-fade-out 100ms ease;
+    --animate-fd-sidebar-in: fd-fade-in 150ms ease;
+    --animate-fd-sidebar-out: fd-fade-out 150ms ease;
+    --animate-fd-collapsible-down: none;
+    --animate-fd-collapsible-up: none;
+    --animate-fd-accordion-down: none;
+    --animate-fd-accordion-up: none;
+  }
 }
 
 .dark {
@@ -47,6 +90,7 @@
   --color-fd-accent: #282726;
   --color-fd-accent-foreground: #cecdc3;
   --color-fd-border: #343331;
+  --color-fd-border-strong: #6f6d68;
   --color-fd-primary: #3aa99f;
   --color-fd-primary-foreground: #100f0f;
   --color-fd-ring: #3aa99f;
@@ -109,11 +153,22 @@ figure.shiki {
 @media (hover: hover) {
   figure.shiki > div:has(> button[aria-label]) {
     opacity: 0;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s var(--ease-out);
   }
   figure.shiki:is(:hover, :focus-within) > div:has(> button[aria-label]) {
     opacity: 1;
   }
+}
+
+/* Text for screen readers only, kept in the flow (no absolute box): inside a sticky table head or
+   the sticky header, an absolute box would sit outside the layout's clip. */
+@utility sr-only-static {
+  display: inline-block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
 /* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */

@@ -136,8 +136,12 @@ and the case runs from then on.
 |---|---|---|
 | Contract or library-config PR here | `lint`, `fmt --check`, `check --tests` on all libraries, `diff --fail-on-new`. The job summary shows the contract `changelog` and the issues that the merge will open | regressions, new divergences, invalid contract |
 | Merge to main here | The same run on the merged contract. Then: an `Implement <fn>` issue in every library that does not have a function the merge added, and a `Fix <fn>` issue in every library that fails a case the merge added or changed | regressions, new divergences |
-| Nightly here | All of the above on the default branch of every library. Then: build and publish the docs site (a page per utility and per library, badges, the JSON suite), open `Fix` issues for new failures, update open issues and close the done ones. Also open or update an `api-contract/cases` PR in every library whose `api-contract/` changed | regressions, new divergences |
+| Nightly here | All of the above on the default branch of every library. Then: build and publish the docs site (a page per utility and per library, badges, the JSON suite), update open issues and close the done ones. It opens no issues: `Fix` issues come from a merge that adds or changes cases, or from a manual run with `since` or `backfill`. Also open or update an `api-contract/cases` PR in every library whose `api-contract/` changed | regressions, new divergences |
 | Every library push or PR | The Action: `check --tests` against the baseline and `export-cases --check`. The library's own test job runs its harness | regressions, public API outside the contract, (optionally) an old suite copy |
+
+If the run of a merge fails before it opens its issues, run the Conformance workflow by hand with `since` set to the commit before the merge.
+
+The site page [How the pipeline works](../site/content/docs/contributing/pipeline.mdx) describes each workflow, its secrets and what to do when it fails.
 
 Nobody has to remember a step. A merged contract change reaches every library in these ways:
 

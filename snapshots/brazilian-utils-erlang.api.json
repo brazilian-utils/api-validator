@@ -586,6 +586,7 @@
         }
       ],
       "returns": "{ok, brutils_license_plate:plate()} | {error, invalid}",
+      "aliasOf": "brutils_license_plate.convert_to_mercosul",
       "location": {
         "file": "src/brutils.erl",
         "line": 313
@@ -600,6 +601,7 @@
         }
       ],
       "returns": "{ok, brutils_cep:formatted_cep()} | {error, invalid}",
+      "aliasOf": "brutils_cep.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 177
@@ -614,6 +616,7 @@
         }
       ],
       "returns": "{ok, brutils_cnpj:formatted_cnpj()} | {error, invalid}",
+      "aliasOf": "brutils_cnpj.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 81
@@ -628,6 +631,7 @@
         }
       ],
       "returns": "{ok, brutils_cpf:formatted_cpf()} | {error, invalid}",
+      "aliasOf": "brutils_cpf.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 52
@@ -642,6 +646,7 @@
         }
       ],
       "returns": "{ok, brutils_license_plate:formatted_plate()} | {error, invalid}",
+      "aliasOf": "brutils_license_plate.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 300
@@ -656,6 +661,7 @@
         }
       ],
       "returns": "{ok, brutils_passport:passport()} | {error, invalid}",
+      "aliasOf": "brutils_passport.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 260
@@ -670,6 +676,7 @@
         }
       ],
       "returns": "{ok, binary()} | {error, invalid}",
+      "aliasOf": "brutils_phone.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 214
@@ -684,6 +691,7 @@
         }
       ],
       "returns": "{ok, brutils_pis:formatted_pis()} | {error, invalid}",
+      "aliasOf": "brutils_pis.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 125
@@ -698,6 +706,7 @@
         }
       ],
       "returns": "{ok, brutils_voter_id:formatted_voter_id()} | {error, invalid}",
+      "aliasOf": "brutils_voter_id.format",
       "location": {
         "file": "src/brutils.erl",
         "line": 356
@@ -707,6 +716,7 @@
       "name": "brutils.generate_cep",
       "params": [],
       "returns": "brutils_cep:cep()",
+      "aliasOf": "brutils_cep.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 189
@@ -716,6 +726,7 @@
       "name": "brutils.generate_cnpj",
       "params": [],
       "returns": "brutils_cnpj:cnpj()",
+      "aliasOf": "brutils_cnpj.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 94
@@ -730,6 +741,7 @@
         }
       ],
       "returns": "brutils_cnpj:cnpj()",
+      "aliasOf": "brutils_cnpj.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 101
@@ -748,6 +760,7 @@
         }
       ],
       "returns": "brutils_cnpj:cnpj()",
+      "aliasOf": "brutils_cnpj.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 108
@@ -757,6 +770,7 @@
       "name": "brutils.generate_cpf",
       "params": [],
       "returns": "brutils_cpf:cpf()",
+      "aliasOf": "brutils_cpf.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 64
@@ -766,6 +780,7 @@
       "name": "brutils.generate_license_plate",
       "params": [],
       "returns": "{ok, brutils_license_plate:plate()}",
+      "aliasOf": "brutils_license_plate.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 327
@@ -780,6 +795,7 @@
         }
       ],
       "returns": "{ok, brutils_license_plate:plate()} | {error, invalid}",
+      "aliasOf": "brutils_license_plate.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 335
@@ -789,6 +805,7 @@
       "name": "brutils.generate_passport",
       "params": [],
       "returns": "brutils_passport:passport()",
+      "aliasOf": "brutils_passport.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 273
@@ -798,6 +815,7 @@
       "name": "brutils.generate_phone",
       "params": [],
       "returns": "binary()",
+      "aliasOf": "brutils_phone.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 234
@@ -812,6 +830,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_phone.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 240
@@ -821,6 +840,7 @@
       "name": "brutils.generate_pis",
       "params": [],
       "returns": "brutils_pis:pis()",
+      "aliasOf": "brutils_pis.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 137
@@ -830,6 +850,7 @@
       "name": "brutils.generate_voter_id",
       "params": [],
       "returns": "{ok, brutils_voter_id:voter_id()}",
+      "aliasOf": "brutils_voter_id.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 363
@@ -844,6 +865,7 @@
         }
       ],
       "returns": "{ok, brutils_voter_id:voter_id()} | {error, invalid}",
+      "aliasOf": "brutils_voter_id.generate",
       "location": {
         "file": "src/brutils.erl",
         "line": 371
@@ -858,6 +880,7 @@
         }
       ],
       "returns": "{ok, brutils_license_plate:plate_type()} | {error, invalid}",
+      "aliasOf": "brutils_license_plate.get_format",
       "location": {
         "file": "src/brutils.erl",
         "line": 321
@@ -872,6 +895,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_cep.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 170
@@ -886,6 +910,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_cnh.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 148
@@ -900,6 +925,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_cnpj.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 74
@@ -914,6 +940,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_cpf.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 45
@@ -928,6 +955,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_license_plate.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 284
@@ -946,6 +974,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_license_plate.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 292
@@ -960,6 +989,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_passport.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 251
@@ -974,6 +1004,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_phone.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 200
@@ -992,6 +1023,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_phone.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 207
@@ -1006,6 +1038,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_pis.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 118
@@ -1020,6 +1053,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_renavam.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 159
@@ -1034,6 +1068,7 @@
         }
       ],
       "returns": "boolean()",
+      "aliasOf": "brutils_voter_id.is_valid",
       "location": {
         "file": "src/brutils.erl",
         "line": 347
@@ -1048,6 +1083,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_phone.remove_international_dialing_code",
       "location": {
         "file": "src/brutils.erl",
         "line": 228
@@ -1062,6 +1098,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_cep.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 183
@@ -1076,6 +1113,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_cnpj.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 88
@@ -1090,6 +1128,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_cpf.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 58
@@ -1104,6 +1143,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_license_plate.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 306
@@ -1118,6 +1158,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_passport.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 267
@@ -1132,6 +1173,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_phone.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 221
@@ -1146,6 +1188,7 @@
         }
       ],
       "returns": "binary()",
+      "aliasOf": "brutils_pis.remove_symbols",
       "location": {
         "file": "src/brutils.erl",
         "line": 131

@@ -73,8 +73,8 @@
     },
     "getAddressInfo": {
       "summary": {
-        "en": "Fetches the address information for a CEP from several providers at the same time. Returns the result from the first provider that responds successfully.",
-        "pt-BR": "Busca as informações de endereço de um CEP em vários provedores ao mesmo tempo. Retorna o resultado do primeiro provedor que responde com sucesso."
+        "en": "Fetches the address information for a CEP from several providers at the same time.",
+        "pt-BR": "Busca as informações de endereço de um CEP em vários provedores ao mesmo tempo."
       },
       "description": {
         "en": [
@@ -178,8 +178,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CEP formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CEP e retorna só os dígitos."
+        "en": "Removes the formatting characters of a CEP and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CEP e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CEP formatting and keeps only digits, capped at 8 digits."],

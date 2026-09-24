@@ -13,9 +13,10 @@ import { formatDir, schemaFiles } from "./core/format-contract.js";
 import { formatJson, orderDomain } from "./core/jsonfmt.js";
 import { loadLibConfigs, validateLibAgainstContract } from "./core/libs.js";
 import { answerKey, differential, diffDivergences, partition, divergenceBaseline, proposal, type DiffLib, type DivergenceBaseline } from "./core/differential.js";
-import { SymbolIndex, resolve } from "./core/match.js";
+import { SymbolIndex, proposeBindings, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
+import { parseCType } from "./core/ctype.js";
 import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, PACKAGE_ROOT, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
 import { run, which } from "./core/shell.js";
@@ -120,23 +121,41 @@ interface RunOptions {
   snapshot?: boolean;
 }
 
-async function analyzeMany(contract: Contract, opts: RunOptions): Promise<Array<{ report: LibReport; lib: LibConfig; root: string }>> {
-  const out: Array<{ report: LibReport; lib: LibConfig; root: string }> = [];
+type Analyzed = { report: LibReport; lib: LibConfig; root: string };
+
+/** One lib after another. A lib whose extraction or tests crash (a default branch that no longer
+ *  builds, a toolchain gone) is reported in `failed` and the others still get their reports. */
+async function analyzeMany(contract: Contract, opts: RunOptions): Promise<{ results: Analyzed[]; failed: Array<{ lib: LibConfig; error: string }> }> {
+  const results: Analyzed[] = [];
+  const failed: Array<{ lib: LibConfig; error: string }> = [];
   for (const lib of libsFor(opts)) {
     const ws = workspaceFor(lib, opts.path);
     const { ctx } = ws;
     const started = Date.now();
     process.stderr.write(c.dim(`• ${lib.name}: extracting…`));
-    const surface = await extractSurface(ws.adapter, ctx);
-    for (const w of surface.warnings) process.stderr.write(`\n  ${c.yellow("warning")}: ${w}`);
-    if (opts.snapshot) writeSnapshot(surface);
-    if (opts.tests) process.stderr.write(c.dim(" running conformance tests…"));
-    const filter = opts.only ? (t: { id: string }) => globMatch(opts.only!, t.id.split("#")[0]) || globMatch(opts.only!, t.id) : undefined;
-    const report = await analyzeLib({ contract, adapter: ws.adapter, ctx, surface, runTests: !!opts.tests, testFilter: filter });
-    process.stderr.write(c.dim(` done in ${((Date.now() - started) / 1000).toFixed(1)}s\n`));
-    out.push({ report, lib, root: ws.root });
+    try {
+      const surface = await extractSurface(ws.adapter, ctx);
+      for (const w of surface.warnings) process.stderr.write(`\n  ${c.yellow("warning")}: ${w}`);
+      if (opts.snapshot) writeSnapshot(surface);
+      if (opts.tests) process.stderr.write(c.dim(" running conformance tests…"));
+      const filter = opts.only ? (t: { id: string }) => globMatch(opts.only!, t.id.split("#")[0]) || globMatch(opts.only!, t.id) : undefined;
+      const report = await analyzeLib({ contract, adapter: ws.adapter, ctx, surface, runTests: !!opts.tests, testFilter: filter });
+      process.stderr.write(c.dim(` done in ${((Date.now() - started) / 1000).toFixed(1)}s\n`));
+      results.push({ report, lib, root: ws.root });
+    } catch (e) {
+      const error = e instanceof Error ? e.message : String(e);
+      process.stderr.write(`\n  ${c.red("error")}: ${error}\n`);
+      failed.push({ lib, error });
+    }
   }
-  return out;
+  return { results, failed };
+}
+
+/** One lib, for the commands about a single lib: a crash is an error. */
+async function analyzeOne(contract: Contract, opts: RunOptions): Promise<Analyzed> {
+  const { results, failed } = await analyzeMany(contract, opts);
+  if (failed.length) throw new Error(failed.map((f) => `${f.lib.name}: ${f.error}`).join("\n"));
+  return results[0];
 }
 
 function shouldFail(failOn: FailOn, report: LibReport, diff: BaselineDiff): boolean {
@@ -191,7 +210,8 @@ program
         const found = which(t.bin);
         // Presence decides; the version line is informational (not every tool has a flag for it).
         const v = found && t.version !== null ? run(t.bin, t.version ?? ["--version"], { timeoutMs: 60_000 }) : undefined;
-        const version = v?.status === 0 ? (v.stdout || v.stderr).trim().split("\n")[0] : "installed";
+        const line = v?.status === 0 ? (v.stdout || v.stderr).trim().split("\n")[0] : undefined;
+        const version = line ? (t.versionOf ? `${t.versionOf}: ${line}` : line) : "installed";
         if (!found && !t.optional) missing++;
         const mark = found ? c.green("✓") : t.optional ? c.yellow("○") : c.red("✗");
         console.log(`  ${mark} ${t.bin.padEnd(8)} ${found ? c.dim(version) : c.yellow(`missing — ${t.install}`)}  ${c.dim(`[${t.purpose}]`)}`);
@@ -293,8 +313,8 @@ program
   .option("--summary <file>", "also write the markdown report to this file (e.g. $GITHUB_STEP_SUMMARY)")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const results = await analyzeMany(contract, opts);
-    let failed = false;
+    const { results, failed: crashed } = await analyzeMany(contract, opts);
+    let failed = crashed.length > 0;
     const markdown: string[] = [];
     for (const { report, lib, root } of results) {
       const diff = diffBaseline(report, loadBaseline(BASELINES_DIR, report.library));
@@ -310,7 +330,9 @@ program
     if (results.length > 1) {
       writeFile(path.join(OUTPUT_DIR, "README.md"), `# API conformance\n\n${overviewMarkdown(results.map((r) => r.report))}\n\n${markdown.join("\n\n")}`);
       console.log(c.dim(`\nReports: ${path.relative(process.cwd(), OUTPUT_DIR)}/{README.md,<lib>.md,<lib>.report.json}; docs site data: api-validator site-data`));
-    } else console.log(c.dim(`\nReport: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, `${results[0].report.library}.md`))}`));
+    } else if (results.length === 1) console.log(c.dim(`\nReport: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, `${results[0].report.library}.md`))}`));
+    // A lib that crashed has no report: the site shows it without status, and the run fails.
+    if (crashed.length) markdown.push(`## Not checked\n\n${crashed.map((f) => `- **${f.lib.name}**: ${f.error.split("\n")[0]}`).join("\n")}`);
     if (opts.summary) fs.appendFileSync(opts.summary, `${markdown.join("\n\n")}\n`);
     if (failed) process.exitCode = 1;
   });
@@ -486,7 +508,9 @@ program
   .option("-t, --tests", "also record passing conformance tests")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    for (const { report } of await analyzeMany(contract, { ...opts, snapshot: true })) {
+    const { results, failed } = await analyzeMany(contract, { ...opts, snapshot: true });
+    if (failed.length) process.exitCode = 1;
+    for (const { report } of results) {
       const previous = loadBaseline(BASELINES_DIR, report.library);
       const next = baselineFrom(report, previous);
       const lost = previous ? previous.ok.filter((id) => !next.ok.includes(id)) : [];
@@ -503,7 +527,7 @@ program
   .option("-t, --tests", "include conformance test results")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const [{ report }] = await analyzeMany(contract, { ...opts, lib: [opts.lib] });
+    const { report } = await analyzeOne(contract, { ...opts, lib: [opts.lib] });
     console.log(libMarkdown(report, contract, diffBaseline(report, loadBaseline(BASELINES_DIR, report.library))));
   });
 
@@ -515,7 +539,7 @@ async function allImpls(contract: Contract, target: string, opts: { path?: strin
   for (const lib of libs) {
     const explicit = lib.name === targetLib.name ? opts.path : undefined;
     try {
-      const [r] = await analyzeMany(contract, { lib: [lib.name], path: explicit, tests: opts.tests && lib.name === targetLib.name });
+      const r = await analyzeOne(contract, { lib: [lib.name], path: explicit, tests: opts.tests && lib.name === targetLib.name });
       refs.push(r);
     } catch (e) {
       if (lib.name === targetLib.name) throw e; // other checkouts are optional context
@@ -624,8 +648,11 @@ program
       let created = 0;
       let updated = 0;
       let closed = 0;
-      for (const i of open) {
-        const reason = closeReason(i.key, contract, mine.report);
+      // Two runs at once (a merge and the nightly) can both open the same issue: the oldest stays.
+      const seen = new Set<string>();
+      for (const i of open.sort((a, b) => a.number - b.number)) {
+        const reason = seen.has(i.key) ? `duplicate of an older open issue (${i.key}).` : closeReason(i.key, contract, mine.report);
+        seen.add(i.key);
         if (reason) {
           gh(["issue", "close", String(i.number), "-R", slug, "--comment", `Closed by api-validator: ${reason}`]);
           closed++;
@@ -662,7 +689,12 @@ program
     const fn = contract.functions.get(fnId);
     if (!fn) throw new Error(`Unknown contract function ${fnId}`);
     // JSON, or a bare string: `probe cpf.format 82178537464` passes the digits as the string the
-    // contract asks for, not as a number.
+    // contract asks for, not as a number (also when the param is a union that includes string).
+    const acceptsString = (type: string | undefined) => {
+      if (!type) return false;
+      const t = parseCType(type);
+      return t.k === "string" || (t.k === "union" && t.of.some((x) => x.k === "string"));
+    };
     const args = rawArgs.map((a, i) => {
       let value: unknown;
       try {
@@ -670,10 +702,12 @@ program
       } catch {
         return a;
       }
-      return fn.params[i]?.type === "string" && typeof value !== "string" ? a : value;
+      const type = fn.params[i]?.type;
+      if (type === "string" && typeof value !== "string") return a;
+      return /^\d+$/.test(a) && acceptsString(type) ? a : value;
     });
     // Answers compared by value (like `diff`), not by how they print.
-    const NO_ANSWER = ["not implemented", "no runner"];
+    const NO_ANSWER = ["not implemented", "no runner", "unsupported"];
     const answers = new Map<string, string[]>();
     for (const lib of selectLibs(loadLibConfigs(LIBS_DIR), opts.lib)) {
       const { adapter, ctx } = workspaceFor(lib);
@@ -803,12 +837,18 @@ program
   .option("-p, --path <dir>", "lib checkout to use")
   .action(async (opts) => {
     const contract = loadContract(CONTRACT_DIR);
-    const [{ report }] = await analyzeMany(contract, { ...opts, lib: [opts.lib] });
+    const { report } = await analyzeOne(contract, { ...opts, lib: [opts.lib] });
+    const bindings = proposeBindings(report.unmapped);
+    const bound = new Set(Object.values(bindings));
     const orphans = report.unmapped.filter((u) => u.suggestions.length === 0);
-    const bindable = report.unmapped.filter((u) => u.suggestions.length > 0);
-    if (bindable.length) {
+    const unsure = report.unmapped.filter((u) => u.suggestions.length > 0 && !bound.has(u.symbol));
+    if (bound.size) {
       console.log(`Probably existing contract functions under another name -> "bindings" in libs/${report.library}.json:`);
-      console.log(formatJson({ bindings: Object.fromEntries(bindable.map((u) => [u.suggestions[0].id, u.symbol])) }));
+      console.log(formatJson({ bindings }));
+    }
+    if (unsure.length) {
+      console.log("Ambiguous (tied or competing suggestions): check by hand:");
+      for (const u of unsure) console.log(`  ${u.symbol} -> ${u.suggestions.map((x) => `${x.id} (${Math.round(x.score * 100)}%)`).join(", ")}`);
     }
     if (orphans.length) {
       console.log("Not in the contract -> propose in contract/<domain>/contract.json, or add to \"ignore\":");

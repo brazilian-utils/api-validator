@@ -1,7 +1,7 @@
 # API Validator
 
 This repository keeps the seven [brazilian-utils](https://github.com/brazilian-utils) libraries
-(JavaScript/TypeScript, Python, Go, Rust, Ruby, Erlang, .NET) in step: same functions, same
+(JavaScript/TypeScript, Python, Go, Ruby, Rust, .NET, Erlang) in step: same functions, same
 behavior.
 
 - **Same API**: one language-agnostic contract (`contract/<domain>/contract.json`) declares every function
@@ -78,13 +78,15 @@ language.
 
 ```console
 $ npx tsx src/cli.ts probe cpf.format 123
+brazilian-utils-dotnet       "123."  Cpf.Format(cpf: string) -> string
+brazilian-utils-erlang       null ({error, invalid})  brutils.format_cpf(cpf: binary()) -> {ok, brutils_cpf:formatted_cpf()} | {error, invalid}
 brazilian-utils-go           "123"  cpf.Format(cpf: string) -> string
 brazilian-utils-javascript   "123"  formatCpf(value: string | number, options?: FormatCpfOptions) -> string
-brazilian-utils-python       null   format_cpf(cpf: str) -> str
-brazilian-utils-ruby         null   CPFUtils.format_cpf(cpf: String) -> String | nil
-brazilian-utils-rust         null   cpf.format_cpf(cpf: &str) -> Option<String>
+brazilian-utils-python       null  format_cpf(cpf: str) -> str
+brazilian-utils-ruby         null  CPFUtils.format_cpf(cpf: String) -> String | nil
+brazilian-utils-rust         null  cpf.format_cpf(cpf: &str) -> Option<String>
 
-2 different answers
+3 different answers
 ```
 
 ## Use the validator in the CI of a library
@@ -123,10 +125,10 @@ spec, read [docs/harness.md](docs/harness.md). For ready harnesses for every lib
 | JavaScript | `src/api-contract.test.ts` | `npm test` |
 | Python | `tests/test_api_contract.py` | `python -m unittest tests.test_api_contract` |
 | Go | `apicontract/apicontract_test.go` | `go test ./apicontract` |
-| Rust | `tests/api_contract.rs` (`harness = false`) | `cargo test --test api_contract` |
 | Ruby | `spec/api_contract_spec.rb` | `bundle exec rspec spec/api_contract_spec.rb` |
-| Erlang | `test/brutils_api_contract_tests.erl` | `rebar3 eunit --module=brutils_api_contract_tests` |
+| Rust | `tests/api_contract.rs` (`harness = false`) | `cargo test --test api_contract` |
 | .NET | `BrazilianUtils.Tests/ApiContractTests.fs` | `dotnet test --filter FullyQualifiedName~ApiContractTests` |
+| Erlang | `test/brutils_api_contract_tests.erl` | `rebar3 eunit --module=brutils_api_contract_tests` |
 
 To add a function to a library, implement it and add one registry line. To learn why the cases
 run both here and in the library, read
@@ -173,10 +175,10 @@ toolchain is missing, the check fails and shows the install instruction. It does
 | TypeScript | TypeScript compiler API / type checker ([ts-morph](https://github.com/dsherret/ts-morph)) | declarations, inferred | ✅ Node (tsx) |
 | Python | [griffe](https://github.com/mkdocstrings/griffe) (mkdocstrings) + [griffe-warnings-deprecated](https://github.com/mkdocstrings/griffe-warnings-deprecated) for PEP 702 | annotations | ✅ |
 | Go | [`go/packages`](https://pkg.go.dev/golang.org/x/tools/go/packages) + `go/types` (build constraints honored) | type-checked signatures | ✅ generated program in a `go.work` |
-| Rust | rustdoc JSON (nightly), cross-checked against [cargo-public-api](https://github.com/cargo-public-api/cargo-public-api) | signatures | ✅ generated crate |
 | Ruby | runtime reflection (what is actually callable) + [YARD](https://yardoc.org) for `@param`/`@return`/`@deprecated` | YARD tags | ✅ |
-| Erlang | compiled `.beam`: `module_info(exports)` + `beam_lib` abstract code (specs, types) | `-spec` | ✅ `erlc` + escript |
+| Rust | rustdoc JSON (nightly), cross-checked against [cargo-public-api](https://github.com/cargo-public-api/cargo-public-api) | signatures | ✅ generated crate |
 | .NET (F#, C#) | reflection on the compiled assembly, `NullabilityInfoContext`, portable PDB for lines | real types, incl. F#-inferred and C# `?` | ✅ generated F# project |
+| Erlang | compiled `.beam`: `module_info(exports)` + `beam_lib` abstract code (specs, types) | `-spec` | ✅ `erlc` + escript |
 
 Types stay structured from start to end. Each extractor converts the type objects that its tool
 already has into one shared tree. These objects come from rustdoc JSON, `go/types`, the

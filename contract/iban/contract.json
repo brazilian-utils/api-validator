@@ -12,17 +12,21 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats an IBAN in the ISO 13616 print grouping, with blocks of 4 characters. Statements and bank forms show the IBAN in this form.",
-        "pt-BR": "Formata um IBAN no agrupamento de impressão da ISO 13616, em blocos de 4 caracteres. Extratos e formulários bancários mostram o IBAN nessa forma."
+        "en": "Formats an IBAN in the ISO 13616 print grouping, with blocks of 4 characters.",
+        "pt-BR": "Formata um IBAN no agrupamento de impressão da ISO 13616, em blocos de 4 caracteres."
       },
       "description": {
         "en": [
           "Formats an IBAN in the ISO 13616 print grouping: blocks of 4 characters separated by spaces, upper-cased. It does not validate the IBAN (use `iban.isValid`).",
           "",
+          "Statements and bank forms show the IBAN in this form.",
+          "",
           "- The function reads only letters and digits. The result is capped at the 29 characters of a Brazilian IBAN."
         ],
         "pt-BR": [
           "Formata um IBAN no agrupamento de impressão da ISO 13616: blocos de 4 caracteres separados por espaços, em maiúsculas. Não valida o IBAN (use `iban.isValid`).",
+          "",
+          "Extratos e formulários bancários mostram o IBAN nessa forma.",
           "",
           "- A função lê apenas letras e dígitos. O resultado é limitado aos 29 caracteres de um IBAN brasileiro."
         ]
@@ -42,7 +46,7 @@
     },
     "getInfo": {
       "summary": {
-        "en": "Parses a Brazilian IBAN into its fields.",
+        "en": "Splits a Brazilian IBAN into its fields.",
         "pt-BR": "Decompõe um IBAN brasileiro em seus campos."
       },
       "description": {
@@ -76,7 +80,10 @@
       ]
     },
     "isValid": {
-      "summary": { "en": "Validates a Brazilian IBAN.", "pt-BR": "Valida um IBAN brasileiro." },
+      "summary": {
+        "en": "Checks whether a Brazilian IBAN is valid.",
+        "pt-BR": "Verifica se um IBAN brasileiro é válido."
+      },
       "description": {
         "en": [
           "Validates a Brazilian IBAN. Any other country is invalid.",

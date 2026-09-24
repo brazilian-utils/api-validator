@@ -9,17 +9,12 @@ import { loadGuide, loadGuides, loadLibs } from '@/lib/data';
 import { type Locale, pick, translator } from '@/lib/i18n';
 import { functionLinks } from '@/lib/links';
 import { Markdown } from '@/lib/markdown';
+import { type CodeHtml, codeHtml, codeUrl, exampleId } from '@/lib/code-html';
+import { GuideFiles } from '@/components/guide-files.client';
 import { LiveDemo } from '@/components/live-demo.client';
 import { DocsPager } from '@/components/docs-pager.client';
 
 const base = process.env.NEXT_PUBLIC_BASE ?? '';
-
-/** A fenced code block that survives any backticks in the code. */
-function fence(code: string, lang?: string, title?: string) {
-  const longest = Math.max(2, ...[...String(code).matchAll(/`+/g)].map((m) => m[0].length));
-  const marks = '`'.repeat(longest + 1);
-  return `${marks}${lang ?? ''}${title ? ` title=${JSON.stringify(title)}` : ''}\n${String(code).replace(/\n$/, '')}\n${marks}`;
-}
 
 export function guideEntry(lib: string, slug: string) {
   return loadGuides().find((g: any) => g.lib === lib && g.slug === slug);
@@ -30,26 +25,40 @@ const demoTextOf = (locale: Locale): DemoText => {
   const t = translator(locale);
   return { demo: t('guide.liveDemo'), demoOf: t('guide.liveDemoOf', { title: '{title}' }), open: t('guide.openDemo'), loading: t('guide.loadingDemo') };
 };
+type CodeText = { loading: string; failed: string; retry: string };
+const codeTextOf = (locale: Locale): CodeText => {
+  const t = translator(locale);
+  return { loading: t('guide.loadingCode'), failed: t('guide.codeFailed'), retry: t('guide.retry') };
+};
 
-function Files({ node }: { node: any }) {
+/** What the examples of a guide need to show their code: where the page's files are fetched
+ *  from, and which example the page opens on (its first file is in the page). */
+interface Code {
+  lib: string;
+  slug: string;
+  first: string;
+  text: CodeText;
+}
+
+async function Files({ node, example, code }: { node: any; example: string; code: Code }) {
   const files = node.children.filter((c: any) => c.kind === 'file');
   if (!files.length) return null;
-  if (files.length === 1) return <Markdown source={fence(files[0].code, files[0].lang, files[0].name)} />;
-  return <FlatTabs variant="file" items={files.map((f: any) => ({ value: f.name, label: f.name, content: <Markdown source={fence(f.code, f.lang)} /> }))} />;
+  const inline: CodeHtml | undefined = example === code.first ? await codeHtml(files[0].code, files[0].lang) : undefined;
+  return <GuideFiles url={codeUrl(base, code.lib, code.slug, example)} files={files.map((f: any) => ({ name: f.name, lang: f.lang }))} inline={inline} text={code.text} />;
 }
 
 /** One example of a guide (a framework, a variant): its intro, its live demo and, with `code`, its files. */
-function Content({ node, demoText, code }: { node: any; demoText: DemoText; code?: boolean }) {
+function Content({ node, framework, demoText, code }: { node: any; framework: string; demoText: DemoText; code?: Code }) {
   const variants = node.children.filter((c: any) => c.kind === 'variant');
   return (
     <>
       {code && node.intro && <Markdown source={node.intro} />}
       {variants.length ? (
-        <Examples list={variants} group="guide-variant" demoText={demoText} code={code} />
+        <Examples list={variants} framework={framework} group="guide-variant" demoText={demoText} code={code} />
       ) : (
         <>
           {node.demo && <LiveDemo src={/^https?:\/\//.test(node.demo) ? node.demo : `${base}${node.demo}`} title={node.name} text={demoText} />}
-          {code && <Files node={node} />}
+          {code && <Files node={node} example={exampleId(framework, framework === node.name ? undefined : node.name)} code={code} />}
         </>
       )}
     </>
@@ -57,8 +66,23 @@ function Content({ node, demoText, code }: { node: any; demoText: DemoText; code
 }
 
 /** A group of examples as tabs. Framework and variant tabs stay in sync across the site. */
-function Examples({ list, group, demoText, code }: { list: any[]; group: string; demoText: DemoText; code?: boolean }) {
-  return <FlatTabs groupId={group} persist keepMounted variant={group === 'guide-variant' ? 'compact' : 'line'} items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} demoText={demoText} code={code} /> }))} />;
+function Examples({ list, framework, group, demoText, code }: { list: any[]; framework?: string; group: string; demoText: DemoText; code?: Code }) {
+  return (
+    <FlatTabs
+      groupId={group}
+      persist
+      keepMounted
+      variant={group === 'guide-variant' ? 'compact' : 'line'}
+      items={list.map((n) => ({ value: n.name ?? '', label: n.name ?? '', content: <Content node={n} framework={framework ?? n.name ?? ''} demoText={demoText} code={code} /> }))}
+    />
+  );
+}
+
+/** The example a guide opens on: its first framework and, under it, its first variant. */
+function firstExample(examples: any[]): string {
+  const ex = examples[0];
+  const variant = ex?.children.find((c: any) => c.kind === 'variant');
+  return ex ? exampleId(ex.name, variant?.name) : '';
 }
 
 /** The first group of examples of a guide (one per framework), or null without the guide. */
@@ -76,6 +100,8 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
   const where = functionLinks(locale);
   const uses = entry.fns.flatMap((fn: string) => (where.get(fn) ? [where.get(fn)!] : []));
   const demoText = demoTextOf(locale);
+  const firstBlock = guide.blocks.find((b: any) => b.type !== 'markdown');
+  const code: Code = { lib, slug, first: firstBlock ? firstExample(firstBlock.examples) : '', text: codeTextOf(locale) };
 
   return (
     <DocsPage slots={{ footer: DocsPager }} tableOfContent={{ enabled: false }}>
@@ -102,7 +128,7 @@ export function GuidePage({ locale, lib, slug }: { locale: Locale; lib: string; 
       </div>
       {guide.locale !== locale && <Note type="info">{t('guide.englishOnly')}</Note>}
       <DocsBody>
-        {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" demoText={demoText} code />))}
+        {guide.blocks.map((b: any, i: number) => (b.type === 'markdown' ? <Markdown key={i} source={b.text} /> : <Examples key={i} list={b.examples} group="guide-example" demoText={demoText} code={code} />))}
       </DocsBody>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <EditOnGitHub href={guide.source.replace('/blob/', '/edit/')} />

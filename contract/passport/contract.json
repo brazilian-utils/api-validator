@@ -11,8 +11,8 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a Brazilian passport number for display. It converts the value to uppercase and removes all non-alphanumeric characters.",
-        "pt-BR": "Formata um número de passaporte brasileiro para exibição. Converte o valor para maiúsculas e remove todos os caracteres não alfanuméricos."
+        "en": "Formats a Brazilian passport number for display.",
+        "pt-BR": "Formata um número de passaporte brasileiro para exibição."
       },
       "description": {
         "en": [

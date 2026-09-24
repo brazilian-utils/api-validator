@@ -41,6 +41,8 @@ export function valuesEqual(expected: unknown, actual: unknown): boolean {
 export interface Bound {
   fn: ContractFunction;
   symbol: NativeSymbol;
+  /** Only cases passing at most this many arguments are run (the signature fits the required params only). */
+  maxArgs?: number;
 }
 
 interface Planned {
@@ -66,15 +68,18 @@ export async function runConformance(
   lib: LibConfig,
   adapter: LanguageAdapter,
   ctx: AdapterContext,
-  filter?: (test: ContractTest) => boolean
+  filter?: (test: ContractTest) => boolean,
+  /** Implemented functions whose signature does not match (not in boundById). */
+  mismatched: Set<string> = new Set()
 ): Promise<Map<string, TestOutcome[]>> {
   const runner = adapter.runner!;
   const calls: RunnerCall[] = [];
   const planned: Planned[] = [];
 
-  for (const { fn, symbol } of bound) {
+  for (const { fn, symbol, maxArgs } of bound) {
     for (const test of fn.tests) {
       if (filter && !filter(test)) continue;
+      if (maxArgs !== undefined && test.args.length > maxArgs) continue;
       const callIds: string[] = [];
       for (let r = 0; r < test.repeat; r++) {
         const id = `${test.id}@${r}`;
@@ -102,7 +107,7 @@ export async function runConformance(
 
   const out = new Map<string, TestOutcome[]>();
   for (const p of planned) {
-    const outcome = evaluate(p, first, second, boundById);
+    const outcome = evaluate(p, first, second, boundById, mismatched);
     const known = knownFailure(lib, p.test, p.fn);
     if (known && outcome.status === "fail") {
       outcome.status = "known-failure";
@@ -119,7 +124,8 @@ function evaluate(
   p: Planned,
   first: Map<string, RunnerResult>,
   second: Map<string, RunnerResult>,
-  boundById: Map<string, NativeSymbol>
+  boundById: Map<string, NativeSymbol>,
+  mismatched: Set<string>
 ): TestOutcome {
   const { test } = p;
   const base = { id: test.id };
@@ -147,7 +153,10 @@ function evaluate(
         }
         break;
       case "satisfies": {
-        if (!boundById.has(e.fn)) return { ...base, status: "skip", message: `${e.fn} is not implemented by this lib` };
+        if (!boundById.has(e.fn)) {
+          const why = mismatched.has(e.fn) ? "is implemented by this lib, but its signature does not match the contract" : "is not implemented by this lib";
+          return { ...base, status: "skip", message: `${e.fn} ${why}` };
+        }
         if (!r.ok) return { ...base, status: "fail", message: `threw: ${r.error}` };
         const f = second.get(`${callId}>`);
         if (!f) return { ...base, status: "skip", message: "runner returned no result" };

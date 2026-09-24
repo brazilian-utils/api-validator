@@ -187,7 +187,7 @@ export function Specimen({ kinds, text }: { kinds: Kind[]; text: Record<string, 
         autoCapitalize="characters"
         spellCheck={false}
         aria-describedby={`${id}-result`}
-        className="mt-2 w-full rounded-md border bg-fd-background px-3 py-2.5 font-mono text-lg tracking-wide placeholder:text-fd-muted-foreground/70"
+        className="mt-2 w-full rounded-md border border-fd-border-strong bg-fd-background px-3 py-2.5 font-mono text-lg tracking-wide placeholder:text-fd-muted-foreground"
       />
       <p aria-hidden="true" className={`mt-4 min-h-[1.2em] overflow-hidden text-ellipsis whitespace-nowrap font-mono text-3xl tracking-wider sm:text-4xl ${alnum ? '' : 'text-fd-muted-foreground/60'}`}>
         {alnum ? head : mask || ' '}

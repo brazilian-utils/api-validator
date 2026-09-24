@@ -6,6 +6,7 @@ import type { FooterProps } from 'fumadocs-ui/layouts/notebook/page/slots/footer
 import { useFooterItems } from 'fumadocs-ui/utils/use-footer-items';
 import { usePathname } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { translator } from '@/lib/i18n';
 
 const clean = (url: string) => url.replace(/\/$/, '');
 
@@ -17,11 +18,12 @@ export function DocsPager({ items }: FooterProps) {
   const previous = items?.previous ?? (idx > 0 ? list[idx - 1] : undefined);
   const next = items?.next ?? (idx >= 0 ? list[idx + 1] : undefined);
   if (!previous && !next) return null;
+  const t = translator(path === '/pt-br' || path.startsWith('/pt-br/') ? 'pt-BR' : 'en');
   return (
-    <nav aria-label="Pages" className="not-prose mt-4 flex items-start justify-between gap-6 border-t pt-5 text-sm">
+    <nav aria-label={t('pager.label')} className="not-prose mt-4 flex items-start justify-between gap-6 border-t pt-5 text-sm">
       {previous ? (
         <Link href={previous.url} className="group inline-flex items-center gap-2 font-medium text-fd-muted-foreground hover:text-fd-foreground">
-          <ArrowLeft aria-hidden className="size-4 shrink-0 transition-transform group-hover:-translate-x-0.5" />
+          <ArrowLeft aria-hidden className="size-4 shrink-0 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none" />
           {previous.name}
         </Link>
       ) : (
@@ -30,7 +32,7 @@ export function DocsPager({ items }: FooterProps) {
       {next && (
         <Link href={next.url} className="group inline-flex items-center gap-2 text-end font-medium text-fd-muted-foreground hover:text-fd-foreground">
           {next.name}
-          <ArrowRight aria-hidden className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight aria-hidden className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
         </Link>
       )}
     </nav>

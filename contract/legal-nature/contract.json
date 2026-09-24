@@ -429,8 +429,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes legal nature formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação da natureza jurídica e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a legal nature code and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um código de natureza jurídica e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes legal nature formatting and keeps only digits, capped at 4 digits."],

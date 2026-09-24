@@ -8,6 +8,10 @@ on:
     branches: [main, master]
   pull_request:
 
+# The Action only reads the repository and writes the job summary.
+permissions:
+  contents: read
+
 jobs:
   contract:
     runs-on: ubuntu-latest

@@ -65,15 +65,15 @@ export function HomePage({ locale }: { locale: Locale }) {
   });
 
   const steps = [
-    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in this repository.', 'Cada função, com a assinatura e os casos de teste, é escrita uma vez em JSON neste repositório.')],
+    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in the api-validator repository.', 'Cada função, com a assinatura e os casos de teste, é escrita uma vez em JSON no repositório api-validator.')],
     [L(locale, 'An issue per gap', 'Uma issue por lacuna'), L(locale, 'A library that lacks a function, or fails a case, gets an issue with the reference code.', 'Uma biblioteca sem a função, ou que falha num caso, recebe uma issue com o código de referência.')],
     [L(locale, 'The same tests', 'Os mesmos testes'), L(locale, 'Every library runs the shared cases in its own test suite, on every change.', 'Cada biblioteca roda os casos compartilhados na própria suíte de testes, a cada mudança.')],
-    [L(locale, 'This site', 'Este site'), L(locale, 'Built from the contract and the last run: what each library has and how to call each function.', 'Gerado a partir do contrato e da última execução: o que cada biblioteca tem e como chamar cada função.')],
+    [L(locale, 'This site', 'Este site'), L(locale, 'Built from the contract and the latest run: what each library has and how to call each function.', 'Gerado a partir do contrato e da última execução: o que cada biblioteca tem e como chamar cada função.')],
   ];
 
   return (
     <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, component: <HomeHeader {...headerProps(locale)} /> }}>
-      <HomeJsonLd locale={locale} description={L(locale, 'Validate, format and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
+      <HomeJsonLd locale={locale} description={L(locale, 'Validate, format, parse and generate Brazilian documents in seven languages, with one shared contract.', 'Valide, formate, interprete e gere documentos brasileiros em sete linguagens, com um contrato compartilhado.')} />
       <div className="flex flex-1 flex-col">
         <section className="band">
           <div className="mx-auto grid w-full max-w-(--site-width) items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
@@ -84,8 +84,8 @@ export function HomePage({ locale }: { locale: Locale }) {
               <p className="mt-5 max-w-[34rem] text-lg text-fd-muted-foreground text-pretty">
                 {L(
                   locale,
-                  `CPF, CNPJ, CEP, license plates and ${others} more. Seven libraries, and every one runs the same ${cases.toLocaleString('en')} test cases.`,
-                  `CPF, CNPJ, CEP, placas e mais ${others}. Sete bibliotecas, e todas rodam os mesmos ${cases.toLocaleString('pt-BR')} casos de teste.`,
+                  `CPF, CNPJ, CEP, license plates and ${others} more. Seven libraries, checked against the same ${cases.toLocaleString('en')} shared test cases.`,
+                  `CPF, CNPJ, CEP, placas e mais ${others}. Sete bibliotecas, verificadas pelos mesmos ${cases.toLocaleString('pt-BR')} casos de teste compartilhados.`,
                 )}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -181,7 +181,7 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="mx-auto w-full max-w-(--site-width) px-4 py-16 sm:px-6 md:py-24">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">{L(locale, 'Every utility', 'Todos os utilitários')}</h2>
-          <p className="mt-3 max-w-[62ch] text-fd-muted-foreground text-pretty">{L(locale, 'Under each one: which libraries have it. Hover over or tap it for each library.', 'Embaixo de cada um: quais bibliotecas o têm. Passe o mouse ou toque para ver cada biblioteca.')}</p>
+          <p className="mt-3 max-w-[62ch] text-fd-muted-foreground text-pretty">{L(locale, 'Under each utility, the libraries that have it. Hover over or tap the line to see each library.', 'Embaixo de cada utilitário, as bibliotecas que o têm. Passe o mouse ou toque na linha para ver cada biblioteca.')}</p>
           <div className="mt-10 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             {CATEGORIES.map((c: any) => {
               const items = specs.filter((s: any) => s.category === c.id);
@@ -195,13 +195,13 @@ export function HomePage({ locale }: { locale: Locale }) {
                       const util = pick(s.title, locale);
                       return (
                         <li key={s.id} className="flex flex-col gap-0.5">
-                          <Link href={`${p}/utils/${s.id}/`} className="transition-colors hover:text-fd-primary">
+                          <Link href={`${p}/utils/${s.id}/`} className="-my-0.5 inline-block py-0.5 transition-colors hover:text-fd-primary">
                             {util}
                           </Link>
                           <Breakdown
                             title={t('cov.inLibs', { util })}
                             items={b.items}
-                            label={`${util}: ${b.short}`}
+                            label={`${util} ${b.short}`}
                             href={`${p}/utils/${s.id}/`}
                             hrefText={t('cov.openUtil', { util })}
                             className="text-xs text-fd-muted-foreground"

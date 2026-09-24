@@ -11,9 +11,9 @@ A set of libraries for the data every Brazilian system handles: CPF, CNPJ, CEP, 
 
 Brazilian Utils started with [Hyan Mandian](https://github.com/hyanmandian) in 2018. He was using an open source library to validate CPF numbers, and it did not run on Node.js. He fixed it and sent a pull request. After almost a month with no answer, he decided to write his own library. At first it only validated CPFs, but it grew fast. More documents came in, and so did more people. Hyan saw that nothing brought these utilities together in one place, for every language, so he created the [Brazilian Utils](https://github.com/brazilian-utils) organization.
 
-In 2023 the Python library found new energy in [Cumbuca Dev](https://github.com/cumbucadev), a community that teaches programming through open source. Its people organized the documentation, ran workshops and took the library to Python conferences. In December 2024 they opened [an issue](https://github.com/brazilian-utils/python/issues/461) proposing that Cumbuca Dev take care of the Python library. That conversation became a partnership: in 2025 Brazilian Utils and Cumbuca Dev joined forces.
+In 2023 the Python library became active again in [Cumbuca Dev](https://github.com/cumbucadev), a community that teaches programming through open source. Its people organized the documentation, ran workshops and took the library to Python conferences. In December 2024 they opened [issue #461 in the Python repository](https://github.com/brazilian-utils/python/issues/461) proposing that Cumbuca Dev take care of the Python library. In 2025 that conversation led to a partnership between Brazilian Utils and Cumbuca Dev.
 
-With seven libraries, one question kept coming back: do they all agree? In 2026 the answer became the shared contract, the test cases every library runs, and this site. The people behind the project are on the [Team](/about/team/) page.
+By then there were seven libraries, and the libraries began to disagree on the same inputs. In 2026 the fix became the shared contract, the test cases every library runs, and this site. The people behind the project are on the [Team](/about/team/) page.
 
 ## Why is the logo a caramelo dog?
 
@@ -31,12 +31,12 @@ They aim to. The contract lists every function and its test cases, and each libr
 
 ## My language is not on the list
 
-A new library can start small: a few functions, with the shared tests running from day one. [Add a language](/contributing/new-language/) explains the steps.
+A new library can start small: a few functions, with the shared tests running from day one. [Start a library in a new language](/contributing/new-language/#start-a-library-in-a-new-language) explains the steps.
 
 ## Do the libraries send my data anywhere?
 
-No. They run inside your program. The only exception is the address lookup by CEP (`getAddressInfoByCep` and its equivalents), which asks public CEP services over the internet. The [privacy](/about/privacy/) page covers this site.
+No. They run inside your program. The only exceptions are the two CEP lookups, `cep.getAddressInfo` (the address of a CEP) and `cep.getInfoByAddress` (the CEPs of a street), which query public CEP services over the internet. The [privacy](/about/privacy/) page covers this site.
 
 ## Where do I report a bug or ask a question?
 
-In the repository of the library: its issues for bugs, its discussions for questions. The [community guide](/about/community-guide/) lists where each thing goes. Report a security problem in private, as the library's `SECURITY.md` says, or by e-mail to support@brazilian-utils.com.br.
+In the repository of the library: its issues for bugs, its discussions for questions. The [community guide](/about/community-guide/) lists where each thing goes. Report a security problem in private, as the library's `SECURITY.md` says, or by email to support@brazilian-utils.com.br.

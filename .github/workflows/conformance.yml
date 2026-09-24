@@ -2,6 +2,7 @@
 # differential testing, issues in the lib repos, the vendored suite PRs, and the docs site
 # (site/, Next.js + Fumadocs, static export) built from the contract, the libs' usage files and this run's results.
 # Fails on regressions against baselines/ and on new divergences.
+# How it all fits together, for people: site/content/docs/contributing/pipeline.mdx.
 #
 # Publishing: the site goes to GitHub Pages from main when vars.PUBLISH_SITE == 'true'.
 # vars.SITE_URL is its public URL, path included (default: https://<owner>.github.io/<repo>);
@@ -31,24 +32,30 @@ on:
     paths: ["contract/**", "libs/**", "baselines/**", "schema/**", "src/**", "package*.json", ".github/workflows/conformance.yml"]
 
 # A push to main is never cancelled or replaced by a later run: its issues step is the only one
-# that opens the issues for that merge. Other runs of a ref queue one at a time; a PR's newer
-# run cancels the older.
+# that opens the issues for that merge. A manual run keeps its inputs (its own group, never
+# replaced by a nightly or a release queued after it). Nightly and release runs queue one at a
+# time; a PR's newer run cancels the older.
 concurrency:
-  group: conformance-${{ github.ref }}-${{ github.event_name == 'push' && github.sha || 'run' }}
+  group: conformance-${{ github.ref }}-${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.run_id || 'run' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   conformance:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     # The job runs the libraries' own code (their tests, installs, builds, `prepare`): its token
     # only reads, and LIBS_TOKEN never reaches it (the lib-repos job below holds it).
     permissions:
       contents: read
     outputs:
       site: ${{ steps.site.outputs.built }}
-    env:
-      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
+      # The site's public URL, path included. From GITHUB_REPOSITORY, which every event sets
+      # (github.event.repository is empty on a schedule).
+      - name: Site URL
+        env:
+          CONFIGURED: ${{ vars.SITE_URL }}
+        run: echo "SITE_URL=${CONFIGURED:-https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # the PR step compares the contract with the base branch
@@ -87,21 +94,25 @@ jobs:
         run: |
           pip install ./.repos/brazilian-utils-python
           (cd .repos/brazilian-utils-ruby && bundle install --quiet) || true
+      # A lib that crashes (a default branch that no longer builds) fails the run and gets no
+      # report; the others still get theirs. The steps below go on so the site shows the results.
       - name: Contract + shared tests (fails on regressions)
         run: npx tsx src/cli.ts check --tests --summary "$GITHUB_STEP_SUMMARY"
       # Fails only when libs split in a way baselines/_divergences.json does not know: a new
       # bug, or a lib changing behaviour. Known splits are listed in the report, not failed on.
       - name: Differential testing (fails on new divergences)
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           status=0
           npx tsx src/cli.ts diff --fail-on-new || status=$?
           cat output/diff.md >> "$GITHUB_STEP_SUMMARY"
           exit $status
       - name: Contract changes in this PR
-        if: always() && github.event_name == 'pull_request'
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git fetch --no-tags origin "${{ github.base_ref }}"
+          git fetch --no-tags origin "$BASE_REF"
           npx tsx src/cli.ts changelog --from FETCH_HEAD --to WORKTREE --out "$GITHUB_STEP_SUMMARY"
           {
             echo "## Issues this merge will open in the libs"
@@ -111,10 +122,11 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       # Each lib's vendored conformance suite (api-contract/: JSON cases + its skip list), exported
-      # into a fresh clone. Reading a lib's API builds some of them, so this runs here, without
-      # LIBS_TOKEN; the lib-repos job only applies the resulting patch.
+      # into a fresh clone of every lib that already carries the suite (a lib adopts it, with its
+      # harness, in a PR of its own: see docs/roadmap.md). Reading a lib's API builds some of them,
+      # so this runs here, without LIBS_TOKEN; the lib-repos job only applies the resulting patch.
       - name: Export the conformance suite for each lib
-        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
         run: |
           mkdir -p output/lib-sync
           mapfile -t libs < <(npx tsx src/cli.ts libs)
@@ -124,16 +136,16 @@ jobs:
             dir="$RUNNER_TEMP/export/$lib"
             rm -rf "$dir"
             git clone -q --depth=1 "https://github.com/$repo.git" "$dir" || continue
+            [ -d "$dir/api-contract" ] || { echo "$lib: no api-contract/ yet, nothing to refresh"; continue; }
             npx tsx src/cli.ts export-cases --lib "$lib" --path "$dir" > "output/lib-sync/$lib.log" 2>&1 || { cat "output/lib-sync/$lib.log"; continue; }
             git -C "$dir" add -A api-contract
             git -C "$dir" diff --cached --quiet && continue
             git -C "$dir" diff --cached --binary > "output/lib-sync/$lib.patch"
-            echo "$repo" > "output/lib-sync/$lib.repo"
           done
       # Which implemented functions each lib shows on the site (its docs/usage/, else the
       # fixtures in site/fixtures/usage/); informative, never fails the run.
       - name: Usage files
-        if: always()
+        if: ${{ !cancelled() }}
         run: |
           {
             echo "## Usage examples on the docs site"
@@ -143,45 +155,68 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Docs site data (status per lib and function, badges, JSON suite)
-        if: always()
+        if: ${{ !cancelled() }}
         run: npx tsx src/cli.ts site-data
       - name: Build the docs site
-        if: always()
+        if: ${{ !cancelled() }}
         working-directory: site
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # fetch-libs: the libs' docs/usage/ at their latest release
         run: |
           npm ci
           npm run check:i18n -- --strict
-          npm run lint
+          npm run lint -- --max-warnings 0
           npm run build
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ !cancelled() }}
         with:
           name: conformance-report
           path: output/
-      # Only a site that built is published: after a failed build the last site stays up.
-      - id: site
-        if: always() && hashFiles('site/out/index.html') != '' && vars.PUBLISH_SITE == 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: echo "built=true" >> "$GITHUB_OUTPUT"
+      # Only a complete site is published: one that built, from a run where every lib got its
+      # report (a lib that crashed would otherwise lose its status and its badges). After a
+      # failed build or a crashed lib, the last site stays up.
+      - name: Is the site complete?
+        id: complete
+        if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+        run: |
+          [ -f site/out/index.html ] || { echo "::warning::the site did not build: the last one stays up"; exit 0; }
+          libs=$(npx tsx src/cli.ts libs | wc -l)
+          reports=$(ls output/*.report.json 2>/dev/null | wc -l)
+          if [ "$reports" -lt "$libs" ]; then echo "::warning::$reports of $libs libs have a report: the last site stays up"; exit 0; fi
+          if [ "${PUBLISH_SITE}" != "true" ]; then echo "::notice::vars.PUBLISH_SITE is not 'true': the site was built but not published"; exit 0; fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        env:
+          PUBLISH_SITE: ${{ vars.PUBLISH_SITE }}
       - uses: actions/upload-pages-artifact@v3
-        if: always() && steps.site.outputs.built == 'true'
+        id: pages
+        if: ${{ !cancelled() && steps.complete.outputs.ok == 'true' }}
         with:
           path: site/out/
+      - id: site
+        if: ${{ !cancelled() && steps.pages.outcome == 'success' }}
+        run: echo "built=true" >> "$GITHUB_OUTPUT"
 
   # Everything that writes to the lib repositories, with LIBS_TOKEN, in a job that runs no library
   # code: a fresh checkout of this repository, the report and patches of the job above, and the
   # lib repos cloned only to read the reference source the issues embed.
   lib-repos:
     needs: conformance
-    if: always() && needs.conformance.result != 'cancelled' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
       HAS_LIBS_TOKEN: ${{ secrets.LIBS_TOKEN != '' }}
-      SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
     steps:
+      - if: env.HAS_LIBS_TOKEN != 'true'
+        run: |
+          echo "::notice::LIBS_TOKEN is not set: no issues and no suite PRs in the lib repositories (docs/roadmap.md, phase 0)"
+      - name: Site URL
+        if: env.HAS_LIBS_TOKEN == 'true'
+        env:
+          CONFIGURED: ${{ vars.SITE_URL }}
+        run: echo "SITE_URL=${CONFIGURED:-https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}}" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
         if: env.HAS_LIBS_TOKEN == 'true'
         with:
@@ -214,13 +249,18 @@ jobs:
           BACKFILL: ${{ inputs.backfill }}
         run: |
           args=(issues --apply)
-          if [ -n "$SINCE" ] && [ "$SINCE" != "0000000000000000000000000000000000000000" ]; then args+=(--since "$SINCE"); fi
+          if [ -n "$SINCE" ] && [ "$SINCE" != "0000000000000000000000000000000000000000" ]; then
+            # After a force-push the commit before it may be gone: refresh and close, open nothing.
+            if git cat-file -e "$SINCE^{commit}" 2>/dev/null; then args+=(--since "$SINCE"); else echo "::warning::$SINCE is not in the repository: no issues opened for this merge (run the workflow with 'since' set to a commit before it)"; fi
+          fi
           if [ -n "$BACKFILL" ] && [ "$BACKFILL" != "none" ]; then args+=(--backfill "$BACKFILL"); fi
           npx tsx src/cli.ts "${args[@]}"
       # The exported suites that changed: pushed to an "api-contract/cases" branch of the lib, with
-      # a PR. Needs contents:write + pull-requests:write on the lib repos.
+      # a PR. Needs contents:write + pull-requests:write on the lib repos. The patch comes from the
+      # job that ran the libs' code, so the repo it goes to is read from libs/ here, and a patch
+      # that touches anything outside api-contract/ is refused.
       - name: Sync the conformance suite into the lib repositories
-        if: always() && env.HAS_LIBS_TOKEN == 'true'
+        if: ${{ !cancelled() && env.HAS_LIBS_TOKEN == 'true' }}
         env:
           GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
         run: |
@@ -231,7 +271,12 @@ jobs:
           for patch in output/lib-sync/*.patch; do
             [ -e "$patch" ] || continue
             lib=$(basename "$patch" .patch)
-            repo=$(cat "output/lib-sync/$lib.repo")
+            repo=$(npx tsx src/cli.ts libs | awk -v lib="$lib" '$1 == lib { print $2 }')
+            [ -n "$repo" ] || { echo "::warning::$lib: not in libs/, patch ignored"; continue; }
+            if git apply --numstat "$patch" | awk '{ print $3 }' | grep -qv '^api-contract/'; then
+              echo "::error::$lib: the patch touches files outside api-contract/, not pushed"
+              continue
+            fi
             dir="$RUNNER_TEMP/sync/$lib"
             rm -rf "$dir"
             gh repo clone "$repo" "$dir" -- --depth=1 --quiet || continue
@@ -254,10 +299,16 @@ jobs:
             fi
           done
 
+  # One deploy at a time, and the newest wins: a run that finishes late does not put an older
+  # site over a newer one.
   publish:
     needs: conformance
-    if: always() && needs.conformance.outputs.site == 'true'
+    if: ${{ !cancelled() && needs.conformance.outputs.site == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write

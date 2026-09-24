@@ -11,10 +11,7 @@
   "related": ["bank"],
   "functions": {
     "isValid": {
-      "summary": {
-        "en": "Validates a Brazilian bank account. The bank code must belong to the Banco Central do Brasil STR participants list. Otherwise, the function rejects the account.",
-        "pt-BR": "Valida uma conta bancária brasileira. O código do banco deve estar na lista de participantes do STR do Banco Central do Brasil. Caso contrário, a função rejeita a conta."
-      },
+      "summary": { "en": "Validates a Brazilian bank account.", "pt-BR": "Valida uma conta bancária brasileira." },
       "description": {
         "en": [
           "Validates a Brazilian bank account (bank code, agency, account and check digit).",

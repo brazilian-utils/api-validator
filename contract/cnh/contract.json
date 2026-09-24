@@ -96,8 +96,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the CNH formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação da CNH e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a CNH and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de uma CNH e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CNH formatting and keeps only digits, capped at 11 digits."],

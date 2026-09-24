@@ -1,6 +1,6 @@
 ---
 id: placa-de-carro
-title: "Placa de Carro"
+title: "Placa de veículo"
 language: pt-BR
 references:
   - lei-9503-1997
@@ -16,6 +16,7 @@ Placas de identificação veicular são as chapas dianteira e traseira fixadas n
 
 - **Validação**: Verificar se a placa de identificação veicular é válida conforme as regras oficiais.
 - **Formatação**: Converter a placa para maiúsculas e adicionar um hífen às placas no formato antigo (`ABC-1234`). Placas Mercosul (`ABC1D23`) não têm separador. `L` é uma letra e `N` é um algarismo.
+- **Interpretação**: Manter só as letras e os dígitos, em maiúsculas.
 - **Geração**: Gerar uma placa válida no formato indicado. Se você não indicar um formato, a função retorna uma placa no formato Mercosul.
 
 ## Regras de validação
@@ -30,8 +31,8 @@ Placas de identificação veicular são as chapas dianteira e traseira fixadas n
 
 ## Algoritmo
 
-1. Remover os espaços em branco no início e no fim da entrada.
-2. Verificar se a entrada tem exatamente 7 caracteres.
+1. Remover os espaços no início e no fim, e um hífen ou espaço entre as letras e os dígitos.
+2. Verificar se restam 7 caracteres.
 3. Verificar se todos os caracteres são alfanuméricos.
 4. Verificar se a entrada segue um dos padrões válidos:
    - Mercosul: `LLLNLNN`

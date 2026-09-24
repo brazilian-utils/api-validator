@@ -28,11 +28,15 @@ interface HeaderProps {
   prefix: string;
   github: { url: string; label: string; icon: ReactNode };
   menuLabel: string;
+  /** Accessible name of the section links. */
+  sectionsLabel: string;
+  /** "Skip to content", the first thing the keyboard reaches. */
+  skipLabel: string;
 }
 
 type Slots = ReturnType<typeof useHomeLayout>['slots'];
 
-function HeaderRow({ sections, title, homeUrl, prefix, github, slots, menu, className }: HeaderProps & { slots: Slots; menu: ReactNode; className: string }) {
+function HeaderRow({ sections, sectionsLabel, skipLabel, title, homeUrl, prefix, github, slots, menu, className, main }: HeaderProps & { slots: Slots; menu: ReactNode; className: string; main: string }) {
   const base = (process.env.NEXT_PUBLIC_BASE ?? '') + prefix;
   const pathname = usePathname().replace(/\/$/, '');
   const path = pathname.startsWith(base) ? pathname.slice(base.length) || '/' : pathname;
@@ -43,13 +47,17 @@ function HeaderRow({ sections, title, homeUrl, prefix, github, slots, menu, clas
   // The bar spans the window; its content sits in the site's column, with the page's edges.
   return (
     <header className={`site-header z-40 ${className}`}>
+      {/* Keyboard users go past the header in one step (WCAG 2.4.1); the link shows only when focused. */}
+      <a href={`#${main}`} className="sr-only-static focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-fd-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:[clip-path:none]">
+        {skipLabel}
+      </a>
       <div className="mx-auto flex h-14 w-full max-w-(--site-width) items-center gap-2 px-4 sm:px-6">
         <Link href={homeUrl} className="inline-flex shrink-0 items-center">
           {title}
         </Link>
         {slots.searchTrigger && <slots.searchTrigger.full hideIfDisabled className="ms-4 w-full max-w-56 rounded-full ps-2.5 max-md:hidden" />}
         <div className="flex flex-1 items-center justify-end gap-1">
-          <nav aria-label="Sections" className="flex items-center gap-6 max-lg:hidden">
+          <nav aria-label={sectionsLabel} className="flex items-center gap-6 max-lg:hidden">
             {sections.map((s, i) => (
               <Link
                 key={s.url}
@@ -97,6 +105,7 @@ export function DocsHeader(props: HeaderProps) {
     <HeaderRow
       {...props}
       slots={slots}
+      main="nd-page"
       className="sticky top-(--fd-docs-row-1) [grid-area:header] [grid-column:1/-1]! [contain:inline-size] layout:[--fd-header-height:--spacing(14)]"
       menu={
         Trigger && (
@@ -116,6 +125,7 @@ export function HomeHeader(props: HeaderProps) {
     <HeaderRow
       {...props}
       slots={slots}
+      main="nd-home-layout"
       className="sticky top-0"
       menu={
         <Popover>

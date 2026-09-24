@@ -41,7 +41,7 @@
       ]
     },
     "isValid": {
-      "summary": { "en": "Validates a CAEPF number.", "pt-BR": "Valida um número CAEPF." },
+      "summary": { "en": "Checks whether a CAEPF number is valid.", "pt-BR": "Verifica se um número CAEPF é válido." },
       "description": {
         "en": [
           "Validates a CAEPF: 14 digits, the 9-digit CPF base of the holder, a 3-digit sequence and 2 check digits.",
@@ -74,8 +74,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CAEPF formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CAEPF e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a CAEPF and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CAEPF e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CAEPF formatting and keeps only digits, capped at 14 digits."],

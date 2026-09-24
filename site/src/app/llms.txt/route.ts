@@ -9,7 +9,7 @@ export function GET() {
   const lines = [
     '# Brazilian Utils',
     '',
-    '> Validate, format and generate Brazilian documents (CPF, CNPJ, CEP, license plates, boletos and more) in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang. One shared contract defines every function and its test cases; every library runs them. Portuguese pages live under /pt-br/.',
+    '> Validate, format, parse and generate Brazilian documents (CPF, CNPJ, CEP, license plates, boletos and more) in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang. One shared contract defines every function and its test cases. Each library runs the cases of the functions it has. Portuguese pages live under /pt-br/.',
     '',
     '## Start',
     '',
@@ -32,7 +32,7 @@ export function GET() {
     '',
     ...folderPages('en', 'contributing').map((page) => `- [${page.title}](${SITE_ROOT}/contributing/${page.slug}/)`),
     ...folderPages('en', 'about').map((page) => `- [${page.title}](${SITE_ROOT}/about/${page.slug}/)`),
-    `- [Shared test cases as JSON](${SITE_ROOT}/cases.schema.json)`,
+    `- [Test case schema (JSON)](${SITE_ROOT}/cases.schema.json)`,
     '',
   ];
   return new Response(lines.join('\n'), { headers: { 'content-type': 'text/plain; charset=utf-8' } });

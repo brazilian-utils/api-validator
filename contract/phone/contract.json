@@ -50,17 +50,21 @@
     },
     "generate": {
       "summary": {
-        "en": "Generates a random, structurally valid Brazilian phone number (DDD + subscriber number). The result is unformatted. Use `phone.format` to format it.",
-        "pt-BR": "Gera um número de telefone aleatório e estruturalmente válido (DDD + número do assinante). O resultado vem sem máscara. Use `phone.format` para formatá-lo."
+        "en": "Generates a random, structurally valid Brazilian phone number (DDD + subscriber number).",
+        "pt-BR": "Gera um número de telefone aleatório e estruturalmente válido (DDD + número do assinante)."
       },
       "description": {
         "en": [
           "Generates a random Brazilian phone number, unformatted.",
           "",
+          "Use `phone.format` to format it.",
+          "",
           "- `type`: mobile (DDD + 9 digits starting with 9), landline (DDD + 8 digits starting with 2 to 6) or service (no DDD). When `type` is omitted, the function picks a mobile or a landline at random."
         ],
         "pt-BR": [
           "Gera um número de telefone aleatório, sem máscara.",
+          "",
+          "Use `phone.format` para formatá-lo.",
           "",
           "- `type`: celular (DDD + 9 dígitos começando com 9), fixo (DDD + 8 dígitos começando com 2 a 6) ou serviço (sem DDD). Sem `type`, a função escolhe um celular ou um fixo ao acaso."
         ]
@@ -74,7 +78,10 @@
       ]
     },
     "isValid": {
-      "summary": { "en": "Validates a Brazilian phone number.", "pt-BR": "Valida um número de telefone brasileiro." },
+      "summary": {
+        "en": "Checks whether a Brazilian phone number is valid.",
+        "pt-BR": "Verifica se um número de telefone brasileiro é válido."
+      },
       "description": {
         "en": [
           "Validates a Brazilian phone number, mobile or landline by default.",
@@ -216,8 +223,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes phone formatting characters, returns only digits, and caps the result at 11 digits.",
-        "pt-BR": "Remove os caracteres de formatação do telefone, retorna só os dígitos e limita o resultado a 11 dígitos."
+        "en": "Removes the formatting characters of a phone number and returns only the digits, up to 11.",
+        "pt-BR": "Remove os caracteres de formatação de um telefone e retorna só os dígitos, até 11."
       },
       "description": {
         "en": [

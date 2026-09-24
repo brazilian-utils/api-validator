@@ -115,8 +115,8 @@
     },
     "getTimezone": {
       "summary": {
-        "en": "Gets the IANA time zone database name (tzdata zone) for a Brazilian state. The zone is the zone of the state capital. The match is case-insensitive and ignores leading/trailing whitespace.",
-        "pt-BR": "Obtém o nome do fuso horário na base IANA (zona tzdata) de um estado. A zona é a da capital do estado. A comparação não diferencia maiúsculas de minúsculas e ignora espaços no início e no fim."
+        "en": "Gets the IANA time zone database name (tzdata zone) for a Brazilian state.",
+        "pt-BR": "Obtém o nome do fuso horário na base IANA (zona tzdata) de um estado."
       },
       "description": {
         "en": [

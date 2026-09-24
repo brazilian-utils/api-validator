@@ -12,8 +12,8 @@
   "functions": {
     "convertToWords": {
       "summary": {
-        "en": "Formats an integer as its Brazilian Portuguese cardinal number words (\"por extenso\"). For example, `1235` becomes `\"mil duzentos e trinta e cinco\"`.",
-        "pt-BR": "Formata um inteiro como número cardinal por extenso em português. Por exemplo, `1235` vira `\"mil duzentos e trinta e cinco\"`."
+        "en": "Formats an integer as its Brazilian Portuguese cardinal number words (\"por extenso\").",
+        "pt-BR": "Formata um inteiro como número cardinal por extenso em português."
       },
       "description": {
         "en": [

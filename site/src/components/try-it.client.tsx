@@ -102,7 +102,7 @@ export function TryItForm({ symbol, fields, cases, text }: { symbol: string; fie
                 autoComplete="off"
                 placeholder={f.kind === 'json' ? '{ } JSON' : f.kind === 'date' ? '2026-01-31' : ''}
                 onChange={(e) => setValues(values.map((v, j) => (j === i ? e.target.value : v)))}
-                className="rounded-md border bg-fd-background px-2.5 py-1.5 font-mono text-sm text-fd-foreground focus-visible:outline-2 focus-visible:outline-fd-ring"
+                className="rounded-md border border-fd-border-strong bg-fd-background px-2.5 py-1.5 font-mono text-sm text-fd-foreground focus-visible:outline-2 focus-visible:outline-fd-ring"
               />
             )}
           </label>

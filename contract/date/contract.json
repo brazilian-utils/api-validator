@@ -43,8 +43,8 @@
     },
     "convertToWords": {
       "summary": {
-        "en": "Formats a date as its Brazilian Portuguese \"por extenso\" text. For example, `\"01/01/2024\"` becomes `\"primeiro de janeiro de dois mil e vinte e quatro\"`.",
-        "pt-BR": "Formata uma data por extenso em português. Por exemplo, `\"01/01/2024\"` vira `\"primeiro de janeiro de dois mil e vinte e quatro\"`."
+        "en": "Formats a date as its Brazilian Portuguese \"por extenso\" text.",
+        "pt-BR": "Formata uma data por extenso em português."
       },
       "description": {
         "en": [

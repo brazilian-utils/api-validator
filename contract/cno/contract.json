@@ -75,8 +75,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CNO formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNO e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a CNO and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CNO e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CNO formatting and keeps only digits, capped at 12 digits."],

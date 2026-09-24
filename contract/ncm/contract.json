@@ -68,8 +68,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes NCM formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação de um NCM e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of an NCM code and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um código NCM e retorna só os dígitos."
       },
       "description": {
         "en": [

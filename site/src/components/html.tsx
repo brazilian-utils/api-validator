@@ -3,6 +3,8 @@ import { GeistMono } from 'geist/font/mono';
 import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { Provider } from './provider';
+import { LangIconDefs } from './lang-icon';
+import { StatusIconDefs } from './status';
 import type { Locale } from '@/lib/i18n';
 import '@/app/global.css';
 
@@ -25,6 +27,8 @@ export function Html({ locale, children }: { locale: Locale; children: ReactNode
             {detectLanguage}
           </Script>
         )}
+        <LangIconDefs />
+        <StatusIconDefs />
         <Provider locale={locale}>{children}</Provider>
       </body>
     </html>

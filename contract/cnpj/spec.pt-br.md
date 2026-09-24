@@ -15,11 +15,11 @@ O CNPJ é o número de identificação que a Receita Federal atribui a empresas,
 
 ## Funções
 
-- **Validação**: Verificar se um CNPJ sem formatação é válido conforme as regras oficiais.
+- **Validação**: Conferir o tamanho e os dígitos verificadores.
 - **Formatação**: Mostrar o CNPJ no formato `XX.XXX.XXX/XXXX-DV`, onde:
     - `X`: caractere alfanumérico (algarismos de `0` a `9` e letras maiúsculas de `A` a `Z`).
     - `DV`: dígitos verificadores calculados pelo algoritmo do módulo 11.
-- **Interpretação**: Remover os caracteres `.`, `/` e `-` e manter apenas os caracteres alfanuméricos.
+- **Interpretação**: Manter só os dígitos (versão 1), ou as letras e os dígitos em maiúsculas (versão 2), até 14 caracteres.
 - **Geração**: Gerar uma string de CNPJ válida e aleatória.
 
 ## Regras de validação
@@ -65,7 +65,7 @@ O CNPJ é o número de identificação que a Receita Federal atribui a empresas,
 
 - Válido: `03560714000142` (CNPJ numérico válido)
 - Válido: `9359QAG9000184` (CNPJ alfanumérico válido)
-- Inválido: `03.560.714/0001-42` (a validação aceita apenas CNPJs sem formatação)
+- `03.560.714/0001-42`: decisão pendente. A referência (JS) aceita, as outras bibliotecas não.
 - Inválido: `00111222000133` (dígitos verificadores inválidos)
 - Inválido: `12ABC34501DE3X` (os dígitos verificadores devem ser numéricos)
 - Inválido: `12ABC34501DE3` (deve conter exatamente 14 caracteres)

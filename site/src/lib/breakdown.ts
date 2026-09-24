@@ -48,7 +48,7 @@ export function libraryBreakdown(spec: any, locale: Locale) {
     have.length === libs.length
       ? t('cov.libsAll')
       : !have.length
-        ? t('cov.none')
+        ? t('cov.libsNone')
         : lacking.length <= 2
           ? t('cov.libsWithout', { list: list(locale, lacking) })
           : have.length <= 2

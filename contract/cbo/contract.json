@@ -77,8 +77,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CBO formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CBO e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a CBO code and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um código CBO e retorna só os dígitos."
       },
       "description": {
         "en": [

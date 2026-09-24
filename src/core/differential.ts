@@ -13,10 +13,9 @@
  */
 import type { AdapterContext, LanguageAdapter } from "../languages/types.js";
 import { valuesEqual } from "./conformance.js";
-import { SymbolIndex, resolve } from "./match.js";
+import { bindLib } from "./analyze.js";
 import type { ApiSurface, Contract, ContractFunction, NativeSymbol, RunnerCall } from "./model.js";
 import { flat } from "./naming.js";
-import { bestOverload } from "./signature.js";
 import { parseCType, type CType } from "./ctype.js";
 import { shortName } from "../../site/src/lib/usage-format.mjs";
 
@@ -55,18 +54,24 @@ export function answerKey(r: { ok: boolean; value?: unknown; error?: string }): 
           .sort(([a], [b]) => String(a).localeCompare(String(b)))
       );
     }
+    // Numbers equal within 1e-9 are one answer (0.1 + 0.2 = 0.3); -0 is 0.
+    if (typeof v === "number" && Number.isFinite(v) && !Number.isInteger(v)) return Number(v.toFixed(9)) + 0;
+    if (typeof v === "number" && v === 0) return 0;
     return v === undefined ? null : v;
   };
   return JSON.stringify(norm(r.value));
 }
 
-const indexes = new WeakMap<DiffLib, SymbolIndex>();
+const bindings = new WeakMap<DiffLib, Map<string, NativeSymbol>>();
 
-function bind(lib: DiffLib, fn: ContractFunction): NativeSymbol | undefined {
-  let index = indexes.get(lib);
-  if (!index) indexes.set(lib, (index = new SymbolIndex(lib.surface.symbols)));
-  const res = resolve(fn, lib.ctx.lib, lib.adapter, index);
-  return res.overloads.length ? bestOverload(fn, res.overloads, lib.adapter).symbol : undefined;
+/**
+ * The symbol `check` would call for `fn` (same binding: `bindLib`), or undefined when the
+ * function is missing or its signature does not match (calling it would be meaningless).
+ */
+function bind(contract: Contract, lib: DiffLib, fn: ContractFunction): NativeSymbol | undefined {
+  let bound = bindings.get(lib);
+  if (!bound) bindings.set(lib, (bound = bindLib(contract, lib.adapter, lib.ctx.lib, lib.surface).boundById));
+  return bound.get(fn.id);
 }
 
 type Outcome = { ok: boolean; value?: unknown; error?: string };  // absent results arrive as { ok: true, value: null }
@@ -95,7 +100,7 @@ async function corpora(contract: Contract, domains: string[], reference: DiffLib
     const gens: Array<{ domain: string; symbol: NativeSymbol; args: unknown[] }> = [];
     for (const d of domains) {
       const gen = contract.functions.get(`${d}.generate`);
-      const sym = gen && gen.params.every((p) => p.optional) ? bind(reference, gen) : undefined;
+      const sym = gen && gen.params.every((p) => p.optional) ? bind(contract, reference, gen) : undefined;
       if (sym) for (let i = 0; i < 3; i++) gens.push({ domain: d, symbol: sym, args: [] });
     }
     const generated = (await runBatch(reference, gens)).map((r, i) => ({ domain: gens[i].domain, value: r.ok && typeof r.value === "string" ? r.value : undefined }));
@@ -110,7 +115,7 @@ async function corpora(contract: Contract, domains: string[], reference: DiffLib
       if (/[a-z]/i.test(g)) set.add(g === g.toLowerCase() ? g.toUpperCase() : g.toLowerCase());
       for (const op of ["format", "parse"]) {
         const f = contract.functions.get(`${domain}.${op}`);
-        const sym = f ? bind(reference, f) : undefined;
+        const sym = f ? bind(contract, reference, f) : undefined;
         if (sym) follow.push({ domain, symbol: sym, args: [g] });
       }
     }
@@ -140,7 +145,10 @@ export async function differential(
     const inputs: unknown[][] = fn.tests.filter((t) => t.expect.kind === "returns" || t.expect.kind === "throws").map((t) => t.args);
     if (required.length === 1 && acceptsString(parseCType(required[0].type))) {
       for (const v of corpus.get(fn.domain) ?? []) inputs.push([v]);
-    } else if (required.length === 0 && !/generate/i.test(fn.operation)) {
+    } else if (required.length === 0 && !/generate/i.test(fn.operation) && fn.domain !== "date") {
+      // A no-argument call is only comparable when its answer is fixed: generators are random,
+      // and a `date` function called without a date answers about today (date.isHoliday()),
+      // so libs run at different moments (or time zones) would diverge for no reason.
       inputs.push([]);
     }
     for (const args of new Map(inputs.map((a) => [JSON.stringify(a), a])).values()) plan.push({ fn, args });
@@ -149,7 +157,7 @@ export async function differential(
   // One batch per lib.
   const answers = new Map<string, Array<Outcome | undefined>>();
   for (const lib of runnable) {
-    const symbols = new Map(fns.map((fn) => [fn.id, bind(lib, fn)]));
+    const symbols = new Map(fns.map((fn) => [fn.id, bind(contract, lib, fn)]));
     const items = plan.map((p) => ({ p, symbol: symbols.get(p.fn.id) }));
     const runnableItems = items.filter((x): x is { p: (typeof plan)[number]; symbol: NativeSymbol } => !!x.symbol);
     const results = await runBatch(lib, runnableItems.map((x) => ({ symbol: x.symbol, args: x.p.args })));

@@ -56,8 +56,18 @@ symbol(Mod, File, F, A, Specs, Deprecated, Clauses) ->
         ++ [{<<"returns">>, json(Ret)} || Ret =/= undefined]
         ++ [{<<"returnsNode">>, json(RetNode)} || RetNode =/= undefined]
         ++ [{<<"deprecated">>, <<"true">>} || IsDeprecated]
+        ++ [{<<"aliasOf">>, json(Target)} || Target <- alias_of(maps:find({F, A}, Clauses))]
         ++ [{<<"location">>, obj([{<<"file">>, json(bin(File))}, {<<"line">>, json(Line)}])},
             {<<"meta">>, obj([{<<"module">>, json(Mod)}, {<<"arity">>, json(A)}])}]).
+
+%% A pure delegation `f(A, B) -> other_mod:g(A, B).` (one clause, no guard, the same argument
+%% variables in the same order) is the same function under another name: ["other_mod.g"].
+alias_of({ok, {_, [{clause, _, Pats, [], [{call, _, {remote, _, {atom, _, M}, {atom, _, G}}, Args}]}]}}) ->
+    Vars = [V || {var, _, V} <- Pats, V =/= '_'],
+    Same = length(Vars) =:= length(Pats) andalso length(lists:usort(Vars)) =:= length(Vars)
+        andalso [V || {var, _, V} <- Args] =:= Vars andalso length(Args) =:= length(Vars),
+    [iolist_to_binary([atom_to_binary(M), ".", atom_to_binary(G)]) || Same];
+alias_of(_) -> [].
 
 param(I, Name, Type) ->
     {N, T, Node} = case Type of

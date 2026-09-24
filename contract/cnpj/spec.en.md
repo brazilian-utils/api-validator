@@ -15,11 +15,11 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
 
 ## Functions
 
-- **Validation**: Check whether an unformatted CNPJ is valid according to the official rules.
+- **Validation**: Check the length and the check digits.
 - **Formatting**: Format the CNPJ as `XX.XXX.XXX/XXXX-DV`, where:
     - `X`: alphanumeric character (digits `0` to `9` and uppercase letters `A` to `Z`).
     - `DV`: check digits calculated with the modulo 11 algorithm.
-- **Parsing**: Remove the `.`, `/` and `-` characters and keep only the alphanumeric characters.
+- **Parsing**: Keep only the digits (version 1), or the letters and digits in upper case (version 2), up to 14 characters.
 - **Generation**: Generate a random valid CNPJ string.
 
 ## Validation rules
@@ -65,7 +65,7 @@ The CNPJ is a unique identification number that the Brazilian Federal Revenue Se
 
 - Valid: `03560714000142` (valid numeric CNPJ)
 - Valid: `9359QAG9000184` (valid alphanumeric CNPJ)
-- Invalid: `03.560.714/0001-42` (validation accepts only unformatted CNPJs)
+- `03.560.714/0001-42`: pending decision. The reference (JS) accepts it, the other libraries do not.
 - Invalid: `00111222000133` (invalid check digits)
 - Invalid: `12ABC34501DE3X` (the check digits must be numeric)
 - Invalid: `12ABC34501DE3` (must contain exactly 14 characters)

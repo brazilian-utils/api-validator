@@ -70,10 +70,7 @@
       ]
     },
     "isValid": {
-      "summary": {
-        "en": "Checks whether a CPF is valid. Accepts the usual formatting characters (`.`, `-`) and whitespace around and between groups.",
-        "pt-BR": "Verifica se um CPF é válido. Aceita os caracteres de formatação usuais (`.`, `-`) e espaços em branco antes, depois e entre os grupos."
-      },
+      "summary": { "en": "Checks whether a CPF is valid.", "pt-BR": "Verifica se um CPF é válido." },
       "description": {
         "en": [
           "Validates a CPF: 9 base digits and 2 modulus 11 check digits (REGRA_VALIDA_CPF of the Receita Federal).",
@@ -116,8 +113,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the CPF formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação do CPF e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a CPF and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CPF e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CPF formatting and keeps only digits, capped at 11 digits."],

@@ -75,6 +75,7 @@ export function closeReason(key: string, contract: Contract, report: LibReport):
   const f = report.functions.find((x) => x.id === fnId);
   if (f?.status === "waived") return `waived in the lib config: ${f.waiver}`;
   if (kind === "implement" && implemented(f)) return `implemented as \`${f!.symbol}\`${f!.status === "failing" ? " (some cases still fail)" : ", and every shared case passes"}.`;
-  if (kind === "fix" && implemented(f) && failingCases(f).length === 0) return "every shared case passes now.";
+  // A run whose tests did not run (no runner on PATH) reports no failing case; that says nothing.
+  if (kind === "fix" && report.testsRan && implemented(f) && failingCases(f).length === 0) return "every shared case passes now.";
   return undefined;
 }

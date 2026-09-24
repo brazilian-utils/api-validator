@@ -2,7 +2,7 @@
   "$schema": "../schema/lib.schema.json",
   "name": "brazilian-utils-python",
   "language": "python",
-  "notes": "Ignored: legacy names kept for backward compatibility (sieve = remove_symbols, display = format, validate = is_valid). remove_symbols*: the contract has parse instead (same job, one behavior); ignored until the library drops it.",
+  "notes": "Ignored: legacy names kept for backward compatibility (sieve = remove_symbols, display = format, validate = is_valid). Legacy `remove_symbols*`: `parse` covers the same job; ignored until the library drops it.",
   "repo": "https://github.com/brazilian-utils/python",
   "entry": "brutils",
   "bindings": {

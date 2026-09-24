@@ -157,7 +157,8 @@ export function skipsFor(lib: LibConfig, contract: Contract, implemented: Set<st
       const last = outcomes?.get(t.id);
       const detail = last && last.status !== "pass" && last.message ? `: ${last.message.replace(/ \[known: .*\]$/, "")}` : "";
       if (known) out[t.id] = `known failure: ${known}`;
-      else if (passing && !passing.has(t.id)) {
+      // A case whose latest outcome is a pass is never skipped, baselined or not.
+      else if (passing && !passing.has(t.id) && last?.status !== "pass") {
         out[t.id] =
           last?.status === "skip"
             ? `not verified by the api-validator runner (${last.message ?? "unsupported"})`

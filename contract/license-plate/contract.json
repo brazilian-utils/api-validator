@@ -12,18 +12,22 @@
   "functions": {
     "convertToMercosul": {
       "summary": {
-        "en": "Converts an old-format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\"). It follows the official conversion table. The digit in the 5th position (the 2nd digit of the 4-digit number) becomes a letter, with `0` through `9` mapping to `A` through `J`. Every other character stays as it is.",
-        "pt-BR": "Converte uma placa no formato antigo (\"LLLNNNN\") para o padrão Mercosul (\"LLLNLNN\"). A conversão segue a tabela oficial. O dígito na 5ª posição (o 2º dígito do número de 4 dígitos) vira uma letra, de `0` a `9` para `A` a `J`. Todos os outros caracteres ficam como estão."
+        "en": "Converts an old-format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\").",
+        "pt-BR": "Converte uma placa no formato antigo (\"LLLNNNN\") para o padrão Mercosul (\"LLLNLNN\")."
       },
       "description": {
         "en": [
           "Converts an old-format plate (`LLLNNNN`) to the Mercosul format (`LLLNLNN`). The 5th character, a digit, becomes a letter, with `0` to `9` mapping to `A` to `J`. The result is upper-cased.",
+          "",
+          "The conversion follows the official table. Every other character stays as it is.",
           "",
           "- Pending decision (findings §1b): the reference (JS) also accepts the hyphen mask (`ABC-1234`). Other libraries reject it.",
           "- Pending decision (findings §2 #5): for a plate that is already Mercosul or is not a valid old-format plate, the reference (JS) returns an empty string. Most libraries return null."
         ],
         "pt-BR": [
           "Converte uma placa no formato antigo (`LLLNNNN`) para o padrão Mercosul (`LLLNLNN`). O 5º caractere, um dígito, vira uma letra, de `0` a `9` para `A` a `J`. O resultado fica em maiúsculas.",
+          "",
+          "A conversão segue a tabela oficial. Todos os outros caracteres ficam como estão.",
           "",
           "- Decisão pendente (findings §1b): a referência (JS) também aceita a máscara com hífen (`ABC-1234`). As outras bibliotecas a rejeitam.",
           "- Decisão pendente (findings §2 #5): para uma placa que já é Mercosul ou que não é uma placa válida no formato antigo, a referência (JS) retorna uma string vazia. A maioria das bibliotecas retorna null."
@@ -190,8 +194,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes license plate formatting characters and returns only upper-case letters and digits.",
-        "pt-BR": "Remove os caracteres de formatação da placa e retorna só letras maiúsculas e dígitos."
+        "en": "Removes the formatting characters of a license plate and returns only the letters and digits, in upper case.",
+        "pt-BR": "Remove os caracteres de formatação de uma placa e retorna só as letras e os dígitos, em maiúsculas."
       },
       "description": {
         "en": ["Removes separators from a license plate, upper-cases it and caps it at 7 characters."],

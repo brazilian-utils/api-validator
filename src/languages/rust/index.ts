@@ -65,6 +65,7 @@ export const rust: LanguageAdapter = {
     {
       bin: "rustup",
       version: ["run", "nightly", "rustc", "--version"],
+      versionOf: "nightly toolchain",
       purpose: "extraction (rustdoc JSON needs a nightly toolchain: rustup toolchain install nightly)",
       install: "https://rustup.rs, then rustup toolchain install nightly --profile minimal"
     },

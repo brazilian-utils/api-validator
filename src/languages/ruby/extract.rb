@@ -83,6 +83,8 @@ walk = lambda do |mod, prefix|
       returns: yard_type(ret),
       returnsNode: yard_node(ret),
       deprecated: deprecated || nil,
+      # `alias_method :valid?, :is_valid` (or `alias`): the same definition under another name.
+      aliasOf: meth.original_name == m ? nil : [prefix, meth.original_name.to_s].reject(&:empty?).join("."),
       location: { file: file.sub(%r{^#{Regexp.escape(File.expand_path(root))}/}, ""), line: line }
     }.compact
   end

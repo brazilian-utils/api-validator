@@ -91,6 +91,16 @@ export function nativeSig(s: NativeSymbol): string {
   return `${s.name}(${params})${s.returns ? ` -> ${s.returns}` : ""}`;
 }
 
+/**
+ * Whether a call passing only the contract's required arguments works against `symbol`: the
+ * signature errors, if any, all come from optional parameters.
+ */
+export function requiredParamsCompatible(fn: ContractFunction, symbol: NativeSymbol, adapter: LanguageAdapter): boolean {
+  const required = fn.params.filter((p) => !p.optional);
+  if (required.length === fn.params.length) return false;
+  return !checkSignature({ ...fn, params: required }, symbol, adapter).some((i) => i.severity === "error");
+}
+
 /** Pick the overload with the fewest errors, then warnings. */
 export function bestOverload(fn: ContractFunction, overloads: NativeSymbol[], adapter: LanguageAdapter) {
   const scored = overloads.map((symbol) => {

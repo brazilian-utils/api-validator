@@ -43,18 +43,22 @@
     },
     "get": {
       "summary": {
-        "en": "Looks up a CNAE subclass code in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
-        "pt-BR": "Consulta um código de subclasse CNAE na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+        "en": "Looks up a CNAE subclass code in the official CNAE-Subclasses 2.3 table.",
+        "pt-BR": "Consulta um código de subclasse CNAE na tabela oficial CNAE-Subclasses 2.3."
       },
       "description": {
         "en": [
           "Looks up a CNAE subclass code in the CNAE-Subclasses 2.3 table and returns its code (7 bare digits) and official description.",
+          "",
+          "This table is the current subclass revision of CNAE 2.0.",
           "",
           "- Same input rules as `cbo.get`, with 7 digits and the `NNNN-N/NN` mask.",
           "- Returns null for an unknown code or a value not in an accepted form."
         ],
         "pt-BR": [
           "Consulta um código de subclasse CNAE na tabela CNAE-Subclasses 2.3 e retorna o código (7 dígitos sem máscara) e a descrição oficial.",
+          "",
+          "Essa tabela é a revisão atual das subclasses da CNAE 2.0.",
           "",
           "- Mesmas regras de entrada de `cbo.get`, com 7 dígitos e a máscara `NNNN-N/NN`.",
           "- Retorna null para um código desconhecido ou para um valor fora das formas aceitas."
@@ -77,8 +81,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Checks whether a CNAE subclass code exists in the official CNAE-Subclasses 2.3 table. This table is the current subclass revision of CNAE 2.0.",
-        "pt-BR": "Verifica se um código de subclasse CNAE existe na tabela oficial CNAE-Subclasses 2.3. Essa tabela é a revisão atual das subclasses da CNAE 2.0."
+        "en": "Checks whether a CNAE subclass code exists in the official CNAE-Subclasses 2.3 table.",
+        "pt-BR": "Verifica se um código de subclasse CNAE existe na tabela oficial CNAE-Subclasses 2.3."
       },
       "description": {
         "en": [
@@ -111,8 +115,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CNAE formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNAE e retorna somente os dígitos."
+        "en": "Removes the formatting characters of a CNAE code and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um código CNAE e retorna só os dígitos."
       },
       "description": {
         "en": [

@@ -72,6 +72,8 @@ export interface Tool {
   bin: string;
   /** Arguments printing its version (the first output line is shown); default `--version`, null = none. */
   version?: string[] | null;
+  /** What the version line is the version of, when not of `bin` itself (e.g. "nightly toolchain" for rustup). */
+  versionOf?: string;
   /** What it is needed for, e.g. "extraction", "shared tests". */
   purpose: string;
   /** How to get it. */

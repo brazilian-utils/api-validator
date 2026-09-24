@@ -84,8 +84,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CFOP formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação de um CFOP e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a CFOP code and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um código CFOP e retorna só os dígitos."
       },
       "description": {
         "en": [

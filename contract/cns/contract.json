@@ -77,8 +77,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the CNS formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação do CNS e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a CNS number and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um número do CNS e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes CNS formatting and keeps only digits, capped at 15 digits."],

@@ -22,6 +22,8 @@ module Demo
       def generate(count = 1, *rest)
         "00000000000"
       end
+
+      alias_method :is_valid, :valid?
     end
   end
 

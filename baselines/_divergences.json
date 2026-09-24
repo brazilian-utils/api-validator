@@ -42,27 +42,19 @@
     "javascript | python,ruby"
   ],
   "date.convertToWords": [
-    "go | javascript | ruby",
-    "go,javascript | ruby",
-    "go,ruby | javascript"
-  ],
-  "date.isHoliday": [
-    "javascript | python,ruby"
+    "go | javascript | python,ruby,rust",
+    "go,javascript | python,ruby,rust",
+    "go,python,ruby,rust | javascript"
   ],
   "legalNature.getDescription": [
     "go | python,ruby | rust",
-    "go | python,ruby,rust",
-    "go,rust | python,ruby"
+    "go | python,ruby,rust"
   ],
   "legalNature.isValid": [
-    "go,python,ruby | javascript,rust",
-    "go,python,ruby,rust | javascript"
+    "go,python,ruby | javascript,rust"
   ],
   "legalNature.list": [
     "go | javascript | python,ruby"
-  ],
-  "legalNature.listByCategory": [
-    "javascript | ruby"
   ],
   "legalProcess.format": [
     "dotnet,python,ruby,rust | go | javascript",
@@ -89,9 +81,6 @@
   "licensePlate.isValid": [
     "erlang,python | javascript,ruby"
   ],
-  "municipality.getByCode": [
-    "javascript | python"
-  ],
   "passport.format": [
     "erlang,python | javascript"
   ],
@@ -105,8 +94,8 @@
     "erlang,python,ruby,rust | go,javascript"
   ],
   "phone.isValid": [
-    "dotnet,erlang,python,ruby | javascript",
-    "dotnet,javascript | erlang,python,ruby"
+    "dotnet,erlang | javascript",
+    "dotnet,javascript | erlang"
   ],
   "phone.removeInternationalDialingCode": [
     "erlang,python | go | ruby,rust",
@@ -118,9 +107,6 @@
   ],
   "pis.isValid": [
     "dotnet,erlang,go,python,ruby,rust | javascript"
-  ],
-  "state.getByIbgeCode": [
-    "javascript | python"
   ],
   "voterId.format": [
     "dotnet,erlang,python,ruby,rust | go | javascript",

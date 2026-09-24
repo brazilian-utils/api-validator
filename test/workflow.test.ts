@@ -7,8 +7,9 @@ import { EQUALITY_SELF_TEST, domainFiles, skipsFor, suiteFiles } from "../src/co
 import { OldContractError, changelog, changelogMarkdown, contractAt } from "../src/core/changelog.js";
 import { valuesEqual } from "../src/core/conformance.js";
 import { loadContract } from "../src/core/contract.js";
-import { diffDivergences, divergenceBaseline, partition, type DiffRow } from "../src/core/differential.js";
-import type { LibConfig, LibReport } from "../src/core/model.js";
+import { answerKey, differential, diffDivergences, divergenceBaseline, partition, type DiffRow } from "../src/core/differential.js";
+import type { LibConfig, LibReport, RunnerCall } from "../src/core/model.js";
+import { getAdapter } from "../src/languages/registry.js";
 import { summarize } from "../src/core/analyze.js";
 import { badgeSvg } from "../src/reporters/badge.js";
 import { siteDataFiles } from "../src/reporters/sitedata.js";
@@ -147,6 +148,12 @@ describe("JSON conformance suite", () => {
       'cpf.format#["x"]': "known failure: throws nothing",
       "cpf.format#shape": "fails today (not in the api-validator baseline)"
     });
+  });
+
+  it("skip list: a case that passes but is not in the baseline is not skipped", () => {
+    const skips = skipsFor(lib(), contract, new Set(["cpf.format"]), { library: "x", ok: [], tests: ['cpf.format#["40364478081"]'] }, new Map([["cpf.format#shape", { status: "pass" }]]));
+    assert.equal(skips["cpf.format#shape"], undefined);
+    assert.equal(skips['cpf.format#["1"]'], "fails today (not in the api-validator baseline)");
   });
 });
 
@@ -344,6 +351,44 @@ describe("divergence baseline", () => {
     const d = diffDivergences(rows, base, ["f", "g"]);
     assert.deepEqual(d.fresh.map((x) => x.split), ["go,python | rust"]);
     assert.deepEqual(d.gone, [{ fn: "g", split: "go | rust" }]);
+  });
+
+  it("answers are compared by value: numbers within 1e-9 are one answer", () => {
+    assert.equal(answerKey({ ok: true, value: 0.1 + 0.2 }), answerKey({ ok: true, value: 0.3 }));
+    assert.equal(answerKey({ ok: true, value: { total_value: 1.0000000001 } }), answerKey({ ok: true, value: { totalValue: 1 } }));
+    assert.notEqual(answerKey({ ok: true, value: 0.3 }), answerKey({ ok: true, value: 0.31 }));
+  });
+
+  it("calls only what check binds (no signature mismatch) and never today's-date functions", async () => {
+    const contract = contractFrom({
+      domain: "date",
+      functions: {
+        isHoliday: { params: [{ name: "options", type: "string", optional: true }], returns: "boolean" },
+        isWeekend: { params: [{ name: "d", type: "string" }], returns: "boolean", tests: [{ args: ["2024-01-06"], returns: true }] }
+      }
+    });
+    const str = { kind: "name" as const, name: "str" };
+    const sym = (name: string, params: Array<[string, typeof str | { kind: "name"; name: string }]>) => ({ name, params: params.map(([n, t]) => ({ name: n, type: t.name, typeNode: t })), returns: "bool", returnsNode: { kind: "name" as const, name: "bool" } });
+    const calls: string[] = [];
+    const mk = (name: string, symbols: ReturnType<typeof sym>[]) => {
+      const base = getAdapter("python");
+      const adapter = { ...base, runner: { requires: [], run: async (_ctx: unknown, cs: RunnerCall[]) => cs.map((c) => (calls.push(`${name}:${c.symbol.name}(${JSON.stringify(c.args)})`), { id: c.id, ok: true as const, value: true })) } };
+      const l = lib({ name });
+      return { name, adapter, ctx: { lib: l, root: ".", workDir: "." }, surface: { library: name, language: "python", symbols, warnings: [] } };
+    };
+    const rows = await differential(
+      contract,
+      [...contract.functions.values()],
+      [
+        mk("a", [sym("date.is_holiday", []), sym("date.is_weekend", [["d", str]])]),
+        mk("b", [sym("date.is_holiday", []), sym("date.is_weekend", [["d", { kind: "name", name: "int" }], ["e", str]])])
+      ],
+      "a"
+    );
+    assert.ok(calls.length > 0);
+    assert.ok(!calls.some((c) => c.includes("is_holiday")), "no zero-argument date calls");
+    assert.ok(!calls.some((c) => c.startsWith("b:date.is_weekend")), "signature mismatch not called");
+    assert.deepEqual(rows, []);
   });
 });
 

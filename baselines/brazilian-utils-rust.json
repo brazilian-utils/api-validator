@@ -91,6 +91,8 @@
     "cnpj.isValid#[\"64977017647334\"]",
     "cnpj.isValid#[\"abc\"]",
     "cpf.format#[\"02746891972\"]",
+    "cpf.format#[\"11144477735\"]",
+    "cpf.format#[\"12345678909\"]",
     "cpf.format#[\"52708175602\"]",
     "cpf.format#[\"83159562131\"]",
     "cpf.generate#generated-is-valid",
@@ -99,6 +101,10 @@
     "cpf.isValid#[\"00000000000\"]",
     "cpf.isValid#[\"02746891972\"]",
     "cpf.isValid#[\"02746891973\"]",
+    "cpf.isValid#[\"11144477700\"]",
+    "cpf.isValid#[\"11144477735\"]",
+    "cpf.isValid#[\"12345678900\"]",
+    "cpf.isValid#[\"12345678909\"]",
     "cpf.isValid#[\"52708175602\"]",
     "cpf.isValid#[\"52708175603\"]",
     "cpf.isValid#[\"83159562131\"]",
@@ -219,7 +225,6 @@
     "voterId.isValid#[\"abc\"]"
   ],
   "unmapped": [
-    "currency.number_to_words",
-    "date_utils.convert_date_to_text"
+    "currency.number_to_words"
   ]
 }

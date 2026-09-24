@@ -77,7 +77,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
           <FileJson className="size-3.5" /> {L(locale, 'Contract', 'Contrato')}
         </a>
         <a className={buttonVariants({ color: 'secondary', size: 'sm', className: 'gap-1.5' })} href={`${REPO_URL}/edit/main/${contractPath(spec)}/contract.json`} target="_blank" rel="noopener noreferrer">
-          <Pencil className="size-3.5" /> {L(locale, 'Edit', 'Editar')}
+          <Pencil className="size-3.5" /> {L(locale, 'Edit on GitHub', 'Editar no GitHub')}
         </a>
       </div>
 
@@ -92,7 +92,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
               <Breakdown
                 title={t('cov.inLib', { util: pick(spec.title, locale), lib: lib.label })}
                 items={b.items}
-                label={`${lib.label}: ${b.short}`}
+                label={`${lib.label} ${b.short}`}
                 href={`${p}/libs/${lib.id}/`}
                 hrefText={t('cov.openLib', { lib: lib.label })}
               >
@@ -222,6 +222,7 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
             >
               <StatusIcon status={(fn?.status ?? 'missing') as Status} label={t(`status.${fn?.status ?? 'missing'}`)} className="size-3.5" />
               {lib.label}
+              <span className="sr-only">{t('cov.libraryWord')}</span>
               {fn?.status === 'failing' && <span className="text-fail">{t('status.failedCases', { count: fn.failed })}</span>}
             </Link>
           </li>

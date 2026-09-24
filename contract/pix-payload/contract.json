@@ -44,7 +44,7 @@
     },
     "getInfo": {
       "summary": {
-        "en": "Parses a Pix BR Code payload, the string behind a Pix QR Code and behind \"Pix copia e cola\".",
+        "en": "Splits a Pix BR Code payload, the string behind a Pix QR Code and behind \"Pix copia e cola\", into its fields.",
         "pt-BR": "Decompõe o payload de um BR Code Pix, a string por trás de um QR Code Pix e do Pix copia e cola."
       },
       "description": {

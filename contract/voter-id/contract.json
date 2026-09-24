@@ -107,8 +107,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the voter ID formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação do título de eleitor e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a voter ID and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um título de eleitor e retorna só os dígitos."
       },
       "description": {
         "en": [

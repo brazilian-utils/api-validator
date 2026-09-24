@@ -7,6 +7,7 @@ import datetime
 import decimal
 import enum
 import importlib
+import inspect
 import json
 import os
 import sys
@@ -73,6 +74,18 @@ def main():
         except Exception as e:  # noqa: BLE001
             results.append({"id": call["id"], "ok": False, "error": f"cannot load {call['symbol']}: {type(e).__name__}: {e}", "unsupported": True})
             continue
+        # A call the signature cannot take (wrong arity) is "unsupported", like the typed
+        # runners report it, not a failure of the function: bind first, call afterwards.
+        try:
+            sig = inspect.signature(fn)
+        except (TypeError, ValueError):  # builtins without a signature: just call
+            sig = None
+        if sig is not None:
+            try:
+                sig.bind(*call["args"])
+            except TypeError as e:
+                results.append({"id": call["id"], "ok": False, "error": f"cannot call {call['symbol']} with {len(call['args'])} argument(s): {e}", "unsupported": True})
+                continue
         try:
             results.append({"id": call["id"], "ok": True, "value": to_json(fn(*call["args"]))})
         except Exception as e:  # noqa: BLE001

@@ -12,8 +12,8 @@
   "functions": {
     "isValid": {
       "summary": {
-        "en": "Validates a VIN (Vehicle Identification Number / chassi).",
-        "pt-BR": "Valida um chassi (VIN, Vehicle Identification Number)."
+        "en": "Checks whether a VIN (Vehicle Identification Number / chassi) is valid.",
+        "pt-BR": "Verifica se um chassi (VIN, Vehicle Identification Number) é válido."
       },
       "description": {
         "en": [

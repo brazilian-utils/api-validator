@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import type { AdapterContext, LanguageAdapter } from "../languages/types.js";
 import { runConformance, type Bound } from "./conformance.js";
 import { validateLibAgainstContract } from "./libs.js";
-import { isIgnored, resolve, suggestFunctions, suggestSymbols, SymbolIndex } from "./match.js";
+import { isIgnored, resolve, suggestFunctions, suggestSymbols, SymbolIndex, type Compatible } from "./match.js";
 import type {
   ApiSurface,
   Contract,
@@ -13,7 +13,7 @@ import type {
   LibSummary,
   NativeSymbol
 } from "./model.js";
-import { bestOverload } from "./signature.js";
+import { bestOverload, requiredParamsCompatible } from "./signature.js";
 import { which } from "./shell.js";
 
 function gitRevision(root: string): string | undefined {
@@ -48,6 +48,11 @@ export interface Binding {
   /** Contract functions with a compatible implementation (status ok), with the symbol to call. */
   bound: Bound[];
   boundById: Map<string, NativeSymbol>;
+  /**
+   * Functions whose signature errors all come from optional parameters (status signature):
+   * their cases that pass only the required arguments can still run.
+   */
+  partial: Bound[];
 }
 
 /** Match every contract function to the lib's symbols and check signatures (no tests). */
@@ -57,6 +62,7 @@ export function bindLib(contract: Contract, adapter: LanguageAdapter, lib: LibCo
   const mappedTargets = new Set<string>();
   const bound: Bound[] = [];
   const boundById = new Map<string, NativeSymbol>();
+  const partial: Bound[] = [];
 
   for (const fn of [...contract.functions.values()].sort((a, b) => a.id.localeCompare(b.id))) {
     const res = resolve(fn, lib, adapter, index);
@@ -89,17 +95,20 @@ export function bindLib(contract: Contract, adapter: LanguageAdapter, lib: LibCo
     if (report.status === "ok") {
       bound.push({ fn, symbol: best.symbol });
       boundById.set(fn.id, best.symbol);
+    } else if (requiredParamsCompatible(fn, best.symbol, adapter)) {
+      partial.push({ fn, symbol: best.symbol, maxArgs: fn.params.filter((p) => !p.optional).length });
     }
   }
-  return { index, functions, mappedTargets, bound, boundById };
+  return { index, functions, mappedTargets, bound, boundById, partial };
 }
 
 export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
   const { contract, adapter, ctx, surface } = opts;
   const lib = ctx.lib;
-  const { index, functions, mappedTargets, bound, boundById } = bindLib(contract, adapter, lib, surface);
+  const { index, functions, mappedTargets, bound, boundById, partial } = bindLib(contract, adapter, lib, surface);
 
-  // Tests: only for functions whose signature is compatible (calling the others is meaningless).
+  // Tests: only for functions whose signature is compatible (calling the others is meaningless),
+  // and, when only optional parameters mismatch, the cases that pass the required ones alone.
   let testsRan = false;
   let runnerNote: string | undefined;
   if (opts.runTests) {
@@ -108,8 +117,9 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
       const missing = adapter.runner.requires.filter((bin) => !which(bin));
       if (missing.length > 0) runnerNote = `runner needs ${missing.join(", ")} on PATH`;
       else {
-        const runnable = bound.filter((b) => opts.network || !b.fn.network);
-        const results = await runConformance(runnable, boundById, lib, adapter, ctx, opts.testFilter);
+        const runnable = [...bound, ...partial].filter((b) => opts.network || !b.fn.network);
+        const mismatched = new Set(functions.filter((f) => f.status === "signature").map((f) => f.id));
+        const results = await runConformance(runnable, boundById, lib, adapter, ctx, opts.testFilter, mismatched);
         testsRan = true;
         for (const report of functions) {
           const outcomes = results.get(report.id);
@@ -132,6 +142,11 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
   );
   const missingFns = allFns.filter((fn) => functions.find((r) => r.id === fn.id)?.status === "missing");
   const seenTargets = new Set<string>();
+  // A suggestion whose signature cannot fit the function is noise.
+  const compatible: Compatible = (fn, name) => {
+    const overloads = index.get(name);
+    return overloads.length > 0 && !bestOverload(fn, overloads, adapter).issues.some((i) => i.severity === "error");
+  };
   const unmapped = unmappedSymbols
     .filter((s) => {
       // Report each implementation once (a facade alias and its module function are one thing).
@@ -143,12 +158,12 @@ export async function analyzeLib(opts: AnalyzeOptions): Promise<LibReport> {
     .map((s) => ({
       symbol: s.name,
       location: index.definition(s).location ?? s.location,
-      suggestions: suggestFunctions(s.name, missingFns)
+      suggestions: suggestFunctions(s.name, missingFns, 3, compatible)
     }));
 
   for (const report of functions) {
     if (report.status !== "missing") continue;
-    report.suggestions = suggestSymbols(contract.functions.get(report.id)!, unmappedSymbols);
+    report.suggestions = suggestSymbols(contract.functions.get(report.id)!, unmappedSymbols, 3, compatible);
   }
 
   return {

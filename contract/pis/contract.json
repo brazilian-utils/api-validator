@@ -68,10 +68,7 @@
       ]
     },
     "isValid": {
-      "summary": {
-        "en": "Validates a Brazilian PIS number. Accepts the usual formatting characters (`.`, `-`, `/`, `(`, `)`, `,`, `*`) and whitespace.",
-        "pt-BR": "Valida um número de PIS. Aceita os caracteres de formatação usuais (`.`, `-`, `/`, `(`, `)`, `,`, `*`) e espaços em branco."
-      },
+      "summary": { "en": "Checks whether a PIS number is valid.", "pt-BR": "Verifica se um número de PIS é válido." },
       "description": {
         "en": [
           "Validates a PIS/PASEP/NIT: 10 base digits and a modulus 11 check digit.",
@@ -110,8 +107,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the PIS formatting characters and returns only the digits.",
-        "pt-BR": "Remove os caracteres de formatação do PIS e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a PIS number and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um número de PIS e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes PIS formatting and keeps only digits, capped at 11 digits."],

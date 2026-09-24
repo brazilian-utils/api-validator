@@ -68,9 +68,14 @@ describe("erlang extractor (compiled modules via beam_lib)", { skip: !which("erl
       root: path.join(FIXTURES, "erlang"),
       workDir: "/tmp"
     });
-    assert.deepEqual(r.symbols.map((x) => `${x.name}/${x.params.length}`).sort(), ["demo.codes/0", "demo.format/1", "demo.generate/0", "demo.generate/1", "demo.is_valid/1"]);
+    assert.deepEqual(r.symbols.map((x) => `${x.name}/${x.params.length}`).sort(), ["demo.codes/0", "demo.format/1", "demo.generate/0", "demo.generate/1", "demo.is_valid/1", "demo.swapped/2", "demo.valid/1"]);
     assert.equal(r.symbols.find((x) => x.name === "demo.generate" && x.params.length === 1)?.deprecated, true);
     assert.ok(all.length > 0);
+  });
+  it("marks a pure delegation to a remote call with the same arguments as an alias", () => {
+    assert.equal(s.get("demo.valid")?.aliasOf, "demo.is_valid");
+    assert.equal(s.get("demo.swapped")?.aliasOf, undefined);
+    assert.equal(s.get("demo.format")?.aliasOf, undefined);
   });
   it("takes types from -spec and names from clause heads / annotations", () => {
     assert.deepEqual(params(s.get("demo.format")), ["cpf: binary()"]);
@@ -150,7 +155,12 @@ describe("go extractor (go/parser)", { skip: !which("go") && "go not installed" 
 describe("ruby extractor (reflection)", { skip: !which("ruby") && "ruby not installed" }, async () => {
   const s = await extract("ruby", "lib", { namespace: "Demo" });
   it("public singleton methods incl. class << self; private_class_method and exception classes excluded", () => {
-    assert.deepEqual(names(s), ["CPFUtils.format_cpf", "CPFUtils.generate", "CPFUtils.valid?", "CPFUtils.validate"]);
+    assert.deepEqual(names(s), ["CPFUtils.format_cpf", "CPFUtils.generate", "CPFUtils.is_valid", "CPFUtils.valid?", "CPFUtils.validate"]);
+  });
+  it("marks alias_method aliases with aliasOf", () => {
+    assert.equal(s.get("CPFUtils.is_valid")?.aliasOf, "CPFUtils.valid?");
+    assert.equal(s.get("CPFUtils.valid?")?.aliasOf, undefined);
+    assert.equal(s.get("CPFUtils.validate")?.aliasOf, undefined);
   });
   it("reads YARD types and keyword params", () => {
     assert.deepEqual(params(s.get("CPFUtils.format_cpf")), ["cpf: String", "pad?(kw)"]);

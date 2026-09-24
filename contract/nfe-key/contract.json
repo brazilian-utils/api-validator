@@ -12,17 +12,21 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into groups of 4 digits separated by spaces. Every auxiliary document prints the key in this form: the DANFE of the NF-e and the NFC-e, the DACTE of the CT-e, the CT-e OS and the GTV-e, the DAMDFE of the MDF-e, the DABPE of the BP-e, the DANF3E of the NF3e and the DANFE-COM of the NFCom.",
-        "pt-BR": "Formata uma chave de acesso de DF-e (Documento Fiscal eletrônico) em grupos de 4 dígitos separados por espaços. Todo documento auxiliar imprime a chave nessa forma: o DANFE da NF-e e da NFC-e, o DACTE do CT-e, do CT-e OS e da GTV-e, o DAMDFE do MDF-e, o DABPE do BP-e, o DANF3E da NF3e e o DANFE-COM da NFCom."
+        "en": "Formats a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into groups of 4 digits separated by spaces.",
+        "pt-BR": "Formata uma chave de acesso de DF-e (Documento Fiscal eletrônico) em grupos de 4 dígitos separados por espaços."
       },
       "description": {
         "en": [
           "Formats a DF-e access key into groups of 4 digits separated by spaces, as the DANFE and the other auxiliary documents print it. It does not validate the key (use `nfeKey.isValid`).",
           "",
+          "Every auxiliary document prints the key in this form: the DANFE of the NF-e and the NFC-e, the DACTE of the CT-e, the CT-e OS and the GTV-e, the DAMDFE of the MDF-e, the DABPE of the BP-e, the DANF3E of the NF3e and the DANFE-COM of the NFCom.",
+          "",
           "- The function groups a masked or partial key as far as its digits go. `options.pad` first left-pads the key with zeros to 44 digits."
         ],
         "pt-BR": [
           "Formata uma chave de acesso de DF-e em grupos de 4 dígitos separados por espaços, como o DANFE e os outros documentos auxiliares a imprimem. Não valida a chave (use `nfeKey.isValid`).",
+          "",
+          "Todo documento auxiliar imprime a chave nessa forma: o DANFE da NF-e e da NFC-e, o DACTE do CT-e, do CT-e OS e da GTV-e, o DAMDFE do MDF-e, o DABPE do BP-e, o DANF3E da NF3e e o DANFE-COM da NFCom.",
           "",
           "- A função agrupa uma chave com máscara ou parcial até onde vão os seus dígitos. `options.pad` antes completa a chave com zeros à esquerda até 44 dígitos."
         ]
@@ -42,7 +46,7 @@
     },
     "getInfo": {
       "summary": {
-        "en": "Parses a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into its fields.",
+        "en": "Splits a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) into its fields.",
         "pt-BR": "Decompõe uma chave de acesso de DF-e (Documento Fiscal eletrônico) em seus campos."
       },
       "description": {
@@ -81,8 +85,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a DF-e (Documento Fiscal eletrônico) access key (chave de acesso).",
-        "pt-BR": "Valida uma chave de acesso de DF-e (Documento Fiscal eletrônico)."
+        "en": "Checks whether a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) is valid.",
+        "pt-BR": "Verifica se uma chave de acesso de DF-e (Documento Fiscal eletrônico) é válida."
       },
       "description": {
         "en": [
@@ -126,8 +130,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the formatting of a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) and returns only digits.",
-        "pt-BR": "Remove a formatação de uma chave de acesso de DF-e (Documento Fiscal eletrônico) e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a DF-e (Documento Fiscal eletrônico) access key (chave de acesso) and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de uma chave de acesso de DF-e (Documento Fiscal eletrônico) e retorna só os dígitos."
       },
       "description": {
         "en": [

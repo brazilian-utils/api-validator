@@ -7,6 +7,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 
 const OUT = path.resolve('out');
 const BASE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/api-validator').pathname.replace(/\/$/, '');
@@ -19,7 +20,17 @@ http
     let file = path.join(OUT, pathname.startsWith(BASE) ? pathname.slice(BASE.length) : '/__none__');
     if (!file.startsWith(OUT)) return res.writeHead(403).end();
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, 'index.html');
-    if (!fs.existsSync(file)) return res.writeHead(404, { 'content-type': 'text/html' }).end(fs.readFileSync(path.join(OUT, '404.html')));
-    res.writeHead(200, { 'content-type': TYPES[path.extname(file)] ?? 'application/octet-stream' }).end(fs.readFileSync(file));
+    // As the host serves them: text compressed, hashed build files cached for good.
+    const send = (status, type, body) => {
+      const headers = { 'content-type': type };
+      if (pathname.includes('/_next/static/')) headers['cache-control'] = 'public, max-age=31536000, immutable';
+      if (/^(text\/|application\/(json|javascript|xml))/.test(type) && /\bgzip\b/.test(req.headers['accept-encoding'] ?? '')) {
+        headers['content-encoding'] = 'gzip';
+        body = zlib.gzipSync(body);
+      }
+      res.writeHead(status, headers).end(body);
+    };
+    if (!fs.existsSync(file)) return send(404, 'text/html', fs.readFileSync(path.join(OUT, '404.html')));
+    send(200, TYPES[path.extname(file)] ?? 'application/octet-stream', fs.readFileSync(file));
   })
   .listen(PORT, '127.0.0.1', () => console.log(`http://127.0.0.1:${PORT}${BASE}/`));

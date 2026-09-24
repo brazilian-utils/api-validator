@@ -151,8 +151,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes boleto formatting characters and returns only digits.",
-        "pt-BR": "Remove os caracteres de formatação de um boleto e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of a boleto and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um boleto e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes boleto formatting and keeps only digits, capped at 47 digits (48 for a boleto de arrecadação)."],

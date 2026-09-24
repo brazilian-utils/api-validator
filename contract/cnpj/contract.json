@@ -80,8 +80,8 @@
     },
     "isValid": {
       "summary": {
-        "en": "Validates a CNPJ. Supports both numeric (version 1) and alphanumeric (version 2) CNPJ formats. Accepts the usual formatting characters (`.`, `-`, `/`) and whitespace around and between groups.",
-        "pt-BR": "Valida um CNPJ. Aceita os formatos numérico (versão 1) e alfanumérico (versão 2). Aceita os caracteres de formatação usuais (`.`, `-`, `/`) e espaços em branco em volta dos grupos e entre eles."
+        "en": "Validates a CNPJ, numeric (version 1) or alphanumeric (version 2).",
+        "pt-BR": "Valida um CNPJ, numérico (versão 1) ou alfanumérico (versão 2)."
       },
       "description": {
         "en": [
@@ -125,8 +125,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes CNPJ formatting characters and returns a normalized value.",
-        "pt-BR": "Remove os caracteres de formatação do CNPJ e retorna um valor normalizado."
+        "en": "Removes the CNPJ formatting characters and returns the digits, or the letters and digits in upper case (version 2).",
+        "pt-BR": "Remove os caracteres de formatação do CNPJ e retorna os dígitos, ou as letras e os dígitos em maiúsculas (versão 2)."
       },
       "description": {
         "en": [

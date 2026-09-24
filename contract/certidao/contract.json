@@ -11,8 +11,8 @@
   "functions": {
     "format": {
       "summary": {
-        "en": "Formats the matrícula of a certidão de registro civil into the printed mask of the norm. The mask groups the 32 digits as 6 2 2 4 1 5 3 7 2, separated by spaces.",
-        "pt-BR": "Formata a matrícula de uma certidão de registro civil na máscara impressa da norma. A máscara agrupa os 32 dígitos como 6 2 2 4 1 5 3 7 2, separados por espaços."
+        "en": "Formats the matrícula of a certidão de registro civil into the printed mask of the norm.",
+        "pt-BR": "Formata a matrícula de uma certidão de registro civil na máscara impressa da norma."
       },
       "description": {
         "en": [
@@ -47,7 +47,7 @@
     },
     "getInfo": {
       "summary": {
-        "en": "Parses the matrícula of a certidão de registro civil into its fields.",
+        "en": "Splits the matrícula of a certidão de registro civil into its fields.",
         "pt-BR": "Decompõe a matrícula de uma certidão de registro civil em seus campos."
       },
       "description": {
@@ -124,8 +124,8 @@
     },
     "parse": {
       "summary": {
-        "en": "Removes the formatting of the matrícula of a certidão de registro civil and returns only the digits.",
-        "pt-BR": "Remove a formatação da matrícula de uma certidão de registro civil e retorna apenas os dígitos."
+        "en": "Removes the formatting characters of the matrícula of a certidão de registro civil and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação da matrícula de uma certidão de registro civil e retorna só os dígitos."
       },
       "description": {
         "en": ["Removes the formatting of a certidão matrícula and keeps only digits, capped at 32 digits."],

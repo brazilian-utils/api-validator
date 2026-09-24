@@ -57,7 +57,7 @@ export function Team({ locale = 'en' }: { locale?: Locale }) {
           </span>
           <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-medium text-fd-primary">
             {locale === 'en' ? 'How to take part' : 'Como participar'}
-            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
           </span>
         </a>
       </li>

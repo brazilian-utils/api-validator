@@ -12,8 +12,8 @@
   "functions": {
     "getByCode": {
       "summary": {
-        "en": "Looks up a Brazilian bank by its compensation code (COMPE). Banco Central do Brasil publishes this code in the STR (Sistema de Transferência de Reservas) participants list.",
-        "pt-BR": "Consulta um banco brasileiro pelo código de compensação (COMPE). O Banco Central do Brasil publica esse código na lista de participantes do STR (Sistema de Transferência de Reservas)."
+        "en": "Looks up a Brazilian bank by its compensation code (COMPE).",
+        "pt-BR": "Consulta um banco brasileiro pelo código de compensação (COMPE)."
       },
       "description": {
         "en": [
@@ -47,8 +47,8 @@
     },
     "getByIspb": {
       "summary": {
-        "en": "Looks up a Brazilian bank by its ISPB (Identificador do Sistema de Pagamentos Brasileiro). The ISPB is the 8 digit code that identifies every participant of the SPB. Banco Central do Brasil publishes it in the STR (Sistema de Transferência de Reservas) participants list. Every SPB participant has an ISPB, but this dataset only carries the institutions that also have a COMPE code. An ISPB whose institution has no COMPE code of its own therefore returns `null`.",
-        "pt-BR": "Consulta um banco brasileiro pelo ISPB (Identificador do Sistema de Pagamentos Brasileiro). O ISPB é o código de 8 dígitos que identifica cada participante do SPB. O Banco Central do Brasil o publica na lista de participantes do STR (Sistema de Transferência de Reservas). Todo participante do SPB tem um ISPB, mas este conjunto de dados só traz as instituições que também têm código COMPE. Por isso, um ISPB cuja instituição não tem código COMPE próprio retorna `null`."
+        "en": "Looks up a Brazilian bank by its ISPB (Identificador do Sistema de Pagamentos Brasileiro).",
+        "pt-BR": "Consulta um banco brasileiro pelo ISPB (Identificador do Sistema de Pagamentos Brasileiro)."
       },
       "description": {
         "en": [

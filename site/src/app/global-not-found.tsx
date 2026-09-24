@@ -15,8 +15,8 @@ export default function NotFound() {
           <SiteMark className="h-20" />
         </Link>
         <h1 className="text-3xl font-semibold tracking-tight">This page does not exist.</h1>
-        <p className="text-fd-muted-foreground">The utility may have another name, or it is not in the contract yet.</p>
-        <p lang="pt-BR" className="text-fd-muted-foreground">Esta página não existe. O utilitário pode ter outro nome, ou ainda não está no contrato.</p>
+        <p className="text-fd-muted-foreground">Check the address, or use the search. A utility may have another name, or it may not be in the contract yet.</p>
+        <p lang="pt-BR" className="text-fd-muted-foreground">Esta página não existe. Confira o endereço ou use a busca. Um utilitário pode ter outro nome, ou ainda não estar no contrato.</p>
         {/* One way out stands out, as on the home page: the button, then text links. */}
         <p className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
           <Link href="/" className="rounded-md bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90">Home</Link>

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { parseCType } from "./ctype.js";
-import { camel, pascal } from "./naming.js";
+import { camel, pascal, words } from "./naming.js";
 import { slugOf } from "../../site/src/lib/usage-format.mjs";
 import type { Contract, ContractFunction, ContractTest, Expectation } from "./model.js";
 
@@ -108,6 +108,13 @@ function toExpectation(t: z.infer<typeof TestSchema>): Expectation {
 
 function defaultFlatName(domain: string, operation: string): string {
   return camel(operation) + pascal(domain);
+}
+
+/** Whether the words of `inner` appear, in order and contiguous, among the words of `outer`. */
+function containsWords(outer: string, inner: string): boolean {
+  const o = words(outer).join(" ");
+  const i = words(inner).join(" ");
+  return i.length > 0 && ` ${o} `.includes(` ${i} `);
 }
 
 /** Where a domain lives: `contract/<kebab-domain>/contract.json`, next to its specs and references. */
@@ -233,10 +240,16 @@ export function loadContract(dir: string): Contract {
       }
 
       const spellings = [{ domain: doc.domain, operation, flatName }];
-      for (const d of doc.aliases) spellings.push({ domain: d, operation, flatName: defaultFlatName(d, operation) });
+      const spell = (domain: string, op: string, flat: string) => {
+        if (!spellings.some((s) => s.domain === domain && s.operation === op && s.flatName === flat)) spellings.push({ domain, operation: op, flatName: flat });
+      };
+      for (const d of doc.aliases) spell(d, operation, defaultFlatName(d, operation));
       for (const alias of fn.aliases) {
         const [d, op] = alias.split(".");
-        spellings.push({ domain: d, operation: op, flatName: defaultFlatName(d, op) });
+        spell(d, op, defaultFlatName(d, op));
+        // An alias that already names its domain (`date.convertDateToText`) is also its own flat name.
+        if (containsWords(op, d)) spell(d, op, camel(op));
+        for (const da of doc.aliases) spell(da, op, defaultFlatName(da, op));
       }
       const entry: ContractFunction = {
         id,

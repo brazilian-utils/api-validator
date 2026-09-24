@@ -21,7 +21,7 @@ Clearing the site's data in your browser removes all of them.
 
 ## When the site talks to other services
 
-Most pages load nothing from outside this site. The search runs in your browser, on an index that comes with the site. The "Try it" boxes run the JavaScript library from this site.
+Most pages load nothing from outside this site. The search runs in your browser, on an index that comes with the site. The "Try it with JavaScript" boxes run the JavaScript library from this site.
 
 A few things load from other services, and only when you open them:
 
@@ -31,7 +31,7 @@ A few things load from other services, and only when you open them:
 
 ## The libraries
 
-The Brazilian Utils libraries run inside your program and send nothing anywhere. The one exception is the address lookup by CEP (`getAddressInfoByCep` and its equivalents), which sends the CEP to public CEP services, as described above.
+The [Brazilian Utils](https://github.com/brazilian-utils) libraries run inside your program and send nothing anywhere. The only exceptions are the two CEP lookups, `cep.getAddressInfo` (the address of a CEP) and `cep.getInfoByAddress` (the CEPs of a street), which query public CEP services over the internet.
 
 ## Questions
 

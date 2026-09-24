@@ -71,13 +71,16 @@ describe("literal builders (from structured types)", () => {
 
 describe("runners (same protocol, every language)", () => {
   it("python", { skip: !which("python3") && "no python3" }, async () => {
-    assert.deepEqual(await run("python", "pkg", [["is_valid_cpf", ["12345678901"]], ["cpf.format_cpf", ["x"]], ["cpf.generate", []], ["cep.format", ["1"]]]), [true, "x", [], null]);
+    assert.deepEqual(await run("python", "pkg", [["is_valid_cpf", ["12345678901"]], ["cpf.format_cpf", ["x"]], ["cpf.generate", []], ["cep.format", ["1"]], ["is_valid_cpf", []], ["is_valid_cpf", ["1", "2", "3"]]]), [true, "x", [], null, "<unsupported>", "<unsupported>"]);
   });
   it("typescript", async () => {
     assert.deepEqual(await run("typescript", "src/index.ts", [["isValidCpf", ["12345678901"]], ["formatCpf", [5]], ["generateCpf", []]]), [true, "5", "00000000000"]);
   });
   it("ruby", { skip: !which("ruby") && "no ruby" }, async () => {
-    assert.deepEqual(await run("ruby", "lib", [["CPFUtils.valid?", ["12345678901"]], ["CPFUtils.generate", []], ["CPFUtils.valid?", []]], { namespace: "Demo" }), [true, "00000000000", "<error>"]);
+    assert.deepEqual(
+      await run("ruby", "lib", [["CPFUtils.valid?", ["12345678901"]], ["CPFUtils.generate", []], ["CPFUtils.valid?", []], ["CPFUtils.format_cpf", ["1", { pad: true }]], ["CPFUtils.format_cpf", ["1", { nope: 1 }]]], { namespace: "Demo" }),
+      [true, "00000000000", "<unsupported>", "1", "<unsupported>"]
+    );
   });
   it("go (generated program in a go.work)", { skip: !which("go") && "no go" }, async () => {
     assert.deepEqual(

@@ -10,9 +10,10 @@ is a number, not an opinion.
 
 | Step | Who | How |
 |---|---|---|
-| Merge the PR of this repository | maintainers | CI runs typecheck, tests with all 7 toolchains, contract lint |
+| Merge the PR of this repository | maintainers | CI runs typecheck, the tests with the language toolchains, contract lint |
 | Publish the docs site | org admin | Enable GitHub Pages (source: GitHub Actions). Set the repository variable `PUBLISH_SITE=true` (and `SITE_URL` when a custom domain serves the site) |
-| Turn on issue and test sync | org admin | Save a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 library repos as the secret `LIBS_TOKEN` |
+| Turn on issue and test sync | org admin | Save a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 library repos as the secret `LIBS_TOKEN`. Do not give it the `workflows` permission |
+| Optional: release notification | org admin | Save a token that can send `repository_dispatch` to api-validator (`contents: write`) as the secret `API_VALIDATOR_DISPATCH_TOKEN` in each library, and add the step in [usage-files.mdx](../site/content/docs/contributing/usage-files.mdx#update-the-site-on-each-release) to its release workflow. A release then refreshes the site at once, not at the next nightly |
 | Add the Action to every library | one PR per library | Copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`. Add the badge to the README |
 | Add usage files to every library | one PR per library | Copy `site/fixtures/usage/<lib>/` (scaffolded from the cases each library passes) to `docs/usage/`. Cut the README down to a link to the site |
 | Add the suite and the harness to every library | one PR per library | `api-validator export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for all 7 libraries) |
@@ -39,8 +40,8 @@ human review, and the open behavior questions need answers.
      `Option`/`None`).
    - Empty input to `format` gives `null`.
    - PIS of repeated digits is invalid (same rule as CPF/CNPJ).
-2. Review names: `legalProcess` or `processoJuridico` (decided: `parse` replaces
-   `removeSymbols` everywhere, with the name and the behavior of JS `parse*`), options objects or positional parameters
+2. Review names: `legalProcess` or `processoJuridico` (decided: every library
+   exposes `parse`, with the name and the behavior of JS `parse*`), options objects or positional parameters
    (the contract can declare the positional form and let JS keep options as an extra).
 3. Give every function test cases. `api-validator lint` lists the functions without any. Today,
    the validator checks only the name and signature of those functions. Then turn on
@@ -77,7 +78,7 @@ and the badge is green everywhere.
 
 ## Phase 4: extended parity
 
-JS implements ~92% of the 147 functions. The others implement 19 to 30%. Take the extended
+JS implements 136 of the 138 contract functions. The others implement far less: in the run of September 2026, each of them passed 16 to 21% of the functions. Take the extended
 functions one domain at a time (fiscal: NF-e, CFOP, NCM, CST. Banking: IBAN, bank, pix. IBGE:
 state, municipality. Dates and holidays). For each domain, decide whether every library should
 have it, and move those functions to `core`. The agent workflow is most useful here: many

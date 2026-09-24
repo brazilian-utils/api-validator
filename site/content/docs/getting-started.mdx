@@ -3,7 +3,7 @@ title: Getting started
 description: What Brazilian Utils is, how to read a utility page, and how to install a library.
 ---
 
-Brazilian Utils is a set of libraries that validate, format and generate Brazilian data: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library for each language. The [Brazilian Utils](https://github.com/brazilian-utils) organization maintains them, and this site documents them in one place.
+Brazilian Utils is a set of libraries that validate, format, parse and generate Brazilian data: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library for each language. The [Brazilian Utils](https://github.com/brazilian-utils) organization maintains them, and this site documents them in one place.
 
 ## Read a utility page
 
@@ -14,10 +14,11 @@ Each utility has one page for all languages. Each page has the same parts, in th
    - the signature from the contract and its parameters,
    - which libraries implement the function and whether they pass all shared test cases,
    - a tab for each library, with an example in that language,
-   - a "Try it" box that runs the JavaScript library in your browser,
+   - a "Try it with JavaScript" box that runs the JavaScript library in your browser,
    - the shared test cases, with the result in each library.
-3. **The specification.** What the identifier is, its format, the algorithm and the regular expressions. Some utilities have this long text, others have only a summary.
-4. **Official sources.** The law, decree or government document that defines the rule.
+3. **Guides.** Longer examples from the libraries, when there are any.
+4. **The specification.** What the identifier is, its format, the algorithm and the regular expressions. Only some utilities have this section. The others describe the rule in the section of each function.
+5. **Official sources.** The law, decree or government document that defines the rule.
 
 Pick your language (JavaScript, Python, Go, Ruby, Rust, .NET or Erlang) in any tab. Every page then opens on that language.
 
@@ -48,4 +49,4 @@ The libraries check the **structure** of a value: its length, its characters and
 - Find a utility in the sidebar. The sidebar groups the utilities by category.
 - See which library implements what in the [parity matrix](/reference/parity/).
 - See what one library is missing on its own page, for example [Python](/libs/python/).
-- To contribute, see [Write a spec](/contributing/specs/) or [Port to a new language](/contributing/new-language/).
+- To contribute, see [Change the contract](/contributing/specs/) or [Fill a gap in a library](/contributing/new-language/).

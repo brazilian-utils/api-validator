@@ -12,12 +12,14 @@
   "functions": {
     "convertToWords": {
       "summary": {
-        "en": "Formats an amount in Brazilian reais as its \"por extenso\" text, the style people use to write out an amount by hand on cheques and contracts. For example, `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
-        "pt-BR": "Formata um valor em reais por extenso, o estilo usado para escrever um valor à mão em cheques e contratos. Por exemplo, `1523.45` vira `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`."
+        "en": "Formats an amount in Brazilian reais as its \"por extenso\" text, the style people use to write out an amount by hand on cheques and contracts.",
+        "pt-BR": "Formata um valor em reais por extenso, o estilo usado para escrever um valor à mão em cheques e contratos."
       },
       "description": {
         "en": [
           "Writes an amount in reais in Brazilian Portuguese words (\"por extenso\"), as on cheques and contracts.",
+          "",
+          "For example, `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
           "",
           "- The function truncates `value` (does not round it) to 2 decimal places.",
           "- Singular and plural agree (\"um real\", \"um centavo\", \"zero reais\"). Millions and above take \"de reais\" (\"um milhão de reais\").",
@@ -27,6 +29,8 @@
         ],
         "pt-BR": [
           "Escreve um valor em reais por extenso, em português do Brasil, como em cheques e contratos.",
+          "",
+          "Por exemplo, `1523.45` vira `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
           "",
           "- A função trunca `value` (não arredonda) para 2 casas decimais.",
           "- Singular e plural concordam (\"um real\", \"um centavo\", \"zero reais\"). A partir de milhões, o texto usa \"de reais\" (\"um milhão de reais\").",

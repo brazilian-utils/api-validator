@@ -7,7 +7,7 @@ export function Disclosure({ id, title, children }: { id?: string; title: ReactN
   return (
     <details id={id} className="group not-prose border-t last:border-b [&[open]>summary>svg]:rotate-90">
       <summary className="flex cursor-pointer list-none items-center gap-2 py-3 text-sm font-medium select-none hover:text-fd-primary [&::-webkit-details-marker]:hidden">
-        <ChevronRight aria-hidden className="size-4 shrink-0 text-fd-muted-foreground transition-transform" />
+        <ChevronRight aria-hidden className="size-4 shrink-0 text-fd-muted-foreground transition-transform motion-reduce:transition-none" />
         {title}
       </summary>
       <div className="pb-5 ps-6">{children}</div>

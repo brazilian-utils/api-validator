@@ -1,9 +1,9 @@
 ---
-title: Escreva uma spec
+title: Mude o contrato
 description: Adicione ou mude uma função no contrato compartilhado. Todas as páginas deste site e todas as bibliotecas seguem o contrato.
 ---
 
-A spec de cada utilitário é o contrato no [api-validator](https://github.com/brazilian-utils/api-validator). O contrato tem uma pasta por domínio, com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra na main, cada biblioteca que não tem a função nova recebe uma issue.
+O contrato no [api-validator](https://github.com/brazilian-utils/api-validator) define cada utilitário: uma pasta por utilitário (o contrato chama de domínio), com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra na main, cada biblioteca que não tem a função nova recebe uma issue.
 
 ## Arquivos de um domínio
 
@@ -31,7 +31,7 @@ contract/
   "functions": {
     "isValid": {
       "level": "core",
-      "summary": "Whether the value is a valid CPF",
+      "summary": { "en": "Checks whether a CPF is valid.", "pt-BR": "Verifica se um CPF é válido." },
       "params": [{ "name": "value", "type": "string" }],
       "returns": "boolean",
       "tests": [
@@ -61,9 +61,9 @@ Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar
 
 3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run api-validator fmt` corrige o formato.
 
-4. Rode `npm run check -- --tests` para ver em quais bibliotecas os casos novos já passam.
+4. Rode `npm run api-validator sync` e depois `npm run check -- --tests` para ver em quais bibliotecas os casos novos já passam.
 
-5. Abra o pull request. O pipeline adiciona ao pull request o changelog do contrato e a lista de issues que vai abrir. Depois do merge, cada biblioteca sem a função recebe uma issue `implement`, e a função aparece neste site.
+5. Abra o pull request. O pipeline adiciona ao pull request o changelog do contrato e a lista de issues que vai abrir. Depois do merge, cada biblioteca sem a função recebe uma issue com o título `Implement <função>`, e a função aparece neste site.
 
 </Steps>
 
@@ -73,4 +73,4 @@ O texto explica a regra. Os casos de teste decidem o comportamento, e as bibliot
 
 ## Mude um comportamento
 
-Mudar um valor esperado muda todas as bibliotecas. No pull request, dê a fonte oficial da mudança e as bibliotecas que ela afeta. Depois do merge, cada biblioteca que falha nos casos alterados recebe uma issue `fix`.
+Mudar um valor esperado muda todas as bibliotecas. No pull request, dê a fonte oficial da mudança e as bibliotecas que ela afeta. Depois do merge, cada biblioteca que falha nos casos alterados recebe uma issue com o título `Fix <função>`.

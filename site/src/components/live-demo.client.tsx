@@ -11,7 +11,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const TOKENS = ['background', 'foreground', 'card', 'muted-foreground', 'border', 'primary', 'primary-foreground', 'ring']
   .map((t) => `--color-fd-${t}`)
-  .concat('--color-fail', '--color-ok', '--font-geist-sans', '--font-geist-mono', '--font-sans', '--font-mono');
+  .concat('--color-fd-border-strong', '--color-fail', '--color-ok', '--font-geist-sans', '--font-geist-mono', '--font-sans', '--font-mono');
 
 // Addressed by element, as the demos carry no classes; later in the cascade than the demo's own.
 const CSS = `
@@ -25,11 +25,11 @@ body {
 label { font-weight: 500; font-size: 13px; color: var(--color-fd-foreground); }
 input, select {
   font: 15px/1.4 var(--font-mono); padding: 7px 10px; color: var(--color-fd-foreground);
-  background: var(--color-fd-background); border: 1px solid var(--color-fd-border); border-radius: 6px;
-  transition: border-color .15s;
+  background: var(--color-fd-background); border: 1px solid var(--color-fd-border-strong); border-radius: 6px;
+  transition: border-color .15s ease;
 }
 select { font-family: var(--font-sans); font-size: 14px; }
-input::placeholder { color: var(--color-fd-muted-foreground); opacity: .7; }
+input::placeholder { color: var(--color-fd-muted-foreground); }
 input:focus-visible, select:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 2px; }
 input:disabled, select:disabled { opacity: .55; }
 input[aria-invalid="true"] { border-color: var(--color-fail); }
@@ -38,7 +38,7 @@ input[aria-invalid="true"] + p, p[role="alert"]:not(:empty) { color: var(--color
 output:not(:empty) { color: var(--color-fd-primary); }
 button {
   font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 0; border-radius: 6px; cursor: pointer;
-  color: var(--color-fd-primary-foreground); background: var(--color-fd-primary); transition: opacity .15s;
+  color: var(--color-fd-primary-foreground); background: var(--color-fd-primary); transition: opacity .15s ease;
 }
 button:hover { opacity: .9; }
 button:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 2px; }
