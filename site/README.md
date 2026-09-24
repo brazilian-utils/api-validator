@@ -1,7 +1,7 @@
 # O site (Next.js + Fumadocs)
 
 Use esta página para rodar, montar e publicar o site de documentação do Brazilian Utils. O site
-mora no api-validator. As páginas saem do contrato (`../contract`), das bibliotecas
+mora no repositório doc. As páginas saem do contrato (`../contract`), das bibliotecas
 (`../libs/*.json`, bloco `site`), dos arquivos de uso de cada biblioteca e dos resultados da
 última execução do validador. Ninguém escreve aqui à mão o conteúdo de um utilitário. O
 `DESIGN.md` explica o visual.
@@ -79,7 +79,7 @@ gh api repos/actions/checkout/commits/<tag> --jq .sha
                              references/*.pdf
 ../contract/_categories.json grupos do menu
 ../libs/<lib>.json           bloco "site": rótulo, instalação, registry, onde ficam os arquivos de uso
-.generated/status.json       escrito por `api-validator site-data`: situação por lib e função
+.generated/status.json       escrito por `doc site-data`: situação por lib e função
 fixtures/usage/<lib>/        arquivos de uso até cada lib ter docs/usage/ no próprio repo
 scripts/fetch-libs.mjs       clona cada lib no `usage.ref`, roda o `prepare`, lê arquivos de uso, página
                              de referência e guias, e copia os assets das demos para public/lib-assets/<lib>/
@@ -169,7 +169,7 @@ issues), o `site-data` e o build do site. Ele publica `out/` no GitHub Pages qua
 `vars.PUBLISH_SITE == 'true'`. Ele roda a cada merge em `main` (contrato, libs, site), uma vez
 por dia, e quando uma biblioteca manda `repository_dispatch` com `event_type=lib-released` na
 release. `SITE_URL` é a URL pública com o caminho (padrão
-`https://<org>.github.io/api-validator`); o caminho vira o `basePath` do Next. `site-check.yml`
+`https://<org>.github.io/doc`); o caminho vira o `basePath` do Next. `site-check.yml`
 roda em todo PR que toca `contract/`, `libs/` ou `site/`: `npm audit`, `check:i18n --strict`,
 `lint` sem avisos, `typecheck`, o build (com os arquivos de uso e os guias das bibliotecas), a
 verificação de acessibilidade (`npm run a11y`) e a de design (`npm run design`).

@@ -72,7 +72,7 @@ export const ruby: LanguageAdapter = {
   async extract(ctx): Promise<Extraction> {
     const out = runOrThrow("ruby", [path.join(LANGUAGES_DIR, "ruby", "extract.rb"), ...args(ctx)], {
       cwd: ctx.root,
-      env: { ...env, API_VALIDATOR_YARD: yardDir(ctx) }
+      env: { ...env, DOC_YARD: yardDir(ctx) }
     });
     return parseJsonOutput<Extraction>(out, "ruby extractor");
   },

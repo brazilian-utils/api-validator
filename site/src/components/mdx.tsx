@@ -8,6 +8,7 @@ import { FlatTabs } from '@/components/flat-tabs';
 import { LangIcon } from '@/components/lang-icon';
 import { libNames, loadLibs } from '@/lib/data';
 import { LangIcon as Icon } from '@/components/lang-icon';
+import { ArrowRight, Plus } from 'lucide-react';
 import { Team } from '@/components/team';
 import { InstallOptions } from '@/components/install-options';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
@@ -99,6 +100,25 @@ function LibsContributing({ locale }: { locale: Locale }) {
           </li>
         );
       })}
+      {/* The last card is the language that is not here yet: the same invitation as the team page. */}
+      <li>
+        <Link
+          href={`${p}/contributing/new-language/#${t('contrib.newLangAnchor')}`}
+          className="group flex h-full flex-col gap-1.5 rounded-xl border-2 border-dashed px-4 py-3 transition-colors hover:border-fd-primary"
+        >
+          <span className="inline-flex items-center gap-2 font-semibold">
+            <span className="inline-flex size-4 items-center justify-center rounded-full border border-dashed text-fd-muted-foreground transition-colors group-hover:border-fd-primary group-hover:text-fd-primary">
+              <Plus aria-hidden className="size-3" />
+            </span>
+            {t('contrib.yours')}
+          </span>
+          <span className="text-sm text-fd-muted-foreground text-pretty">{t('contrib.yoursBody')}</span>
+          <span className="mt-auto inline-flex items-center gap-1 pt-1 text-sm font-medium text-fd-primary">
+            {t('contrib.yoursLink')}
+            <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+          </span>
+        </Link>
+      </li>
     </ul>
   );
 }

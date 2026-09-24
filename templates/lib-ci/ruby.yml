@@ -21,6 +21,6 @@ jobs:
         with:
           ruby-version: "3.3"
           bundler-cache: true
-      - uses: brazilian-utils/api-validator@main
+      - uses: brazilian-utils/doc@main
         with:
           library: brazilian-utils-ruby

@@ -5,7 +5,7 @@
  *
  *   { "args": ["40364478081"], "returns": true, "note": "…" }
  *
- * `api-validator fmt` rewrites files in this form; CI runs `fmt --check`.
+ * `doc fmt` rewrites files in this form; CI runs `fmt --check`.
  */
 
 const WIDTH = 120;

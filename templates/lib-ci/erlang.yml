@@ -20,6 +20,6 @@ jobs:
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "27"
-      - uses: brazilian-utils/api-validator@main
+      - uses: brazilian-utils/doc@main
         with:
           library: brazilian-utils-erlang

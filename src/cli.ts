@@ -86,21 +86,21 @@ function listFiles(dir: string, prefix = ""): string[] {
 function casesReadme(lib: LibConfig): string {
   return `# API contract cases
 
-Vendored from [brazilian-utils/api-validator](https://github.com/brazilian-utils/api-validator): the
+Vendored from [brazilian-utils/doc](https://github.com/brazilian-utils/doc): the
 shared test vectors every brazilian-utils implementation runs. **Do not edit** — change the contract
 there; this copy is refreshed by a bot PR, or by hand:
 
-    npx tsx <api-validator>/src/cli.ts export-cases --lib ${lib.name} --path .
+    npx tsx <doc>/src/cli.ts export-cases --lib ${lib.name} --path .
 
 - \`cases/<domain>.json\`: contract functions with their cases (\`cases.schema.json\`).
 - \`cases/index.json\`: the comparison rules the harness implements.
 - \`cases/equality.json\`: self-test for the harness's comparison function.
-- \`skip.json\`: cases this lib does not pass yet, with the reason (generated from the api-validator
+- \`skip.json\`: cases this lib does not pass yet, with the reason (generated from the doc
   baseline and known failures). Fix the lib, and the next refresh drops the entry.
 
 The harness in this repository maps contract function ids to this lib's functions and runs every
 case with the lib's own test command. Keep this directory out of the lib's formatter and linters
-(it is vendored). Harness spec: https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md
+(it is vendored). Harness spec: https://github.com/brazilian-utils/doc/blob/main/docs/harness.md
 `;
 }
 
@@ -167,7 +167,7 @@ function shouldFail(failOn: FailOn, report: LibReport, diff: BaselineDiff): bool
 
 const program = new Command();
 program
-  .name("api-validator")
+  .name("doc")
   .description("Cross-language API contract validator for the brazilian-utils libraries")
   .showHelpAfterError();
 
@@ -337,7 +337,7 @@ program
     }
     if (results.length > 1) {
       writeFile(path.join(OUTPUT_DIR, "README.md"), `# API conformance\n\n${overviewMarkdown(results.map((r) => r.report))}\n\n${markdown.join("\n\n")}`);
-      console.log(c.dim(`\nReports: ${path.relative(process.cwd(), OUTPUT_DIR)}/{README.md,<lib>.md,<lib>.report.json}; docs site data: api-validator site-data`));
+      console.log(c.dim(`\nReports: ${path.relative(process.cwd(), OUTPUT_DIR)}/{README.md,<lib>.md,<lib>.report.json}; docs site data: doc site-data`));
     } else if (results.length === 1) console.log(c.dim(`\nReport: ${path.relative(process.cwd(), path.join(OUTPUT_DIR, `${results[0].report.library}.md`))}`));
     // A lib that crashed has no report: the site shows it without status, and the run fails.
     if (crashed.length) markdown.push(`## Not checked\n\n${crashed.map((f) => `- **${f.lib.name}**: ${f.error.split("\n")[0]}`).join("\n")}`);
@@ -484,7 +484,7 @@ program
         if (changed.length || removed.length) {
           stale++;
           console.log(`${lib.name}: ${dir}/ is out of date with the contract (${[...changed, ...removed.map((r) => `-${r}`)].slice(0, 8).join(", ")}${changed.length + removed.length > 8 ? ", …" : ""})`);
-          console.log(`  refresh: npx tsx <api-validator>/src/cli.ts export-cases --lib ${lib.name} --path .`);
+          console.log(`  refresh: npx tsx <doc>/src/cli.ts export-cases --lib ${lib.name} --path .`);
         } else console.log(`${lib.name}: ${dir}/ up to date — ${summary}`);
         continue;
       }
@@ -620,18 +620,18 @@ program
         [
           marker(key),
           kind === "implement"
-            ? `\`${fnId}\` is in the [shared contract](https://github.com/brazilian-utils/api-validator) and this lib does not implement it yet.`
+            ? `\`${fnId}\` is in the [shared contract](https://github.com/brazilian-utils/doc) and this lib does not implement it yet.`
             : `Shared cases of \`${fnId}\` fail in this lib.`,
           site ? `Spec, every implementation and results: ${site}/utils/${slugOf(fnId.split(".")[0])}/ · this lib: ${site}/libs/${shortName(lib.name)}/` : "",
           "",
           briefMarkdown(contract.functions.get(fnId)!, mine, adapter, others, reference),
-          "Add the function to the harness registry; its cases then run with this repo's own tests. This issue closes automatically once the api-validator run sees it done.",
+          "Add the function to the harness registry; its cases then run with this repo's own tests. This issue closes automatically once the doc run sees it done.",
           "",
           kind === "implement" && lib.site
-            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`api-validator usage --lib ${shortName(lib.name)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/api-validator/blob/main/site/content/docs/contributing/usage-files.mdx"}`
+            ? `Then document it for the docs site: a \`## ${contract.functions.get(fnId)!.operation}\` section in \`${lib.site.usage.path}/${slugOf(fnId.split(".")[0])}.md\` with a short example (\`doc usage --lib ${shortName(lib.name)} --path . --scaffold\` writes one from the cases the lib passes). Format: ${site ? `${site}/contributing/usage-files/` : "https://github.com/brazilian-utils/doc/blob/main/site/content/docs/contributing/usage-files.mdx"}`
             : "",
           "",
-          "_Maintained by [api-validator](https://github.com/brazilian-utils/api-validator): opened, refreshed and closed automatically._"
+          "_Maintained by [doc](https://github.com/brazilian-utils/doc): opened, refreshed and closed automatically._"
         ].join("\n");
       const wanted = wantedIssues(contract, mine.report, scope, opts.backfill);
       const slug = lib.repo ? repoSlug(lib.repo) : undefined;
@@ -662,7 +662,7 @@ program
         const reason = seen.has(i.key) ? `duplicate of an older open issue (${i.key}).` : closeReason(i.key, contract, mine.report);
         seen.add(i.key);
         if (reason) {
-          gh(["issue", "close", String(i.number), "-R", slug, "--comment", `Closed by api-validator: ${reason}`]);
+          gh(["issue", "close", String(i.number), "-R", slug, "--comment", `Closed by doc: ${reason}`]);
           closed++;
           continue;
         }
@@ -837,7 +837,7 @@ program
       writeFile(
         file,
         formatJson({
-          $comment: `Test proposals mined by api-validator diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${slugOf(domain)}/contract.json under the function's tests, delete this file.`,
+          $comment: `Test proposals mined by doc diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${slugOf(domain)}/contract.json under the function's tests, delete this file.`,
           functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
         })
       );

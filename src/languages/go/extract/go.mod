@@ -1,4 +1,4 @@
-module github.com/brazilian-utils/api-validator/go-extract
+module github.com/brazilian-utils/doc/go-extract
 
 go 1.26.0
 

@@ -4,7 +4,7 @@
  *   implement:<fn>  the contract gained <fn> (a merged contract PR) and the lib does not have it
  *   fix:<fn>        new or changed cases of <fn> (a bug-fix vector) that the lib fails
  *
- * Planning is pure (this file); `api-validator issues --apply` executes the plan with `gh`.
+ * Planning is pure (this file); `doc issues --apply` executes the plan with `gh`.
  * Issues are found again by a hidden marker in their body, so every run is idempotent: it
  * refreshes the body of open ones, opens what is missing, and closes what the lib has done.
  */

@@ -13,7 +13,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 const PORT = 4398;
-const BASE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/api-validator').pathname.replace(/\/$/, '');
+const BASE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/doc').pathname.replace(/\/$/, '');
 const PAGES = [
   '/', '/pt-br/', '/getting-started/', '/utils/cpf/', '/utils/license-plate/', '/pt-br/utils/cnpj/',
   '/libs/javascript/', '/libs/go/', '/reference/parity/', '/contributing/specs/', '/contributing/usage-files/', '/about/faq/', '/about/team/', '/does-not-exist/',

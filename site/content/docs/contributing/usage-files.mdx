@@ -3,7 +3,7 @@ title: Usage files
 description: How a library shows its examples on this site. Plain usage files, an existing reference page, and guides with live demos.
 ---
 
-Each utility page shows the spec, the signature and the test cases from the contract in [api-validator](https://github.com/brazilian-utils/api-validator). The code examples in the tabs come from the libraries. Each library writes its own examples in its own repository. Whoever changes the API updates the examples in the same pull request. This site only reads them.
+Each utility page shows the spec, the signature and the test cases from the contract in [doc](https://github.com/brazilian-utils/doc). The code examples in the tabs come from the libraries. Each library writes its own examples in its own repository. Whoever changes the API updates the examples in the same pull request. This site only reads them.
 
 A library can publish its examples in three ways. It can combine them:
 
@@ -48,7 +48,7 @@ format_cpf('82178537464')  # '821.785.374-64'
 
 Rules:
 
-- **The heading is the function name**: `isValid`, `format`, `parse`, `generate`, `getInfo`. The site also accepts `get-info`, the default title (`Validate`) and the old name `validate`. `api-validator usage` reports a heading that matches no function, and the build skips it.
+- **The heading is the function name**: `isValid`, `format`, `parse`, `generate`, `getInfo`. The site also accepts `get-info`, the default title (`Validate`) and the old name `validate`. `doc usage` reports a heading that matches no function, and the build skips it.
 - **Each section shows the call.** Show the import, the call and the result. One line of text can help, for example "This function calls ViaCEP". Do not explain the rule. The spec on the same page explains it.
 - **The example calls the library's function.** The validator knows the native name of each function. It reports a section that does not use that name.
 - **Write code and comments in English.** For Portuguese text, add `cpf.pt-br.md` next to `cpf.md`. The Portuguese pages use it.
@@ -68,7 +68,7 @@ Many libraries already document all functions on one page, with one heading for 
 
 The site finds each heading that is a function name of the library, such as `### isValidCpf`. It links that heading to the contract function that the validator matched to the name. A section is all the text down to the next heading: prose, options, edge cases and examples. The site skips other headings, such as `## Conventions` or `## CPF`. The text before the first function goes on the library's page, as its **API conventions**.
 
-If a library has both, its usage files win for the functions that they document. `api-validator usage --lib <lib> --materialize` converts a reference page into usage files. Use it to move a library to usage files, or to update the site's offline copy.
+If a library has both, its usage files win for the functions that they document. `doc usage --lib <lib> --materialize` converts a reference page into usage files. Use it to move a library to usage files, or to update the site's offline copy.
 
 ## Guides with live demos
 
@@ -121,19 +121,19 @@ You do not have to write the first examples by hand. The validator knows which f
 
 ```sh
 # in the library repository, after `check --tests` wrote its report
-npx tsx <api-validator>/src/cli.ts check --lib python --path . --tests
-npx tsx <api-validator>/src/cli.ts usage --lib python --path . --scaffold
+npx tsx <doc>/src/cli.ts check --lib python --path . --tests
+npx tsx <doc>/src/cli.ts usage --lib python --path . --scaffold
 ```
 
 The command does not change sections that exist. It adds the new sections at the end of the file. The result in each comment is the value the contract expects, taken from a case the library passes. The examples are correct when the command writes them. You can edit them after that.
 
-Without `--scaffold`, `api-validator usage` shows what is documented, what is missing and what is wrong. With `--strict`, the command fails when something is missing or wrong. A library can use it in its CI.
+Without `--scaffold`, `doc usage` shows what is documented, what is missing and what is wrong. With `--strict`, the command fails when something is missing or wrong. A library can use it in its CI.
 
 ## The version on the site
 
 The site reads the files at `usage.ref`. The default is the library's **latest GitHub release**, so the site matches the package that readers install. A repository without releases uses its default branch. If the library's own documentation follows its main branch, set `"ref": "main"`.
 
-A library without `docs/usage/` uses the copies in api-validator's `site/fixtures/usage/<lib>/`. These copies have the same format, so you can copy them into the library as they are.
+A library without `docs/usage/` uses the copies in the doc repository's `site/fixtures/usage/<lib>/`. These copies have the same format, so you can copy them into the library as they are.
 
 ## Update the site on each release
 
@@ -142,9 +142,9 @@ Add this step to the library's release workflow. The site then builds again with
 ```yaml
 - name: Notify the docs site
   if: success()
-  run: gh api repos/brazilian-utils/api-validator/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
+  run: gh api repos/brazilian-utils/doc/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
   env:
-    GH_TOKEN: ${{ secrets.API_VALIDATOR_DISPATCH_TOKEN }}
+    GH_TOKEN: ${{ secrets.DOC_DISPATCH_TOKEN }}
 ```
 
 Without this step, the site builds again every day and after each change to the contract.
@@ -153,7 +153,7 @@ Without this step, the site builds again every day and after each change to the 
 
 <Steps>
 
-1. Copy `site/fixtures/usage/<lib>/` from api-validator to `docs/usage/` in the library, or run the command in [Generate the first examples](#generate-the-first-examples).
+1. Copy `site/fixtures/usage/<lib>/` from the doc repository to `docs/usage/` in the library, or run the command in [Generate the first examples](#generate-the-first-examples).
 
 2. Read the examples and add text where it helps.
 

@@ -4,7 +4,7 @@ import { createMDX } from 'fumadocs-mdx/next';
 // SITE_URL is the public (canonical) URL, path included; its path becomes the base path. Vercel
 // serves every deployment at the root of its own domain, so there the base path is empty; the
 // canonical links still point at SITE_URL.
-const base = process.env.VERCEL ? '' : new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/api-validator').pathname.replace(/\/$/, '');
+const base = process.env.VERCEL ? '' : new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/doc').pathname.replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
 const config = {

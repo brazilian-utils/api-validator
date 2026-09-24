@@ -83,7 +83,7 @@ export function goLiteral(t: TypeNode, value: unknown, alias: string, self: stri
 
 /**
  * Body of a `func() (any, error)` calling `symbol` with `args` (JSON values), mapping its
- * results like the api-validator does: `(T, error)` err -> error, `(T, bool)` false -> nil.
+ * results like the doc does: `(T, error)` err -> error, `(T, bool)` false -> nil.
  * `literal` renders one argument (default: the typed Go literal of the JSON value).
  */
 function callBody(

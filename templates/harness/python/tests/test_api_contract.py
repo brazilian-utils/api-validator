@@ -1,7 +1,7 @@
 """Runs the brazilian-utils API contract suite vendored in ``api-contract/``.
 
 The suite (JSON test vectors shared by every brazilian-utils implementation)
-is maintained in https://github.com/brazilian-utils/api-validator; never edit
+is maintained in https://github.com/brazilian-utils/doc; never edit
 the copy here. This file only says which brutils function implements each
 contract function (``REGISTRY``) and how results are compared.
 

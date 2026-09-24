@@ -13,7 +13,7 @@ to fix.
 
 ```
                     ┌──────────────────────────────────────────────┐
-                    │ api-validator (this repo)                    │
+                    │ doc (this repo)                    │
                     │  contract/*/contract.json = names, in/out    │
                     │                     + shared test cases      │
                     └───────┬───────────────────────────▲──────────┘
@@ -45,7 +45,7 @@ to fix.
 
 1. **Contract PR** (this repo): add the function to `contract/<domain>/contract.json` with its
    signature and test cases. If other libraries already have something similar, run
-   `api-validator diff --fn '<domain>.*'` to see how they behave today.
+   `doc diff --fn '<domain>.*'` to see how they behave today.
 2. The Conformance run of the PR shows which libraries have the function (usually none yet).
    It also **lists the issues that the merge will open**. Nothing breaks: missing functions
    are TODOs, not failures.
@@ -57,7 +57,7 @@ to fix.
    brief. The shared tests are the objective acceptance criterion, so the agent does not need
    to "understand" the other codebase. The CI of the library (the Action) shows that it
    passes.
-5. Run `api-validator baseline` in this repo to lock it in. After that, if any library breaks
+5. Run `doc baseline` in this repo to lock it in. After that, if any library breaks
    the function, the CI of that library fails. The next nightly updates `api-contract/` in
    each library (bot PR), and the harness runs the new cases. The run that sees the function
    implemented **closes the issue of the library** with a comment that says so.
@@ -181,7 +181,7 @@ it.
 - **Parity matrix**: utility × library.
 
 The site computes everything from the contract, the usage files of the libraries and the
-latest run. `api-validator site-data` writes `site/.generated/status.json`, which scripts can
+latest run. `doc site-data` writes `site/.generated/status.json`, which scripts can
 also read.
 
 ## Rules that make it work
@@ -205,19 +205,19 @@ also read.
 |---|---|
 | Library maintainer | Works from the `api-contract` issues (one per function) and the status page of the library. The CI of the library (Action) shows progress in the job summary |
 | Contract maintainer | Reviews contract PRs. Runs `diff` for new domains. Decides behavior questions |
-| Anyone | Runs `api-validator brief <fn> --lib <lib>` before porting something |
+| Anyone | Runs `doc brief <fn> --lib <lib>` before porting something |
 | Nightly job | Syncs all libraries, runs `check --tests` + `diff`, builds and publishes the docs site, updates issues, opens PRs that update the suite |
-| New machine / new contributor | Runs `api-validator doctor`, which lists every toolchain that the configured libraries need and what is missing |
+| New machine / new contributor | Runs `doc doctor`, which lists every toolchain that the configured libraries need and what is missing |
 
 ## Use a coding agent for the ports
 
 The brief contains all that the agent needs: expected name, signature, test cases, reference
 source. Use this loop for each library:
 
-1. Give the agent one `api-contract` issue (or `api-validator brief <fn> --lib <lib>`).
+1. Give the agent one `api-contract` issue (or `doc brief <fn> --lib <lib>`).
 2. Tell it to implement the function in the idiom of the language and to add the cases to the
    library's own test suite.
-3. Tell it to run `api-validator check --lib <lib> --path . --tests --only '<fn>'` until the
+3. Tell it to run `doc check --lib <lib> --path . --tests --only '<fn>'` until the
    result is ok.
 4. Review the result like any PR. The shared tests guarantee that the behavior matches, not
    the memory of the reviewer about the other six codebases.

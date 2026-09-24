@@ -20,6 +20,6 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "8.0.x"
-      - uses: brazilian-utils/api-validator@main
+      - uses: brazilian-utils/doc@main
         with:
           library: brazilian-utils-dotnet

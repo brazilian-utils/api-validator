@@ -3,7 +3,7 @@ title: How the pipeline works
 description: What runs on a pull request, on a merge, every night and on a release. What each run writes, the secrets it needs and what to do when it fails.
 ---
 
-The [Brazilian Utils](https://github.com/brazilian-utils) libraries follow one contract in [api-validator](https://github.com/brazilian-utils/api-validator). Three workflows in that repository keep the contract, the libraries and this site in step:
+The [Brazilian Utils](https://github.com/brazilian-utils) libraries follow one contract in [doc](https://github.com/brazilian-utils/doc). Three workflows in that repository keep the contract, the libraries and this site in step:
 
 | Workflow | File | What it does |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ The Conformance workflow runs every day at 09:00 UTC. It does what a merge run d
 
 ## When a library releases
 
-A library can tell api-validator about a release. Its release workflow sends a `repository_dispatch` event of type `lib-released`. The [usage files](/contributing/usage-files/#update-the-site-on-each-release) page has the step to copy. This event starts the same run as the nightly. The site then shows the usage files of the new release at once.
+A library can tell the doc repository about a release. Its release workflow sends a `repository_dispatch` event of type `lib-released`. The [usage files](/contributing/usage-files/#update-the-site-on-each-release) page has the step to copy. This event starts the same run as the nightly. The site then shows the usage files of the new release at once.
 
 Nightly runs and release runs share one concurrency group. They run one at a time. A newer run that waits replaces an older run that waits.
 
@@ -85,7 +85,7 @@ The first merge that brings the contract into main opens no issues, on purpose. 
 
 Each library copies `templates/lib-ci/<language>.yml` to `.github/workflows/api-contract.yml`. This workflow runs on pushes to main or master and on every pull request.
 
-It runs the api-validator Action, which checks the library against the contract. The check fails only on a regression or on public API that is not in the contract. The job summary lists what is still missing.
+It runs the doc Action, which checks the library against the contract. The check fails only on a regression or on public API that is not in the contract. The job summary lists what is still missing.
 
 Then the Action runs `export-cases --check`. When `api-contract/` is behind the contract, the Action warns. With `cases: check` it fails. To fix it, merge the `api-contract/cases` PR that the bot opened.
 
@@ -114,10 +114,10 @@ The publish job deploys to GitHub Pages. It has its own concurrency group, `gith
 
 | Name | Kind | Where | What it does |
 | --- | --- | --- | --- |
-| `LIBS_TOKEN` | secret | api-validator | A fine-grained token or a GitHub App, with write access to Issues, Contents and Pull requests on the library repositories. Never give it the Workflows permission. It turns on the issues and the suite PRs. |
-| `PUBLISH_SITE` | variable | api-validator | `true` turns on the deploys to GitHub Pages from main. The Pages source must be GitHub Actions. |
-| `SITE_URL` | variable | api-validator | The public address of the site, with its path. Set it for a custom domain. |
-| `API_VALIDATOR_DISPATCH_TOKEN` | secret | each library | A token that can send `repository_dispatch` to api-validator (Contents: write). Without it, a release reaches the site at the next nightly run. |
+| `LIBS_TOKEN` | secret | doc | A fine-grained token or a GitHub App, with write access to Issues, Contents and Pull requests on the library repositories. Never give it the Workflows permission. It turns on the issues and the suite PRs. |
+| `PUBLISH_SITE` | variable | doc | `true` turns on the deploys to GitHub Pages from main. The Pages source must be GitHub Actions. |
+| `SITE_URL` | variable | doc | The public address of the site, with its path. Set it for a custom domain. |
+| `DOC_DISPATCH_TOKEN` | secret | each library | A token that can send `repository_dispatch` to the doc repository (Contents: write). Without it, a release reaches the site at the next nightly run. |
 | `ANTHROPIC_API_KEY` | secret | each library | Optional. Used by `port-with-claude.yml`. |
 
 Vercel needs no variable. These are optional there:

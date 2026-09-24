@@ -6,7 +6,7 @@ folder per domain in `contract/`, named after the domain in kebab-case (`cpf/`,
 `references.md` and, optionally, `references/*.pdf`; `lint` names the domains whose spec is still
 missing. The validator ignores names that start
 with `_` (for example, `contract/_proposals/`). Validate the files with
-`api-validator lint` and format them with `api-validator fmt` (CI runs `fmt --check`). Every
+`doc lint` and format them with `doc fmt` (CI runs `fmt --check`). Every
 file points at `schema/contract.schema.json`, so editors (VS Code, JetBrains…) validate and
 autocomplete it as you type.
 
@@ -111,7 +111,7 @@ these ids, so give hand-written cases a `name`. Values are JSON. `null` stands f
 `None`/`nil`/`undefined`/`Option::None`/`{error, _}`. The comparison of object keys ignores
 case and separators (`zipCode` == `zip_code`), and an absent key equals `null`.
 
-Mined cases (`api-validator diff --propose --unanimous --apply`) have a `note` that says which
+Mined cases (`doc diff --propose --unanimous --apply`) have a `note` that says which
 libraries agreed.
 
 ## Library config (`libs/<name>.json`)

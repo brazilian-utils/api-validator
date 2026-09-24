@@ -67,7 +67,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   });
 
   const steps = [
-    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in the api-validator repository.', 'Cada função, com a assinatura e os casos de teste, é escrita uma vez em JSON no repositório api-validator.')],
+    [L(locale, 'The contract', 'O contrato'), L(locale, 'Each function, its signature and its test cases are written once, in JSON, in the doc repository.', 'Cada função, com a assinatura e os casos de teste, é escrita uma vez em JSON no repositório doc.')],
     [L(locale, 'An issue per gap', 'Uma issue por lacuna'), L(locale, 'A library that lacks a function, or fails a case, gets an issue with the reference code.', 'Uma biblioteca sem a função, ou que falha num caso, recebe uma issue com o código de referência.')],
     [L(locale, 'The same tests', 'Os mesmos testes'), L(locale, 'Every library runs the shared cases in its own test suite, on every change.', 'Cada biblioteca roda os casos compartilhados na própria suíte de testes, a cada mudança.')],
     [L(locale, 'This site', 'Este site'), L(locale, 'Built from the contract and the latest run: what each library has and how to call each function.', 'Gerado a partir do contrato e da última execução: o que cada biblioteca tem e como chamar cada função.')],

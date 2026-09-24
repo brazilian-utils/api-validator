@@ -15,9 +15,9 @@ A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas. A pág
 
 3. **Registre a função no harness (o executor de testes) da biblioteca.** O harness lê a cópia de `api-contract/cases/*.json` na biblioteca e executa todos os casos de todas as funções que conhece, com o próprio comando de teste da biblioteca.
 
-4. **Adicione o exemplo de uso** em `docs/usage/<util>.md`. A página [arquivos de uso](/pt-br/contributing/usage-files/) descreve o formato. `api-validator usage --scaffold` escreve o exemplo a partir dos casos que já passam na biblioteca.
+4. **Adicione o exemplo de uso** em `docs/usage/<util>.md`. A página [arquivos de uso](/pt-br/contributing/usage-files/) descreve o formato. `doc usage --scaffold` escreve o exemplo a partir dos casos que já passam na biblioteca.
 
-5. **Faça a release.** A próxima execução do api-validator fecha a issue. O próximo build deste site mostra a aba nova e a situação nova.
+5. **Faça a release.** A próxima execução do pipeline do doc fecha a issue. O próximo build deste site mostra a aba nova e a situação nova.
 
 </Steps>
 
@@ -27,11 +27,11 @@ A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas. A pág
 
 1. Peça à organização um repositório em `brazilian-utils/<linguagem>`.
 
-2. No api-validator, adicione um adaptador de linguagem e `libs/brazilian-utils-<linguagem>.json`. O adaptador lê a API e roda os testes. O arquivo tem um bloco `site` com o rótulo, o ícone, o comando de instalação e o link do registro. O [docs/adding-a-language.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/adding-a-language.md) mostra cada passo.
+2. No doc, adicione um adaptador de linguagem e `libs/brazilian-utils-<linguagem>.json`. O adaptador lê a API e roda os testes. O arquivo tem um bloco `site` com o rótulo, o ícone, o comando de instalação e o link do registro. O [docs/adding-a-language.md](https://github.com/brazilian-utils/doc/blob/main/docs/adding-a-language.md) mostra cada passo.
 
-3. Comece pelas funções principais. `api-validator issues --backfill core --lib <linguagem> --apply` abre uma issue para cada função principal que falta.
+3. Comece pelas funções principais. `doc issues --backfill core --lib <linguagem> --apply` abre uma issue para cada função principal que falta.
 
-4. Adicione o harness à biblioteca, como o [docs/harness.md](https://github.com/brazilian-utils/api-validator/blob/main/docs/harness.md) mostra. Publique `docs/usage/` desde a primeira release.
+4. Adicione o harness à biblioteca, como o [docs/harness.md](https://github.com/brazilian-utils/doc/blob/main/docs/harness.md) mostra. Publique `docs/usage/` desde a primeira release.
 
 </Steps>
 

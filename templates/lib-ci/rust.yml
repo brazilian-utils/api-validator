@@ -21,6 +21,6 @@ jobs:
       # nightly is only used for rustdoc's JSON output (the precise API extraction)
       - run: rustup toolchain install nightly --profile minimal
       - uses: Swatinem/rust-cache@v2
-      - uses: brazilian-utils/api-validator@main
+      - uses: brazilian-utils/doc@main
         with:
           library: brazilian-utils-rust

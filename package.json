@@ -1,10 +1,10 @@
 {
-  "name": "api-validator",
+  "name": "doc",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "api-validator": "tsx src/cli.ts",
+    "doc": "tsx src/cli.ts",
     "check": "tsx src/cli.ts check",
     "lint": "tsx src/cli.ts lint && tsx src/cli.ts fmt --check",
     "typecheck": "tsc --noEmit",
@@ -23,7 +23,7 @@
     "typescript": "^5.7.3"
   },
   "bin": {
-    "api-validator": "src/cli.ts"
+    "doc": "src/cli.ts"
   },
   "engines": {
     "node": ">=20"

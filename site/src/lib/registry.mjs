@@ -2,14 +2,14 @@
 // Used by the pages (src/app), the build scripts (scripts/) and the validator's tests.
 // Plain ESM (no TypeScript) so the scripts run without a build step.
 //
-// Everything is read from the api-validator repository this site lives in:
+// Everything is read from the doc repository this site lives in:
 //   ../contract/<domain>/contract.json  the spec: functions, signatures, cases, summaries, labels
 //   ../contract/<domain>/spec.*.md     optional long-form spec per language (spec.en.md, spec.pt-br.md),
 //                                      references.md and references/*.pdf
 //   (<domain> is the kebab-case domain id: licensePlate -> license-plate)
 //   ../contract/_categories.json       sidebar groups
 //   ../libs/<lib>.json                 the libraries ("site" block: tab label, install line, usage files)
-//   .generated/status.json             written by `api-validator site-data` from the latest check run
+//   .generated/status.json             written by `doc site-data` from the latest check run
 //                                      (implemented / failing / missing per lib and function; optional)
 
 import fs from 'node:fs';
@@ -22,7 +22,7 @@ export { keyOf, slugOf };
 // The site root. Resolved from the working directory (not import.meta.url) because Next bundles
 // this module at build time, where a relative path would point nowhere.
 const ROOT = path.resolve(process.env.DOCS_ROOT || process.cwd());
-const REPO_ROOT = path.resolve(process.env.API_VALIDATOR_ROOT || path.join(ROOT, '..'));
+const REPO_ROOT = path.resolve(process.env.DOC_ROOT || path.join(ROOT, '..'));
 export const CONTRACT_DIR = path.join(REPO_ROOT, 'contract');
 export const LIBS_DIR = path.join(REPO_ROOT, 'libs');
 export const CACHE_DIR = path.join(ROOT, '.cache', 'usage');
@@ -36,8 +36,8 @@ export const FIXTURES_DIR = path.join(ROOT, 'fixtures', 'usage');
 export const DOCS_DIR = path.join(ROOT, 'content', 'docs');
 const STATUS_FILE = path.join(ROOT, '.generated', 'status.json');
 
-/** The api-validator repository (contract, validator, this site). */
-export const REPO_URL = 'https://github.com/brazilian-utils/api-validator';
+/** The doc repository (contract, validator, this site). */
+export const REPO_URL = 'https://github.com/brazilian-utils/doc';
 
 /** Site languages. `en` is the root locale, `pt-BR` lives under /pt-br/. */
 export const LANGS = ['en', 'pt-BR'];
@@ -234,7 +234,7 @@ export const loadUsageManifest = once(() => {
 });
 
 /**
- * Status of every lib from the last api-validator run, or null when the site is built without it.
+ * Status of every lib from the last doc run, or null when the site is built without it.
  * `libs[<id>].functions[<fnId>]` = { status: ok|failing|signature|missing|waived, symbol?, source?,
  * passed, failed, failures: [{ id, expected, actual }] }.
  */

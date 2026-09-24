@@ -13,11 +13,11 @@ is a number, not an opinion.
 | Merge the PR of this repository | maintainers | CI runs typecheck, the tests with the language toolchains, contract lint |
 | Publish the docs site | org admin | Enable GitHub Pages (source: GitHub Actions). Set the repository variable `PUBLISH_SITE=true` (and `SITE_URL` when a custom domain serves the site) |
 | Turn on issue and test sync | org admin | Save a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on every library repo as the secret `LIBS_TOKEN`. Do not give it the `workflows` permission |
-| Optional: release notification | org admin | Save a token that can send `repository_dispatch` to api-validator (`contents: write`) as the secret `API_VALIDATOR_DISPATCH_TOKEN` in each library, and add the step in [usage-files.mdx](../site/content/docs/contributing/usage-files.mdx#update-the-site-on-each-release) to its release workflow. A release then refreshes the site at once, not at the next nightly |
+| Optional: release notification | org admin | Save a token that can send `repository_dispatch` to the doc repository (`contents: write`) as the secret `DOC_DISPATCH_TOKEN` in each library, and add the step in [usage-files.mdx](../site/content/docs/contributing/usage-files.mdx#update-the-site-on-each-release) to its release workflow. A release then refreshes the site at once, not at the next nightly |
 | Add the Action to every library | one PR per library | Copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`. Add the badge to the README |
 | Add usage files to every library | one PR per library | Copy `site/fixtures/usage/<lib>/` (scaffolded from the cases each library passes) to `docs/usage/`. Cut the README down to a link to the site |
-| Add the suite and the harness to every library | one PR per library | `api-validator export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for every library) |
-| Record the divergence baseline | maintainers | Run `api-validator diff --baseline` once. After that, the nightly fails only on *new* ways that libraries disagree |
+| Add the suite and the harness to every library | one PR per library | `doc export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for every library) |
+| Record the divergence baseline | maintainers | Run `doc diff --baseline` once. After that, the nightly fails only on *new* ways that libraries disagree |
 | Optional: agent ports | org admin | Add the secret `ANTHROPIC_API_KEY` in the library repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
 **Done when** every library repo shows these items:
@@ -43,7 +43,7 @@ human review, and the open behavior questions need answers.
 2. Review names: `legalProcess` or `processoJuridico` (decided: every library
    exposes `parse`, with the name and the behavior of JS `parse*`), options objects or positional parameters
    (the contract can declare the positional form and let JS keep options as an extra).
-3. Give every function test cases. `api-validator lint` lists the functions without any. Today,
+3. Give every function test cases. `doc lint` lists the functions without any. Today,
    the validator checks only the name and signature of those functions. Then turn on
    `lint --strict`.
 4. Review `level`. Today, `core` means "≥4 libs had it". Promote what every library must have,
@@ -58,7 +58,7 @@ Each library works from its `api-contract` issues. Run the Conformance workflow 
 `backfill: core` to open one issue per missing core function and per failing case. Do the
 missing core functions and failing cases first, then the signature errors. Briefs make each
 item self-contained, so people and agents can work in parallel. Run
-`api-validator baseline --tests` after each merge to lock in the gains.
+`doc baseline --tests` after each merge to lock in the gains.
 
 **Done when** every library has 100% core coverage (or explicit waivers) and 0 failing cases,
 and the badge is green everywhere.
@@ -71,7 +71,7 @@ and the badge is green everywhere.
   issues opened, updated or closed. When `diff` finds new divergences, they become decisions,
   then cases.
 - **Releases:** tag the contract (`contract-v1.0`, ...) when a set of functions is stable.
-  `api-validator changelog --from contract-v1.0 --to contract-v1.1` writes the release notes
+  `doc changelog --from contract-v1.0 --to contract-v1.1` writes the release notes
   (new functions, signature changes, new and changed cases). Libraries write in their
   changelog which contract version they conform to. A library that wants to adopt contract
   changes on purpose can pin the Action to a tag.

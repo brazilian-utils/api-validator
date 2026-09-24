@@ -20,6 +20,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: brazilian-utils/api-validator@main
+      - uses: brazilian-utils/doc@main
         with:
           library: brazilian-utils-javascript
