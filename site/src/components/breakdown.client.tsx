@@ -1,75 +1,125 @@
 'use client';
-// A short answer ("no Generate", "3 missing") that opens, on hover or click, what is behind it:
-// every function (or library) with its state. Used wherever the site sums up coverage, so a
-// count never stands alone.
-//
-// One popover serves the whole page. The parity matrix alone has a few hundred of these
-// answers, and a popover each would cost a few hundred Radix popovers to hydrate on a phone. So
-// each answer is a plain button that hands its words to the page's one popover (BreakdownHost,
-// mounted once in the provider), and the popover anchors itself to whichever button asked.
+// The page's one popover for its coverage summaries (breakdown.tsx): mounted once in the provider,
+// it listens on the document for the pointer and the keyboard on any summary button, fetches the
+// page's lists (one JSON per page, made at build time) the first time one is asked for, and opens
+// anchored to the button that asked. One popover, not one per summary: the parity matrix alone
+// has a few hundred, and a popover each would be a few hundred Radix popovers to hydrate on a phone.
 import Link from '@/components/link';
 import { Popover, PopoverContent } from 'fumadocs-ui/components/ui/popover';
 import { Anchor as PopoverAnchor, Arrow as PopoverArrow } from '@radix-ui/react-popover';
 import { ArrowRight } from 'lucide-react';
-import { createContext, useContext, useId, useRef, useState, type ReactNode } from 'react';
-import { StatusIcon, type Status } from './status';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
+import type { BreakdownDetail } from '@/lib/breakdown-data';
+import { StatusIcon } from './status';
 
-export interface BreakdownItem {
-  label: string;
-  status: Status;
-  /** One line under the name: what the function does (or a library's summary). */
-  note: string;
-}
+type Lists = Record<string, BreakdownDetail>;
+const lists = new Map<string, Promise<Lists>>();
+const fetchLists = (src: string) => {
+  let p = lists.get(src);
+  if (!p) {
+    p = fetch(src).then((r) => (r.ok ? r.json() : Promise.reject(new Error(r.statusText))));
+    p.catch(() => lists.delete(src));
+    lists.set(src, p);
+  }
+  return p;
+};
 
-interface Data {
-  /** The trigger's own id: the one the popover is open on is drawn as open. */
-  id: string;
-  /** Heading of the list: what the breakdown is about. */
-  title: string;
-  items: BreakdownItem[];
-  href?: string;
-  hrefText?: string;
-}
+const triggerOf = (target: EventTarget | null) => (target instanceof Element ? target.closest<HTMLButtonElement>('button[data-breakdown]') : null);
 
-interface Host {
-  /** The pointer came onto (or left) a trigger: open after a moment, close after a moment. */
-  hover: (el: HTMLElement, data: Data, next: boolean) => void;
-  /** A click, a tap or the keyboard on a trigger: open and keep open, or close what it opened. */
-  click: (el: HTMLElement, data: Data) => void;
-  /** The id of the trigger the popover is open on, if any. */
-  activeId: string | null;
-}
-
-const HostContext = createContext<Host>({ hover: () => {}, click: () => {}, activeId: null });
-
-/** The page's one popover, mounted once above every Breakdown. */
 export function BreakdownHost({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   // Opened by a click (or a tap, or the keyboard): it stays open when the pointer leaves.
   const [pinned, setPinned] = useState(false);
-  // The same, read by the focus handlers, which run after the state has already been cleared.
   const pinnedRef = useRef(false);
   // The trigger the popover anchors to: a plain box, set by the event that opens it, so Radix
   // reads the element and nothing reads it while rendering.
   const [anchorRef] = useState<{ current: HTMLElement | null }>(() => ({ current: null }));
+  const [active, setActive] = useState<HTMLElement | null>(null);
   // Whether the popover is closing because of a click or a tab somewhere else: then focus stays
   // where the reader put it instead of returning to the trigger.
   const interactedOutside = useRef(false);
-  const [data, setData] = useState<Data | null>(null);
+  const [detail, setDetail] = useState<BreakdownDetail | null>(null);
   const titleId = useId();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // What the last event asked for, so a slow fetch cannot open a list the pointer has left.
+  const wanted = useRef<HTMLElement | null>(null);
 
-  const show = (el: HTMLElement, next: Data) => {
-    anchorRef.current = el;
-    setData(next);
-    setOpen(true);
-  };
-  // Hover opens it after a moment and leaving closes it, unless a click pinned it.
-  const hover = (el: HTMLElement, next: Data, entering: boolean) => {
-    clearTimeout(timer.current);
-    if (pinned) return;
-    timer.current = setTimeout(() => (entering ? show(el, next) : setOpen(false)), entering ? 150 : 200);
-  };
+  // Mirrors the host's state and the pinned flag for the document listeners, which are bound once.
+  const state = useRef({ open, pinned });
+  useEffect(() => {
+    state.current = { open, pinned };
+  });
+
+  useEffect(() => {
+    const show = async (el: HTMLButtonElement, pin: boolean) => {
+      wanted.current = el;
+      const src = el.dataset.breakdownSrc;
+      const key = el.dataset.breakdown;
+      if (!src || !key) return;
+      let list: Lists;
+      try {
+        list = await fetchLists(src);
+      } catch {
+        return;
+      }
+      const next = list[key];
+      if (!next || wanted.current !== el) return;
+      anchorRef.current = el;
+      if (pin) pinnedRef.current = true;
+      setDetail(next);
+      setActive(el);
+      setOpen(true);
+      if (pin) setPinned(true);
+    };
+    const onOver = (event: MouseEvent) => {
+      const el = triggerOf(event.target);
+      if (!el || el.contains(event.relatedTarget as Node | null)) return;
+      clearTimeout(timer.current);
+      if (state.current.pinned) return;
+      void fetchLists(el.dataset.breakdownSrc ?? '').catch(() => {});
+      timer.current = setTimeout(() => void show(el, false), 150);
+    };
+    const onOut = (event: MouseEvent) => {
+      const el = triggerOf(event.target);
+      if (!el || el.contains(event.relatedTarget as Node | null)) return;
+      clearTimeout(timer.current);
+      wanted.current = null;
+      if (state.current.pinned) return;
+      timer.current = setTimeout(() => setOpen(false), 200);
+    };
+    const onClick = (event: MouseEvent) => {
+      const el = triggerOf(event.target);
+      if (!el) return;
+      event.preventDefault();
+      clearTimeout(timer.current);
+      // A click after hovering keeps open what the hover showed; a second click closes it.
+      if (state.current.open && state.current.pinned && anchorRef.current === el) {
+        setOpen(false);
+        setPinned(false);
+      } else void show(el, true);
+    };
+    document.addEventListener('mouseover', onOver);
+    document.addEventListener('mouseout', onOut);
+    document.addEventListener('click', onClick);
+    return () => {
+      document.removeEventListener('mouseover', onOver);
+      document.removeEventListener('mouseout', onOut);
+      document.removeEventListener('click', onClick);
+      clearTimeout(timer.current);
+    };
+  }, [anchorRef]);
+
+  // The button the popover is open on says so (its color, and aria-expanded for a screen reader).
+  useEffect(() => {
+    if (!active) return;
+    active.setAttribute('aria-expanded', open ? 'true' : 'false');
+    active.setAttribute('data-state', open ? 'open' : 'closed');
+    return () => {
+      active.setAttribute('aria-expanded', 'false');
+      active.setAttribute('data-state', 'closed');
+    };
+  }, [active, open]);
+
   const stay = (entering: boolean) => {
     clearTimeout(timer.current);
     if (pinned || entering) return;
@@ -79,23 +129,13 @@ export function BreakdownHost({ children }: { children: ReactNode }) {
     setOpen(next);
     if (!next) setPinned(false);
   };
-  // A click after hovering keeps open what the hover showed; a second click closes it.
-  const click = (el: HTMLElement, next: Data) => {
-    clearTimeout(timer.current);
-    if (open && pinned && anchorRef.current === el) change(false);
-    else {
-      pinnedRef.current = true;
-      show(el, next);
-      setPinned(true);
-    }
-  };
 
   return (
-    <HostContext.Provider value={{ hover, click, activeId: open && data ? data.id : null }}>
+    <>
       {children}
       <Popover open={open} onOpenChange={change}>
         <PopoverAnchor virtualRef={anchorRef} />
-        {data && (
+        {detail && (
           <PopoverContent
             align="start"
             aria-labelledby={titleId}
@@ -125,10 +165,10 @@ export function BreakdownHost({ children }: { children: ReactNode }) {
             className="w-72 overflow-visible bg-fd-popover p-3 text-sm backdrop-blur-none outline-none"
           >
             <p id={titleId} className="mb-2 font-medium">
-              {data.title}
+              {detail.title}
             </p>
             <ul className="flex flex-col gap-1.5">
-              {data.items.map((item) => (
+              {detail.items.map((item) => (
                 <li key={item.label} className="flex items-start gap-2">
                   <StatusIcon status={item.status} className="mt-0.5 size-4 shrink-0" />
                   <span>
@@ -141,9 +181,9 @@ export function BreakdownHost({ children }: { children: ReactNode }) {
                 </li>
               ))}
             </ul>
-            {data.href && (
-              <Link href={data.href} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-fd-primary hover:underline">
-                {data.hrefText} <ArrowRight aria-hidden className="size-3" />
+            {detail.href && (
+              <Link href={detail.href} className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-fd-primary hover:underline">
+                {detail.hrefText} <ArrowRight aria-hidden className="size-3" />
               </Link>
             )}
             {/* Points at the words it describes: a corner of the popover's own paper, turned 45°, so
@@ -159,51 +199,6 @@ export function BreakdownHost({ children }: { children: ReactNode }) {
           </PopoverContent>
         )}
       </Popover>
-    </HostContext.Provider>
-  );
-}
-
-export function Breakdown({
-  children,
-  title,
-  items,
-  label,
-  href,
-  hrefText,
-  className = '',
-}: {
-  children: ReactNode;
-  /** Heading of the list: what the breakdown is about. */
-  title: string;
-  items: BreakdownItem[];
-  /** The trigger's accessible name, when its visible words alone do not say what it sums up. */
-  label?: string;
-  href?: string;
-  hrefText?: string;
-  className?: string;
-}) {
-  const host = useContext(HostContext);
-  const id = useId();
-  const ref = useRef<HTMLButtonElement>(null);
-  const data: Data = { id, title, items, href, hrefText };
-  const open = host.activeId === id;
-  return (
-    <button
-      ref={ref}
-      type="button"
-      aria-label={label}
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      data-state={open ? 'open' : 'closed'}
-      onClick={(event) => {
-        event.preventDefault();
-        if (ref.current) host.click(ref.current, data);
-      }}
-      onMouseEnter={() => ref.current && host.hover(ref.current, data, true)}
-      onMouseLeave={() => ref.current && host.hover(ref.current, data, false)}
-      className={`inline-flex min-h-6 cursor-pointer self-start items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
-    >
-      {children}
-    </button>
+    </>
   );
 }

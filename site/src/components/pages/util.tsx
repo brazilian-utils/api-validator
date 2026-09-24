@@ -10,9 +10,10 @@ import { lastCommit } from '@/lib/git';
 import { Note } from '@/components/note';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { ArrowRight, ExternalLink, FileJson, Pencil } from 'lucide-react';
-import { Breakdown } from '@/components/breakdown.client';
+import { Breakdown } from '@/components/breakdown';
+import { breakdownUrl } from '@/lib/breakdown-data';
 import { functionBreakdown } from '@/lib/breakdown';
-import { CONTRACT_DIR, REPO_URL, contractPath, specName, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, testIds } from '@/lib/data';
+import { CONTRACT_DIR, REPO_URL, contractPath, specName, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
 import { demote, linkFindings, slug, splitPending } from '@/lib/prose';
@@ -22,7 +23,10 @@ import { StatusIcon, type Status } from '@/components/status';
 import { TryIt } from '@/components/try-it';
 import { FlatTabs } from '@/components/flat-tabs';
 import { Disclosure } from '@/components/disclosure';
+import { LazyCases } from '@/components/lazy-cases.client';
 import { DocsPager } from '@/components/docs-pager.client';
+
+const base = process.env.NEXT_PUBLIC_BASE ?? '';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
@@ -89,12 +93,7 @@ export async function UtilPage({ locale, id }: { locale: Locale; id: string }) {
           const since = sinceOf(lib.id, spec.id);
           return (
             <li key={lib.id}>
-              <Breakdown
-                title={t('cov.inLib', { util: pick(spec.title, locale), lib: lib.label })}
-                items={b.items}
-                href={`${p}/libs/${lib.id}/`}
-                hrefText={t('cov.openLib', { lib: lib.label })}
-              >
+              <Breakdown src={breakdownUrl(base, `util.${spec.id}`, locale)} id={lib.id}>
                 <LangIcon lib={lib.id} className="size-4" />
                 <span className="font-medium">{lib.label}</span>
                 <StatusIcon status={b.state} className="size-3.5" />
@@ -297,9 +296,23 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
 
       <div className="my-6">
         <TryIt op={op} locale={locale} />
-        <Disclosure title={<span>{t('cases.summary', { count: op.tests.length })} <code className="font-normal">{op.fnId}</code></span>} id={`${anchor}-cases`}>
-          <Cases op={op} locale={locale} libs={libs} status={status} />
-        </Disclosure>
+        {op.tests?.length ? (
+          <LazyCases
+            id={`${anchor}-cases`}
+            url={`${base}/api/cases/${locale === 'en' ? 'en' : 'pt-br'}/${spec.id}/${op.id}.json`}
+            title={<span>{t('cases.summary', { count: op.tests.length })} <code className="font-normal">{op.fnId}</code></span>}
+            text={{ loading: t('cases.loading'), failed: t('cases.failed'), retry: t('guide.retry') }}
+            fallback={
+              <a href={`${base}/cases/${spec.domain}.json`} className="text-sm underline underline-offset-4">
+                {t('cases.json')}
+              </a>
+            }
+          />
+        ) : (
+          <Disclosure title={<span>{t('cases.summary', { count: 0 })} <code className="font-normal">{op.fnId}</code></span>} id={`${anchor}-cases`}>
+            <p className="text-sm text-fd-muted-foreground">{t('testcases.none')}</p>
+          </Disclosure>
+        )}
       </div>
     </section>
   );
@@ -308,55 +321,4 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
 function showParams(op: any) {
   const params: any[] = op.params ?? [];
   return params.length > 1 || params.some((x) => x.optional || x.description || x.default !== undefined || x.enum || x.allowed);
-}
-
-function Cases({ op, locale, libs, status }: any) {
-  const t = translator(locale);
-  if (!op.tests?.length) return <p className="text-sm text-fd-muted-foreground">{t('testcases.none')}</p>;
-  const ids = testIds(op.fnId, op.tests);
-  const withStatus = libs.filter((lib: any) => status?.libs?.[lib.id]);
-  const result = (libId: string, caseId: string): [Status, string] => {
-    const f = status?.libs?.[libId]?.functions?.[op.fnId];
-    if (!f || f.status === 'missing' || f.status === 'waived') return [f?.status === 'waived' ? 'waived' : 'missing', t(`status.${f?.status === 'waived' ? 'waived' : 'missing'}`)];
-    const r = f.results?.[caseId];
-    if (!r) return ['waived', t('cases.notRun')];
-    return [r === 'pass' ? 'ok' : r === 'skip' ? 'waived' : 'failing', t(`cases.${r}`)];
-  };
-  const show = (v: unknown) => JSON.stringify(v ?? []).slice(1, -1);
-  return (
-    <div className="relative overflow-x-auto">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="border-b">
-            <th scope="col" className="px-2 py-1.5 text-start font-medium">{t('testcases.input')}</th>
-            <th scope="col" className="px-2 py-1.5 text-start font-medium">{t('testcases.expected')}</th>
-            {withStatus.map((lib: any) => (
-              <th key={lib.id} scope="col" className="w-8 px-2 py-1.5 text-center font-medium" title={lib.label}>
-                <span role="img" aria-label={lib.label} className="inline-flex justify-center"><LangIcon lib={lib.id} /></span>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {op.tests.map((test: any, i: number) => (
-            <tr key={ids[i]} className="border-b">
-              <td className="px-2 py-1.5 text-start align-top">
-                <code className="whitespace-nowrap">{show(test.args)}</code>
-                {test.note && <div className="mt-1 min-w-40 text-xs text-fd-muted-foreground">{test.note}</div>}
-              </td>
-              <td className="px-2 py-1.5 text-start align-top"><code className="whitespace-nowrap">{expectation(test)}</code></td>
-              {withStatus.map((lib: any) => {
-                const [s, label] = result(lib.id, ids[i]);
-                return (
-                  <td key={lib.id} className="w-8 px-2 py-1.5 text-center align-top">
-                    <span className="inline-flex justify-center" title={label}><StatusIcon status={s} label={label} /></span>
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
 }

@@ -7,7 +7,8 @@ import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { FlatTabs } from '@/components/flat-tabs';
 import { ArrowRight } from 'lucide-react';
 import { CATEGORIES, libNames, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
-import { Breakdown } from '@/components/breakdown.client';
+import { Breakdown } from '@/components/breakdown';
+import { breakdownUrl } from '@/lib/breakdown-data';
 import { libraryBreakdown } from '@/lib/breakdown';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions, headerProps } from '@/lib/layout';
@@ -43,6 +44,7 @@ export function HomePage({ locale }: { locale: Locale }) {
   const libs = loadLibs();
   // The libraries by name, from libs/: the sentences follow the data, and never count them.
   const libList = libNames(locale);
+  const lists = breakdownUrl(process.env.NEXT_PUBLIC_BASE ?? '', 'home', locale);
   const status = loadStatus();
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
@@ -207,14 +209,7 @@ export function HomePage({ locale }: { locale: Locale }) {
                           <Link href={`${p}/utils/${s.id}/`} className="-my-0.5 inline-block py-0.5 transition-colors hover:text-fd-primary">
                             {util}
                           </Link>
-                          <Breakdown
-                            title={t('cov.inLibs', { util })}
-                            items={b.items}
-                            label={`${util} ${b.short}`}
-                            href={`${p}/utils/${s.id}/`}
-                            hrefText={t('cov.openUtil', { util })}
-                            className="text-xs text-fd-muted-foreground"
-                          >
+                          <Breakdown src={lists} id={s.id} label={`${util} ${b.short}`} className="text-xs text-fd-muted-foreground">
                             {b.short}
                           </Breakdown>
                         </li>

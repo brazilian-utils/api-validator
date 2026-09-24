@@ -1,9 +1,15 @@
 // What a coverage summary says in words ("no Generate", "3 missing", "not in Go and .NET") and the
 // list behind it, for <Breakdown>: the site never shows a bare "4/5".
-import type { BreakdownItem } from '@/components/breakdown.client';
 import type { Status } from '@/components/status';
 import { coverage, isImplemented, loadLibs } from './data';
 import { type Locale, pick, translator } from './i18n';
+
+export interface BreakdownItem {
+  label: string;
+  status: Status;
+  /** One line under the name: what the function does (or a library's summary). */
+  note: string;
+}
 
 const list = (locale: Locale, xs: string[]) => new Intl.ListFormat(locale, { type: 'conjunction' }).format(xs);
 

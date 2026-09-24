@@ -6,10 +6,12 @@ import { CATEGORIES, loadLibs, loadSpecs, loadStatus, loadUsageManifest } from '
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
-import { Breakdown } from '@/components/breakdown.client';
+import { Breakdown } from '@/components/breakdown';
+import { breakdownUrl } from '@/lib/breakdown-data';
 import { functionBreakdown } from '@/lib/breakdown';
 import { DocsPager } from '@/components/docs-pager.client';
 
+const base = process.env.NEXT_PUBLIC_BASE ?? '';
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const parityText = (locale: Locale) => ({
   title: L(locale, 'Parity matrix', 'Matriz de paridade'),
@@ -20,6 +22,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
   const t = translator(locale);
   const p = prefixOf(locale);
   const libs = loadLibs();
+  const lists = breakdownUrl(base, 'parity', locale);
   const specs = loadSpecs();
   const status = loadStatus();
   const manifest = loadUsageManifest();
@@ -90,14 +93,7 @@ export function ParityPage({ locale }: { locale: Locale }) {
                       const util = pick(spec.title, locale);
                       return (
                         <td key={lib.id} className="border-b px-3 py-2">
-                          <Breakdown
-                            title={t('cov.inLib', { util, lib: lib.label })}
-                            items={b.items}
-                            label={`${util}, ${lib.label}: ${b.short}`}
-                            href={`${p}/utils/${spec.id}/`}
-                            hrefText={t('cov.openUtil', { util })}
-                            className="text-xs text-fd-muted-foreground"
-                          >
+                          <Breakdown src={lists} id={`${spec.id}/${lib.id}`} label={`${util}, ${lib.label}: ${b.short}`} className="text-xs text-fd-muted-foreground">
                             <StatusIcon status={b.state} className="size-4" />
                             {b.short}
                           </Breakdown>
