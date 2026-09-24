@@ -105,7 +105,22 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
 
       <DocsBody>
         {!mine ? (
-          <Note type="info">{t('lib.noStatus')}</Note>
+          <>
+            <Note type="info">{t('lib.noStatus')}</Note>
+            {/* A build without a run (a preview, a fresh clone): say what the run adds and where to look meanwhile. */}
+            <p>
+              {locale === 'en'
+                ? `Each night the api-validator run reads the ${lib.label} library's public API, binds it to the shared contract and runs the shared test cases. This page then shows which functions the library implements, which cases fail, and what to do next.`
+                : `Toda noite, a execução do api-validator lê a API pública da biblioteca ${lib.label}, liga cada função ao contrato compartilhado e roda os casos de teste compartilhados. Esta página passa então a mostrar quais funções a biblioteca implementa, quais casos falham e o que fazer em seguida.`}
+            </p>
+            <p>
+              {locale === 'en' ? 'Meanwhile, the ' : 'Enquanto isso, a '}
+              <Link href={`${p}/reference/parity/`}>{locale === 'en' ? 'parity matrix' : 'matriz de paridade'}</Link>
+              {locale === 'en' ? ' compares every library, and ' : ' compara todas as bibliotecas, e '}
+              <Link href={`${p}/contributing/pipeline/`}>{locale === 'en' ? 'How the pipeline works' : 'Como funciona o pipeline'}</Link>
+              {locale === 'en' ? ' explains when the run happens and what it writes.' : ' explica quando a execução acontece e o que ela escreve.'}
+            </p>
+          </>
         ) : (
           <>
             <p className="text-lg">
