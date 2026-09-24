@@ -6,7 +6,7 @@
 // takes the demo's height, measured here or reported by the demo with
 // `parent.postMessage({ type: 'example-height', height }, origin)`, and starts at the last height
 // a demo had on this page, so switching between examples does not make the page jump.
-import { ExternalLink, LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const TOKENS = ['background', 'foreground', 'card', 'muted-foreground', 'border', 'primary', 'primary-foreground', 'ring']
@@ -55,7 +55,7 @@ button:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 
 const heights = new Map<string, number>();
 let lastHeight = 0;
 
-export function LiveDemo({ src, title, text }: { src: string; title?: string; text: { demo: string; demoOf: string; open: string; loading: string } }) {
+export function LiveDemo({ src, title, text }: { src: string; title?: string; text: { demo: string; demoOf: string; loading: string } }) {
   const frame = useRef<HTMLIFrameElement>(null);
   // Unknown until the demo reports it: the frame starts at the height a demo had before (h-40 without one).
   const [height, setHeight] = useState<number>();
@@ -178,13 +178,6 @@ export function LiveDemo({ src, title, text }: { src: string; title?: string; te
           </p>
         )}
       </div>
-      <figcaption className="mt-2 flex justify-end text-xs text-fd-muted-foreground">
-        <a href={src} target="_blank" rel="noopener" className="inline-flex items-center gap-1 hover:text-fd-foreground">
-          {text.open}
-          <span className="sr-only"> ({caption})</span>
-          <ExternalLink aria-hidden className="size-3" />
-        </a>
-      </figcaption>
     </figure>
   );
 }

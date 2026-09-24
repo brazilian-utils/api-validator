@@ -98,7 +98,6 @@
   "guide.uses": "Functions used:",
   "guide.liveDemo": "Live demo",
   "guide.liveDemoOf": "Live demo: {{title}}",
-  "guide.openDemo": "Open in a new tab",
   "guide.loadingDemo": "Loading the demo…",
   "guide.loadingCode": "Loading the code…",
   "guide.codeFailed": "The code did not load.",

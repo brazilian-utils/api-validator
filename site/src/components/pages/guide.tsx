@@ -20,10 +20,10 @@ export function guideEntry(lib: string, slug: string) {
   return loadGuides().find((g: any) => g.lib === lib && g.slug === slug);
 }
 
-type DemoText = { demo: string; demoOf: string; open: string; loading: string };
+type DemoText = { demo: string; demoOf: string; loading: string };
 const demoTextOf = (locale: Locale): DemoText => {
   const t = translator(locale);
-  return { demo: t('guide.liveDemo'), demoOf: t('guide.liveDemoOf', { title: '{title}' }), open: t('guide.openDemo'), loading: t('guide.loadingDemo') };
+  return { demo: t('guide.liveDemo'), demoOf: t('guide.liveDemoOf', { title: '{title}' }), loading: t('guide.loadingDemo') };
 };
 type CodeText = { loading: string; failed: string; retry: string };
 const codeTextOf = (locale: Locale): CodeText => {

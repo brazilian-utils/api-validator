@@ -98,7 +98,6 @@
   "guide.uses": "Funções usadas:",
   "guide.liveDemo": "Exemplo interativo",
   "guide.liveDemoOf": "Exemplo interativo: {{title}}",
-  "guide.openDemo": "Abrir em outra aba",
   "guide.loadingDemo": "Carregando o exemplo…",
   "guide.loadingCode": "Carregando o código…",
   "guide.codeFailed": "O código não carregou.",
