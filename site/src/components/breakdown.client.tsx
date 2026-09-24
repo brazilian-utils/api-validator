@@ -75,7 +75,8 @@ export function Breakdown({
         aria-labelledby={titleId}
         onMouseEnter={() => hover(true)}
         onMouseLeave={() => hover(false)}
-        className="w-72 bg-fd-popover p-3 text-sm backdrop-blur-none outline-none"
+        arrowPadding={12}
+        className="w-72 overflow-visible bg-fd-popover p-3 text-sm backdrop-blur-none outline-none"
       >
         <p id={titleId} className="mb-2 font-medium">
           {title}
@@ -99,10 +100,15 @@ export function Breakdown({
             {hrefText} <ArrowRight aria-hidden className="size-3" />
           </Link>
         )}
-        {/* Points at the row it describes: a corner of the popover's own paper, turned 45°, so
-            its two edges continue the popover's border and the base sits over it. */}
+        {/* Points at the words it describes: a corner of the popover's own paper, turned 45°, so
+            its two edges continue the popover's border and its base covers it. Radix lays the
+            arrow out in its own box (flipped whole when the popover opens below its trigger), so
+            the corner is drawn pointing down, base up, and the box turns it. */}
         <PopoverArrow asChild>
-          <span aria-hidden className="block size-2.5 -translate-y-[calc(50%+1px)] rotate-45 border-t border-l border-fd-border bg-fd-popover [clip-path:polygon(0_0,100%_0,0_100%)]" />
+          <span
+            aria-hidden
+            className="block size-3 -translate-y-[calc(50%+1px)] rotate-45 border-r border-b border-fd-border bg-fd-popover [clip-path:polygon(100%_0,100%_100%,0_100%)]"
+          />
         </PopoverArrow>
       </PopoverContent>
     </Popover>
