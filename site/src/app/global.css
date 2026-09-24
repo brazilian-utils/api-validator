@@ -185,7 +185,9 @@ a {
   text-underline-offset: 0.22em;
   text-decoration-thickness: 1px;
 }
-:focus-visible {
+/* Keyboard focus, on controls only: a container focused by script (a popover, a dialog, the page's
+   main, all tabindex -1) draws nothing, the control inside it does. */
+:focus-visible:not([tabindex='-1']) {
   outline: 2px solid var(--color-fd-ring);
   outline-offset: 2px;
 }

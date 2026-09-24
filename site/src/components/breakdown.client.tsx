@@ -38,6 +38,8 @@ export function Breakdown({
   const [open, setOpen] = useState(false);
   // Opened by a click (or a tap, or the keyboard): it stays open when the pointer leaves.
   const [pinned, setPinned] = useState(false);
+  // The same, read by the focus handlers, which run after the state has already been cleared.
+  const pinnedRef = useRef(false);
   const titleId = useId();
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   // Hover opens it after a moment and leaving closes it, unless a click pinned it.
@@ -60,6 +62,7 @@ export function Breakdown({
           clearTimeout(timer.current);
           if (open && pinned) change(false);
           else {
+            pinnedRef.current = true;
             setOpen(true);
             setPinned(true);
           }
@@ -75,6 +78,17 @@ export function Breakdown({
         aria-labelledby={titleId}
         onMouseEnter={() => hover(true)}
         onMouseLeave={() => hover(false)}
+        // Opened by the pointer, it takes no focus (and gives none back on closing): focus moved by
+        // script carries the keyboard's focus ring with it, so a hover would draw outlines. Opened
+        // by a click or the keyboard, Radix moves focus in, so Tab reaches the link and Escape
+        // returns to the trigger.
+        onOpenAutoFocus={(event) => {
+          if (!pinnedRef.current) event.preventDefault();
+        }}
+        onCloseAutoFocus={(event) => {
+          if (!pinnedRef.current) event.preventDefault();
+          pinnedRef.current = false;
+        }}
         arrowPadding={12}
         className="w-72 overflow-visible bg-fd-popover p-3 text-sm backdrop-blur-none outline-none"
       >

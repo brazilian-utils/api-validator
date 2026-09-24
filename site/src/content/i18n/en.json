@@ -44,6 +44,7 @@
   "cases.skip": "skipped",
   "lib.noStatus": "There is no api-validator run for this library yet.",
   "lib.repository": "Repository",
+  "install.libPage": "{{lib}} library page",
   "lib.package": "Package",
   "lib.badgeAlt": "API contract: {{core}}% of core functions, {{passed}} shared cases pass",
   "lib.summary": "{{lib}} implements {{done}} of the {{total}} contract functions and {{core}}% of the core functions.",

@@ -44,6 +44,7 @@
   "cases.skip": "pulado",
   "lib.noStatus": "Ainda não há execução do api-validator para esta biblioteca.",
   "lib.repository": "Repositório",
+  "install.libPage": "Página da biblioteca {{lib}}",
   "lib.package": "Pacote",
   "lib.badgeAlt": "Contrato da API: {{core}}% das funções principais, {{passed}} casos compartilhados passam",
   "lib.summary": "{{lib}} implementa {{done}} das {{total}} funções do contrato e {{core}}% das funções principais.",

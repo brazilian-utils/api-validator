@@ -1,5 +1,5 @@
 // /llms.txt (llmstxt.org): what the site is and where each page is, for AI tools and agents.
-import { loadGuides, loadLibs, loadSpecs } from '@/lib/data';
+import { libNames, loadGuides, loadLibs, loadSpecs } from '@/lib/data';
 import { SITE_ROOT } from '@/lib/meta';
 import { folderPages } from '@/lib/source';
 
@@ -9,7 +9,7 @@ export function GET() {
   const lines = [
     '# Brazilian Utils',
     '',
-    '> Validate, format, parse and generate Brazilian documents (CPF, CNPJ, CEP, license plates, boletos and more) in JavaScript, Python, Go, Ruby, Rust, .NET and Erlang. One shared contract defines every function and its test cases. Each library runs the cases of the functions it has. Portuguese pages live under /pt-br/.',
+    `> Validate, format, parse and generate Brazilian documents (CPF, CNPJ, CEP, license plates, boletos and more) in ${libNames('en')}. One shared contract defines every function and its test cases. Each library runs the cases of the functions it has. Portuguese pages live under /pt-br/.`,
     '',
     '## Start',
     '',

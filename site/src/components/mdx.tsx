@@ -9,7 +9,8 @@ import { LangIcon } from '@/components/lang-icon';
 import { libNames, loadLibs } from '@/lib/data';
 import { Team } from '@/components/team';
 import { InstallOptions } from '@/components/install-options';
-import type { Locale } from '@/lib/i18n';
+import { type Locale, prefixOf, translator } from '@/lib/i18n';
+import Link from '@/components/link';
 
 /** A numbered sequence: wraps a Markdown ordered list. */
 function Steps({ children }: { children: ReactNode }) {
@@ -17,8 +18,11 @@ function Steps({ children }: { children: ReactNode }) {
 }
 
 /** The install commands of each library, in the site's language tabs (the reader's choice sticks);
- *  a library with several channels (npm, JSR, a CDN) shows one compact tab per channel. */
+ *  a library with several channels (npm, JSR, a CDN) shows one compact tab per channel. Under
+ *  them, where the package and the code live, and the library's own page. */
 function InstallTabs({ label = 'Library', locale }: { label?: string; locale: Locale }) {
+  const t = translator(locale);
+  const p = prefixOf(locale);
   return (
     <FlatTabs
       groupId="lang"
@@ -32,7 +36,28 @@ function InstallTabs({ label = 'Library', locale }: { label?: string; locale: Lo
             {lib.label}
           </>
         ),
-        content: <InstallOptions options={lib.installs} locale={locale} />,
+        content: (
+          <>
+            <InstallOptions options={lib.installs} locale={locale} />
+            <p className="not-prose flex flex-wrap gap-x-5 gap-y-1 text-sm text-fd-muted-foreground">
+              <span>
+                {t('lib.package')}{' '}
+                <a href={lib.registry} className="text-fd-foreground underline underline-offset-4">
+                  {lib.package}
+                </a>
+              </span>
+              <span>
+                {t('lib.repository')}{' '}
+                <a href={`https://github.com/${lib.repo}`} className="text-fd-foreground underline underline-offset-4">
+                  github.com/{lib.repo}
+                </a>
+              </span>
+              <Link href={`${p}/libs/${lib.id}/`} className="font-medium text-fd-foreground hover:underline">
+                {t('install.libPage', { lib: lib.label })}
+              </Link>
+            </p>
+          </>
+        ),
       }))}
     />
   );
