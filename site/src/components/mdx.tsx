@@ -7,16 +7,18 @@ import type { ReactNode } from 'react';
 import { FlatTabs } from '@/components/flat-tabs';
 import { LangIcon } from '@/components/lang-icon';
 import { loadLibs } from '@/lib/data';
-import { Markdown } from '@/lib/markdown';
 import { Team } from '@/components/team';
+import { InstallOptions } from '@/components/install-options';
+import type { Locale } from '@/lib/i18n';
 
 /** A numbered sequence: wraps a Markdown ordered list. */
 function Steps({ children }: { children: ReactNode }) {
   return <div className="[&>ol]:fd-steps [&>ol]:list-none [&>ol>li]:fd-step [&>ol>li]:ps-2">{children}</div>;
 }
 
-/** The install command of each library, in the site's language tabs (the reader's choice sticks). */
-function InstallTabs({ label = 'Library' }: { label?: string }) {
+/** The install commands of each library, in the site's language tabs (the reader's choice sticks);
+ *  a library with several channels (npm, JSR, a CDN) shows one compact tab per channel. */
+function InstallTabs({ label = 'Library', locale }: { label?: string; locale: Locale }) {
   return (
     <FlatTabs
       groupId="lang"
@@ -30,12 +32,22 @@ function InstallTabs({ label = 'Library' }: { label?: string }) {
             {lib.label}
           </>
         ),
-        content: <Markdown source={'```' + lib.installLang + '\n' + lib.install + '\n```'} />,
+        content: <InstallOptions options={lib.installs} locale={locale} />,
       }))}
     />
   );
 }
 
-export function getMDXComponents(components?: MDXComponents): MDXComponents {
-  return { ...defaultMdxComponents, Callout: Note, Files, Folder, File, Steps, InstallTabs, Team, ...components };
+export function getMDXComponents(locale: Locale = 'en', components?: MDXComponents): MDXComponents {
+  return {
+    ...defaultMdxComponents,
+    Callout: Note,
+    Files,
+    Folder,
+    File,
+    Steps,
+    InstallTabs: (props: { label?: string }) => <InstallTabs {...props} locale={locale} />,
+    Team,
+    ...components,
+  };
 }

@@ -5,6 +5,8 @@ import type { Contract, Issue } from "./model.js";
 
 /** A path per site language; `en` is required, other languages fall back to it. */
 const localizedPath = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1).optional() }).strict();
+/** A string, or one per site language. */
+const text = z.union([z.string().min(1), z.object({ en: z.string().min(1), "pt-BR": z.string().min(1) }).strict()]);
 
 export const LibSchema = z
   .object({
@@ -36,6 +38,10 @@ export const LibSchema = z
         install: z.string().min(1),
         /** The language that highlights the install line (default sh): a config line is not a command. */
         installLang: z.string().min(1).optional(),
+        /** Every way to install when there is more than one (npm, JSR, a CDN…); `install` is the one the home shows. */
+        installs: z.array(z.object({ label: z.string().min(1), lang: z.string().min(1).default("sh"), code: z.string().min(1), note: text.optional() })).min(1).optional(),
+        /** Where the lib runs (Node.js, Deno, browsers…), as its own README states it. */
+        runtimes: z.array(z.object({ name: text, supported: text, tested: text.optional() })).min(1).optional(),
         registry: z.string().url(),
         /**
          * Where the lib documents how to use it, read by the site at `ref` (see

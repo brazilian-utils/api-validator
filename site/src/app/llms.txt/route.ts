@@ -22,7 +22,7 @@ export function GET() {
     '',
     '## Libraries',
     '',
-    ...loadLibs().map((l: any) => `- [${l.label}](${SITE_ROOT}/libs/${l.id}/): package ${l.package}, install with \`${l.install}\``),
+    ...loadLibs().map((l: any) => `- [${l.label}](${SITE_ROOT}/libs/${l.id}/): package ${l.package}, install with \`${l.install}\`${l.installs.length > 1 ? ` (also ${l.installs.slice(1).map((o: any) => o.label).join(', ')})` : ''}${l.runtimes.length ? `. Runs on ${l.runtimes.map((r: any) => (typeof r.name === 'string' ? r.name : r.name.en)).join(', ')}` : ''}`),
     '',
     '## Guides',
     '',

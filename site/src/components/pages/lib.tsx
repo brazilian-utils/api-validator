@@ -15,6 +15,7 @@ import { demoteHeadings } from '@/lib/prose';
 import { LangIcon } from '@/components/lang-icon';
 import { StatusIcon, type Status } from '@/components/status';
 import { DocsPager } from '@/components/docs-pager.client';
+import { InstallOptions, Runtimes } from '@/components/install-options';
 
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 export const libTitle = (locale: Locale, label: string) => L(locale, `${label} library`, `Biblioteca ${label}`);
@@ -52,6 +53,8 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
   const conventions = intro[locale] ?? intro.en;
 
   const toc = [
+    { title: t('libs.install'), url: '#install', depth: 2 },
+    ...(lib.runtimes.length ? [{ title: t('libs.runtimes'), url: '#runtimes', depth: 3 }] : []),
     ...(mine ? [{ title: t('lib.compare'), url: '#compare', depth: 2 }, { title: t('lib.work'), url: '#work', depth: 2 }] : []),
     ...(mine ? groups.map(({ g, rows }) => ({ title: t(`lib.group.${g}`, { count: rows.length }), url: `#work-${g}`, depth: 3 })) : []),
     ...(failures.length ? [{ title: t('lib.failures'), url: '#failures', depth: 2 }] : []),
@@ -99,11 +102,17 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
         </dd>
         <dt className="text-fd-muted-foreground">{t('lib.package')}</dt>
         <dd><a href={lib.registry} className="underline underline-offset-4">{lib.package}</a></dd>
-        <dt className="text-fd-muted-foreground">{t('libs.install')}</dt>
-        <dd className="min-w-0"><code className="break-all font-mono">{lib.install}</code></dd>
       </dl>
 
       <DocsBody>
+        <h2 id="install">{t('libs.install')}</h2>
+        <InstallOptions options={lib.installs} locale={locale} label={t('libs.installs')} />
+        {lib.runtimes.length > 0 && (
+          <>
+            <h3 id="runtimes">{t('libs.runtimes')}</h3>
+            <Runtimes runtimes={lib.runtimes} locale={locale} />
+          </>
+        )}
         {!mine ? (
           <>
             <Note type="info">{t('lib.noStatus')}</Note>

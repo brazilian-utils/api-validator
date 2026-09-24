@@ -19,7 +19,7 @@ export function MdxPage({ locale, slugs }: { locale: Locale; slugs: string[] }) 
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={getMDXComponents()} />
+        <MDX components={getMDXComponents(locale)} />
       </DocsBody>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <EditOnGitHub href={`${REPO_URL}/edit/main/site/content/docs/${page.path}`} />
