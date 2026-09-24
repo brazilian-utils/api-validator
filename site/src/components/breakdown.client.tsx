@@ -4,6 +4,7 @@
 // count never stands alone.
 import Link from '@/components/link';
 import { Popover, PopoverContent, PopoverTrigger } from 'fumadocs-ui/components/ui/popover';
+import { Arrow as PopoverArrow } from '@radix-ui/react-popover';
 import { ArrowRight } from 'lucide-react';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { StatusIcon, type Status } from './status';
@@ -98,6 +99,8 @@ export function Breakdown({
             {hrefText} <ArrowRight aria-hidden className="size-3" />
           </Link>
         )}
+        {/* Points at the row it describes; drawn in the popover's paper with its border. */}
+        <PopoverArrow width={12} height={6} className="fill-fd-popover stroke-fd-border [stroke-width:1px]" />
       </PopoverContent>
     </Popover>
   );

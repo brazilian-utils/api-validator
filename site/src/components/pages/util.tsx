@@ -12,7 +12,7 @@ import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { ArrowRight, ExternalLink, FileJson, Pencil } from 'lucide-react';
 import { Breakdown } from '@/components/breakdown.client';
 import { functionBreakdown } from '@/lib/breakdown';
-import { CONTRACT_DIR, REPO_URL, contractPath, specName, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, signature, testIds } from '@/lib/data';
+import { CONTRACT_DIR, REPO_URL, contractPath, specName, expectation, isImplemented, loadGuides, loadLibs, loadReferenceFiles, loadReferences, loadSpec, loadStatus, testIds } from '@/lib/data';
 import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { Markdown } from '@/lib/markdown';
 import { demote, linkFindings, slug, splitPending } from '@/lib/prose';
@@ -204,12 +204,9 @@ async function Operation({ op, label, anchor, spec, locale, libs, status }: any)
 
   return (
     <section className="scroll-mt-24">
-      <h2 id={anchor} className="flex flex-wrap items-baseline gap-x-3">
-        {label}
-        <code className="text-sm font-normal text-fd-muted-foreground">{op.fnId}</code>
-      </h2>
-
-      <Markdown source={'```ts\n' + signature(op) + '\n```'} />
+      {/* The name alone: the contract id and a typed signature would read as code to copy, and each
+          language shows its own call in the tabs below. */}
+      <h2 id={anchor}>{label}</h2>
 
       {/* Status of this function in every library. */}
       <ul className="not-prose flex flex-wrap gap-x-4 gap-y-1 !my-4 p-0 list-none">
