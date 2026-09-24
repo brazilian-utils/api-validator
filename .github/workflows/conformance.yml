@@ -181,7 +181,7 @@ jobs:
         run: |
           [ -f site/out/index.html ] || { echo "::warning::the site did not build: the last one stays up"; exit 0; }
           libs=$(npx tsx src/cli.ts libs | wc -l)
-          reports=$(ls output/*.report.json 2>/dev/null | wc -l)
+          reports=$(find output -maxdepth 1 -name "*.report.json" | wc -l)
           if [ "$reports" -lt "$libs" ]; then echo "::warning::$reports of $libs libs have a report: the last site stays up"; exit 0; fi
           if [ "${PUBLISH_SITE}" != "true" ]; then echo "::notice::vars.PUBLISH_SITE is not 'true': the site was built but not published"; exit 0; fi
           echo "ok=true" >> "$GITHUB_OUTPUT"
