@@ -173,8 +173,8 @@ export function HomePage({ locale }: { locale: Locale }) {
             <p className="mt-4 max-w-[52ch] text-fd-muted-foreground text-pretty">
               {L(
                 locale,
-                'A function is defined once, and every library is held to that definition, in its own language and on its own schedule. Nothing is ported by hand from a README.',
-                'Uma função é definida uma vez, e toda biblioteca é cobrada por essa definição, na própria linguagem e no próprio ritmo. Nada é portado à mão a partir de um README.',
+                'A function is defined once, and every library is held to that definition, in its own language and on its own schedule.',
+                'Uma função é definida uma vez, e toda biblioteca é cobrada por essa definição, na própria linguagem e no próprio ritmo.',
               )}
             </p>
             <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
