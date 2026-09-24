@@ -66,7 +66,7 @@ export function Breakdown({
         }}
         onMouseEnter={() => hover(true)}
         onMouseLeave={() => hover(false)}
-        className={`inline-flex min-h-6 cursor-pointer items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
+        className={`inline-flex min-h-6 cursor-pointer self-start items-center gap-1.5 rounded-md text-start transition-colors hover:text-fd-foreground data-[state=open]:text-fd-foreground ${className}`}
       >
         {children}
       </PopoverTrigger>
@@ -99,8 +99,11 @@ export function Breakdown({
             {hrefText} <ArrowRight aria-hidden className="size-3" />
           </Link>
         )}
-        {/* Points at the row it describes; drawn in the popover's paper with its border. */}
-        <PopoverArrow width={12} height={6} className="fill-fd-popover stroke-fd-border [stroke-width:1px]" />
+        {/* Points at the row it describes: a corner of the popover's own paper, turned 45°, so
+            its two edges continue the popover's border and the base sits over it. */}
+        <PopoverArrow asChild>
+          <span aria-hidden className="block size-2.5 -translate-y-[calc(50%+1px)] rotate-45 border-t border-l border-fd-border bg-fd-popover [clip-path:polygon(0_0,100%_0,0_100%)]" />
+        </PopoverArrow>
       </PopoverContent>
     </Popover>
   );
