@@ -44,7 +44,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Libraries', 'Bibliotecas'),
-    description: L(locale, `${cap(countWord(loadLibs().length, locale))} languages, one contract`, `${cap(countWord(loadLibs().length, locale))} linguagens, um contrato`),
+    description: L(locale, `${cap(countWord(loadLibs().length, locale))} programming languages, one contract`, `${cap(countWord(loadLibs().length, locale))} linguagens de programação, um contrato`),
     icon: <Boxes />,
     children: [
       page(L(locale, 'Parity matrix', 'Matriz de paridade'), '/reference/parity/'),
@@ -79,7 +79,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Contributing', 'Como contribuir'),
-    description: L(locale, 'Specs, usage files, new languages', 'Specs, arquivos de uso, novas linguagens'),
+    description: L(locale, 'The contract, usage files, new programming languages', 'O contrato, arquivos de uso, novas linguagens de programação'),
     icon: <GitPullRequest />,
     // The .mdx files of content/docs/contributing/, in the order of its meta.json.
     children: folderPages(locale, 'contributing').map((p) => page(p.title, `/contributing/${p.slug}/`)),

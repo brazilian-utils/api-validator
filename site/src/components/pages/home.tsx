@@ -76,13 +76,13 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   return (
     <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, component: <HomeHeader {...headerProps(locale)} /> }}>
-      <HomeJsonLd locale={locale} description={L(locale, `Validate, format, parse and generate Brazilian documents in ${n} languages, with one shared contract.`, `Valide, formate, interprete e gere documentos brasileiros em ${n} linguagens, com um contrato compartilhado.`)} />
+      <HomeJsonLd locale={locale} description={L(locale, `Validate, format, parse and generate Brazilian documents in ${n} programming languages, with one shared contract.`, `Valide, formate, interprete e gere documentos brasileiros em ${n} linguagens de programação, com um contrato compartilhado.`)} />
       <div className="flex flex-1 flex-col">
         <section className="band">
           <div className="mx-auto grid w-full max-w-(--site-width) items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
             <div>
               <h1 className="text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:leading-[1.05]">
-                {L(locale, `Validate Brazilian documents in ${n} languages.`, `Valide documentos brasileiros em ${n} linguagens.`)}
+                {L(locale, `Validate Brazilian documents in ${n} programming languages.`, `Valide documentos brasileiros em ${n} linguagens de programação.`)}
               </h1>
               <p className="mt-5 max-w-[34rem] text-lg text-fd-muted-foreground text-pretty">
                 {L(
