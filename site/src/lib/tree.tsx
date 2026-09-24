@@ -2,11 +2,10 @@
 import type * as PageTree from 'fumadocs-core/page-tree';
 import { BookOpen, Boxes, Compass, GitPullRequest, Info } from 'lucide-react';
 import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './data';
-import { type Locale, countWord, pick, prefixOf } from './i18n';
+import { type Locale, pick, prefixOf } from './i18n';
 import { LangIcon } from '@/components/lang-icon';
 import { folderPages } from './source';
 
-const cap = (w: string) => w[0].toUpperCase() + w.slice(1);
 const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
 
 export function pageTree(locale: Locale): PageTree.Root {
@@ -44,7 +43,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Libraries', 'Bibliotecas'),
-    description: L(locale, `${cap(countWord(loadLibs().length, locale))} programming languages, one contract`, `${cap(countWord(loadLibs().length, locale))} linguagens de programação, um contrato`),
+    description: L(locale, 'One contract, a library per language', 'Um contrato, uma biblioteca por linguagem'),
     icon: <Boxes />,
     children: [
       page(L(locale, 'Parity matrix', 'Matriz de paridade'), '/reference/parity/'),

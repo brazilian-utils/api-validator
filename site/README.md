@@ -157,7 +157,7 @@ Com `--strict`, o script falha no CI quando falta a versão de um idioma.
 - Os links não fazem prefetch: num host estático, cada prefetch é uma requisição, e há páginas
   com centenas de links.
 - A biblioteca JavaScript (para a caixa "Teste com JavaScript") só carrega quando a caixa abre. O campo da home
-  carrega só as funções que usa (`format*`, `parse*`, `isValid*`, `generate*` de sete documentos).
+  carrega só as funções que usa (`format*`, `parse*`, `isValid*`, `generate*` dos documentos da amostra).
 - Contraste AA em todo texto, nos dois temas, inclusive nos blocos de código (temas de alto
   contraste do Shiki). `src/components/a11y.client.tsx` completa a marcação do Fumadocs onde o
   axe pede (nomes das regiões de código, sumário como navegação, rolagem por teclado).
@@ -195,7 +195,7 @@ buscador, em três camadas: o header `X-Robots-Tag: noindex, nofollow, noarchive
 (ele deixa o robô entrar, porque só assim ele lê o `noindex`). As URLs canônicas apontam para
 `SITE_URL`. Para o dia em que a Vercel servir o site oficial: `SITE_INDEXABLE=true` tira a meta, e
 o header sai do `vercel.json`. A Vercel não roda
-o validador (precisaria das sete linguagens), então o build baixa a situação da última execução
+o validador (precisaria de todas as linguagens), então o build baixa a situação da última execução
 publicada. O `ignoreCommand` pula o build quando nada que o site usa mudou desde o último deploy. Não
 precisa de variável de ambiente. As opcionais são `SITE_URL`, `SITE_DATA_URL` e `GITHUB_TOKEN`
 (sem token, a versão de cada lib sai da tag mais nova, lida com `git ls-remote`). `SITE_DATA=skip`

@@ -1,15 +1,15 @@
 // The home page: what the project does, a document number to type (masked and checked by the
-// JavaScript library as you type), the same first call in each language, how the libraries stay
+// JavaScript library as you type), the same first call in each language, how the libraries give
 // the same, and every utility by category.
 import Link from '@/components/link';
 import { HomeLayout } from 'fumadocs-ui/layouts/home';
 import { buttonVariants } from 'fumadocs-ui/components/ui/button';
 import { FlatTabs } from '@/components/flat-tabs';
 import { ArrowRight } from 'lucide-react';
-import { CATEGORIES, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
+import { CATEGORIES, libNames, loadLibs, loadSpecs, loadStatus } from '@/lib/data';
 import { Breakdown } from '@/components/breakdown.client';
 import { libraryBreakdown } from '@/lib/breakdown';
-import { type Locale, countWord, pick, prefixOf, translator } from '@/lib/i18n';
+import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import { baseOptions, headerProps } from '@/lib/layout';
 import { HomeHeader } from '@/components/site-header.client';
 import { SiteFooter } from '@/components/site-footer';
@@ -41,9 +41,8 @@ export function HomePage({ locale }: { locale: Locale }) {
   const p = prefixOf(locale);
   const specs = loadSpecs();
   const libs = loadLibs();
-  // The number of libraries, from libs/: the sentences follow the data.
-  const n = countWord(libs.length, locale);
-  const cap = (w: string) => w[0].toUpperCase() + w.slice(1);
+  // The libraries by name, from libs/: the sentences follow the data, and never count them.
+  const libList = libNames(locale);
   const status = loadStatus();
 
   const cases = specs.reduce((n: number, s: any) => n + s.operations.reduce((m: number, o: any) => m + o.tests.length, 0), 0);
@@ -76,19 +75,19 @@ export function HomePage({ locale }: { locale: Locale }) {
 
   return (
     <HomeLayout {...baseOptions(locale)} nav={{ ...baseOptions(locale).nav, component: <HomeHeader {...headerProps(locale)} /> }}>
-      <HomeJsonLd locale={locale} description={L(locale, `Validate, format, parse and generate Brazilian documents in ${n} programming languages, with one shared contract.`, `Valide, formate, interprete e gere documentos brasileiros em ${n} linguagens de programação, com um contrato compartilhado.`)} />
+      <HomeJsonLd locale={locale} description={L(locale, `Validate, format, parse and generate Brazilian documents in ${libList}, with one shared contract.`, `Valide, formate, interprete e gere documentos brasileiros em ${libList}, com um contrato compartilhado.`)} />
       <div className="flex flex-1 flex-col">
         <section className="band">
           <div className="mx-auto grid w-full max-w-(--site-width) items-center gap-10 px-4 pt-14 pb-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
             <div>
               <h1 className="text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl lg:leading-[1.05]">
-                {L(locale, `Validate Brazilian documents in ${n} programming languages.`, `Valide documentos brasileiros em ${n} linguagens de programação.`)}
+                {L(locale, 'Validate Brazilian documents in your language.', 'Valide documentos brasileiros na sua linguagem.')}
               </h1>
               <p className="mt-5 max-w-[34rem] text-lg text-fd-muted-foreground text-pretty">
                 {L(
                   locale,
-                  `CPF, CNPJ, CEP, license plates and ${others} more. ${cap(n)} libraries, checked against the same ${cases.toLocaleString('en')} shared test cases.`,
-                  `CPF, CNPJ, CEP, placas e mais ${others}. ${cap(n)} bibliotecas, verificadas pelos mesmos ${cases.toLocaleString('pt-BR')} casos de teste compartilhados.`,
+                  `CPF, CNPJ, CEP, license plates and ${others} more. A library for ${libList}, all checked against the same ${cases.toLocaleString('en')} shared test cases.`,
+                  `CPF, CNPJ, CEP, placas e mais ${others}. Uma biblioteca para ${libList}, todas verificadas pelos mesmos ${cases.toLocaleString('pt-BR')} casos de teste compartilhados.`,
                 )}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -170,7 +169,14 @@ export function HomePage({ locale }: { locale: Locale }) {
 
         <section className="band band-top">
           <div className="mx-auto w-full max-w-(--site-width) px-4 py-16 sm:px-6 md:py-20">
-            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, `How ${n} libraries stay the same`, `Como as ${n} bibliotecas se mantêm iguais`)}</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.02em] text-balance sm:text-3xl">{L(locale, 'How every library gives the same answer', 'Como toda biblioteca dá a mesma resposta')}</h2>
+            <p className="mt-4 max-w-[52ch] text-fd-muted-foreground text-pretty">
+              {L(
+                locale,
+                'A function is defined once, and every library is held to that definition, in its own language and on its own schedule. Nothing is ported by hand from a README.',
+                'Uma função é definida uma vez, e toda biblioteca é cobrada por essa definição, na própria linguagem e no próprio ritmo. Nada é portado à mão a partir de um README.',
+              )}
+            </p>
             <ol className="mt-10 grid gap-x-10 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
               {steps.map(([title, body]) => (
                 <li key={title} className="border-t pt-4">

@@ -1,4 +1,4 @@
-// Structured data for search engines: the site, the organization and its seven libraries.
+// Structured data for search engines: the site, the organization and each of its libraries.
 import { loadLibs } from '@/lib/data';
 import { SITE_ROOT } from '@/lib/meta';
 import { type Locale, prefixOf } from '@/lib/i18n';

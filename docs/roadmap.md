@@ -1,7 +1,7 @@
 # Roadmap
 
 Use this page to see the plan and what each phase must deliver. Today, the validator measures
-every library against one contract, in all seven languages, for both API and behavior (see
+every library against one contract, in every language, for both API and behavior (see
 [findings.md](findings.md)). The remaining work: make the tooling a routine of the
 organization, and close the gaps that it shows. Each phase has an exit criterion, so progress
 is a number, not an opinion.
@@ -12,15 +12,15 @@ is a number, not an opinion.
 |---|---|---|
 | Merge the PR of this repository | maintainers | CI runs typecheck, the tests with the language toolchains, contract lint |
 | Publish the docs site | org admin | Enable GitHub Pages (source: GitHub Actions). Set the repository variable `PUBLISH_SITE=true` (and `SITE_URL` when a custom domain serves the site) |
-| Turn on issue and test sync | org admin | Save a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on the 7 library repos as the secret `LIBS_TOKEN`. Do not give it the `workflows` permission |
+| Turn on issue and test sync | org admin | Save a fine-grained token (or GitHub App) with `issues`, `contents` and `pull_requests: write` on every library repo as the secret `LIBS_TOKEN`. Do not give it the `workflows` permission |
 | Optional: release notification | org admin | Save a token that can send `repository_dispatch` to api-validator (`contents: write`) as the secret `API_VALIDATOR_DISPATCH_TOKEN` in each library, and add the step in [usage-files.mdx](../site/content/docs/contributing/usage-files.mdx#update-the-site-on-each-release) to its release workflow. A release then refreshes the site at once, not at the next nightly |
 | Add the Action to every library | one PR per library | Copy `templates/lib-ci/<lang>.yml` to `.github/workflows/api-contract.yml`. Add the badge to the README |
 | Add usage files to every library | one PR per library | Copy `site/fixtures/usage/<lib>/` (scaffolded from the cases each library passes) to `docs/usage/`. Cut the README down to a link to the site |
-| Add the suite and the harness to every library | one PR per library | `api-validator export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for all 7 libraries) |
+| Add the suite and the harness to every library | one PR per library | `api-validator export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for every library) |
 | Record the divergence baseline | maintainers | Run `api-validator diff --baseline` once. After that, the nightly fails only on *new* ways that libraries disagree |
 | Optional: agent ports | org admin | Add the secret `ANTHROPIC_API_KEY` in the library repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
-**Done when** all 7 library repos show these items:
+**Done when** every library repo shows these items:
 
 - the API contract check on their PRs
 - the `api-contract` issues, opened and closed as the work moves

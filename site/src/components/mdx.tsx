@@ -6,7 +6,7 @@ import type { MDXComponents } from 'mdx/types';
 import type { ReactNode } from 'react';
 import { FlatTabs } from '@/components/flat-tabs';
 import { LangIcon } from '@/components/lang-icon';
-import { loadLibs } from '@/lib/data';
+import { libNames, loadLibs } from '@/lib/data';
 import { Team } from '@/components/team';
 import { InstallOptions } from '@/components/install-options';
 import type { Locale } from '@/lib/i18n';
@@ -48,6 +48,8 @@ export function getMDXComponents(locale: Locale = 'en', components?: MDXComponen
     Steps,
     InstallTabs: (props: { label?: string }) => <InstallTabs {...props} locale={locale} />,
     Team,
+    /** The libraries by name, in a sentence: "JavaScript, Python, Go, … and Erlang". */
+    LibNames: () => <>{libNames(locale)}</>,
     ...components,
   };
 }

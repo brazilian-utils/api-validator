@@ -3,7 +3,7 @@
 Use this page to see where the libraries disagree and which decisions are open.
 `api-validator check --tests` and `api-validator diff` made these results. They ran against the
 default branch of every library (JS `ce2df9c`, Python `330627e`, Go `ea155a8`, Rust `a60585f`,
-Ruby `a54d408`, Erlang `48dd38d`, .NET `8d8846d`). All seven languages have runners, so the
+Ruby `a54d408`, Erlang `48dd38d`, .NET `8d8846d`). Every language has a runner, so the
 validator checks both the API and the behavior of every library.
 
 `diff` compared 742 calls (the same mined input in every library). It found 234 divergent

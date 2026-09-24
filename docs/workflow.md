@@ -1,9 +1,9 @@
 # Maintaining N implementations of one library
 
-Use this page to learn how a change to the library reaches all seven implementations: seven
-repositories, seven languages, one library. We considered a code generator and rejected it
-(too complex to make idiomatic output in every language). Porting every change by hand six
-times without a shared definition does not scale either. The libraries drift apart, fixes go
+Use this page to learn how a change to the library reaches every implementation: one
+repository per language, one library. We considered a code generator and rejected it
+(too complex to make idiomatic output in every language). Porting every change by hand, once
+per language, without a shared definition does not scale either. The libraries drift apart, fixes go
 into one repo only, and nobody knows what is missing where.
 
 This approach is **contract-first**. People write the libraries by hand, in the idiom of each
@@ -21,7 +21,7 @@ to fix.
                             ▼                           │ new case (bug fix)
       ┌──────────────────────────────────┐              │
       │ Conformance workflow             │              │
-      │  check --tests (all 7 libs)      │      ┌───────┴────────┐
+      │  check --tests (every lib)       │      ┌───────┴────────┐
       │  diff (differential testing)     │      │ any lib repo   │
       │  issues: one per function per    │─────▶│ CI: the Action │
       │  lib (implement / fix), auto-close│     │ fails on       │
@@ -72,7 +72,7 @@ A bug in one library is probably in the others too (same algorithm, often ported
 source). So do these steps:
 
 1. First, write the failing case as a **contract test case** (contract PR). That single case
-   now runs against all seven libraries.
+   now runs against every library.
 2. The Conformance run shows exactly which libraries have the bug. On merge, each affected
    library gets an **`[api-contract] Fix <fn>` issue** with the failing cases (expected and
    actual). The issue closes itself when every case of the function passes in that library.
@@ -100,7 +100,7 @@ The contract cases run in two places, on purpose, from one source:
 |---|---|---|
 | Runs | here (nightly, contract PRs) and in the CI of the library through the Action | in the library's own test command: `npm test`, `python -m unittest`, `go test ./...`, `cargo test`, `rspec`, `rebar3 eunit`, `dotnet test` |
 | Needs this repo | yes | no: a copied JSON suite and one test file in the language of the library |
-| Good for | the view across libraries: same answer in all 7 libraries, API and signature checks, the status pages of the docs site, issues, differential testing | the inner loop of the developer: a case fails in the `test` command they already run, and shows up in coverage and mutation testing |
+| Good for | the view across libraries: same answer in every library, API and signature checks, the status pages of the docs site, issues, differential testing | the inner loop of the developer: a case fails in the `test` command they already run, and shows up in coverage and mutation testing |
 | Kept correct by | baselines (ratchet) | `export-cases --check` in the Action, and a nightly bot PR that updates `api-contract/` |
 
 **Why JSON and a hand-written harness, not generated test code.** The suite is data: one file
@@ -113,7 +113,7 @@ harness has three parts:
 - A loop over the cases.
 - One shared set of comparison rules, checked by `cases/equality.json`.
 
-So nobody here needs to know seven test frameworks. A new language needs no code in this repo
+So nobody here needs to know every test framework. A new language needs no code in this repo
 to run the suite. To add a function to a library, you add one registry line. For typed
 languages, the harness can also do *more* than the generated runners of the validator. It can
 supply a default for an argument that Go or Rust requires. It can read a result type that the

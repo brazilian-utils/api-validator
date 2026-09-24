@@ -44,4 +44,4 @@ npx tsx src/cli.ts diff --baseline   # known splits between libraries; the night
 
 `npx tsx src/cli.ts doctor` shows which toolchains are missing. Then
 `npm run typecheck && npm test && npm run lint`. Tests skip languages whose toolchain is not
-installed; CI installs all seven. Adding a language: [docs/adding-a-language.md](docs/adding-a-language.md).
+installed; CI installs all of them. Adding a language: [docs/adding-a-language.md](docs/adding-a-language.md).

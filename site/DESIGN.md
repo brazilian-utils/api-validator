@@ -1,6 +1,6 @@
 # Design
 
-The site documents seven libraries that validate, format and generate Brazilian identifiers: CPF,
+The site documents the Brazilian Utils libraries, one per language, that validate, format and generate Brazilian identifiers: CPF,
 CNPJ, CEP, license plates, boletos and more. Readers are developers. They come to one page with one
 question: how do I call this in my language, and does my library do it right?
 
@@ -73,7 +73,7 @@ One focus style everywhere: a 2px outline in the ring color, 2px away.
 
 The site follows [Impeccable](https://impeccable.style) (github.com/pbakaus/impeccable) and
 [Taste Skill](https://www.tasteskill.dev) (github.com/Leonxlnx/taste-skill). Design read, as
-Taste Skill asks for it: developer documentation for engineers in seven languages, in a calm
+Taste Skill asks for it: developer documentation for engineers in several languages, in a calm
 technical language, on Fumadocs with the Flexoki palette and Geist. Dials: variance 4, motion 3,
 density 5. Impeccable mode: Read (the home page leans Persuade).
 
@@ -120,4 +120,4 @@ CI fails on any finding. Exceptions, each on purpose:
 - One sidebar for the whole site: about 60 entries at once. Replaced by the sections in the
   header.
 - Pills with borders for the status of each library under a function in the first design: noise
-  at 7 libraries × 5 functions per page. Now small chips with an icon and the library name.
+  at every library × 5 functions per page. Now small chips with an icon and the library name.

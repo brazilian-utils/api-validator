@@ -1,6 +1,6 @@
 # API Validator
 
-This repository keeps the seven [brazilian-utils](https://github.com/brazilian-utils) libraries
+This repository keeps the [brazilian-utils](https://github.com/brazilian-utils) libraries
 (JavaScript/TypeScript, Python, Go, Ruby, Rust, .NET, Erlang) in step: same functions, same
 behavior.
 
