@@ -47,8 +47,9 @@ function HeaderRow({ sections, sectionsLabel, skipLabel, title, homeUrl, prefix,
   // The bar spans the window; its content sits in the site's column, with the page's edges.
   return (
     <header className={`site-header z-40 ${className}`}>
-      {/* Keyboard users go past the header in one step (WCAG 2.4.1); the link shows only when focused. */}
-      <a href={`#${main}`} className="sr-only-static focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-fd-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:[clip-path:none]">
+      {/* Keyboard users go past the header in one step (WCAG 2.4.1); the link shows only when focused.
+          Positioned inside the bar (never a line of its own, which would change the bar's height). */}
+      <a href={`#${main}`} className="absolute top-0 left-0 z-50 size-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)] focus:top-2 focus:left-2 focus:size-auto focus:rounded-md focus:bg-fd-background focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:[clip-path:none]">
         {skipLabel}
       </a>
       <div className="mx-auto flex h-14 w-full max-w-(--site-width) items-center gap-2 px-4 sm:px-6">
