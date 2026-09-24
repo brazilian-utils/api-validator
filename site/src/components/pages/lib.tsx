@@ -1,6 +1,8 @@
 // A library's page: its package, how it compares, what to do next (failing first, then wrong
 // signatures, then missing core, then the rest, each ordered by how many libraries already have
 // it), the failing cases, functions without a usage example, public API outside the contract.
+import fs from 'node:fs';
+import path from 'node:path';
 import Link from '@/components/link';
 import { notFound } from 'next/navigation';
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layouts/notebook/page';
@@ -84,6 +86,9 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
     </table>
   );
   const badgeAlt = s ? t('lib.badgeAlt', { core: s.coreCoverage, passed: s.testsPassed }) : '';
+  // The badge's own width, so the page reserves its room before the image arrives.
+  const badgeFile = path.join(process.cwd(), 'public', 'badges', `${lib.id}.svg`);
+  const badgeWidth = fs.existsSync(badgeFile) ? Number(/width="(\d+)"/.exec(fs.readFileSync(badgeFile, 'utf8'))?.[1]) || undefined : undefined;
   const badgeMarkdown = `[![${t('lib.badgeLabel')}](${SITE_ROOT}/badges/${lib.id}.svg)](${SITE_ROOT}/libs/${lib.id}/)`;
 
   return (
@@ -296,7 +301,7 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
             <p>{t('lib.badgeIntro')}</p>
             <p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`${base}/badges/${lib.id}.svg`} alt={badgeAlt} height={20} />
+              <img src={`${base}/badges/${lib.id}.svg`} alt={badgeAlt} width={badgeWidth} height={20} />
             </p>
             <Markdown source={'```md\n' + badgeMarkdown + '\n```'} />
           </>
