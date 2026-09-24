@@ -1,4 +1,4 @@
-module github.com/brazilian-utils/doc/go-extract
+module github.com/brazilian-utils/docs/go-extract
 
 go 1.26.0
 

@@ -1,4 +1,4 @@
-# Brazilian Utils doc
+# Brazilian Utils docs
 
 This repository keeps the [brazilian-utils](https://github.com/brazilian-utils) libraries
 (JavaScript/TypeScript, Python, Go, Ruby, Rust, .NET, Erlang) in step: same functions, same
@@ -44,7 +44,7 @@ npx tsx src/cli.ts doctor          # which toolchains are installed / missing
 npx tsx src/cli.ts sync            # clone/update every lib into .repos/
 npx tsx src/cli.ts check --tests   # contract + shared tests for all libs
 npx tsx src/cli.ts site-data       # results for the docs site (status, badges, JSON suite)
-(cd site && npm ci && npm run dev) # the docs site at http://localhost:3000/doc/
+(cd site && npm ci && npm run dev) # the docs site at http://localhost:3000/docs/
 ```
 
 To run the shared tests, install the toolchain and the dependencies of each library. When the
@@ -52,7 +52,7 @@ toolchain of a library is missing, the validator still checks its API.
 
 ## Commands
 
-Run `npx tsx src/cli.ts <command>` (or `npm run doc -- <command>`). Most commands
+Run `npx tsx src/cli.ts <command>` (or `npm run docs -- <command>`). Most commands
 take `-l/--lib <names...>`. The value can be the full name, a short name like `python`, or the
 language.
 
@@ -95,7 +95,7 @@ brazilian-utils-rust         null  cpf.format_cpf(cpf: &str) -> Option<String>
 up the language and call the Action of this repository:
 
 ```yaml
-      - uses: brazilian-utils/doc@main
+      - uses: brazilian-utils/docs@main
         with:
           library: brazilian-utils-python   # name in libs/
           # tests: "true"                   # run the shared tests (default)
@@ -140,16 +140,16 @@ The pipeline publishes the docs site (`vars.PUBLISH_SITE`), with a status page p
 Add this badge to the README of each library:
 
 ```markdown
-[![API contract](https://brazilian-utils.github.io/doc/badges/python.svg)](https://brazilian-utils.github.io/doc/libs/python/)
+[![API contract](https://brazilian-utils.github.io/docs/badges/python.svg)](https://brazilian-utils.github.io/docs/libs/python/)
 ```
 
 Each library keeps the usage examples for the site (`docs/usage/<util>.md`, one
 `## <operation>` section per contract function).
-`doc usage --lib python --path . --scaffold` writes the missing sections from the
+`docs usage --lib python --path . --scaffold` writes the missing sections from the
 cases the library passes. For the format, read the
 [usage files](site/content/docs/contributing/usage-files.mdx) page of the site.
 
-To run the check locally from a library checkout, use `npx tsx /path/to/doc/src/cli.ts check --lib
+To run the check locally from a library checkout, use `npx tsx /path/to/docs/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
 
 [`templates/lib-ci/port-with-claude.yml`](templates/lib-ci/port-with-claude.yml) is an optional

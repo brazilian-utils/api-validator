@@ -1,7 +1,7 @@
 # Findings from the first full run (2026-09-22)
 
 Use this page to see where the libraries disagree and which decisions are open.
-`doc check --tests` and `doc diff` made these results. They ran against the
+`docs check --tests` and `docs diff` made these results. They ran against the
 default branch of every library (JS `ce2df9c`, Python `330627e`, Go `ea155a8`, Rust `a60585f`,
 Ruby `a54d408`, Erlang `48dd38d`, .NET `8d8846d`). Every language has a runner, so the
 validator checks both the API and the behavior of every library.

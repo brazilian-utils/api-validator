@@ -3,7 +3,7 @@ title: Como o pipeline funciona
 description: O que roda num pull request, num merge, toda noite e numa release. O que cada execução escreve, os segredos que ela usa e o que fazer quando ela falha.
 ---
 
-As bibliotecas do [Brazilian Utils](https://github.com/brazilian-utils) seguem um contrato só, no [doc](https://github.com/brazilian-utils/doc). Três workflows desse repositório mantêm o contrato, as bibliotecas e este site em sincronia:
+As bibliotecas do [Brazilian Utils](https://github.com/brazilian-utils) seguem um contrato só, no [docs](https://github.com/brazilian-utils/docs). Três workflows desse repositório mantêm o contrato, as bibliotecas e este site em sincronia:
 
 | Workflow | Arquivo | O que faz |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ O workflow Conformance roda todo dia às 09:00 UTC. Ele faz o mesmo que uma exec
 
 ## Quando uma biblioteca faz uma release
 
-Uma biblioteca pode avisar o repositório doc de uma release. O workflow de release dela envia um evento `repository_dispatch` do tipo `lib-released`. A página [arquivos de uso](/pt-br/contributing/usage-files/#atualize-o-site-a-cada-release) tem o passo para copiar. Esse evento inicia a mesma execução da noturna. O site então mostra na hora os arquivos de uso da release nova.
+Uma biblioteca pode avisar o repositório docs de uma release. O workflow de release dela envia um evento `repository_dispatch` do tipo `lib-released`. A página [arquivos de uso](/pt-br/contributing/usage-files/#atualize-o-site-a-cada-release) tem o passo para copiar. Esse evento inicia a mesma execução da noturna. O site então mostra na hora os arquivos de uso da release nova.
 
 As execuções noturnas e as de release dividem um grupo de concorrência. Elas rodam uma de cada vez. Uma execução nova que espera toma o lugar de uma execução mais antiga que espera.
 
@@ -85,7 +85,7 @@ O primeiro merge que traz o contrato para main não abre issues, de propósito. 
 
 Cada biblioteca copia `templates/lib-ci/<linguagem>.yml` para `.github/workflows/api-contract.yml`. Esse workflow roda nos pushes em main ou master e em todo pull request.
 
-Ele roda a Action do doc, que verifica a biblioteca contra o contrato. A verificação só falha numa regressão ou numa API pública que não está no contrato. O resumo do job lista o que ainda falta.
+Ele roda a Action do docs, que verifica a biblioteca contra o contrato. A verificação só falha numa regressão ou numa API pública que não está no contrato. O resumo do job lista o que ainda falta.
 
 Depois a Action roda `export-cases --check`. Quando `api-contract/` está atrás do contrato, a Action avisa. Com `cases: check`, ela falha. Para resolver, faça o merge do PR `api-contract/cases` que o bot abriu.
 
@@ -114,10 +114,10 @@ O job publish publica no GitHub Pages. Ele tem o próprio grupo de concorrência
 
 | Nome | Tipo | Onde | O que faz |
 | --- | --- | --- | --- |
-| `LIBS_TOKEN` | segredo | doc | Um token fine-grained ou um GitHub App, com escrita em Issues, Contents e Pull requests nos repositórios das bibliotecas. Nunca dê a ele a permissão Workflows. Ele liga as issues e os PRs da suíte. |
-| `PUBLISH_SITE` | variável | doc | `true` liga os deploys no GitHub Pages a partir de main. A fonte do Pages precisa ser GitHub Actions. |
-| `SITE_URL` | variável | doc | O endereço público do site, com o caminho. Defina para um domínio próprio. |
-| `DOC_DISPATCH_TOKEN` | segredo | cada biblioteca | Um token que pode enviar `repository_dispatch` para o repositório doc (Contents: write). Sem ele, uma release chega ao site na próxima execução noturna. |
+| `LIBS_TOKEN` | segredo | docs | Um token fine-grained ou um GitHub App, com escrita em Issues, Contents e Pull requests nos repositórios das bibliotecas. Nunca dê a ele a permissão Workflows. Ele liga as issues e os PRs da suíte. |
+| `PUBLISH_SITE` | variável | docs | `true` liga os deploys no GitHub Pages a partir de main. A fonte do Pages precisa ser GitHub Actions. |
+| `SITE_URL` | variável | docs | O endereço público do site, com o caminho. Defina para um domínio próprio. |
+| `DOCS_DISPATCH_TOKEN` | segredo | cada biblioteca | Um token que pode enviar `repository_dispatch` para o repositório docs (Contents: write). Sem ele, uma release chega ao site na próxima execução noturna. |
 | `ANTHROPIC_API_KEY` | segredo | cada biblioteca | Opcional. Usado pelo `port-with-claude.yml`. |
 
 A Vercel não precisa de variável. Estas são opcionais lá:

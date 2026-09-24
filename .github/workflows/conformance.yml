@@ -265,8 +265,8 @@ jobs:
           GH_TOKEN: ${{ secrets.LIBS_TOKEN }}
         run: |
           gh auth setup-git # pushes below authenticate with GH_TOKEN
-          git config --global user.name "doc[bot]"
-          git config --global user.email "doc@users.noreply.github.com"
+          git config --global user.name "docs[bot]"
+          git config --global user.email "docs@users.noreply.github.com"
           branch=api-contract/cases
           for patch in output/lib-sync/*.patch; do
             [ -e "$patch" ] || continue
@@ -282,7 +282,7 @@ jobs:
             gh repo clone "$repo" "$dir" -- --depth=1 --quiet || continue
             git -C "$dir" apply --index "$GITHUB_WORKSPACE/$patch" || { echo "::warning::$lib: the exported suite does not apply to $repo any more; next run"; continue; }
             {
-              echo "Refreshed by the nightly [doc](https://github.com/${{ github.repository }}) run: the shared JSON conformance suite and this lib's skip list."
+              echo "Refreshed by the nightly [docs](https://github.com/${{ github.repository }}) run: the shared JSON conformance suite and this lib's skip list."
               echo
               echo '```'
               cat "output/lib-sync/$lib.log"

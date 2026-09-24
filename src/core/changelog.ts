@@ -23,7 +23,7 @@ export function contractAt(repo: string, dir: string, ref: string): Contract {
   const rel = path.relative(repo, dir);
   // A ref from before the contract existed (a base branch without contract/): nothing was there.
   if (run("git", ["cat-file", "-e", `${ref}:${rel}`], { cwd: repo }).status !== 0) return { functions: new Map(), domains: new Map() };
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "doc-contract-"));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "docs-contract-"));
   try {
     const files = runOrThrow("git", ["ls-tree", "-r", "--name-only", `${ref}:${rel}`], { cwd: repo }).split("\n");
     for (const f of files) {

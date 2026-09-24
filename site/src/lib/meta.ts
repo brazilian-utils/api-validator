@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { loadSpec, loadSpecs } from './data';
 import { type Locale, pick, prefixOf } from './i18n';
 
-export const SITE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/doc');
+export const SITE = new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/docs');
 const base = SITE.pathname.replace(/\/$/, '');
 export const SITE_ROOT = `${SITE.origin}${base}`;
 const OG_IMAGE = `${SITE_ROOT}/og.png`;

@@ -1,5 +1,5 @@
 /**
- * Canonical formatting of the hand-edited JSON (`doc fmt`): contract/<domain>/contract.json and
+ * Canonical formatting of the hand-edited JSON (`docs fmt`): contract/<domain>/contract.json and
  * libs/*.json in a stable key order, one test case per line (see jsonfmt.ts), and the JSON
  * Schemas in schema/ that editors use to validate and autocomplete those files.
  */

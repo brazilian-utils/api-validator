@@ -119,8 +119,8 @@ export async function LibPage({ locale, id }: { locale: Locale; id: string }) {
             {/* A build without a run (a preview, a fresh clone): say what the run adds and where to look meanwhile. */}
             <p>
               {locale === 'en'
-                ? `Each night the doc run reads the ${lib.label} library's public API, binds it to the shared contract and runs the shared test cases. This page then shows which functions the library implements, which cases fail, and what to do next.`
-                : `Toda noite, a execução do doc lê a API pública da biblioteca ${lib.label}, liga cada função ao contrato compartilhado e roda os casos de teste compartilhados. Esta página passa então a mostrar quais funções a biblioteca implementa, quais casos falham e o que fazer em seguida.`}
+                ? `Each night the docs run reads the ${lib.label} library's public API, binds it to the shared contract and runs the shared test cases. This page then shows which functions the library implements, which cases fail, and what to do next.`
+                : `Toda noite, a execução do docs lê a API pública da biblioteca ${lib.label}, liga cada função ao contrato compartilhado e roda os casos de teste compartilhados. Esta página passa então a mostrar quais funções a biblioteca implementa, quais casos falham e o que fazer em seguida.`}
             </p>
             <p>
               {locale === 'en' ? 'Meanwhile, the ' : 'Enquanto isso, a '}

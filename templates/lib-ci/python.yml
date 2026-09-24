@@ -21,6 +21,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install .
-      - uses: brazilian-utils/doc@main
+      - uses: brazilian-utils/docs@main
         with:
           library: brazilian-utils-python

@@ -140,7 +140,7 @@ export function libMarkdown(report: LibReport, contract: Contract, diff?: Baseli
   }
 
   if (diff && diff.improvements.length > 0) {
-    out.push(`✨ ${diff.improvements.length} function(s)/test(s) conform now but are not in the baseline yet — run \`doc baseline --lib ${report.library}\` to lock them in.`);
+    out.push(`✨ ${diff.improvements.length} function(s)/test(s) conform now but are not in the baseline yet — run \`docs baseline --lib ${report.library}\` to lock them in.`);
     out.push("");
   }
   return out.join("\n");

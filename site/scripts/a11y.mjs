@@ -24,7 +24,7 @@ const axeSource = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8'
 const PORT = 4399;
 const OUT = 'out';
 // The base path the site was built with (SITE_URL's path, as next.config.mjs reads it).
-const BASE = (process.env.BASE_PATH ?? new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/doc').pathname).replace(/\/$/, '');
+const BASE = (process.env.BASE_PATH ?? new URL(process.env.SITE_URL || 'https://brazilian-utils.github.io/docs').pathname).replace(/\/$/, '');
 // One page of each type, in both languages; generated pages exist in every build.
 const PAGES = [
   '/', '/getting-started/', '/utils/cpf/', '/utils/license-plate/', '/libs/javascript/', '/libs/go/',

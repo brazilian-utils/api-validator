@@ -1,5 +1,5 @@
 #!/usr/bin/env escript
-%% Erlang side of the doc adapter. Output: "\0JSON\0" followed by JSON.
+%% Erlang side of the docs adapter. Output: "\0JSON\0" followed by JSON.
 %%
 %%   escript tool.escript extract <ebin_dir>
 %%       Public API read from the compiled modules (compiled with +debug_info): exports as the

@@ -1,10 +1,10 @@
 {
-  "name": "doc",
+  "name": "docs",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "doc": "tsx src/cli.ts",
+    "docs": "tsx src/cli.ts",
     "check": "tsx src/cli.ts check",
     "lint": "tsx src/cli.ts lint && tsx src/cli.ts fmt --check",
     "typecheck": "tsc --noEmit",
@@ -23,7 +23,7 @@
     "typescript": "^5.7.3"
   },
   "bin": {
-    "doc": "src/cli.ts"
+    "docs": "src/cli.ts"
   },
   "engines": {
     "node": ">=20"

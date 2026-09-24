@@ -16,7 +16,7 @@ on:
         required: true
 
 env:
-  LIB: brazilian-utils-python # <- this lib's name in doc/libs/
+  LIB: brazilian-utils-python # <- this lib's name in docs/libs/
 
 permissions:
   contents: write
@@ -38,14 +38,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install doc and the other implementations (for references)
+      - name: Install docs and the other implementations (for references)
         run: |
-          git clone --depth 1 https://github.com/brazilian-utils/doc "$RUNNER_TEMP/doc"
-          npm ci --prefix "$RUNNER_TEMP/doc" --no-audit --no-fund --loglevel=error
-          cd "$RUNNER_TEMP/doc" && npx tsx src/cli.ts sync
+          git clone --depth 1 https://github.com/brazilian-utils/docs "$RUNNER_TEMP/docs"
+          npm ci --prefix "$RUNNER_TEMP/docs" --no-audit --no-fund --loglevel=error
+          cd "$RUNNER_TEMP/docs" && npx tsx src/cli.ts sync
       - name: Write the porting brief
         run: |
-          cd "$RUNNER_TEMP/doc"
+          cd "$RUNNER_TEMP/docs"
           npx tsx src/cli.ts brief "${{ inputs.functions }}" --lib "$LIB" --path "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/brief.md"
           cat "$RUNNER_TEMP/brief.md" >> "$GITHUB_STEP_SUMMARY"
 
@@ -65,7 +65,7 @@ jobs:
             2. Add the brief's acceptance tests to this repository's own test suite.
             3. Run this repository's tests, then verify against the contract until every listed
                function reports ok:
-                 cd ${{ runner.temp }}/doc && npx tsx src/cli.ts check --lib ${{ env.LIB }} --path "$GITHUB_WORKSPACE" --tests --only '${{ inputs.functions }}' --fail-on never -v
+                 cd ${{ runner.temp }}/docs && npx tsx src/cli.ts check --lib ${{ env.LIB }} --path "$GITHUB_WORKSPACE" --tests --only '${{ inputs.functions }}' --fail-on never -v
             4. Open a pull request titled "API contract: ${{ inputs.functions }}" whose description lists
                each function, its status before/after, and anything you could not make pass and why.
 

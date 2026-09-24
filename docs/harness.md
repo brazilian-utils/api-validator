@@ -1,10 +1,10 @@
 # The conformance suite and the harness of a library
 
 Use this page to write or maintain the harness that runs the shared cases inside a library.
-`doc cases` publishes the test cases of the contract as plain JSON, one file per
+`docs cases` publishes the test cases of the contract as plain JSON, one file per
 domain. The style is the same as JSON-Schema-Test-Suite or the WHATWG URL tests: the suite
 knows nothing about any language. Each library keeps a copy in `api-contract/`
-(`doc export-cases`). A nightly bot PR updates this copy. The library runs the suite
+(`docs export-cases`). A nightly bot PR updates this copy. The library runs the suite
 with a **harness**: a small test file, written once, by hand, in the language and test
 framework of the library.
 
@@ -78,15 +78,15 @@ as objects, tuples and sets as arrays.
 ## Rules
 
 - The library keeps the suite as a **copy and never edits it**. Expectations change in
-  `doc/contract/`. Behavior changes in the library. `export-cases --check` (in the
-  doc Action) tells you when the copy is behind. Exclude `api-contract/` from the
+  `docs/contract/`. Behavior changes in the library. `export-cases --check` (in the
+  docs Action) tells you when the copy is behind. Exclude `api-contract/` from the
   formatter and linters of the library, as you do for any copied or generated file (for
   example, `fmt.ignorePatterns` in a Vite+ config, `.prettierignore`, `extend-exclude` for
   ruff). The check compares JSON by value. So if a formatter changes the files, they do not
   become stale.
 - A function can have zero cases, because not every contract function has cases yet. Register
   it anyway. If a framework rejects empty groups, do not make an empty group.
-- The validator generates `skip.json` from the doc baseline and `knownFailures`. When you fix a
+- The validator generates `skip.json` from the docs baseline and `knownFailures`. When you fix a
   case in the library, the next update removes its entry, and the harness then runs it.
 - To add a function to the library, implement it and add one registry line. The harness then
   runs its cases, and the validator also sees it.

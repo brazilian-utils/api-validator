@@ -8,7 +8,7 @@ index 0000000..5a29685
 + * Conformance harness for the shared brazilian-utils API contract.
 + *
 + * `api-contract/` (repo root) is a vendored, language-agnostic copy of the contract's test vectors
-+ * (refreshed by the doc bot; never edit it here). This file maps each contract function
++ * (refreshed by the docs bot; never edit it here). This file maps each contract function
 + * id to the function of this lib that implements it (the REGISTRY below) and runs every case as its
 + * own test, named by the case id. The rules it follows are in `api-contract/README.md` and
 + * `api-contract/cases/index.json` (`comparison`).
@@ -625,7 +625,7 @@ index f5c52e4..3444cd2 100644
  			".stryker-tmp",
  			".claude",
  			"CHANGELOG.md",
-+			// Vendored from brazilian-utils/doc (the shared conformance suite).
++			// Vendored from brazilian-utils/docs (the shared conformance suite).
 +			"api-contract",
  		],
  		singleQuote: false,

@@ -3,7 +3,7 @@
 Use this page to learn the rules that apply to every contract function. A function can
 override a rule in its `description` in `contract/<domain>/contract.json`. The rules come from the
 "Conventions" section of the reference (JavaScript) docs. We checked them against what the
-libraries actually do (`doc check --tests` and `diff`, recorded in
+libraries actually do (`docs check --tests` and `diff`, recorded in
 [findings.md](findings.md)).
 
 Status:

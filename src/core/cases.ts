@@ -127,7 +127,7 @@ function indexJson(files: Map<string, DomainJson>) {
   const fns = [...files.values()].flatMap((d) => d.functions);
   return {
     format: CASES_FORMAT,
-    generatedBy: "brazilian-utils/doc from contract/<domain>/contract.json. Do not edit: change the contract.",
+    generatedBy: "brazilian-utils/docs from contract/<domain>/contract.json. Do not edit: change the contract.",
     digest: digestOf(files),
     functions: fns.length,
     cases: fns.reduce((n, f) => n + f.cases.length, 0),
@@ -161,8 +161,8 @@ export function skipsFor(lib: LibConfig, contract: Contract, implemented: Set<st
       else if (passing && !passing.has(t.id) && last?.status !== "pass") {
         out[t.id] =
           last?.status === "skip"
-            ? `not verified by the doc runner (${last.message ?? "unsupported"})`
-            : `fails today${detail || " (not in the doc baseline)"}`;
+            ? `not verified by the docs runner (${last.message ?? "unsupported"})`
+            : `fails today${detail || " (not in the docs baseline)"}`;
       }
     }
   }

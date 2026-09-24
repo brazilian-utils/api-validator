@@ -19,7 +19,7 @@ export interface LibWorkspace {
 export function workspaceFor(lib: LibConfig, explicitPath?: string): LibWorkspace {
   const root = path.resolve(explicitPath ?? path.join(REPOS_DIR, lib.name));
   if (!fs.existsSync(root)) {
-    throw new Error(`${lib.name}: checkout not found at ${root}. Run \`doc sync\` or pass --path.`);
+    throw new Error(`${lib.name}: checkout not found at ${root}. Run \`docs sync\` or pass --path.`);
   }
   const workDir = path.join(CACHE_DIR, lib.name);
   fs.mkdirSync(workDir, { recursive: true });

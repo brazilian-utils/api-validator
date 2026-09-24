@@ -1,19 +1,19 @@
 # Harnesses
 
 One per lib, written once in the lib's language, verified against the real lib: natively it
-passes exactly the cases `doc check --tests` passes, and with `API_CONTRACT_NO_SKIP=1`
+passes exactly the cases `docs check --tests` passes, and with `API_CONTRACT_NO_SKIP=1`
 it fails exactly the ones the validator fails. Spec: [docs/harness.md](../../docs/harness.md).
 
 Adopting it in a lib (one PR):
 
 ```bash
 cd <lib checkout>
-git apply <doc>/templates/harness/<lang>/adoption.patch    # harness (+ project wiring)
-npx tsx <doc>/src/cli.ts export-cases --lib <lib> --path .  # vendors api-contract/
+git apply <docs>/templates/harness/<lang>/adoption.patch    # harness (+ project wiring)
+npx tsx <docs>/src/cli.ts export-cases --lib <lib> --path .  # vendors api-contract/
 <the lib's test command>                                              # runs every case
 ```
 
-From then on the nightly doc run keeps `api-contract/` current with a bot PR, and
+From then on the nightly docs run keeps `api-contract/` current with a bot PR, and
 adding a function to the lib means one more registry line in the harness.
 
 | Lang | Harness | Wiring in the patch |

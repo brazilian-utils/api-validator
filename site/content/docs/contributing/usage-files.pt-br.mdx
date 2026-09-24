@@ -3,7 +3,7 @@ title: Arquivos de uso
 description: Como uma biblioteca publica seus exemplos neste site. Arquivos de uso, uma página de referência que já existe e guias com exemplos interativos.
 ---
 
-Cada página de utilitário mostra a spec, a assinatura e os casos de teste do contrato no [doc](https://github.com/brazilian-utils/doc). Os exemplos de código nas abas vêm das bibliotecas. Cada biblioteca escreve os próprios exemplos, no próprio repositório. Quem muda a API atualiza os exemplos no mesmo pull request. Este site só lê.
+Cada página de utilitário mostra a spec, a assinatura e os casos de teste do contrato no [docs](https://github.com/brazilian-utils/docs). Os exemplos de código nas abas vêm das bibliotecas. Cada biblioteca escreve os próprios exemplos, no próprio repositório. Quem muda a API atualiza os exemplos no mesmo pull request. Este site só lê.
 
 Uma biblioteca pode publicar os exemplos de três formas, que podem ser combinadas:
 
@@ -48,7 +48,7 @@ format_cpf('82178537464')  # '821.785.374-64'
 
 Regras:
 
-- **O título é o nome da função**: `isValid`, `format`, `parse`, `generate`, `getInfo`. O site também aceita `get-info`, o título padrão (`Validate`) e o nome antigo `validate`. O `doc usage` aponta um título que não corresponde a nenhuma função, e o build o ignora.
+- **O título é o nome da função**: `isValid`, `format`, `parse`, `generate`, `getInfo`. O site também aceita `get-info`, o título padrão (`Validate`) e o nome antigo `validate`. O `docs usage` aponta um título que não corresponde a nenhuma função, e o build o ignora.
 - **Cada seção mostra a chamada.** Mostre o import, a chamada e o resultado. Uma linha de texto pode ajudar, por exemplo "Esta função chama o ViaCEP". Não explique a regra. A spec na mesma página explica.
 - **O exemplo chama a função da biblioteca.** O validador sabe o nome nativo de cada função. O validador aponta uma seção que não usa esse nome.
 - **Escreva código e comentários em inglês.** Para texto em português, adicione `cpf.pt-br.md` ao lado de `cpf.md`. As páginas em português usam esse arquivo.
@@ -68,7 +68,7 @@ Muitas bibliotecas já documentam todas as funções numa página só, com um t�
 
 O site encontra cada título que é um nome de função da biblioteca, como `### isValidCpf`. O site liga esse título à função do contrato que o validador associou ao nome. Uma seção é todo o texto até o próximo título: texto, opções, casos de borda e exemplos. O site ignora outros títulos, como `## Conventions` ou `## CPF`. O texto antes da primeira função vai para a página da biblioteca, como **convenções da API**.
 
-Se uma biblioteca tem os dois, os arquivos de uso têm prioridade nas funções que eles documentam. `doc usage --lib <lib> --materialize` converte uma página de referência em arquivos de uso. Use o comando para passar uma biblioteca para arquivos de uso, ou para atualizar a cópia offline do site.
+Se uma biblioteca tem os dois, os arquivos de uso têm prioridade nas funções que eles documentam. `docs usage --lib <lib> --materialize` converte uma página de referência em arquivos de uso. Use o comando para passar uma biblioteca para arquivos de uso, ou para atualizar a cópia offline do site.
 
 ## Guias com exemplos interativos
 
@@ -121,19 +121,19 @@ Você não precisa escrever os primeiros exemplos à mão. O validador sabe quai
 
 ```sh
 # no repositório da biblioteca, depois do `check --tests` gerar o relatório
-npx tsx <doc>/src/cli.ts check --lib python --path . --tests
-npx tsx <doc>/src/cli.ts usage --lib python --path . --scaffold
+npx tsx <docs>/src/cli.ts check --lib python --path . --tests
+npx tsx <docs>/src/cli.ts usage --lib python --path . --scaffold
 ```
 
 O comando não muda seções que existem e adiciona as seções novas no fim do arquivo. O resultado em cada comentário é o valor que o contrato espera, tirado de um caso que já passa na biblioteca. Os exemplos estão corretos quando o comando os escreve. Você pode editar depois.
 
-Sem `--scaffold`, o `doc usage` mostra o que está documentado, o que falta e o que está errado. Com `--strict`, o comando falha quando falta algo ou algo está errado. Uma biblioteca pode usar isso na CI.
+Sem `--scaffold`, o `docs usage` mostra o que está documentado, o que falta e o que está errado. Com `--strict`, o comando falha quando falta algo ou algo está errado. Uma biblioteca pode usar isso na CI.
 
 ## A versão no site
 
 O site lê os arquivos em `usage.ref`. O padrão é a **última release no GitHub** da biblioteca, então o site bate com o pacote que o leitor instala. Um repositório sem release usa a branch padrão. Se a documentação da própria biblioteca segue a branch principal, use `"ref": "main"`.
 
-Uma biblioteca sem `docs/usage/` usa as cópias em `site/fixtures/usage/<lib>/` do repositório doc. Essas cópias têm o mesmo formato, então você pode copiá-las para a biblioteca do jeito que estão.
+Uma biblioteca sem `docs/usage/` usa as cópias em `site/fixtures/usage/<lib>/` do repositório docs. Essas cópias têm o mesmo formato, então você pode copiá-las para a biblioteca do jeito que estão.
 
 ## Atualize o site a cada release
 
@@ -142,9 +142,9 @@ Adicione este passo ao workflow de release da biblioteca. O site então é gerad
 ```yaml
 - name: Notify the docs site
   if: success()
-  run: gh api repos/brazilian-utils/doc/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
+  run: gh api repos/brazilian-utils/docs/dispatches -f event_type=lib-released -f 'client_payload[lib]=python'
   env:
-    GH_TOKEN: ${{ secrets.DOC_DISPATCH_TOKEN }}
+    GH_TOKEN: ${{ secrets.DOCS_DISPATCH_TOKEN }}
 ```
 
 Sem esse passo, o site é gerado de novo todo dia e depois de cada mudança no contrato.
@@ -153,7 +153,7 @@ Sem esse passo, o site é gerado de novo todo dia e depois de cada mudança no c
 
 <Steps>
 
-1. Copie `site/fixtures/usage/<lib>/` do repositório doc para `docs/usage/` na biblioteca, ou rode o comando de [Gere os primeiros exemplos](#gere-os-primeiros-exemplos).
+1. Copie `site/fixtures/usage/<lib>/` do repositório docs para `docs/usage/` na biblioteca, ou rode o comando de [Gere os primeiros exemplos](#gere-os-primeiros-exemplos).
 
 2. Leia os exemplos e adicione texto onde ajudar.
 

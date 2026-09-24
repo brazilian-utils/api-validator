@@ -20,7 +20,7 @@ export const kotlin: LanguageAdapter = {
 After you write the adapter, do these steps:
 
 1. Add `libs/<name>.json` (`"language": "kotlin"`).
-2. Run `doc check -l <name> -v`.
+2. Run `docs check -l <name> -v`.
 3. Add a fixture and tests under `test/`.
 
 ## 1. `candidates(fn, lib)`: naming conventions
@@ -125,7 +125,7 @@ the cases that `check --tests` fails.
       optional/rest params
 - [ ] extractor and type mapping tests in `test/extractors.test.ts` / `test/core.test.ts`
 - [ ] runner test in `test/runners.test.ts` (skipped when the toolchain is absent)
-- [ ] `tools` listed (so `doc doctor` checks them)
+- [ ] `tools` listed (so `docs doctor` checks them)
 - [ ] the harness of the library (`templates/harness/<id>/`), parity with `check --tests` verified
 - [ ] toolchain added to `.github/workflows/ci.yml` and `conformance.yml`
-- [ ] `libs/<name>.json` + `doc baseline -l <name> --tests`
+- [ ] `libs/<name>.json` + `docs baseline -l <name> --tests`

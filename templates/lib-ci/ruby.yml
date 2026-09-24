@@ -21,6 +21,6 @@ jobs:
         with:
           ruby-version: "3.3"
           bundler-cache: true
-      - uses: brazilian-utils/doc@main
+      - uses: brazilian-utils/docs@main
         with:
           library: brazilian-utils-ruby

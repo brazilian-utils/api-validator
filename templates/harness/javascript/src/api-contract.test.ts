@@ -2,7 +2,7 @@
  * Conformance harness for the shared brazilian-utils API contract.
  *
  * `api-contract/` (repo root) is a vendored, language-agnostic copy of the contract's test vectors
- * (refreshed by the doc bot; never edit it here). This file maps each contract function
+ * (refreshed by the docs bot; never edit it here). This file maps each contract function
  * id to the function of this lib that implements it (the REGISTRY below) and runs every case as its
  * own test, named by the case id. The rules it follows are in `api-contract/README.md` and
  * `api-contract/cases/index.json` (`comparison`).

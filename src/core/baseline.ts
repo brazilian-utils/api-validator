@@ -1,7 +1,7 @@
 /**
  * Baselines make the validator adoptable today: a lib's CI fails only when something that
  * used to conform stops conforming (a regression), not because of the long tail of
- * functions it never implemented. The baseline ratchets up with `doc baseline`.
+ * functions it never implemented. The baseline ratchets up with `docs baseline`.
  */
 import fs from "node:fs";
 import path from "node:path";

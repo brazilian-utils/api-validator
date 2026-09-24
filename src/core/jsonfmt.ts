@@ -5,7 +5,7 @@
  *
  *   { "args": ["40364478081"], "returns": true, "note": "…" }
  *
- * `doc fmt` rewrites files in this form; CI runs `fmt --check`.
+ * `docs fmt` rewrites files in this form; CI runs `fmt --check`.
  */
 
 const WIDTH = 120;

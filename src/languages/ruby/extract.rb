@@ -7,7 +7,7 @@ roots, warnings = ApiValidatorLoader.load(root, entry, namespace)
 strip_root = roots.size == 1
 
 # Types and deprecations come from YARD (https://yardoc.org), parsed by YARD itself.
-yard_lib = Dir[File.join(ENV.fetch("DOC_YARD", ""), "gems", "yard-*", "lib")].first
+yard_lib = Dir[File.join(ENV.fetch("DOCS_YARD", ""), "gems", "yard-*", "lib")].first
 $LOAD_PATH.unshift(yard_lib) if yard_lib
 require "yard"
 YARD::Registry.clear

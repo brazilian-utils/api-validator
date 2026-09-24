@@ -1,4 +1,4 @@
-name: brazilian-utils doc
+name: brazilian-utils docs
 description: >
   Checks a brazilian-utils implementation against the shared cross-language contract:
   missing functions, signature mismatches and the shared conformance tests.
@@ -25,7 +25,7 @@ inputs:
     description: >
       The lib's vendored conformance suite (api-contract/, run by the lib's harness in its own test
       job): "warn" (default) annotates the run when it is behind the contract (the nightly
-      doc run opens a PR refreshing it), "check" fails instead, "skip" ignores it.
+      docs run opens a PR refreshing it), "check" fails instead, "skip" ignores it.
     default: warn
 
 outputs:
@@ -40,7 +40,7 @@ runs:
       with:
         node-version: 22
 
-    - name: Install doc
+    - name: Install docs
       shell: bash
       run: npm ci --prefix "$GITHUB_ACTION_PATH" --no-audit --no-fund --loglevel=error
 
@@ -48,27 +48,27 @@ runs:
       id: check
       shell: bash
       env:
-        DOC_OUTPUT_DIR: ${{ runner.temp }}/doc
-        DOC_CACHE_DIR: ${{ runner.temp }}/doc-cache
+        DOCS_OUTPUT_DIR: ${{ runner.temp }}/docs
+        DOCS_CACHE_DIR: ${{ runner.temp }}/docs-cache
         INPUT_TESTS: ${{ inputs.tests }}
       run: |
         args=(check --lib "${{ inputs.library }}" --path "${{ inputs.path }}" --fail-on "${{ inputs.fail-on }}" --no-snapshot --summary "$GITHUB_STEP_SUMMARY")
         if [ "$INPUT_TESTS" = "true" ]; then args+=(--tests); fi
-        echo "report=$DOC_OUTPUT_DIR/${{ inputs.library }}.report.json" >> "$GITHUB_OUTPUT"
+        echo "report=$DOCS_OUTPUT_DIR/${{ inputs.library }}.report.json" >> "$GITHUB_OUTPUT"
         node --import "$GITHUB_ACTION_PATH/node_modules/tsx/dist/esm/index.mjs" "$GITHUB_ACTION_PATH/src/cli.ts" "${args[@]}"
 
     - name: Check the vendored conformance suite is up to date
       if: inputs.cases != 'skip'
       shell: bash
       env:
-        DOC_CACHE_DIR: ${{ runner.temp }}/doc-cache
-        DOC_OUTPUT_DIR: ${{ runner.temp }}/doc
+        DOCS_CACHE_DIR: ${{ runner.temp }}/docs-cache
+        DOCS_OUTPUT_DIR: ${{ runner.temp }}/docs
         MODE: ${{ inputs.cases }}
       run: |
         if node --import "$GITHUB_ACTION_PATH/node_modules/tsx/dist/esm/index.mjs" "$GITHUB_ACTION_PATH/src/cli.ts" \
           export-cases --lib "${{ inputs.library }}" --path "${{ inputs.path }}" --check; then
           exit 0
         fi
-        msg="api-contract/ is behind the contract: merge the api-contract bot PR, or run doc export-cases --lib ${{ inputs.library }} --path ."
+        msg="api-contract/ is behind the contract: merge the api-contract bot PR, or run docs export-cases --lib ${{ inputs.library }} --path ."
         if [ "$MODE" = "check" ]; then echo "::error::$msg"; exit 1; fi
         echo "::warning::$msg"

@@ -10,7 +10,7 @@ next-env.d.ts
 # usage files fetched from the library repos (regenerated on every build)
 .cache/
 
-# written by `doc site-data` from the last run (status, badges, the JSON suite)
+# written by `docs site-data` from the last run (status, badges, the JSON suite)
 .generated/
 public/badges/
 public/cases/

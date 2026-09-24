@@ -8,11 +8,11 @@ import { runJsonProcess } from "../shared/process-runner.js";
 import { listOf, makeTypeMapper, nullableOf, unionOf } from "../shared/typemap.js";
 import type { AdapterContext, Extraction, LanguageAdapter } from "../types.js";
 
-/** Interpreter: lib option `python` (e.g. a venv path) > $DOC_PYTHON > python3. */
+/** Interpreter: lib option `python` (e.g. a venv path) > $DOCS_PYTHON > python3. */
 function interpreter(ctx: AdapterContext): string {
   const opt = ctx.lib.options.python;
   if (typeof opt === "string") return path.resolve(ctx.root, opt);
-  return process.env.DOC_PYTHON ?? "python3";
+  return process.env.DOCS_PYTHON ?? "python3";
 }
 
 /** Pinned versions of the extraction tooling, installed into the work dir (never into the lib's env). */

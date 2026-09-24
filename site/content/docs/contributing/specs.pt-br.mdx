@@ -3,7 +3,7 @@ title: Mude o contrato
 description: Adicione ou mude uma função no contrato compartilhado. Todas as páginas deste site e todas as bibliotecas seguem o contrato.
 ---
 
-O contrato no [doc](https://github.com/brazilian-utils/doc) define cada utilitário: uma pasta por utilitário (o contrato chama de domínio), com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra na main, cada biblioteca que não tem a função nova recebe uma issue.
+O contrato no [docs](https://github.com/brazilian-utils/docs) define cada utilitário: uma pasta por utilitário (o contrato chama de domínio), com um `contract.json`. Cada arquivo lista as funções, as assinaturas e os casos de teste que todas as bibliotecas rodam. Este site gera as páginas a partir do contrato. Quando uma mudança no contrato entra na main, cada biblioteca que não tem a função nova recebe uma issue.
 
 ## Arquivos de um domínio
 
@@ -49,7 +49,7 @@ As chaves de `functions` são os nomes das funções no contrato, como `isValid`
 - a segunda parte do id da função, como `cpf.isValid`,
 - o nome que o validador, as issues e as páginas de situação usam.
 
-Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar só o título na página, adicione `label` com `{ "en", "pt-BR" }`. O [docs/contract.md](https://github.com/brazilian-utils/doc/blob/main/docs/contract.md) descreve todos os campos.
+Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar só o título na página, adicione `label` com `{ "en", "pt-BR" }`. O [docs/contract.md](https://github.com/brazilian-utils/docs/blob/main/docs/contract.md) descreve todos os campos.
 
 ## Adicione uma função ou um domínio
 
@@ -59,9 +59,9 @@ Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar
 
 2. Um domínio novo também ganha a sua spec: o que é o identificador, o formato e o algoritmo, em `spec.en.md` e `spec.pt-br.md`, e as fontes oficiais em `references.md`. `npm run lint` lista os domínios que ainda não têm.
 
-3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run doc fmt` corrige o formato.
+3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run docs fmt` corrige o formato.
 
-4. Rode `npm run doc sync` e depois `npm run check -- --tests` para ver em quais bibliotecas os casos novos já passam.
+4. Rode `npm run docs sync` e depois `npm run check -- --tests` para ver em quais bibliotecas os casos novos já passam.
 
 5. Abra o pull request. O pipeline adiciona ao pull request o changelog do contrato e a lista de issues que vai abrir. Depois do merge, cada biblioteca sem a função recebe uma issue com o título `Implement <função>`, e a função aparece neste site.
 

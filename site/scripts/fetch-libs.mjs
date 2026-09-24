@@ -25,7 +25,7 @@
  *              e.g. the JavaScript library generating its examples from templates.
  *
  * Where a library is read from: USAGE_SOURCE=fixtures → only fixtures/usage/<lib>/ (offline);
- * USAGE_SOURCE=local → ../.repos/<lib> (the checkouts doc ran on); otherwise a shallow
+ * USAGE_SOURCE=local → ../.repos/<lib> (the checkouts docs ran on); otherwise a shallow
  * clone at the ref, falling back to the local checkout, then to the fixtures.
  *
  * Output:
@@ -261,7 +261,7 @@ function referencePage(lib, src, result) {
   if (!lib.reference) return [];
   const fns = status?.libs?.[lib.id]?.functions;
   if (!fns) {
-    warnings.push(`${lib.id}: reference page not read, no validator run to map its symbols (run doc site-data)`);
+    warnings.push(`${lib.id}: reference page not read, no validator run to map its symbols (run docs site-data)`);
     return [];
   }
   const bySymbol = symbolMap(Object.entries(fns).filter(([fnId]) => loadOperation(fnId)).map(([fnId, f]) => [fnId, f.symbol]));

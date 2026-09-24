@@ -83,6 +83,6 @@ export function briefMarkdown(fn: ContractFunction, target: ImplRef, adapter: La
       out.push(`<details><summary>Reference source (${ref.o.lib.name})</summary>`, "", "```" + (FENCE[ref.o.report.language] ?? ""), src, "```", "", "</details>", "");
     }
   }
-  out.push(`Done when: \`doc check --lib ${target.lib.name} --tests --only '${fn.id}'\` reports it ok.`, "");
+  out.push(`Done when: \`docs check --lib ${target.lib.name} --tests --only '${fn.id}'\` reports it ok.`, "");
   return out.join("\n");
 }

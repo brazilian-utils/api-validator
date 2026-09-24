@@ -3,7 +3,7 @@ title: Change the contract
 description: Add or change a function in the shared contract. Every page of this site and every library follows the contract.
 ---
 
-The contract in [doc](https://github.com/brazilian-utils/doc) defines each utility: one folder per utility (the contract calls it a domain), with a `contract.json`. Each file lists the functions, their signatures and the test cases that every library runs. This site makes its pages from the contract. When a change to the contract is merged, each library that does not have the new function gets an issue.
+The contract in [docs](https://github.com/brazilian-utils/docs) defines each utility: one folder per utility (the contract calls it a domain), with a `contract.json`. Each file lists the functions, their signatures and the test cases that every library runs. This site makes its pages from the contract. When a change to the contract is merged, each library that does not have the new function gets an issue.
 
 ## Files of a domain
 
@@ -49,7 +49,7 @@ The keys of `functions` are the function names in the contract, such as `isValid
 - the second part of the function id, such as `cpf.isValid`,
 - the name that the validator, the issues and the status pages use.
 
-Do not rename a function. A new name breaks every library. To change only the title on the page, add `label` with `{ "en", "pt-BR" }`. [docs/contract.md](https://github.com/brazilian-utils/doc/blob/main/docs/contract.md) describes every field.
+Do not rename a function. A new name breaks every library. To change only the title on the page, add `label` with `{ "en", "pt-BR" }`. [docs/contract.md](https://github.com/brazilian-utils/docs/blob/main/docs/contract.md) describes every field.
 
 ## Add a function or a domain
 
@@ -59,9 +59,9 @@ Do not rename a function. A new name breaks every library. To change only the ti
 
 2. A new domain also gets its spec: what the identifier is, its format and its algorithm, in `spec.en.md` and `spec.pt-br.md`, and the official sources in `references.md`. `npm run lint` names the domains that still lack them.
 
-3. Run `npm run lint`. It checks the contract, the schemas and the format. `npm run doc fmt` fixes the format.
+3. Run `npm run lint`. It checks the contract, the schemas and the format. `npm run docs fmt` fixes the format.
 
-4. Run `npm run doc sync`, then `npm run check -- --tests` to see which libraries already pass the new cases.
+4. Run `npm run docs sync`, then `npm run check -- --tests` to see which libraries already pass the new cases.
 
 5. Open the pull request. The pipeline adds the contract changelog to the pull request, and the list of issues it will open. After the merge, each library without the function gets an issue titled `Implement <function>`, and the function appears on this site.
 

@@ -51,4 +51,4 @@ case's `args`:
 - An idiom that needs adapting goes in its own fun, for example
   `fun(V) -> brutils_phone:is_valid(V, mobile) end`.
 - A case with a different number of args than the fun's arity is skipped. This matches the
-  doc, which calls `M:F/length(Args)`.
+  docs, which calls `M:F/length(Args)`.
