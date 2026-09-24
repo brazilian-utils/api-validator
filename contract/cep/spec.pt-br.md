@@ -12,13 +12,6 @@ references:
 
 O CEP é um código numérico de oito algarismos. Os Correios atribuem esses códigos a localidades, logradouros, unidades dos Correios, serviços, órgãos públicos, empresas e edifícios. Os códigos orientam e aceleram o encaminhamento, o tratamento e a distribuição de objetos de correspondência.
 
-## Funções
-
-- **Validação**: Conferir se o CEP tem `8` dígitos.
-- **Formatação**: Mostrar o CEP no formato padrão `XXXXX-XXX`.
-- **Interpretação**: Manter só os dígitos, até 8.
-- **Geração**: Gerar um CEP aleatório de `8` dígitos.
-
 ## Regras de validação
 
 1. A entrada deve conter exatamente `8` dígitos.

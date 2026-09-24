@@ -13,13 +13,6 @@ references:
 
 O CPF é um identificador nacional de 11 dígitos. Os 8 primeiros dígitos são o número de inscrição, escolhido ao acaso. O nono dígito indica a Região Fiscal responsável pela inscrição. Os 2 últimos dígitos são dígitos verificadores. Desde janeiro de 2023, o Brasil usa o CPF como número único de identificação.
 
-## Funções
-
-- **Validação**: Conferir o tamanho e os dígitos verificadores.
-- **Formatação**: Mostrar o CPF no formato padrão `XXX.XXX.XXX-YY`.
-- **Interpretação**: Manter só os dígitos, até 11.
-- **Geração**: Gerar um CPF válido, ao acaso ou conforme regras específicas.
-
 ## Regras de validação
 
 1. A entrada deve conter exatamente 11 caracteres.

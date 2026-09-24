@@ -12,13 +12,6 @@ references:
 
 Vehicle license plates are the front and rear plates fixed to a vehicle. A plate has 7 letters and digits.
 
-## Functions
-
-- **Validation**: Check that the vehicle license plate is valid according to the official rules.
-- **Formatting**: Upper-case the plate and add a hyphen to old-format plates (`ABC-1234`). Mercosul plates (`ABC1D23`) have no separator. `L` is a letter and `N` is a digit.
-- **Parsing**: Keep only the letters and digits, in upper case.
-- **Generation**: Generate a valid license plate in the given format. If you give no format, the function returns a license plate in the Mercosul format.
-
 ## Validation rules
 
 ### Mercosul standard

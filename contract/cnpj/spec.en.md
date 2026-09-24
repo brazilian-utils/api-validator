@@ -13,15 +13,6 @@ references:
 
 The CNPJ is a unique identification number that the Brazilian Federal Revenue Service issues. It registers companies, public agencies and other entities in Brazil. It has 14 characters: 8 for the root, 4 for the order of the establishment and 2 check digits. CNPJs issued before the alphanumeric format started contain only digits. Since July 2026, new registrations can contain uppercase letters and digits in the first 12 characters. The 2 check digits stay numeric only.
 
-## Functions
-
-- **Validation**: Check the length and the check digits.
-- **Formatting**: Format the CNPJ as `XX.XXX.XXX/XXXX-DV`, where:
-    - `X`: alphanumeric character (digits `0` to `9` and uppercase letters `A` to `Z`).
-    - `DV`: check digits calculated with the modulo 11 algorithm.
-- **Parsing**: Keep only the digits (version 1), or the letters and digits in upper case (version 2), up to 14 characters.
-- **Generation**: Generate a random valid CNPJ string.
-
 ## Validation rules
 
 1. The input must contain exactly 14 characters.

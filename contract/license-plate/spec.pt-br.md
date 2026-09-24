@@ -12,13 +12,6 @@ references:
 
 Placas de identificação veicular são as chapas dianteira e traseira fixadas no veículo. Uma placa tem 7 letras e dígitos.
 
-## Funções
-
-- **Validação**: Verificar se a placa de identificação veicular é válida conforme as regras oficiais.
-- **Formatação**: Converter a placa para maiúsculas e adicionar um hífen às placas no formato antigo (`ABC-1234`). Placas Mercosul (`ABC1D23`) não têm separador. `L` é uma letra e `N` é um algarismo.
-- **Interpretação**: Manter só as letras e os dígitos, em maiúsculas.
-- **Geração**: Gerar uma placa válida no formato indicado. Se você não indicar um formato, a função retorna uma placa no formato Mercosul.
-
 ## Regras de validação
 
 ### Padrão Mercosul

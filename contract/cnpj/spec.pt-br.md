@@ -13,15 +13,6 @@ references:
 
 O CNPJ é o número de identificação que a Receita Federal atribui a empresas, órgãos públicos e outras entidades no Brasil. Tem 14 caracteres: 8 da raiz, 4 da ordem do estabelecimento e 2 dígitos verificadores. Os CNPJs emitidos antes do início do formato alfanumérico usam apenas dígitos. Desde julho de 2026, novas inscrições podem conter letras maiúsculas e dígitos nos 12 primeiros caracteres. Os 2 dígitos verificadores continuam apenas numéricos.
 
-## Funções
-
-- **Validação**: Conferir o tamanho e os dígitos verificadores.
-- **Formatação**: Mostrar o CNPJ no formato `XX.XXX.XXX/XXXX-DV`, onde:
-    - `X`: caractere alfanumérico (algarismos de `0` a `9` e letras maiúsculas de `A` a `Z`).
-    - `DV`: dígitos verificadores calculados pelo algoritmo do módulo 11.
-- **Interpretação**: Manter só os dígitos (versão 1), ou as letras e os dígitos em maiúsculas (versão 2), até 14 caracteres.
-- **Geração**: Gerar uma string de CNPJ válida e aleatória.
-
 ## Regras de validação
 
 1. A entrada deve conter exatamente 14 caracteres.

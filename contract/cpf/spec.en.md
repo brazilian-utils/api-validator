@@ -13,13 +13,6 @@ references:
 
 The CPF is an 11-digit national identification number. The first eight digits are the registration number, assigned at random. The ninth digit identifies the Fiscal Region responsible for the registration. The last two digits are check digits. Since January 2023, Brazil has used the CPF as its single identification number.
 
-## Functions
-
-- **Validation**: Check the length and the check digits.
-- **Formatting**: Show the CPF in the standard format `XXX.XXX.XXX-YY`.
-- **Parsing**: Keep only the digits, up to 11.
-- **Generation**: Generate a valid CPF, at random or according to specific rules.
-
 ## Validation rules
 
 1. The input must contain exactly 11 characters.

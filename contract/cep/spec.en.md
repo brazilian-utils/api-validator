@@ -12,13 +12,6 @@ references:
 
 The CEP is a numeric code of eight digits. The postal service assigns these codes to localities, streets, postal units, services, public agencies, companies and buildings. The codes guide and speed up the routing, processing and delivery of mail items.
 
-## Functions
-
-- **Validation**: Check that the CEP has `8` digits.
-- **Formatting**: Show the CEP in the standard format `XXXXX-XXX`.
-- **Parsing**: Keep only the digits, up to 8.
-- **Generation**: Generate a random CEP of `8` digits.
-
 ## Validation rules
 
 1. The input must contain exactly `8` digits.
