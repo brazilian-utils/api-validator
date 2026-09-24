@@ -19,6 +19,7 @@
     "package": "brazilian_utils",
     "install": "cargo add brazilian_utils",
     "registry": "https://crates.io/crates/brazilian_utils",
+    "contributing": "https://github.com/brazilian-utils/rust/blob/main/CONTRIBUTING.md",
     "usage": { "ref": "latest-release", "path": "docs/usage" }
   }
 }

@@ -11,7 +11,7 @@ A [matriz de paridade](/pt-br/reference/parity/) mostra todas as lacunas. A pág
 
 1. **Leia a página do utilitário.** A spec e os casos de teste definem o comportamento inteiro. As abas das outras bibliotecas mostram o código delas.
 
-2. **Implemente a função.** Siga o `CONTRIBUTING.md` da biblioteca. Use os nomes que a linguagem espera, por exemplo `isValidCpf`, `is_valid_cpf` ou `cpf.IsValid`. O contrato não define os nomes. O validador encontra uma função pelo nome, ou por um mapeamento em `libs/<lib>.json`.
+2. **Implemente a função.** Siga o [guia de contribuição](/pt-br/contributing/libraries/) da biblioteca. Use os nomes que a linguagem espera, por exemplo `isValidCpf`, `is_valid_cpf` ou `cpf.IsValid`. O contrato não define os nomes. O validador encontra uma função pelo nome, ou por um mapeamento em `libs/<lib>.json`.
 
 3. **Registre a função no harness (o executor de testes) da biblioteca.** O harness lê a cópia de `api-contract/cases/*.json` na biblioteca e executa todos os casos de todas as funções que conhece, com o próprio comando de teste da biblioteca.
 

@@ -88,7 +88,8 @@ typed libraries, they also fail a few more cases that the runner could only skip
 `baselines/_divergences.json`. The nightly fails only on a split that is not in that file. The inputs `diff` compares are fixed too (`baselines/_corpus.json`): the random values mined from the reference library enter it only through `diff --baseline`, so a run never fails on a value another run never saw.
 
 "Core" means implemented by at least 4 of the 7 libraries when the contract was bootstrapped
-(46 functions). The contract has 138 functions in 42 domains and 791 cases. 12 functions still
+(46 functions). The contract has 138 functions in 42 domains and 791 cases. 38 domains still
+have no long spec (`spec.en.md`, `spec.pt-br.md`, `references.md`; `lint` lists them). 12 functions still
 have no cases (object or date parameters, date-valued results, no reference implementation).
 Skipped tests are calls that a runner cannot express (for example, Go/Rust functions that
 require an argument that the contract makes optional).

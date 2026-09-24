@@ -142,7 +142,7 @@ function normalize(doc) {
   };
 }
 
-/** @type {() => Array<{id:string,name:string,label:string,repo:string,ref:string,path:string,reference?:Record<string,string>,guides?:Record<string,string>,root:string,assets:string[],prepare?:string[],package:string,install:string,installLang:string,installs:Array<{label:string,lang:string,code:string,note?:string|{en:string,'pt-BR':string}}>,runtimes:Array<{name:string|{en:string,'pt-BR':string},supported:string|{en:string,'pt-BR':string},tested?:string|{en:string,'pt-BR':string}}>,registry:string}>} */
+/** @type {() => Array<{id:string,name:string,label:string,repo:string,ref:string,path:string,reference?:Record<string,string>,guides?:Record<string,string>,root:string,assets:string[],prepare?:string[],package:string,install:string,installLang:string,installs:Array<{label:string,lang:string,code:string,note?:string|{en:string,'pt-BR':string}}>,runtimes:Array<{name:string|{en:string,'pt-BR':string},supported:string|{en:string,'pt-BR':string},tested?:string|{en:string,'pt-BR':string}}>,registry:string,contributing?:string|{en:string,'pt-BR':string}}>} */
 export const loadLibs = once(() =>
   fs
     .readdirSync(LIBS_DIR)
@@ -169,6 +169,7 @@ export const loadLibs = once(() =>
       installs: (lib.site.installs ?? [{ label: lib.site.package, code: lib.site.install }]).map((o) => ({ lang: lib.site.installLang ?? 'sh', ...o })),
       runtimes: lib.site.runtimes ?? [],
       registry: lib.site.registry,
+      contributing: lib.site.contributing,
     })),
 );
 

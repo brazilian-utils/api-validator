@@ -12,11 +12,11 @@ contract/
 ├── _categories.json   the groups of the sidebar
 ├── cpf/
 │   ├── contract.json  title, summary, category, functions and their test cases
-│   ├── spec.en.md     the long rule and the algorithm, in English (optional)
+│   ├── spec.en.md     the long rule and the algorithm, in English
 │   ├── spec.pt-br.md  the same text, in Portuguese
 │   └── references.md  links to the official documents
 └── license-plate/
-    └── contract.json  the folder is the domain in kebab-case (licensePlate)
+    └── contract.json  the folder is the domain in kebab-case
 ```
 
 ```json
@@ -57,7 +57,7 @@ Do not rename a function. A new name breaks every library. To change only the ti
 
 1. Add the function to `contract/<domain>/contract.json`, or create the folder for a new domain. Give the function a signature and **test cases**. The test cases are the spec that every library must pass. Include the examples of the official rule and the edge cases: empty input, formatted input, a wrong check digit.
 
-2. A new domain can need more text than the function descriptions, for example an algorithm or a regular expression. Write that text in `spec.en.md` and `spec.pt-br.md`. List the official sources in `references.md`.
+2. A new domain also gets its spec: what the identifier is, its format and its algorithm, in `spec.en.md` and `spec.pt-br.md`, and the official sources in `references.md`. `npm run lint` names the domains that still lack them.
 
 3. Run `npm run lint`. It checks the contract, the schemas and the format. `npm run api-validator fmt` fixes the format.
 

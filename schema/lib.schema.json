@@ -119,6 +119,20 @@
           }
         },
         "registry": { "type": "string", "format": "uri" },
+        "contributing": {
+          "anyOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en", "pt-BR"],
+              "additionalProperties": false
+            }
+          ]
+        },
         "usage": {
           "default": { "ref": "latest-release", "path": "docs/usage", "assets": [] },
           "type": "object",

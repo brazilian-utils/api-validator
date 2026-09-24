@@ -1,3 +1,9 @@
 {
-  "pages": ["specs", "usage-files", "new-language", "pipeline"]
+  "pages": [
+    "libraries",
+    "specs",
+    "usage-files",
+    "new-language",
+    "pipeline"
+  ]
 }

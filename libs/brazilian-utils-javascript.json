@@ -47,6 +47,7 @@
       }
     ],
     "registry": "https://www.npmjs.com/package/@brazilian-utils/brazilian-utils",
+    "contributing": "https://github.com/brazilian-utils/javascript/blob/main/CONTRIBUTING.md",
     "usage": {
       "ref": "main",
       "path": "docs/usage",

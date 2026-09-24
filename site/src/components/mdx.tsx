@@ -7,9 +7,10 @@ import type { ReactNode } from 'react';
 import { FlatTabs } from '@/components/flat-tabs';
 import { LangIcon } from '@/components/lang-icon';
 import { libNames, loadLibs } from '@/lib/data';
+import { LangIcon as Icon } from '@/components/lang-icon';
 import { Team } from '@/components/team';
 import { InstallOptions } from '@/components/install-options';
-import { type Locale, prefixOf, translator } from '@/lib/i18n';
+import { type Locale, pick, prefixOf, translator } from '@/lib/i18n';
 import Link from '@/components/link';
 
 /** A numbered sequence: wraps a Markdown ordered list. */
@@ -63,6 +64,45 @@ function InstallTabs({ label = 'Library', locale }: { label?: string; locale: Lo
   );
 }
 
+/** Where to contribute to each library: its repository, its own contributing guide when it has
+ *  one (else its issues), and its page here. From libs/, so a new language lists itself. */
+function LibsContributing({ locale }: { locale: Locale }) {
+  const t = translator(locale);
+  const p = prefixOf(locale);
+  return (
+    <ul className="not-prose my-6 grid gap-3 sm:grid-cols-2">
+      {loadLibs().map((lib: any) => {
+        const guide = typeof lib.contributing === 'string' ? lib.contributing : lib.contributing ? pick(lib.contributing, locale) : undefined;
+        return (
+          <li key={lib.id} className="flex flex-col gap-1.5 rounded-xl border bg-fd-card px-4 py-3">
+            <span className="inline-flex items-center gap-2 font-semibold">
+              <Icon lib={lib.id} className="size-4" />
+              {lib.label}
+            </span>
+            <span className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              {guide ? (
+                <a href={guide} className="underline underline-offset-4">
+                  {t('contrib.guide')}
+                </a>
+              ) : (
+                <a href={`https://github.com/${lib.repo}/issues`} className="underline underline-offset-4">
+                  {t('contrib.issues')}
+                </a>
+              )}
+              <a href={`https://github.com/${lib.repo}`} className="text-fd-muted-foreground hover:text-fd-foreground">
+                github.com/{lib.repo}
+              </a>
+              <Link href={`${p}/libs/${lib.id}/`} className="text-fd-muted-foreground hover:text-fd-foreground">
+                {t('contrib.gaps')}
+              </Link>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function getMDXComponents(locale: Locale = 'en', components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
@@ -75,6 +115,7 @@ export function getMDXComponents(locale: Locale = 'en', components?: MDXComponen
     Team,
     /** The libraries by name, in a sentence: "JavaScript, Python, Go, … and Erlang". */
     LibNames: () => <>{libNames(locale)}</>,
+    LibsContributing: () => <LibsContributing locale={locale} />,
     ...components,
   };
 }

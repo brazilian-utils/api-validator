@@ -75,8 +75,8 @@ gh api repos/actions/checkout/commits/<tag> --jq .sha
 ```
 ../contract/<domínio>/       uma pasta por domínio, em kebab-case (cpf/, license-plate/):
                              contract.json (título, resumo, categoria, funções, assinaturas e
-                             casos: a spec) e, opcionais, spec.en.md, spec.pt-br.md,
-                             references.md, references/*.pdf
+                             casos), spec.en.md, spec.pt-br.md, references.md e, opcional,
+                             references/*.pdf
 ../contract/_categories.json grupos do menu
 ../libs/<lib>.json           bloco "site": rótulo, instalação, registry, onde ficam os arquivos de uso
 .generated/status.json       escrito por `api-validator site-data`: situação por lib e função
@@ -140,7 +140,7 @@ faltar, mostra o inglês.
 - o título e o resumo de cada domínio
 - o `summary` e a `description` de cada função, nos dois idiomas (uma string conta só como
   inglês)
-- o par `spec.en.md` e `spec.pt-br.md`, quando um domínio tem spec longa
+- o par `spec.en.md` e `spec.pt-br.md` de cada domínio
 - o `<página>.pt-br.mdx` de cada página escrita à mão
 - cada string de interface de `en.json` em `pt-br.json`
 

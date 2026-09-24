@@ -11,7 +11,7 @@ The [parity matrix](/reference/parity/) shows every gap. The page of each librar
 
 1. **Read the utility page.** The spec and the test cases define the full behavior. The tabs of the other libraries show their code.
 
-2. **Implement the function.** Follow the `CONTRIBUTING.md` of the library. Use the names that the language expects, for example `isValidCpf`, `is_valid_cpf` or `cpf.IsValid`. The contract does not set the names. The validator finds a function by its name, or by a binding in `libs/<lib>.json`.
+2. **Implement the function.** Follow the library's [contributing guide](/contributing/libraries/). Use the names that the language expects, for example `isValidCpf`, `is_valid_cpf` or `cpf.IsValid`. The contract does not set the names. The validator finds a function by its name, or by a binding in `libs/<lib>.json`.
 
 3. **Register the function in the harness of the library.** The harness reads the copy of `api-contract/cases/*.json` in the library. It runs every case of every function it knows, with the library's own test command.
 

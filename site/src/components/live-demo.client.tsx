@@ -36,6 +36,20 @@ input[aria-invalid="true"] { border-color: var(--color-fail); }
 p, output { margin: 0; font-size: 13px; color: var(--color-fd-muted-foreground); }
 input[aria-invalid="true"] + p, p[role="alert"]:not(:empty) { color: var(--color-fail); }
 output:not(:empty) { color: var(--color-fd-primary); }
+/* A control that says it is busy (aria-busy) gets a small ring beside it instead of its words:
+   the words stay for a screen reader. */
+@keyframes demo-spin { to { transform: rotate(360deg); } }
+:is(input, select)[aria-busy="true"] + :is(p, output) {
+  display: inline-flex; align-items: center; min-height: 20px; font-size: 0; color: var(--color-fd-muted-foreground);
+}
+:is(input, select)[aria-busy="true"] + :is(p, output)::before {
+  content: ""; flex: none; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid var(--color-fd-border); border-top-color: var(--color-fd-primary);
+  animation: demo-spin .7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(input, select)[aria-busy="true"] + :is(p, output)::before { animation: none; border-color: var(--color-fd-primary); border-top-color: var(--color-fd-border); }
+}
 button {
   font: 500 13px/1 var(--font-sans); padding: 9px 14px; border: 0; border-radius: 6px; cursor: pointer;
   color: var(--color-fd-primary-foreground); background: var(--color-fd-primary); transition: opacity .15s ease;

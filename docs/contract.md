@@ -2,8 +2,9 @@
 
 Use this page to write or change a contract file or a library config. The contract has one
 folder per domain in `contract/`, named after the domain in kebab-case (`cpf/`,
-`license-plate/`). The folder holds `contract.json` and, optionally, the long spec (`spec.en.md`,
-`spec.pt-br.md`), `references.md` and `references/*.pdf`. The validator ignores names that start
+`license-plate/`). The folder holds `contract.json`, the long spec (`spec.en.md`, `spec.pt-br.md`),
+`references.md` and, optionally, `references/*.pdf`; `lint` names the domains whose spec is still
+missing. The validator ignores names that start
 with `_` (for example, `contract/_proposals/`). Validate the files with
 `api-validator lint` and format them with `api-validator fmt` (CI runs `fmt --check`). Every
 file points at `schema/contract.schema.json`, so editors (VS Code, JetBrains…) validate and

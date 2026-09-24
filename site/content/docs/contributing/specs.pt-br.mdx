@@ -12,11 +12,11 @@ contract/
 ├── _categories.json   os grupos da barra lateral
 ├── cpf/
 │   ├── contract.json  título, resumo, categoria, funções e os casos de teste delas
-│   ├── spec.en.md     a regra longa e o algoritmo, em inglês (opcional)
+│   ├── spec.en.md     a regra longa e o algoritmo, em inglês
 │   ├── spec.pt-br.md  o mesmo texto, em português
 │   └── references.md  links para os documentos oficiais
 └── license-plate/
-    └── contract.json  a pasta é o domínio em kebab-case (licensePlate)
+    └── contract.json  a pasta é o domínio em kebab-case
 ```
 
 ```json
@@ -57,7 +57,7 @@ Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar
 
 1. Adicione a função em `contract/<domínio>/contract.json`, ou crie a pasta de um domínio novo. Dê à função uma assinatura e **casos de teste**. Os casos de teste são a spec que toda biblioteca precisa cumprir. Inclua os exemplos da regra oficial e os casos de borda: entrada vazia, entrada formatada, dígito verificador errado.
 
-2. Um domínio novo pode precisar de mais texto do que as descrições das funções, por exemplo um algoritmo ou uma expressão regular. Escreva esse texto em `spec.en.md` e `spec.pt-br.md`. Liste as fontes oficiais em `references.md`.
+2. Um domínio novo também ganha a sua spec: o que é o identificador, o formato e o algoritmo, em `spec.en.md` e `spec.pt-br.md`, e as fontes oficiais em `references.md`. `npm run lint` lista os domínios que ainda não têm.
 
 3. Rode `npm run lint`. Ele verifica o contrato, os schemas e o formato. `npm run api-validator fmt` corrige o formato.
 

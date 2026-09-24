@@ -43,6 +43,8 @@ export const LibSchema = z
         /** Where the lib runs (Node.js, Deno, browsers…), as its own README states it. */
         runtimes: z.array(z.object({ name: text, supported: text, tested: text.optional() })).min(1).optional(),
         registry: z.string().url(),
+        /** The lib's own contributing guide (a URL, or one per language); without it the site points at the repo's issues. */
+        contributing: text.optional(),
         /**
          * Where the lib documents how to use it, read by the site at `ref` (see
          * site/content/docs/contributing/usage-files.mdx):

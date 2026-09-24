@@ -78,7 +78,7 @@ export function pageTree(locale: Locale): PageTree.Root {
     type: 'folder',
     root: true,
     name: L(locale, 'Contributing', 'Como contribuir'),
-    description: L(locale, 'The contract, usage files, new programming languages', 'O contrato, arquivos de uso, novas linguagens de programação'),
+    description: L(locale, 'Each library, the contract, usage files, new programming languages', 'Cada biblioteca, o contrato, arquivos de uso, novas linguagens de programação'),
     icon: <GitPullRequest />,
     // The .mdx files of content/docs/contributing/, in the order of its meta.json.
     children: folderPages(locale, 'contributing').map((p) => page(p.title, `/contributing/${p.slug}/`)),

@@ -18,6 +18,10 @@
     "package": "brutils",
     "install": "pip install brutils",
     "registry": "https://pypi.org/project/brutils/",
+    "contributing": {
+      "en": "https://github.com/brazilian-utils/python/blob/main/CONTRIBUTING_EN.md",
+      "pt-BR": "https://github.com/brazilian-utils/python/blob/main/CONTRIBUTING.md"
+    },
     "usage": { "ref": "latest-release", "path": "docs/usage" }
   }
 }
