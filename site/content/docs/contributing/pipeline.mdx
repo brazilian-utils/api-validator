@@ -118,7 +118,6 @@ The publish job deploys to GitHub Pages. It has its own concurrency group, `gith
 | `PUBLISH_SITE` | variable | docs | `true` turns on the deploys to GitHub Pages from main. The Pages source must be GitHub Actions. |
 | `SITE_URL` | variable | docs | The public address of the site, with its path. Set it for a custom domain. |
 | `DOCS_DISPATCH_TOKEN` | secret | each library | A token that can send `repository_dispatch` to the docs repository (Contents: write). Without it, a release reaches the site at the next nightly run. |
-| `ANTHROPIC_API_KEY` | secret | each library | Optional. Used by `port-with-claude.yml`. |
 
 Vercel needs no variable. These are optional there:
 

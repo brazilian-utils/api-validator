@@ -18,7 +18,6 @@ is a number, not an opinion.
 | Add usage files to every library | one PR per library | Copy `site/fixtures/usage/<lib>/` (scaffolded from the cases each library passes) to `docs/usage/`. Cut the README down to a link to the site |
 | Add the suite and the harness to every library | one PR per library | `docs export-cases --lib <lib> --path .` copies `api-contract/` into the library. Copy the harness of the library from `templates/harness/<lang>/` (already written and verified for every library) |
 | Record the divergence baseline | maintainers | Run `docs diff --baseline` once. After that, the nightly fails only on *new* ways that libraries disagree |
-| Optional: agent ports | org admin | Add the secret `ANTHROPIC_API_KEY` in the library repos that adopt `templates/lib-ci/port-with-claude.yml` |
 
 **Done when** every library repo shows these items:
 
@@ -57,7 +56,7 @@ domain of the contract has had a review PR.
 Each library works from its `api-contract` issues. Run the Conformance workflow once with
 `backfill: core` to open one issue per missing core function and per failing case. Do the
 missing core functions and failing cases first, then the signature errors. Briefs make each
-item self-contained, so people and agents can work in parallel. Run
+item self-contained, so people can work in parallel. Run
 `docs baseline --tests` after each merge to lock in the gains.
 
 **Done when** every library has 100% core coverage (or explicit waivers) and 0 failing cases,
@@ -81,8 +80,8 @@ and the badge is green everywhere.
 JS implements 136 of the 138 contract functions. The others implement far less: in the run of September 2026, each of them passed 16 to 21% of the functions. Take the extended
 functions one domain at a time (fiscal: NF-e, CFOP, NCM, CST. Banking: IBAN, bank, pix. IBGE:
 state, municipality. Dates and holidays). For each domain, decide whether every library should
-have it, and move those functions to `core`. The agent workflow is most useful here: many
-functions, clear cases, existing reference implementations.
+have it, and move those functions to `core`. The briefs carry the most here: many functions,
+clear cases, existing reference implementations.
 
 **Done when** every library implements or waives every contract function.
 

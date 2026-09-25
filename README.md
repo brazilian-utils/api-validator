@@ -152,10 +152,6 @@ cases the library passes. For the format, read the
 To run the check locally from a library checkout, use `npx tsx /path/to/docs/src/cli.ts check --lib
 brazilian-utils-python --path . --tests`.
 
-[`templates/lib-ci/port-with-claude.yml`](templates/lib-ci/port-with-claude.yml) is an optional
-workflow. It gives the porting brief of the selected functions to a coding agent. The agent
-implements them, changes the code until the shared tests pass and opens a PR for review.
-
 
 ## How it works
 

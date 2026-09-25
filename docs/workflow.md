@@ -53,10 +53,9 @@ to fix.
    that does not have the function**. The issue has a porting brief: the idiomatic name for
    that language, the signature, the acceptance tests, links to the status page of the
    function and to every existing implementation, and the reference source inline.
-4. Each library implements the function. A person can do it, or a coding agent that gets the
-   brief. The shared tests are the objective acceptance criterion, so the agent does not need
-   to "understand" the other codebase. The CI of the library (the Action) shows that it
-   passes.
+4. Each library implements the function from the brief. The shared tests are the objective
+   acceptance criterion, so nobody needs to read the other codebases first. The CI of the
+   library (the Action) shows that it passes.
 5. Run `docs baseline` in this repo to lock it in. After that, if any library breaks
    the function, the CI of that library fails. The next nightly updates `api-contract/` in
    each library (bot PR), and the harness runs the new cases. The run that sees the function
@@ -209,15 +208,14 @@ also read.
 | Nightly job | Syncs all libraries, runs `check --tests` + `diff`, builds and publishes the docs site, updates issues, opens PRs that update the suite |
 | New machine / new contributor | Runs `docs doctor`, which lists every toolchain that the configured libraries need and what is missing |
 
-## Use a coding agent for the ports
+## Port a function from its brief
 
-The brief contains all that the agent needs: expected name, signature, test cases, reference
-source. Use this loop for each library:
+The brief contains all that a port needs: expected name, signature, test cases, reference
+source. The loop for each function:
 
-1. Give the agent one `api-contract` issue (or `docs brief <fn> --lib <lib>`).
-2. Tell it to implement the function in the idiom of the language and to add the cases to the
-   library's own test suite.
-3. Tell it to run `docs check --lib <lib> --path . --tests --only '<fn>'` until the
-   result is ok.
+1. Start from its `api-contract` issue (or `docs brief <fn> --lib <lib>`).
+2. Implement the function in the idiom of the language and add the cases to the library's own
+   test suite.
+3. Run `docs check --lib <lib> --path . --tests --only '<fn>'` until the result is ok.
 4. Review the result like any PR. The shared tests guarantee that the behavior matches, not
-   the memory of the reviewer about the other six codebases.
+   the reviewer's memory of the other codebases.
