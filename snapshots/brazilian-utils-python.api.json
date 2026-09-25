@@ -1,7 +1,7 @@
 {
   "library": "brazilian-utils-python",
   "language": "python",
-  "revision": "330627e9d76df2c2a484ca4c6afd2ac9e20a995f",
+  "revision": "dc14ab8bbf1961ffabb072abcce3f46ecc5eb09c",
   "symbols": [
     {
       "name": "cep.format_cep",

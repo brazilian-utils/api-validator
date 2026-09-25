@@ -87,8 +87,7 @@
   ],
   "legalProcess.isValid": [
     "dotnet,go,javascript,ruby,rust | python",
-    "dotnet,go,python,ruby,rust | javascript",
-    "dotnet,go,ruby,rust | javascript,python"
+    "dotnet,go,python,ruby,rust | javascript"
   ],
   "licensePlate.convertToMercosul": [
     "dotnet | erlang,go,javascript | python | ruby | rust",
