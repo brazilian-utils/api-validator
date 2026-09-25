@@ -1,0 +1,40 @@
+---
+title: Primeiros passos
+description: O que é o Brazilian Utils, como ler a página de um utilitário e como instalar uma biblioteca.
+---
+
+O Brazilian Utils é um conjunto de bibliotecas que validam, formatam, interpretam e geram dados brasileiros: CPF, CNPJ, CEP, placas, telefones, boletos e outros. Existe uma biblioteca para cada linguagem. A organização [Brazilian Utils](https://github.com/brazilian-utils) mantém todas elas, e este site reúne a documentação num lugar só.
+
+## Leia a página de um utilitário
+
+Cada utilitário tem uma página para todas as linguagens de programação. Toda página tem as mesmas partes, nesta ordem:
+
+1. **As bibliotecas.** Quantas funções do utilitário cada biblioteca implementa.
+2. **Uma seção para cada função**, como validar, formatar ou gerar. Cada seção mostra:
+   - a assinatura do contrato e os parâmetros,
+   - quais bibliotecas implementam a função e se todos os casos de teste compartilhados passam nelas,
+   - uma aba para cada biblioteca, com um exemplo naquela linguagem,
+   - uma caixa "Teste com JavaScript" que roda a biblioteca JavaScript no seu navegador,
+   - os casos de teste compartilhados, com o resultado em cada biblioteca.
+3. **Guias.** Exemplos maiores das bibliotecas, quando existem.
+4. **A especificação.** O que é o identificador, o formato, o algoritmo e as expressões regulares. Só alguns utilitários têm esta seção. Os outros descrevem a regra na seção de cada função.
+5. **Fontes oficiais.** A lei, o decreto ou o documento do governo que define a regra.
+
+Escolha sua linguagem em qualquer aba. A partir daí, toda página abre nessa linguagem.
+
+Todas as bibliotecas se comportam da mesma forma porque o contrato compartilhado define o comportamento, e os casos de teste o verificam. O contrato fica no [docs](https://github.com/brazilian-utils/docs). Nenhuma biblioteca o define sozinha.
+
+## Instale uma biblioteca
+
+<InstallTabs label="Biblioteca" />
+
+## O que as bibliotecas não fazem
+
+As bibliotecas verificam a **estrutura** de um valor: o tamanho, os caracteres e os dígitos verificadores. Elas não consultam bases do governo. Um CPF ou CNPJ válido é um número bem formado. Isso não quer dizer que a pessoa ou a empresa exista. Uma função que chama um serviço externo, como a busca de endereço pelo CEP, avisa na própria seção.
+
+## Próximos passos
+
+- Encontre um utilitário na barra lateral. A barra agrupa os utilitários por categoria.
+- Veja qual biblioteca implementa o quê na [matriz de paridade](/pt-br/reference/parity/).
+- A página de cada biblioteca mostra o que ela implementa e o que ainda falta.
+- Para contribuir, veja [Mude o contrato](/pt-br/contributing/specs/) ou [Preencha uma lacuna numa biblioteca](/pt-br/contributing/new-language/).

@@ -1,0 +1,458 @@
+{
+  "library": "brazilian-utils-dotnet",
+  "language": "dotnet",
+  "revision": "8d8846d38d9eab2f805ba4324ecbe0e19b833335",
+  "symbols": [
+    {
+      "name": "Boleto.IsValid",
+      "params": [
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Boleto.fs",
+        "line": 83
+      }
+    },
+    {
+      "name": "Cep.Format",
+      "params": [
+        {
+          "name": "cep",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cep.fs",
+        "line": 14
+      }
+    },
+    {
+      "name": "Cep.IsValid",
+      "params": [
+        {
+          "name": "cep",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Cep.fs",
+        "line": 10
+      }
+    },
+    {
+      "name": "Cnh.isValidCnh",
+      "params": [
+        {
+          "name": "cnh",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Cnh.fs",
+        "line": 51
+      }
+    },
+    {
+      "name": "Cnpj.Format",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cnpj.fs",
+        "line": 69
+      }
+    },
+    {
+      "name": "Cnpj.Generate",
+      "params": [],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cnpj.fs",
+        "line": 78
+      }
+    },
+    {
+      "name": "Cnpj.GenerateAlphanumeric",
+      "params": [],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cnpj.fs",
+        "line": 86
+      }
+    },
+    {
+      "name": "Cnpj.IsValid",
+      "params": [
+        {
+          "name": "cnpj",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Cnpj.fs",
+        "line": 64
+      }
+    },
+    {
+      "name": "Cpf.Format",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cpf.fs",
+        "line": 44
+      }
+    },
+    {
+      "name": "Cpf.Generate",
+      "params": [],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Cpf.fs",
+        "line": 52
+      }
+    },
+    {
+      "name": "Cpf.IsValid",
+      "params": [
+        {
+          "name": "cpf",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Cpf.fs",
+        "line": 39
+      }
+    },
+    {
+      "name": "Currency.convertRealToText",
+      "params": [
+        {
+          "name": "amount",
+          "type": "decimal"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/Currency.fs",
+        "line": 122
+      }
+    },
+    {
+      "name": "Currency.formatCurrency",
+      "params": [
+        {
+          "name": "value",
+          "type": "decimal"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/Currency.fs",
+        "line": 8
+      }
+    },
+    {
+      "name": "Helpers.OnlyNumbers",
+      "params": [
+        {
+          "name": "value",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Helpers.fs",
+        "line": 30
+      }
+    },
+    {
+      "name": "LegalProcess.formatLegalProcess",
+      "params": [
+        {
+          "name": "legalProcessId",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LegalProcess.fs",
+        "line": 203
+      }
+    },
+    {
+      "name": "LegalProcess.generate",
+      "params": [
+        {
+          "name": "year",
+          "type": "int option"
+        },
+        {
+          "name": "orgao",
+          "type": "int option"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LegalProcess.fs",
+        "line": 277
+      }
+    },
+    {
+      "name": "LegalProcess.isValid",
+      "params": [
+        {
+          "name": "legalProcessId",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/LegalProcess.fs",
+        "line": 237
+      }
+    },
+    {
+      "name": "LegalProcess.removeSymbols",
+      "params": [
+        {
+          "name": "legalProcess",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/LegalProcess.fs",
+        "line": 194
+      }
+    },
+    {
+      "name": "LicensePlate.convertToMercosul",
+      "params": [
+        {
+          "name": "licensePlate",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 38
+      }
+    },
+    {
+      "name": "LicensePlate.formatLicensePlate",
+      "params": [
+        {
+          "name": "licensePlate",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 55
+      }
+    },
+    {
+      "name": "LicensePlate.generate",
+      "params": [
+        {
+          "name": "format",
+          "type": "string option"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 118
+      }
+    },
+    {
+      "name": "LicensePlate.getFormat",
+      "params": [
+        {
+          "name": "licensePlate",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 84
+      }
+    },
+    {
+      "name": "LicensePlate.isValid",
+      "params": [
+        {
+          "name": "licensePlate",
+          "type": "string"
+        },
+        {
+          "name": "plateType",
+          "type": "string option"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 99
+      }
+    },
+    {
+      "name": "LicensePlate.removeSymbols",
+      "params": [
+        {
+          "name": "licensePlateNumber",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/LicensePlate.fs",
+        "line": 74
+      }
+    },
+    {
+      "name": "Phone.IsValid",
+      "params": [
+        {
+          "name": "phone",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Phone.fs",
+        "line": 103
+      }
+    },
+    {
+      "name": "Pis.formatPis",
+      "params": [
+        {
+          "name": "pis",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/Pis.fs",
+        "line": 68
+      }
+    },
+    {
+      "name": "Pis.generate",
+      "params": [],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Pis.fs",
+        "line": 87
+      }
+    },
+    {
+      "name": "Pis.isValid",
+      "params": [
+        {
+          "name": "pis",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Pis.fs",
+        "line": 47
+      }
+    },
+    {
+      "name": "Pis.removeSymbols",
+      "params": [
+        {
+          "name": "pis",
+          "type": "string"
+        }
+      ],
+      "returns": "string",
+      "location": {
+        "file": "BrazilianUtils/Pis.fs",
+        "line": 35
+      }
+    },
+    {
+      "name": "Renavam.isValidRenavam",
+      "params": [
+        {
+          "name": "renavam",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/Renavam.fs",
+        "line": 60
+      }
+    },
+    {
+      "name": "VoterId.formatVoterId",
+      "params": [
+        {
+          "name": "voterId",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/VoterId.fs",
+        "line": 165
+      }
+    },
+    {
+      "name": "VoterId.generate",
+      "params": [
+        {
+          "name": "federativeUnion",
+          "type": "string"
+        }
+      ],
+      "returns": "string option",
+      "location": {
+        "file": "BrazilianUtils/VoterId.fs",
+        "line": 95
+      }
+    },
+    {
+      "name": "VoterId.isValid",
+      "params": [
+        {
+          "name": "voterId",
+          "type": "string"
+        }
+      ],
+      "returns": "bool",
+      "location": {
+        "file": "BrazilianUtils/VoterId.fs",
+        "line": 67
+      }
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,40 @@
+---
+title: Getting started
+description: What Brazilian Utils is, how to read a utility page, and how to install a library.
+---
+
+Brazilian Utils is a set of libraries that validate, format, parse and generate Brazilian data: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. There is one library for each language. The [Brazilian Utils](https://github.com/brazilian-utils) organization maintains them, and this site documents them in one place.
+
+## Read a utility page
+
+Each utility has one page for all programming languages. Each page has the same parts, in this order:
+
+1. **The libraries.** How many functions of the utility each library implements.
+2. **One section for each function**, such as validate, format or generate. Each section shows:
+   - the signature from the contract and its parameters,
+   - which libraries implement the function and whether they pass all shared test cases,
+   - a tab for each library, with an example in that language,
+   - a "Try it with JavaScript" box that runs the JavaScript library in your browser,
+   - the shared test cases, with the result in each library.
+3. **Guides.** Longer examples from the libraries, when there are any.
+4. **The specification.** What the identifier is, its format, the algorithm and the regular expressions. Only some utilities have this section. The others describe the rule in the section of each function.
+5. **Official sources.** The law, decree or government document that defines the rule.
+
+Pick your language in any tab. Every page then opens on that language.
+
+All libraries behave the same because the shared contract defines the behavior, and the test cases check it. The contract lives in [docs](https://github.com/brazilian-utils/docs). No single library defines it.
+
+## Install a library
+
+<InstallTabs />
+
+## What the libraries do not do
+
+The libraries check the **structure** of a value: its length, its characters and its check digits. They do not query government databases. A valid CPF or CNPJ is a well-formed number. It does not mean that the person or the company exists. A function that calls an external service, such as the address lookup by CEP, says so in its section.
+
+## Next steps
+
+- Find a utility in the sidebar. The sidebar groups the utilities by category.
+- See which library implements what in the [parity matrix](/reference/parity/).
+- Each library's page shows what it implements and what it still misses.
+- To contribute, see [Change the contract](/contributing/specs/) or [Fill a gap in a library](/contributing/new-language/).

@@ -1,0 +1,126 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cei",
+  "title": { "en": "CEI", "pt-BR": "CEI" },
+  "summary": {
+    "en": "Cadastro Específico do INSS, the registration of employers without a CNPJ (construction works, rural producers), superseded by the CNO and the CAEPF.",
+    "pt-BR": "Cadastro Específico do INSS, para empregadores sem CNPJ (obras, produtores rurais), substituído pelo CNO e pelo CAEPF."
+  },
+  "category": "companies",
+  "order": 8,
+  "related": ["cno", "caepf"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a CEI number with the usual \"00.000.00000/00\" mask.",
+        "pt-BR": "Formata um número CEI com a máscara usual \"00.000.00000/00\"."
+      },
+      "description": {
+        "en": [
+          "Formats a CEI with the usual mask `00.000.00000/00`.",
+          "",
+          "The reference implementations of the check digit agree on this mask (the Receita Federal does not print it).",
+          "",
+          "- The mask is applied as far as the digits go. `options.pad` first left-pads with zeros to 12 digits."
+        ],
+        "pt-BR": [
+          "Formata um CEI com a máscara usual `00.000.00000/00`.",
+          "",
+          "As implementações de referência do dígito verificador concordam com essa máscara (a Receita Federal não a imprime).",
+          "",
+          "- A máscara é aplicada até onde os dígitos vão. `options.pad` primeiro completa com zeros à esquerda até 12 dígitos."
+        ]
+      },
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCeiOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["277297118187"], "returns": "27.729.71181/87" },
+        { "name": "already-formatted", "args": ["11.583.00249/85"], "returns": "11.583.00249/85" },
+        { "name": "partial", "args": ["27729"], "returns": "27.729" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [249859674386], "returns": "24.985.96743/86", "note": "JavaScript's own test: should format a number input" },
+        { "args": ["2"], "returns": "2", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["27"], "returns": "27", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["277"], "returns": "27.7", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["2772"], "returns": "27.72", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["277297"], "returns": "27.729.7", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["2772971181870000"], "returns": "27.729.71181/87", "note": "JavaScript's own test: should truncate values longer than 12 digits" },
+        { "args": ["249", { "pad": true }], "returns": "00.000.00002/49", "note": "JavaScript's own test: should pad the value with leading zeros when options.pad is true" }
+      ]
+    },
+    "isValid": {
+      "summary": { "en": "Checks whether a CEI number is valid.", "pt-BR": "Verifica se um número CEI é válido." },
+      "description": {
+        "en": [
+          "Validates a CEI: 12 digits, 11 base digits and one check digit.",
+          "",
+          "- The check digit weights the base by 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4. It adds the tens of the sum to its units. Then it takes the complement to 10 of the resulting units digit (10 maps to 0).",
+          "- A value whose digits are all the same is rejected.",
+          "- Accepts a number or a string, bare or split into the printed groups (2, 3, 5 and 2 digits) by whitespace or the usual formatting characters. Anything else is rejected."
+        ],
+        "pt-BR": [
+          "Valida um CEI: 12 dígitos, sendo 11 dígitos de base e um dígito verificador.",
+          "",
+          "- O dígito verificador aplica à base os pesos 7, 4, 1, 8, 5, 2, 1, 6, 3, 7, 4. Soma a dezena da soma à sua unidade. Depois, toma o complemento a 10 do dígito das unidades resultante (10 vira 0).",
+          "- Um valor com todos os dígitos iguais é rejeitado.",
+          "- Aceita um número ou uma string, sem separadores ou dividida nos grupos impressos (2, 3, 5 e 2 dígitos) por espaços em branco ou pelos caracteres de formatação usuais. Qualquer outra forma é rejeitada."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno",
+        "https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["11.583.00249/85"], "returns": true },
+        { "args": ["115830024985"], "returns": true },
+        { "args": ["277297118187"], "returns": true },
+        { "name": "wrong-check-digit", "args": ["115830024984"], "returns": false },
+        { "name": "zeros", "args": ["000000000000"], "returns": false },
+        { "name": "too-short", "args": ["1234567890"], "returns": false },
+        { "name": "letters", "args": ["aa.583.00249/85"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["1234567890123"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 12 digits" },
+        { "args": ["11#583#00249#85"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits but an unsupported separator" },
+        { "args": ["115.830.02498/5"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits grouped outside the 2-3-5-2 mask" },
+        { "args": ["11.583.00249/85a"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration is followed or preceded by a letter" },
+        { "args": ["a11.583.00249/85"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration is followed or preceded by a letter" },
+        { "args": ["111111111111"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["24.985.96743/68"], "returns": false, "note": "JavaScript's own test: should return false when the check digit does not match (24.985.96743/68, yiibr/yii2-br-validator and marcos-cruz/Documento invalid case)" },
+        { "args": ["249859674368"], "returns": false, "note": "JavaScript's own test: should return false when the check digit does not match (24.985.96743/68, yiibr/yii2-br-validator and marcos-cruz/Documento invalid case)" },
+        { "args": ["27.729.71181/87"], "returns": true, "note": "JavaScript's own test: should return true for 27.729.71181/87 (yiibr/yii2-br-validator CeiValidatorTest)" },
+        { "args": ["24.985.96743/86"], "returns": true, "note": "JavaScript's own test: should return true for 24.985.96743/86 (marcos-cruz/Documento CeiTest)" },
+        { "args": ["20.381.44217/87"], "returns": true, "note": "JavaScript's own test: should return true for 20.381.44217/87 (marcos-cruz/Documento CeiTest)" },
+        { "args": ["27.247.25187/86"], "returns": true, "note": "JavaScript's own test: should return true for 27.247.25187/86 (marcos-cruz/Documento CeiTest)" },
+        { "args": [249859674386], "returns": true, "note": "JavaScript's own test: should return true for a number input" },
+        { "args": [" 11 583 00249 85 "], "returns": true, "note": "JavaScript's own test: should return true for a whitespace mask and surrounding whitespace" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a CEI and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CEI e retorna só os dígitos."
+      },
+      "description": {
+        "en": ["Removes CEI formatting and keeps only digits, capped at 12 digits."],
+        "pt-BR": ["Remove a formatação do CEI e mantém somente os dígitos, limitados a 12 dígitos."]
+      },
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["27.729.71181/87"], "returns": "277297118187" },
+        { "name": "unmasked", "args": ["277297118187"], "returns": "277297118187" },
+        { "name": "strips-non-digits", "args": ["27.?ABC729.71181/87abc"], "returns": "277297118187" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["277297118187999"], "returns": "277297118187", "note": "reference truncates to the 12 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [277297118187], "returns": "277297118187", "note": "JavaScript's own test: should read a number as the string of its digits" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,252 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "currency",
+  "title": { "en": "Currency (BRL)", "pt-BR": "Moeda (real)" },
+  "summary": {
+    "en": "Formatting, parsing and writing out in words amounts in reais.",
+    "pt-BR": "Formatação, leitura e escrita por extenso de valores em reais."
+  },
+  "category": "finance",
+  "order": 1,
+  "related": ["number"],
+  "functions": {
+    "convertToWords": {
+      "summary": {
+        "en": "Formats an amount in Brazilian reais as its \"por extenso\" text, the style people use to write out an amount by hand on cheques and contracts.",
+        "pt-BR": "Formata um valor em reais por extenso, o estilo usado para escrever um valor à mão em cheques e contratos."
+      },
+      "description": {
+        "en": [
+          "Writes an amount in reais in Brazilian Portuguese words (\"por extenso\"), as on cheques and contracts.",
+          "",
+          "For example, `1523.45` becomes `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
+          "",
+          "- The function truncates `value` (does not round it) to 2 decimal places.",
+          "- Singular and plural agree (\"um real\", \"um centavo\", \"zero reais\"). Millions and above take \"de reais\" (\"um milhão de reais\").",
+          "- The function adds the prefix \"menos\" to a negative amount.",
+          "- Pending decision (findings §1b): the reference (JS) writes all lower case with no comma between groups. Several libraries capitalise the first word and some add commas.",
+          "- Pending decision (findings §2 #9): for invalid input or an amount above 999 trillion reais, the reference (JS) returns an empty string."
+        ],
+        "pt-BR": [
+          "Escreve um valor em reais por extenso, em português do Brasil, como em cheques e contratos.",
+          "",
+          "Por exemplo, `1523.45` vira `\"mil quinhentos e vinte e três reais e quarenta e cinco centavos\"`.",
+          "",
+          "- A função trunca `value` (não arredonda) para 2 casas decimais.",
+          "- Singular e plural concordam (\"um real\", \"um centavo\", \"zero reais\"). A partir de milhões, o texto usa \"de reais\" (\"um milhão de reais\").",
+          "- A função coloca \"menos\" antes de um valor negativo.",
+          "- Decisão pendente (findings §1b): a referência (JS) escreve tudo em minúsculas, sem vírgula entre os grupos. Várias bibliotecas põem a primeira palavra em maiúscula e algumas adicionam vírgulas.",
+          "- Decisão pendente (findings §2 #9): para entrada inválida ou valor acima de 999 trilhões de reais, a referência (JS) retorna uma string vazia."
+        ]
+      },
+      "flatName": "convertCurrencyToWords",
+      "aliases": ["currency.convertRealToText"],
+      "level": "core",
+      "params": [{ "name": "value", "type": "number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "zero", "args": [0], "returns": "zero reais" },
+        { "name": "one-cent", "args": [0.01], "returns": "um centavo" },
+        { "name": "one-real", "args": [1], "returns": "um real" },
+        { "name": "one-real-one-cent", "args": [1.01], "returns": "um real e um centavo" },
+        { "name": "only-cents", "args": [0.5], "returns": "cinquenta centavos" },
+        { "name": "cem", "args": [100], "returns": "cem reais" },
+        { "name": "summary-example", "args": [1523.45], "returns": "mil quinhentos e vinte e três reais e quarenta e cinco centavos" },
+        { "name": "round-million", "args": [1000000], "returns": "um milhão de reais" },
+        { "name": "round-millions", "args": [2000000], "returns": "dois milhões de reais" },
+        { "name": "million-and-more", "args": [1000230], "returns": "um milhão duzentos e trinta reais" },
+        { "name": "negative", "args": [-5.5], "returns": "menos cinco reais e cinquenta centavos" },
+        { "name": "truncates-sub-cent", "args": [1.999], "returns": "um real e noventa e nove centavos", "note": "the reference truncates (does not round) beyond 2 decimal places; asserted by the reference (JS) unit tests" },
+        { "args": [-0.01], "returns": "menos um centavo", "note": "JavaScript's own test: should prefix negative amounts with 'menos'" },
+        { "args": [-0.001], "returns": "zero reais", "note": "JavaScript's own test: zero amounts should not prefix 'menos' when a negative amount truncates to nothing" },
+        { "args": [-0.009], "returns": "zero reais", "note": "JavaScript's own test: zero amounts should not prefix 'menos' when a negative amount truncates to nothing" },
+        { "args": [0.004], "returns": "zero reais", "note": "JavaScript's own test: zero amounts should return 'zero reais' for an amount below one centavo" },
+        { "args": [100000000000000.02], "returns": "cem trilhões de reais", "note": "JavaScript's own test: amounts too large to carry cents should read an amount above Number.MAX_SAFE_INTEGER cents as whole reais" },
+        {
+          "args": [90071992547409.9],
+          "returns": "noventa trilhões setenta e um bilhões novecentos e noventa e dois milhões quinhentos e quarenta e sete mil quatrocentos e nove reais e noventa centavos",
+          "note": "JavaScript's own test: amounts too large to carry cents should still report cents exactly at the Number.MAX_SAFE_INTEGER cents boundary, reading the 90 cents the double holds (90071992547409.9 is exactly 90071992547409.90625, the 91st cent only shows up when 9007199254740990.625 is scaled and rounded to Number.MAX_SAFE_INTEGER)"
+        },
+        { "args": [0.009999999], "returns": "zero reais", "note": "JavaScript's own test: floating point precision should not carry an amount over a cent boundary while truncating it" },
+        { "args": [1.999999999], "returns": "um real e noventa e nove centavos", "note": "JavaScript's own test: floating point precision should not carry an amount over a cent boundary while truncating it" },
+        { "args": [1.15], "returns": "um real e quinze centavos", "note": "JavaScript's own test: floating point precision should absorb the noise of scaling a two decimal amount to cents" },
+        { "args": [0.29], "returns": "vinte e nove centavos", "note": "JavaScript's own test: floating point precision should absorb the noise of scaling a two decimal amount to cents" },
+        { "args": [19.99], "returns": "dezenove reais e noventa e nove centavos", "note": "JavaScript's own test: floating point precision should absorb the noise of scaling a two decimal amount to cents" },
+        { "args": [1000000000000.0099], "returns": "um trilhão de reais", "note": "JavaScript's own test: floating point precision should not invent a cent for a large amount whose sub cent part scales to a hair below the next integer (1000000000000.0099 * 100 is 100000000000000.98)" },
+        { "args": [1.5e-7], "returns": "zero reais", "note": "JavaScript's own test: floating point precision should return 'zero reais' for an amount so small that it is written in exponent notation" },
+        { "args": [-1.5e-7], "returns": "zero reais", "note": "JavaScript's own test: floating point precision should return 'zero reais' for an amount so small that it is written in exponent notation" },
+        { "args": [1000], "returns": "mil reais", "note": "JavaScript's own test: letter case should always keep the result lowercase" }
+      ]
+    },
+    "format": {
+      "summary": {
+        "en": "Formats a value as a currency string in Brazilian real (BRL).",
+        "pt-BR": "Formata um valor como texto monetário em real brasileiro (BRL)."
+      },
+      "description": {
+        "en": [
+          "Formats a number in the BRL pattern `1.234,56`.",
+          "",
+          "- A number keeps its sign. `options.precision` sets the decimal places (default 2, clamped to 0 to 20).",
+          "- The function reads a string as `currency.parse` reads it, except that a value without any separator is whole units (`1234` formats as `1.234,00`).",
+          "- Pending decision (findings §1b): the reference (JS) adds no currency symbol by default (the `R$ ` prefix is opt-in through `options.symbol`). The other libraries prefix `R$ `.",
+          "- Pending decision (findings §2 #9): for a non-finite or non-numeric value, the reference (JS) returns an empty string. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um número no padrão BRL `1.234,56`.",
+          "",
+          "- Um número mantém o sinal. `options.precision` define as casas decimais (padrão 2, limitado de 0 a 20).",
+          "- A função lê uma string como `currency.parse` a lê, exceto que um valor sem nenhum separador vale unidades inteiras (`1234` é formatado como `1.234,00`).",
+          "- Decisão pendente (findings §1b): a referência (JS) não adiciona símbolo de moeda por padrão (o prefixo `R$ ` é opcional, via `options.symbol`). As outras bibliotecas usam o prefixo `R$ `.",
+          "- Decisão pendente (findings §2 #9): para um valor não finito ou não numérico, a referência (JS) retorna uma string vazia. Outras bibliotecas retornam null."
+        ]
+      },
+      "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCurrencyOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "name": "thousands", "args": [1000.01], "returns": "1.000,01", "note": "without options the reference prints no currency symbol (`{ symbol: true }` adds `R$ `); asserted by the reference (JS) unit tests" },
+        { "name": "cents", "args": [0.01], "returns": "0,01" },
+        { "name": "integer", "args": [1], "returns": "1,00" },
+        { "name": "millions", "args": [1000000.01], "returns": "1.000.000,01" },
+        { "name": "negative", "args": [-10.1], "returns": "-10,10" },
+        { "name": "string-dot-decimal", "args": ["1234.56"], "returns": "1.234,56" },
+        { "name": "string-brazilian", "args": ["1.234,56"], "returns": "1.234,56" },
+        { "name": "string-with-symbol", "args": ["R$ 1.234,56"], "returns": "1.234,56" },
+        { "args": [0.1], "returns": "0,10", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [10], "returns": "10,00", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [10.1], "returns": "10,10", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [10.01], "returns": "10,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [100.01], "returns": "100,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [10000.01], "returns": "10.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [100000.01], "returns": "100.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL" },
+        { "args": [-0.01], "returns": "-0,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-0.1], "returns": "-0,10", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-1], "returns": "-1,00", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-10], "returns": "-10,00", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-10.01], "returns": "-10,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-100.01], "returns": "-100,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-1000.01], "returns": "-1.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-10000.01], "returns": "-10.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-100000.01], "returns": "-100.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [-1000000.01], "returns": "-1.000.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL" },
+        { "args": [0.01, { "symbol": true }], "returns": "R$ 0,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [0.1, { "symbol": true }], "returns": "R$ 0,10", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [1, { "symbol": true }], "returns": "R$ 1,00", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [10, { "symbol": true }], "returns": "R$ 10,00", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [10.1, { "symbol": true }], "returns": "R$ 10,10", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [10.01, { "symbol": true }], "returns": "R$ 10,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [100.01, { "symbol": true }], "returns": "R$ 100,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [1000.01, { "symbol": true }], "returns": "R$ 1.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [10000.01, { "symbol": true }], "returns": "R$ 10.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [100000.01, { "symbol": true }], "returns": "R$ 100.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [1000000.01, { "symbol": true }], "returns": "R$ 1.000.000,01", "note": "JavaScript's own test: should formatCurrency positive currency into BRL with currency sign" },
+        { "args": [-0.01, { "symbol": true }], "returns": "-R$ 0,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-0.1, { "symbol": true }], "returns": "-R$ 0,10", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-1, { "symbol": true }], "returns": "-R$ 1,00", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-10, { "symbol": true }], "returns": "-R$ 10,00", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-10.1, { "symbol": true }], "returns": "-R$ 10,10", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-10.01, { "symbol": true }], "returns": "-R$ 10,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-100.01, { "symbol": true }], "returns": "-R$ 100,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-1000.01, { "symbol": true }], "returns": "-R$ 1.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-10000.01, { "symbol": true }], "returns": "-R$ 10.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-100000.01, { "symbol": true }], "returns": "-R$ 100.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [-1000000.01, { "symbol": true }], "returns": "-R$ 1.000.000,01", "note": "JavaScript's own test: should formatCurrency negative currency into BRL with currency sign" },
+        { "args": [0.01, { "precision": 3 }], "returns": "0,010", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [0.1, { "precision": 3 }], "returns": "0,100", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [1.1, { "precision": 3 }], "returns": "1,100", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [1.01, { "precision": 3 }], "returns": "1,010", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [1.001, { "precision": 3 }], "returns": "1,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [10.001, { "precision": 3 }], "returns": "10,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [100.001, { "precision": 3 }], "returns": "100,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [1000.001, { "precision": 3 }], "returns": "1.000,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [10000.001, { "precision": 3 }], "returns": "10.000,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [100000.001, { "precision": 3 }], "returns": "100.000,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": [1000000.001, { "precision": 3 }], "returns": "1.000.000,001", "note": "JavaScript's own test: should formatCurrency with different precision" },
+        { "args": ["1234,56"], "returns": "1.234,56", "note": "JavaScript's own test: should read the separators of string inputs" },
+        { "args": ["1234.56", { "precision": 3 }], "returns": "1.234,560", "note": "JavaScript's own test: should read the separators of string inputs" },
+        { "args": ["1.234,5"], "returns": "1.234,50", "note": "JavaScript's own test: should read the separators of string inputs" },
+        { "args": ["R$ 1.234"], "returns": "1.234,00", "note": "JavaScript's own test: should read the separators of string inputs" },
+        { "args": ["-10.5"], "returns": "-10,50", "note": "JavaScript's own test: should preserve the sign of string inputs" },
+        { "args": ["-1.234,56"], "returns": "-1.234,56", "note": "JavaScript's own test: should preserve the sign of string inputs" },
+        { "args": ["-R$ 1,00", { "symbol": true }], "returns": "-R$ 1,00", "note": "JavaScript's own test: should preserve the sign of string inputs" },
+        { "args": [""], "returns": "0,00", "note": "JavaScript's own test: should read plain digit strings as whole units" },
+        { "args": ["0"], "returns": "0,00", "note": "JavaScript's own test: should read plain digit strings as whole units" },
+        { "args": ["123456"], "returns": "123.456,00", "note": "JavaScript's own test: should read plain digit strings as whole units" },
+        { "args": ["-1234"], "returns": "-1.234,00", "note": "JavaScript's own test: should read plain digit strings as whole units" },
+        { "args": [1.5, { "precision": -1 }], "returns": "2", "note": "JavaScript's own test: should clamp the precision to the range accepted by Intl" },
+        { "args": ["1234,12345", { "precision": 5 }], "returns": "1.234,12345", "note": "JavaScript's own test: should read as many fraction digits as the requested precision allows, not just the default 2, when reading a string" },
+        { "args": [1234.56, { "symbol": true }], "returns": "R$ 1.234,56", "note": "JavaScript's own test: should replace the non-breaking space" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Parses a string in Brazilian currency format into a number.",
+        "pt-BR": "Converte uma string no formato monetário brasileiro em número."
+      },
+      "description": {
+        "en": [
+          "Parses a BRL amount string (such as `R$ 1.234,56`) into a number.",
+          "",
+          "- The last `,` or `.` followed by 1 to 2 digits (up to `options.precision`, when larger) is the decimal separator. Every other `,` or `.` is a thousands separator.",
+          "- The function reads a value without any separator as cents (divided by 10 to the power of the precision, default 2).",
+          "- The function keeps a leading `-`. An empty string is 0."
+        ],
+        "pt-BR": [
+          "Converte uma string de valor em BRL (por exemplo, `R$ 1.234,56`) em número.",
+          "",
+          "- O último `,` ou `.` seguido de 1 a 2 dígitos (até `options.precision`, quando maior) é o separador decimal. Todo outro `,` ou `.` é separador de milhar.",
+          "- A função lê um valor sem nenhum separador como centavos (dividido por 10 elevado à precisão, padrão 2).",
+          "- A função mantém um `-` inicial. Uma string vazia vale 0."
+        ]
+      },
+      "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9069.htm"],
+      "params": [
+        { "name": "value", "type": "string" },
+        { "name": "options", "type": "ParseCurrencyOptions", "optional": true }
+      ],
+      "returns": "number",
+      "tests": [
+        { "name": "with-symbol", "args": ["R$ 1.234,56"], "returns": 1234.56 },
+        { "name": "comma-decimal", "args": ["1234,56"], "returns": 1234.56 },
+        { "name": "cents", "args": ["R$ 0,50"], "returns": 0.5 },
+        { "name": "millions", "args": ["1.000.000,50"], "returns": 1000000.5 },
+        { "name": "negative", "args": ["-1.234,56"], "returns": -1234.56 },
+        { "name": "zero", "args": ["0,00"], "returns": 0 },
+        { "name": "digits-only-read-as-cents", "args": ["1234"], "returns": 12.34, "note": "CONTENTIOUS: a value with no separator is read as cents by the reference (asserted by its tests; formatCurrency reads '1234' as whole units)" },
+        { "name": "empty", "args": [""], "returns": 0, "note": "the reference returns 0 for an empty string (asserted by its tests)" },
+        { "args": ["0"], "returns": 0, "note": "JavaScript's own test: should return correct values when parsing zero" },
+        { "args": ["R$ 10.000,00"], "returns": 10000, "note": "JavaScript's own test: should return correct values when parsing large values" },
+        { "args": ["R$ 1,00"], "returns": 1, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 1,10"], "returns": 1.1, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 1,01"], "returns": 1.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 10,01"], "returns": 10.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 100,01"], "returns": 100.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 1.000,01"], "returns": 1000.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 10.000,01"], "returns": 10000.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 100.000,01"], "returns": 100000.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["R$ 1.000.000,01"], "returns": 1000000.01, "note": "JavaScript's own test: should return 0 should transform a formatted value into a float" },
+        { "args": ["-R$ 1,00"], "returns": -1, "note": "JavaScript's own test: should preserve the sign when the value is negative" },
+        { "args": ["R$ -0,50"], "returns": -0.5, "note": "JavaScript's own test: should preserve the sign when the value is negative" },
+        { "args": ["R$ 1.234,5"], "returns": 1234.5, "note": "JavaScript's own test: should read the separators when the fraction is shorter than the precision" },
+        { "args": ["R$ 1.234.5"], "returns": 1234.5, "note": "JavaScript's own test: should read the separators when the fraction is shorter than the precision" },
+        { "args": ["1234.56"], "returns": 1234.56, "note": "JavaScript's own test: should read the separators when the separator is a dot" },
+        { "args": ["12.34"], "returns": 12.34, "note": "JavaScript's own test: should read the separators when the separator is a dot" },
+        { "args": ["R$ 1.234"], "returns": 1234, "note": "JavaScript's own test: should read the separators when there is only a thousands separator" },
+        { "args": ["R$ 1.000.000"], "returns": 1000000, "note": "JavaScript's own test: should read the separators when there is only a thousands separator" },
+        { "args": ["1,5"], "returns": 1.5, "note": "JavaScript's own test: should read the separators when there is only a thousands separator" },
+        { "args": ["1.059"], "returns": 1059, "note": "JavaScript's own test: should read the separators when there is only a thousands separator" },
+        { "args": ["R$ 50"], "returns": 0.5, "note": "JavaScript's own test: should keep the cents convention for plain digit strings when there is no separator at all" },
+        { "args": ["1234", { "precision": 0 }], "returns": 1234, "note": "JavaScript's own test: should keep the cents convention for plain digit strings when there is no separator at all" },
+        { "args": ["1,001", { "precision": 3 }], "returns": 1.001, "note": "JavaScript's own test: should honor the precision option when precision is 3" },
+        { "args": ["R$ 1.000,001", { "precision": 3 }], "returns": 1000.001, "note": "JavaScript's own test: should honor the precision option when precision is 3" },
+        { "args": ["R$ 1,50", { "precision": -1 }], "returns": 1.5, "note": "JavaScript's own test: should honor the precision option when the precision is out of range" },
+        { "args": ["R$ 150", { "precision": -1 }], "returns": 150, "note": "JavaScript's own test: should honor the precision option when the precision is out of range" }
+      ]
+    }
+  }
+}

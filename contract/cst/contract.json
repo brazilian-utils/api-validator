@@ -1,0 +1,120 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cst",
+  "title": { "en": "CST", "pt-BR": "CST" },
+  "summary": {
+    "en": "Código de Situação Tributária: the tax situation codes of ICMS, IPI, PIS and COFINS.",
+    "pt-BR": "Código de Situação Tributária de ICMS, IPI, PIS e COFINS."
+  },
+  "category": "tax",
+  "order": 4,
+  "related": ["csosn"],
+  "functions": {
+    "isValid": {
+      "summary": {
+        "en": "Checks whether a CST code is valid for a given tax.",
+        "pt-BR": "Verifica se um código CST é válido para um tributo."
+      },
+      "description": {
+        "en": [
+          "Checks whether a CST code is valid for a tax.",
+          "",
+          "- `options.tax` picks the table: `icms` (3 digits, origem `0`-`8` plus the Tabela B code), `ipi`, `pis` or `cofins` (2 digits, and PIS and COFINS share a table). When `options.tax` is omitted or unknown, the function accepts every table.",
+          "- Accepts a string or a non-negative integer. The 3-digit ICMS form may have a single separator after the origin digit.",
+          "- The function pads a single digit to the 3-digit ICMS form. A 2-digit string is a Tabela B code."
+        ],
+        "pt-BR": [
+          "Verifica se um código CST é válido para um tributo.",
+          "",
+          "- `options.tax` escolhe a tabela: `icms` (3 dígitos, origem `0`-`8` mais o código da Tabela B), `ipi`, `pis` ou `cofins` (2 dígitos, e PIS e COFINS usam a mesma tabela). Quando `options.tax` é omitido ou desconhecido, a função aceita todas as tabelas.",
+          "- Aceita uma string ou um inteiro não negativo. A forma de 3 dígitos do ICMS pode ter um único separador após o dígito de origem.",
+          "- A função completa um único dígito com zeros até a forma de 3 dígitos do ICMS. Uma string de 2 dígitos é um código da Tabela B."
+        ]
+      },
+      "references": [
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/sinief/cvsn_70",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2023/ajuste-sinief-39-23",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2024/AJ020_24",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/1994/aj_003_94",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2000/AJ_006_00",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2012/aj_020_12",
+        "https://www.confaz.fazenda.gov.br/legislacao/ajustes/2013/aj_015_13",
+        "https://normas.receita.fazenda.gov.br/sijut2consulta/link.action?idAto=15974"
+      ],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "IsValidCstOptions", "optional": true }
+      ],
+      "returns": "boolean",
+      "tests": [
+        { "name": "icms", "args": ["110"], "returns": true },
+        { "name": "ipi-only", "args": ["00"], "returns": true },
+        { "name": "pis-cofins-only", "args": ["07"], "returns": true },
+        { "name": "nonexistent", "args": ["999"], "returns": false },
+        { "name": "separator", "args": ["0-0"], "returns": false },
+        { "args": ["110", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for a valid origin + CST combination" },
+        { "args": ["000", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for a valid origin + CST combination" },
+        { "args": ["890", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for a valid origin + CST combination" },
+        { "args": [110, { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for a number input" },
+        { "args": ["910", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false when the origin digit is greater than 8" },
+        { "args": ["199", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false when the CST part is not a known code" },
+        { "args": ["002", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for the monofasia de combustíveis codes Ajuste SINIEF 39/23 added" },
+        { "args": ["015", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for the monofasia de combustíveis codes Ajuste SINIEF 39/23 added" },
+        { "args": ["053", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for the monofasia de combustíveis codes Ajuste SINIEF 39/23 added" },
+        { "args": ["061", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: icms should return true for the monofasia de combustíveis codes Ajuste SINIEF 39/23 added" },
+        { "args": ["012", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for the codes Ajuste SINIEF 39/23 added with deferred effect and Ajuste SINIEF 20/24 struck before they took effect (12, 13, 52, 72 and 74)" },
+        { "args": ["013", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for the codes Ajuste SINIEF 39/23 added with deferred effect and Ajuste SINIEF 20/24 struck before they took effect (12, 13, 52, 72 and 74)" },
+        { "args": ["052", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for the codes Ajuste SINIEF 39/23 added with deferred effect and Ajuste SINIEF 20/24 struck before they took effect (12, 13, 52, 72 and 74)" },
+        { "args": ["072", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for the codes Ajuste SINIEF 39/23 added with deferred effect and Ajuste SINIEF 20/24 struck before they took effect (12, 13, 52, 72 and 74)" },
+        { "args": ["074", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for the codes Ajuste SINIEF 39/23 added with deferred effect and Ajuste SINIEF 20/24 struck before they took effect (12, 13, 52, 72 and 74)" },
+        { "args": ["10", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for a length different from 3" },
+        { "args": ["1020", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: icms should return false for a length different from 3" },
+        { "args": ["00", { "tax": "ipi" }], "returns": true, "note": "JavaScript's own test: ipi should return true for known codes" },
+        { "args": ["49", { "tax": "ipi" }], "returns": true, "note": "JavaScript's own test: ipi should return true for known codes" },
+        { "args": ["99", { "tax": "ipi" }], "returns": true, "note": "JavaScript's own test: ipi should return true for known codes" },
+        { "args": ["06", { "tax": "ipi" }], "returns": false, "note": "JavaScript's own test: ipi should return false for an unknown code" },
+        { "args": ["07", { "tax": "pis" }], "returns": true, "note": "JavaScript's own test: pis should return true for known codes" },
+        { "args": ["98", { "tax": "pis" }], "returns": true, "note": "JavaScript's own test: pis should return true for known codes" },
+        { "args": ["11", { "tax": "pis" }], "returns": false, "note": "JavaScript's own test: pis should return false for an unknown code" },
+        { "args": ["07", { "tax": "cofins" }], "returns": true, "note": "JavaScript's own test: cofins should return true for known codes (same table as pis)" },
+        { "args": ["11", { "tax": "cofins" }], "returns": false, "note": "JavaScript's own test: cofins should return false for an unknown code" },
+        { "args": ["00", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should consult only the given table, never the other three" },
+        { "args": ["00", { "tax": "pis" }], "returns": false, "note": "JavaScript's own test: should consult only the given table, never the other three" },
+        { "args": ["00", { "tax": "cofins" }], "returns": false, "note": "JavaScript's own test: should consult only the given table, never the other three" },
+        { "args": ["06"], "returns": true, "note": "JavaScript's own test: should consult only the given table, never the other three" },
+        { "args": ["49"], "returns": true, "note": "JavaScript's own test: without options (tax omitted) should return true when the code exists in both the ipi and pis/cofins tables" },
+        { "args": ["110", {}], "returns": true, "note": "JavaScript's own test: without options (tax omitted) should return true when options.tax is undefined" },
+        { "args": [0, { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: padding should read a single digit as the three digit icms form, as a number or as a string" },
+        { "args": ["0", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: padding should read a single digit as the three digit icms form, as a number or as a string" },
+        { "args": [2, { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: padding should read a single digit as the three digit icms form, as a number or as a string" },
+        { "args": ["2", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: padding should read a single digit as the three digit icms form, as a number or as a string" },
+        { "args": [0], "returns": true, "note": "JavaScript's own test: padding should agree between a number and a string when the tax is omitted" },
+        { "args": ["0"], "returns": true, "note": "JavaScript's own test: padding should agree between a number and a string when the tax is omitted" },
+        { "args": [9], "returns": false, "note": "JavaScript's own test: padding should agree between a number and a string when the tax is omitted" },
+        { "args": ["9"], "returns": false, "note": "JavaScript's own test: padding should agree between a number and a string when the tax is omitted" },
+        { "args": [49, { "tax": "ipi" }], "returns": true, "note": "JavaScript's own test: padding should leave a two digit Tabela B code as written, never padding it to three" },
+        { "args": [49, { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: padding should leave a two digit Tabela B code as written, never padding it to three" },
+        { "args": ["  0  ", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: padding should trim a single digit before padding it" },
+        { "args": ["  0  "], "returns": true, "note": "JavaScript's own test: padding should trim a single digit before padding it" },
+        { "args": ["", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false for an empty string" },
+        { "args": [" 1-10 ", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: should accept a single separator after the origin digit and surrounding whitespace" },
+        { "args": ["0 10", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: should accept a single separator after the origin digit and surrounding whitespace" },
+        { "args": ["0.10", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: should accept a single separator after the origin digit and surrounding whitespace" },
+        { "args": ["0/10", { "tax": "icms" }], "returns": true, "note": "JavaScript's own test: should accept a single separator after the origin digit and surrounding whitespace" },
+        { "args": ["1--10", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false when more than one separator sits between two digits" },
+        { "args": ["00-", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["0-0", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["11-0", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["0.0", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["4-9", { "tax": "ipi" }], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["00-"], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["11-0"], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["0.0"], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["4-9"], "returns": false, "note": "JavaScript's own test: should return false when a separator does not sit right after the origin digit" },
+        { "args": ["abc110", { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": [-110, { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [1.1, { "tax": "icms" }], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
+      ]
+    }
+  }
+}

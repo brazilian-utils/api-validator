@@ -1,0 +1,370 @@
+/// Runs the shared brazilian-utils conformance suite (vendored in `api-contract/`, never edited
+/// here) against this lib. The registry below is the only hand-maintained part: one line per
+/// contract function this lib implements. See api-contract/README.md.
+///
+///   dotnet test BrazilianUtils.Tests --filter "FullyQualifiedName~ApiContractTests"
+///
+/// Env vars: API_CONTRACT_NETWORK=1 runs the network functions; API_CONTRACT_NO_SKIP=1 ignores
+/// skip.json (to see which listed cases fail today and which ones got fixed).
+module BrazilianUtils.Tests.ApiContractTests
+
+#nowarn "44" // xUnit's de-serialization constructors are [<Obsolete>] (see ContractTestCase)
+
+open System
+open System.Collections
+open System.Collections.Generic
+open System.Globalization
+open System.IO
+open System.Text.Json.Nodes
+open System.Text.RegularExpressions
+open Microsoft.FSharp.Reflection
+open Xunit
+open Xunit.Abstractions
+open Xunit.Sdk
+open BrazilianUtils
+
+// ---------------------------------------------------------------------------------------------
+// Registry: contract function id -> this lib's function. It takes the case's JSON args and
+// returns the lib's result (option -> None is the contract's null); failing = throwing.
+
+let private str i (args: JsonNode[]) : string =
+    match args.[i] with
+    | null -> null
+    | a -> a.GetValue<string>()
+
+let private dec i (args: JsonNode[]) : decimal = args.[i].GetValue<decimal>()
+
+/// An optional contract argument: None when omitted or null.
+let private opt i (args: JsonNode[]) : string option =
+    if i < args.Length && not (isNull args.[i]) then Some(str i args) else None
+
+let registry: IDictionary<string, JsonNode[] -> obj> =
+    dict [
+        "boleto.isValid", fun a -> box (Boleto.IsValid(str 0 a))
+
+        "cep.format", fun a -> box (Cep.Format(str 0 a))
+        "cep.isValid", fun a -> box (Cep.IsValid(str 0 a))
+
+        "cnh.isValid", fun a -> box (Cnh.isValidCnh (str 0 a))
+
+        "cnpj.format", fun a -> box (Cnpj.Format(str 0 a))
+        "cnpj.generate", fun _ -> box (Cnpj.Generate())
+        "cnpj.isValid", fun a -> box (Cnpj.IsValid(str 0 a))
+
+        "cpf.format", fun a -> box (Cpf.Format(str 0 a))
+        "cpf.generate", fun _ -> box (Cpf.Generate())
+        "cpf.isValid", fun a -> box (Cpf.IsValid(str 0 a))
+
+        "currency.convertToWords", fun a -> box (Currency.convertRealToText (dec 0 a))
+        "currency.format", fun a -> box (Currency.formatCurrency (dec 0 a))
+
+        "legalProcess.format", fun a -> box (LegalProcess.formatLegalProcess (str 0 a))
+        "legalProcess.isValid", fun a -> box (LegalProcess.isValid (str 0 a))
+
+        "licensePlate.convertToMercosul", fun a -> box (LicensePlate.convertToMercosul (str 0 a))
+        "licensePlate.format", fun a -> box (LicensePlate.formatLicensePlate (str 0 a))
+        "licensePlate.generate", fun a -> box (LicensePlate.generate (opt 0 a))
+        "licensePlate.getFormat", fun a -> box (LicensePlate.getFormat (str 0 a))
+
+        "phone.isValid", fun a -> box (Phone.IsValid(str 0 a))
+
+        "pis.format", fun a -> box (Pis.formatPis (str 0 a))
+        "pis.generate", fun _ -> box (Pis.generate ())
+        "pis.isValid", fun a -> box (Pis.isValid (str 0 a))
+
+        "renavam.isValid", fun a -> box (Renavam.isValidRenavam (str 0 a))
+
+        "voterId.format", fun a -> box (VoterId.formatVoterId (str 0 a))
+        // The contract's state is optional; the lib requires one ("ZZ" = issued abroad).
+        "voterId.generate", fun a -> box (VoterId.generate (defaultArg (opt 0 a) "ZZ"))
+        "voterId.isValid", fun a -> box (VoterId.isValid (str 0 a))
+    ]
+
+// ---------------------------------------------------------------------------------------------
+// Suite loading.
+
+type ContractCase = { Id: string; Function: JsonNode; Case: JsonNode }
+
+/// `api-contract/` of this repository, found upwards from the test binaries or the cwd.
+let private contractDir =
+    lazy
+        (let rec up (dir: DirectoryInfo) =
+            if isNull dir then None
+            elif File.Exists(Path.Combine(dir.FullName, "api-contract", "cases", "index.json")) then
+                Some(Path.Combine(dir.FullName, "api-contract"))
+            else up dir.Parent
+
+         [ AppContext.BaseDirectory; Directory.GetCurrentDirectory() ]
+         |> List.tryPick (DirectoryInfo >> up)
+         |> Option.defaultWith (fun () -> failwith "api-contract/cases/index.json not found above the test binaries"))
+
+let private readJson (path: string) =
+    JsonNode.Parse(File.ReadAllText(Path.Combine(contractDir.Value, path)))
+
+let private env name = Environment.GetEnvironmentVariable name = "1"
+
+/// Contract functions, by id.
+let private functions =
+    lazy
+        (let index = readJson "cases/index.json"
+
+         [ for d in index.["domains"].AsArray() do
+               for f in (readJson $"cases/{d.GetValue<string>()}.json").["functions"].AsArray() ->
+                   f.["id"].GetValue<string>(), f ]
+         |> dict)
+
+/// Every case, by case id; a function this lib does not implement is one row, by function id.
+let private cases =
+    lazy
+        (dict [
+            for KeyValue(id, f) in functions.Value do
+                if registry.ContainsKey id then
+                    for c in f.["cases"].AsArray() ->
+                        let caseId = c.["id"].GetValue<string>()
+                        caseId, { Id = caseId; Function = f; Case = c }
+                else
+                    yield id, { Id = id; Function = f; Case = null }
+        ])
+
+let private skipList =
+    lazy
+        (if env "API_CONTRACT_NO_SKIP" then
+             Map.empty
+         else
+             [ for KeyValue(id, reason) in readJson("skip.json").AsObject() -> id, reason.GetValue<string>() ]
+             |> Map.ofList)
+
+/// Why a case does not run, if it does not.
+let skipReason (caseId: string) : string option =
+    let c = cases.Value.[caseId]
+    let fnId = c.Function.["id"].GetValue<string>()
+    let expect = if isNull c.Case then null else c.Case.["expect"].AsObject()
+
+    if not (registry.ContainsKey fnId) then
+        Some "not implemented"
+    elif (match c.Function.["network"] with
+          | null -> false
+          | n -> n.GetValue<bool>())
+         && not (env "API_CONTRACT_NETWORK") then
+        Some "network function (set API_CONTRACT_NETWORK=1 to run it)"
+    elif skipList.Value.ContainsKey caseId then
+        Some skipList.Value.[caseId]
+    elif expect.ContainsKey "satisfies"
+         && not (registry.ContainsKey(expect.["satisfies"].GetValue<string>())) then
+        Some(expect.["satisfies"].GetValue<string>() + " is not implemented")
+    else
+        None
+
+// ---------------------------------------------------------------------------------------------
+// Results in JSON form, and the suite's comparison rules (cases/index.json -> comparison).
+
+let rec toJson (o: obj) : JsonNode =
+    match o with
+    | null -> null // also F# None
+    | :? string as s -> JsonValue.Create s
+    | :? bool as b -> JsonValue.Create b
+    | :? char as c -> JsonValue.Create(string c)
+    | :? int
+    | :? int64
+    | :? int16
+    | :? byte
+    | :? uint32
+    | :? uint64
+    | :? decimal
+    | :? float
+    | :? float32 -> JsonNode.Parse(Convert.ToString(o, CultureInfo.InvariantCulture))
+    | :? DateTime as d -> JsonValue.Create(d.ToString("o"))
+    | :? DateOnly as d -> JsonValue.Create(d.ToString("yyyy-MM-dd"))
+    | :? IDictionary as d ->
+        let obj = JsonObject()
+        for k in d.Keys do
+            obj.[string k] <- toJson d.[k]
+        obj
+    | _ ->
+        let t = o.GetType()
+
+        if FSharpType.IsUnion(t, true) && not (t.IsGenericType && t.GetGenericTypeDefinition() = typedefof<list<_>>) then
+            let case, fields = FSharpValue.GetUnionFields(o, t, true)
+
+            match case.Name, fields with
+            | ("None" | "ValueNone"), _ -> null
+            | ("Some" | "ValueSome" | "Ok"), [| v |] -> toJson v
+            | "Error", _ -> failwithf "Error %A" fields
+            | name, [||] -> JsonValue.Create name
+            | _ -> JsonArray(fields |> Array.map toJson)
+        elif FSharpType.IsRecord(t, true) then
+            let obj = JsonObject()
+            for f in FSharpType.GetRecordFields(t, true) do
+                obj.[f.Name] <- toJson (f.GetValue o)
+            obj
+        elif FSharpType.IsTuple t then
+            JsonArray(FSharpValue.GetTupleFields o |> Array.map toJson)
+        else
+            match o with
+            | :? IEnumerable as e -> JsonArray([| for x in e -> toJson x |])
+            | _ -> JsonValue.Create(o.ToString())
+
+let private kind (n: JsonNode) =
+    if isNull n then None else Some(n.GetValueKind())
+
+let private number (n: JsonNode) =
+    Double.Parse(n.ToJsonString(), CultureInfo.InvariantCulture)
+
+let private flatKey (k: string) = Regex.Replace(k.ToLowerInvariant(), "[^a-z0-9]", "")
+
+let rec valuesEqual (expected: JsonNode) (actual: JsonNode) : bool =
+    match kind expected, kind actual with
+    | None, a -> a.IsNone
+    | Some Text.Json.JsonValueKind.Number, Some Text.Json.JsonValueKind.Number ->
+        let e, a = number expected, number actual
+        abs (e - a) <= 1e-9 * max 1.0 (abs e)
+    | Some Text.Json.JsonValueKind.Array, Some Text.Json.JsonValueKind.Array ->
+        let e, a = expected.AsArray(), actual.AsArray()
+        e.Count = a.Count && Seq.forall2 valuesEqual e a
+    | Some Text.Json.JsonValueKind.Object, Some Text.Json.JsonValueKind.Object ->
+        let fields (o: JsonNode) =
+            o.AsObject() |> Seq.map (fun kv -> flatKey kv.Key, kv.Value) |> Map.ofSeq
+
+        let e, a = fields expected, fields actual
+        let get k m = Map.tryFind k m |> Option.toObj
+
+        Set.union (e.Keys |> Set.ofSeq) (a.Keys |> Set.ofSeq)
+        |> Set.forall (fun k -> valuesEqual (get k e) (get k a))
+    | Some Text.Json.JsonValueKind.String, Some Text.Json.JsonValueKind.String ->
+        expected.GetValue<string>() = actual.GetValue<string>()
+    | e, a -> e = a && (e = Some Text.Json.JsonValueKind.True || e = Some Text.Json.JsonValueKind.False)
+
+let private readable =
+    Text.Json.JsonSerializerOptions(Encoder = Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping)
+
+let private show (n: JsonNode) =
+    if isNull n then "null" else n.ToJsonString readable
+
+let private call (fnId: string) (args: JsonNode[]) = toJson (registry.[fnId] args)
+
+let private check (c: ContractCase) =
+    let fnId = c.Function.["id"].GetValue<string>()
+    let args = c.Case.["args"].AsArray() |> Seq.toArray
+    let expect = c.Case.["expect"].AsObject()
+
+    let repeat =
+        match c.Case.["repeat"] with
+        | null -> 1
+        | r -> r.GetValue<int>()
+
+    for _ in 1..repeat do
+        if expect.ContainsKey "throws" then
+            let outcome =
+                try
+                    Ok(call fnId args)
+                with e ->
+                    Error e
+
+            match outcome with
+            | Ok v -> failwith $"expected an error, got {show v}"
+            | Error _ -> ()
+        else
+            let actual = call fnId args
+
+            if expect.ContainsKey "returns" then
+                let expected = expect.["returns"]
+
+                if not (valuesEqual expected actual) then
+                    failwith $"expected {show expected}, got {show actual}"
+            elif expect.ContainsKey "matches" then
+                let re = expect.["matches"].GetValue<string>()
+
+                if kind actual <> Some Text.Json.JsonValueKind.String
+                   || not (Regex.IsMatch(actual.GetValue<string>(), re)) then
+                    failwith $"expected /{re}/, got {show actual}"
+            elif expect.ContainsKey "satisfies" then
+                let target = expect.["satisfies"].GetValue<string>()
+                let verdict = call target [| actual |]
+
+                if kind verdict <> Some Text.Json.JsonValueKind.True then
+                    failwith $"{show actual} does not satisfy {target} (got {show verdict})"
+            else
+                failwith $"unknown expectation {expect.ToJsonString()}"
+
+// ---------------------------------------------------------------------------------------------
+// xUnit 2 cannot skip a single [<MemberData>] row at run time, so rows are skipped at discovery:
+// ContractTheory is a Theory whose discoverer turns every row with a skip reason into a skipped
+// test case (with that reason), names every row by its case id (xUnit would show and truncate
+// the escaped argument), and always enumerates the rows, even when a runner turns theory
+// pre-enumeration off.
+
+type private PreEnumerate(inner: ITestFrameworkDiscoveryOptions) =
+    interface ITestFrameworkDiscoveryOptions with
+        member _.GetValue<'T>(name: string) : 'T =
+            if name = "xunit.discovery.PreEnumerateTheories" then unbox<'T> (box (Nullable true))
+            else inner.GetValue<'T> name
+
+        member _.SetValue<'T>(name: string, value: 'T) = inner.SetValue<'T>(name, value)
+
+type ContractTestCase =
+    inherit XunitTestCase
+
+    [<Obsolete("Called by the de-serializer")>]
+    new() = { inherit XunitTestCase() }
+
+    new(sink, display, displayOptions, testMethod, row) =
+        { inherit XunitTestCase(sink, display, displayOptions, testMethod, row) }
+
+    override this.GetDisplayName(_, _) = string this.TestMethodArguments.[0]
+
+type SkippedContractTestCase =
+    inherit XunitSkippedDataRowTestCase
+
+    [<Obsolete("Called by the de-serializer")>]
+    new() = { inherit XunitSkippedDataRowTestCase() }
+
+    new(sink, display, displayOptions, testMethod, reason, row) =
+        { inherit XunitSkippedDataRowTestCase(sink, display, displayOptions, testMethod, reason, row) }
+
+    override this.GetDisplayName(_, _) = string this.TestMethodArguments.[0]
+
+type ContractCaseDiscoverer(sink: IMessageSink) =
+    inherit TheoryDiscoverer(sink)
+
+    override _.Discover(options, testMethod, attribute) =
+        base.Discover(PreEnumerate options, testMethod, attribute)
+
+    override _.CreateTestCasesForDataRow(options, testMethod, _, row) =
+        let display, displayOptions = options.MethodDisplayOrDefault(), options.MethodDisplayOptionsOrDefault()
+
+        match skipReason (string row.[0]) with
+        | Some reason -> [ new SkippedContractTestCase(sink, display, displayOptions, testMethod, reason, row) :> IXunitTestCase ]
+        | None -> [ new ContractTestCase(sink, display, displayOptions, testMethod, row) ]
+
+[<XunitTestCaseDiscoverer("BrazilianUtils.Tests.ApiContractTests+ContractCaseDiscoverer", "BrazilianUtils.Tests")>]
+[<AttributeUsage(AttributeTargets.Method)>]
+type ContractTheoryAttribute() =
+    inherit TheoryAttribute()
+
+// ---------------------------------------------------------------------------------------------
+// Tests.
+
+let caseIds () : seq<obj[]> =
+    cases.Value.Keys |> Seq.sort |> Seq.map (fun id -> [| box id |])
+
+/// One test per case, named by its id (skipped with the reason when it does not run).
+[<ContractTheory>]
+[<MemberData(nameof caseIds)>]
+let ``contract case`` (caseId: string) = check cases.Value.[caseId]
+
+[<Fact>]
+let ``every registry entry is a contract function`` () =
+    let unknown = registry.Keys |> Seq.filter (functions.Value.ContainsKey >> not) |> Seq.toList
+    Assert.True(List.isEmpty unknown, $"not in the contract: %A{unknown}")
+
+let equalityPairs () : seq<obj[]> =
+    readJson("cases/equality.json").AsArray()
+    |> Seq.mapi (fun i p -> [| box i; box (p.["why"].GetValue<string>()) |])
+
+/// The comparison function judges every pair of cases/equality.json like every other lib.
+[<Theory(DisplayName = "api-contract equality")>]
+[<MemberData(nameof equalityPairs)>]
+let ``equality self-test`` (index: int) (why: string) =
+    let pair = readJson("cases/equality.json").[index]
+    let equal = pair.["equal"].GetValue<bool>()
+    Assert.True(valuesEqual pair.["expected"] pair.["actual"] = equal, $"{why}: expected equal = {equal}")

@@ -1,0 +1,39 @@
+---
+title: Community guide
+description: Where to ask, report and contribute, and what to expect when you do.
+---
+
+Brazilian Utils lives on GitHub, in the [Brazilian Utils](https://github.com/brazilian-utils) organization. Each library has its own repository, and this site and the shared contract live in [docs](https://github.com/brazilian-utils/docs).
+
+## Where each thing goes
+
+| You want to | Go to |
+| --- | --- |
+| Ask how to do something | The **Discussions** of the library's repository |
+| Report a bug in a library | The **Issues** of the library's repository, with the input, what you got and what you expected |
+| Propose a new utility or change a rule | An issue in [docs](https://github.com/brazilian-utils/docs/issues). A change to the contract reaches every library. |
+| Fix a mistake on this site | The link to edit the page on GitHub, at the end of each page, or an issue in the docs repository |
+| Report a security problem | In private: the library's `SECURITY.md`, or support@brazilian-utils.com.br. Never in a public issue. |
+
+## Contribute code
+
+1. Look for an open issue first. Issues with the `api-contract` label are generated from the contract: each one says which function is missing or which shared case fails, with the code of another library as a reference.
+2. Say in the issue that you are taking it, so two people do not do the same work.
+3. Follow the `CONTRIBUTING.md` of the repository: each language has its own tools, style and tests.
+4. Keep the pull request to one change. Small pull requests get reviewed sooner.
+
+Changing what a function does starts in the contract, not in one library. [Change the contract](/contributing/specs/) explains how.
+
+## What to expect
+
+- Everyone here is a volunteer. An answer may take a few days.
+- Reviews are about the code. A reviewer may ask for changes. That is part of the work, not a verdict on you.
+- An issue can be closed as out of scope. The reason is always written in it.
+- Every space follows the [Code of Conduct](/about/code-of-conduct/).
+
+## Write a good issue
+
+- One problem per issue.
+- The library and its version, and the language version.
+- The smallest input that shows the problem, and the output you expected.
+- A document number in an example must be fake. Use the "generate" function of any library, or a number from the test cases.

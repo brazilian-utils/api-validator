@@ -1,0 +1,29 @@
+// 404 for every path (GitHub Pages serves 404.html): both languages, links back into the site.
+import Link from '@/components/link';
+import { Html } from '@/components/html';
+import { SiteMark } from '@/lib/layout';
+
+// Next.js marks this page noindex itself.
+export const metadata = { title: 'Page not found · Brazilian Utils' };
+
+export default function NotFound() {
+  return (
+    <Html locale="en">
+      <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col items-start justify-center gap-4 px-6">
+        {/* The site's own mark, so the page reads as part of it. */}
+        <Link href="/" className="mb-6 inline-flex items-center gap-2">
+          <SiteMark className="h-20" />
+        </Link>
+        <h1 className="text-3xl font-semibold tracking-tight">This page does not exist.</h1>
+        <p className="text-fd-muted-foreground">Check the address, or use the search. A utility may have another name, or it may not be in the contract yet.</p>
+        <p lang="pt-BR" className="text-fd-muted-foreground">Esta página não existe. Confira o endereço ou use a busca. Um utilitário pode ter outro nome, ou ainda não estar no contrato.</p>
+        {/* One way out stands out, as on the home page: the button, then text links. */}
+        <p className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2">
+          <Link href="/" className="rounded-md bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90">Home</Link>
+          <Link href="/reference/parity/" className="text-sm font-medium underline decoration-fd-border underline-offset-4 hover:decoration-fd-foreground">Parity matrix</Link>
+          <Link href="/pt-br/" lang="pt-BR" className="text-sm font-medium underline decoration-fd-border underline-offset-4 hover:decoration-fd-foreground">Início (português)</Link>
+        </p>
+      </main>
+    </Html>
+  );
+}

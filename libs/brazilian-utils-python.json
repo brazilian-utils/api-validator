@@ -1,0 +1,27 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-python",
+  "language": "python",
+  "notes": "Ignored: legacy names kept for backward compatibility (sieve = remove_symbols, display = format, validate = is_valid). Legacy `remove_symbols*`: `parse` covers the same job; ignored until the library drops it.",
+  "repo": "https://github.com/brazilian-utils/python",
+  "entry": "brutils",
+  "bindings": {
+    "municipality.getByCode": "ibge.municipality.get_municipality_by_code",
+    "state.getCodeByName": "ibge.uf.convert_name_to_uf",
+    "state.getNameByCode": "ibge.uf.convert_uf_to_name",
+    "state.getByIbgeCode": "ibge.uf.convert_code_to_uf"
+  },
+  "ignore": ["*.sieve", "*.display", "*.validate", "*remove*symbols*"],
+  "site": {
+    "label": "Python",
+    "order": 2,
+    "package": "brutils",
+    "install": "pip install brutils",
+    "registry": "https://pypi.org/project/brutils/",
+    "contributing": {
+      "en": "https://github.com/brazilian-utils/python/blob/main/CONTRIBUTING_EN.md",
+      "pt-BR": "https://github.com/brazilian-utils/python/blob/main/CONTRIBUTING.md"
+    },
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
+}

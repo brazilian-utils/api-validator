@@ -1,0 +1,130 @@
+import fs from "node:fs";
+import path from "node:path";
+import { z } from "zod";
+import type { Contract, Issue } from "./model.js";
+
+/** A path per site language; `en` is required, other languages fall back to it. */
+const localizedPath = z.object({ en: z.string().min(1), "pt-BR": z.string().min(1).optional() }).strict();
+/** A string, or one per site language. */
+const text = z.union([z.string().min(1), z.object({ en: z.string().min(1), "pt-BR": z.string().min(1) }).strict()]);
+
+export const LibSchema = z
+  .object({
+    $schema: z.string().optional(),
+    name: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+    language: z.string().min(1),
+    /** Free text for maintainers (JSON has no comments). */
+    notes: z.string().optional(),
+    repo: z.string().url().optional(),
+    branch: z.string().optional(),
+    /** Entry point / package root, relative to the repo root. Meaning is language-specific. */
+    entry: z.string().default("."),
+    /** Explicit contract id -> native symbol(s). Overrides naming conventions. */
+    bindings: z.record(z.string(), z.union([z.string(), z.array(z.string()).min(1)])).default({}),
+    /** Native symbols that are intentionally outside the contract (glob-like `*` allowed). */
+    ignore: z.array(z.string()).default([]),
+    /** Contract ids the lib deliberately does not implement, with the reason. */
+    waivers: z.record(z.string(), z.string().min(1)).default({}),
+    /** Contract test ids known to fail, with the reason (reported, but never fail CI). */
+    knownFailures: z.record(z.string(), z.string().min(1)).default({}),
+    /** Free-form adapter options. */
+    options: z.record(z.string(), z.unknown()).default({}),
+    /** How the docs site shows this lib: tab label and order, install line, where its usage files live. */
+    site: z
+      .object({
+        label: z.string().min(1),
+        order: z.number().int(),
+        package: z.string().min(1),
+        install: z.string().min(1),
+        /** The language that highlights the install line (default sh): a config line is not a command. */
+        installLang: z.string().min(1).optional(),
+        /** Every way to install when there is more than one (npm, JSR, a CDN…); `install` is the one the home shows. */
+        installs: z.array(z.object({ label: z.string().min(1), lang: z.string().min(1).default("sh"), code: z.string().min(1), note: text.optional() })).min(1).optional(),
+        /** Where the lib runs (Node.js, Deno, browsers…), as its own README states it. */
+        runtimes: z.array(z.object({ name: text, supported: text, tested: text.optional() })).min(1).optional(),
+        registry: z.string().url(),
+        /** The lib's own contributing guide (a URL, or one per language); without it the site points at the repo's issues. */
+        contributing: text.optional(),
+        /**
+         * Where the lib documents how to use it, read by the site at `ref` (see
+         * site/content/docs/contributing/usage-files.mdx):
+         *   path       one file per utility, one `## <operation id>` section per function
+         *   reference  a page (per locale) whose `##`/`###` headings are the lib's own symbol names
+         *   guides     a folder (per locale) of guides: prose plus framework / variant / file examples
+         *   root       the folder absolute demo URLs in the guides are relative to
+         *   assets     folders the guides' live demos load, copied to the site as they are
+         *   prepare    a command (argv, no shell) run in the checkout first, e.g. to generate examples
+         */
+        usage: z
+          .object({
+            ref: z.string().default("latest-release"),
+            path: z.string().default("docs/usage"),
+            reference: localizedPath.optional(),
+            guides: localizedPath.optional(),
+            root: z.string().optional(),
+            assets: z.array(z.string()).default([]),
+            prepare: z.array(z.string()).min(1).optional()
+          })
+          .strict()
+          .default({ ref: "latest-release", path: "docs/usage", assets: [] })
+      })
+      .strict()
+      .optional()
+  })
+  .strict();
+
+/** A validated lib config; `source` is the file it came from (for messages). */
+export type LibConfig = Omit<z.output<typeof LibSchema>, "$schema" | "notes"> & { source: string };
+
+/** Link to a line of a lib's source at a revision. */
+export const blobUrl = (repo: string, revision: string, file: string, line: number) => `${repo.replace(/\.git$/, "")}/blob/${revision}/${file}#L${line}`;
+
+export function loadLibConfigs(dir: string): LibConfig[] {
+  const problems: string[] = [];
+  const libs: LibConfig[] = [];
+  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
+    const rel = path.join(path.basename(dir), file);
+    let raw: unknown;
+    try {
+      raw = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
+    } catch (e) {
+      problems.push(`${rel}: JSON error: ${(e as Error).message}`);
+      continue;
+    }
+    const parsed = LibSchema.safeParse(raw);
+    if (!parsed.success) {
+      for (const issue of parsed.error.issues) problems.push(`${rel}: ${issue.path.join(".") || "(root)"}: ${issue.message}`);
+      continue;
+    }
+    if (`${parsed.data.name}.json` !== file) problems.push(`${rel}: lib "${parsed.data.name}" must live in ${parsed.data.name}.json`);
+    const { $schema: _schema, notes: _notes, ...config } = parsed.data;
+    libs.push({ ...config, source: rel });
+  }
+  if (problems.length > 0) throw new Error(`Invalid lib config:\n  - ${problems.join("\n  - ")}`);
+  return libs;
+}
+
+/** Semantic checks of a lib config against the contract (stale bindings, waivers, ...). */
+export function validateLibAgainstContract(lib: LibConfig, contract: Contract): Issue[] {
+  const issues: Issue[] = [];
+  const testIds = new Set([...contract.functions.values()].flatMap((f) => f.tests.map((t) => t.id)));
+  for (const id of Object.keys(lib.bindings)) {
+    if (!contract.functions.has(id)) {
+      issues.push({ severity: "error", code: "binding-unknown-fn", message: `${lib.source}: binding for unknown contract function "${id}"` });
+    }
+  }
+  for (const id of Object.keys(lib.waivers)) {
+    if (!contract.functions.has(id)) {
+      issues.push({ severity: "error", code: "waiver-unknown-fn", message: `${lib.source}: waiver for unknown contract function "${id}"` });
+    }
+    if (id in lib.bindings) {
+      issues.push({ severity: "error", code: "waiver-and-binding", message: `${lib.source}: "${id}" is both bound and waived` });
+    }
+  }
+  for (const id of Object.keys(lib.knownFailures)) {
+    if (!testIds.has(id) && !contract.functions.has(id)) {
+      issues.push({ severity: "error", code: "known-failure-unknown", message: `${lib.source}: knownFailures entry "${id}" matches no contract test or function` });
+    }
+  }
+  return issues;
+}

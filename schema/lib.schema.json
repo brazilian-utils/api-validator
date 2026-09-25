@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "language": { "type": "string", "minLength": 1 },
+    "notes": { "type": "string" },
+    "repo": { "type": "string", "format": "uri" },
+    "branch": { "type": "string" },
+    "entry": { "default": ".", "type": "string" },
+    "bindings": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": {
+        "anyOf": [{ "type": "string" }, { "minItems": 1, "type": "array", "items": { "type": "string" } }]
+      }
+    },
+    "ignore": { "default": [], "type": "array", "items": { "type": "string" } },
+    "waivers": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "knownFailures": {
+      "default": {},
+      "type": "object",
+      "propertyNames": { "type": "string" },
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "options": { "default": {}, "type": "object", "propertyNames": { "type": "string" }, "additionalProperties": {} },
+    "site": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "order": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+        "package": { "type": "string", "minLength": 1 },
+        "install": { "type": "string", "minLength": 1 },
+        "installLang": { "type": "string", "minLength": 1 },
+        "installs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "lang": { "default": "sh", "type": "string", "minLength": 1 },
+              "code": { "type": "string", "minLength": 1 },
+              "note": {
+                "anyOf": [
+                  { "type": "string", "minLength": 1 },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "en": { "type": "string", "minLength": 1 },
+                      "pt-BR": { "type": "string", "minLength": 1 }
+                    },
+                    "required": ["en", "pt-BR"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": ["label", "code"]
+          }
+        },
+        "runtimes": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "anyOf": [
+                  { "type": "string", "minLength": 1 },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "en": { "type": "string", "minLength": 1 },
+                      "pt-BR": { "type": "string", "minLength": 1 }
+                    },
+                    "required": ["en", "pt-BR"],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "supported": {
+                "anyOf": [
+                  { "type": "string", "minLength": 1 },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "en": { "type": "string", "minLength": 1 },
+                      "pt-BR": { "type": "string", "minLength": 1 }
+                    },
+                    "required": ["en", "pt-BR"],
+                    "additionalProperties": false
+                  }
+                ]
+              },
+              "tested": {
+                "anyOf": [
+                  { "type": "string", "minLength": 1 },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "en": { "type": "string", "minLength": 1 },
+                      "pt-BR": { "type": "string", "minLength": 1 }
+                    },
+                    "required": ["en", "pt-BR"],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": ["name", "supported"]
+          }
+        },
+        "registry": { "type": "string", "format": "uri" },
+        "contributing": {
+          "anyOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en", "pt-BR"],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "usage": {
+          "default": { "ref": "latest-release", "path": "docs/usage", "assets": [] },
+          "type": "object",
+          "properties": {
+            "ref": { "default": "latest-release", "type": "string" },
+            "path": { "default": "docs/usage", "type": "string" },
+            "reference": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en"],
+              "additionalProperties": false
+            },
+            "guides": {
+              "type": "object",
+              "properties": {
+                "en": { "type": "string", "minLength": 1 },
+                "pt-BR": { "type": "string", "minLength": 1 }
+              },
+              "required": ["en"],
+              "additionalProperties": false
+            },
+            "root": { "type": "string" },
+            "assets": { "default": [], "type": "array", "items": { "type": "string" } },
+            "prepare": { "minItems": 1, "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["label", "order", "package", "install", "registry"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["name", "language"],
+  "additionalProperties": false,
+  "title": "brazilian-utils lib config (libs/<name>.json)"
+}

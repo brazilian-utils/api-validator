@@ -1,0 +1,261 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "boleto",
+  "title": { "en": "Boleto", "pt-BR": "Boleto" },
+  "summary": {
+    "en": "Boleto de cobrança bancária and boleto de arrecadação: linha digitável and barcode validation, formatting, parsing and decoding.",
+    "pt-BR": "Boleto de cobrança e de arrecadação: validação, formatação, leitura e decodificação da linha digitável e do código de barras."
+  },
+  "category": "finance",
+  "order": 2,
+  "related": ["bank"],
+  "functions": {
+    "format": {
+      "summary": { "en": "Formats a value as a Brazilian boleto.", "pt-BR": "Formata um valor como boleto." },
+      "description": {
+        "en": [
+          "Formats a boleto linha digitável with its printed mask.",
+          "",
+          "- The function groups the 47-digit cobrança bancária linha digitável as `00000.00000 00000.000000 00000.000000 0 00000000000000`.",
+          "- A 48-digit linha digitável starting with `8` (boleto de arrecadação) gets four blocks of 11 digits, each followed by its check digit. The 44-digit arrecadação barcode keeps the cobrança bancária mask.",
+          "- `options.pad` left-pads the value with zeros to the length of the pattern before masking."
+        ],
+        "pt-BR": [
+          "Formata a linha digitável de um boleto com a máscara impressa.",
+          "",
+          "- A função agrupa a linha digitável de cobrança bancária de 47 dígitos como `00000.00000 00000.000000 00000.000000 0 00000000000000`.",
+          "- Uma linha digitável de 48 dígitos que começa com `8` (boleto de arrecadação) recebe quatro blocos de 11 dígitos, cada um seguido do seu dígito verificador. O código de barras de arrecadação de 44 dígitos mantém a máscara de cobrança bancária.",
+          "- `options.pad` completa o valor com zeros à esquerda até o tamanho do padrão, antes de aplicar a máscara."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf",
+        "https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf",
+        "https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban"
+      ],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatBoletoOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "name": "full", "args": ["10491443385511900000200000000141325230000093423"], "returns": "10491.44338 55119.000002 00000.000141 3 25230000093423" },
+        { "name": "partial", "args": ["104914"], "returns": "10491.4" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10"], "returns": "10", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104"], "returns": "104", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049"], "returns": "1049", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491"], "returns": "10491", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144"], "returns": "10491.44", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443"], "returns": "10491.443", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433"], "returns": "10491.4433", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338"], "returns": "10491.44338", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385"], "returns": "10491.44338 5", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855"], "returns": "10491.44338 55", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551"], "returns": "10491.44338 551", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511"], "returns": "10491.44338 5511", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119"], "returns": "10491.44338 55119", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190"], "returns": "10491.44338 55119.0", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900"], "returns": "10491.44338 55119.00", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000"], "returns": "10491.44338 55119.000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000"], "returns": "10491.44338 55119.0000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000"], "returns": "10491.44338 55119.00000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002"], "returns": "10491.44338 55119.000002", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020"], "returns": "10491.44338 55119.000002 0", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200"], "returns": "10491.44338 55119.000002 00", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000"], "returns": "10491.44338 55119.000002 000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000"], "returns": "10491.44338 55119.000002 0000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000"], "returns": "10491.44338 55119.000002 00000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000"], "returns": "10491.44338 55119.000002 00000.0", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000"], "returns": "10491.44338 55119.000002 00000.00", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000"], "returns": "10491.44338 55119.000002 00000.000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001"], "returns": "10491.44338 55119.000002 00000.0001", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014"], "returns": "10491.44338 55119.000002 00000.00014", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141"], "returns": "10491.44338 55119.000002 00000.000141", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001413"], "returns": "10491.44338 55119.000002 00000.000141 3", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014132"], "returns": "10491.44338 55119.000002 00000.000141 3 2", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141325"], "returns": "10491.44338 55119.000002 00000.000141 3 25", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001413252"], "returns": "10491.44338 55119.000002 00000.000141 3 252", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014132523"], "returns": "10491.44338 55119.000002 00000.000141 3 2523", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141325230"], "returns": "10491.44338 55119.000002 00000.000141 3 25230", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001413252300"], "returns": "10491.44338 55119.000002 00000.000141 3 252300", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014132523000"], "returns": "10491.44338 55119.000002 00000.000141 3 2523000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141325230000"], "returns": "10491.44338 55119.000002 00000.000141 3 25230000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001413252300000"], "returns": "10491.44338 55119.000002 00000.000141 3 252300000", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014132523000009"], "returns": "10491.44338 55119.000002 00000.000141 3 2523000009", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141325230000093"], "returns": "10491.44338 55119.000002 00000.000141 3 25230000093", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["104914433855119000002000000001413252300000934"], "returns": "10491.44338 55119.000002 00000.000141 3 252300000934", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["1049144338551190000020000000014132523000009342"], "returns": "10491.44338 55119.000002 00000.000141 3 2523000009342", "note": "JavaScript's own test: should format boleto with mask" },
+        { "args": ["10491443385511900000200000000141325230000093423123123123"], "returns": "10491.44338 55119.000002 00000.000141 3 25230000093423", "note": "JavaScript's own test" },
+        { "args": ["10491.44A338 55119.000002? ABC00000.000?141 3 25230000093423"], "returns": "10491.44338 55119.000002 00000.000141 3 25230000093423", "note": "JavaScript's own test: should remove all non numeric characters boleto" },
+        { "args": ["846100000005246100291102005460339004695895061080"], "returns": "84610000000-5 24610029110-2 00546033900-4 69589506108-0", "note": "JavaScript's own test: arrecadação should use the arrecadação mask when it starts with 8" },
+        { "args": ["858900004609524601791605607593050865831483000010"], "returns": "85890000460-9 52460179160-5 60759305086-5 83148300001-0", "note": "JavaScript's own test: arrecadação should use the arrecadação mask when it starts with 8" },
+        { "args": ["8"], "returns": "8", "note": "JavaScript's own test: arrecadação should keep the cobrança bancária mask for partial values" },
+        { "args": ["84610000000"], "returns": "84610.00000 0", "note": "JavaScript's own test: arrecadação should keep the cobrança bancária mask for partial values" },
+        { "args": ["846100000005"], "returns": "84610.00000 05", "note": "JavaScript's own test: arrecadação should keep the cobrança bancária mask for partial values" },
+        { "args": ["8461000000052"], "returns": "84610.00000 052", "note": "JavaScript's own test: arrecadação should keep the cobrança bancária mask for partial values" },
+        { "args": ["84610000000246100291100054603390069589506108"], "returns": "84610.00000 02461.002911 00054.603390 0 69589506108", "note": "JavaScript's own test: arrecadação should keep the cobrança bancária mask for the 44 digit barcode" },
+        { "args": ["846100000005246100291102005460339004695895061080123"], "returns": "84610.00000 05246.100291 10200.546033 9 00469589506108", "note": "JavaScript's own test: arrecadação" },
+        { "args": ["84610000000-5 24610029110-2 00546033900-4 69589506108-0"], "returns": "84610000000-5 24610029110-2 00546033900-4 69589506108-0", "note": "JavaScript's own test: arrecadação should remove all non numeric characters" }
+      ]
+    },
+    "generate": {
+      "summary": {
+        "en": "Generates a valid random boleto number.",
+        "pt-BR": "Gera um número de boleto aleatório e válido."
+      },
+      "description": {
+        "en": [
+          "Generates a valid random boleto number.",
+          "",
+          "- By default, the function generates a 47-digit cobrança bancária linha digitável. With `params.type` set to arrecadação, it generates a 48-digit boleto de arrecadação instead.",
+          "- `boleto.isValid` accepts the result."
+        ],
+        "pt-BR": [
+          "Gera um número de boleto aleatório e válido.",
+          "",
+          "- Por padrão, a função gera uma linha digitável de cobrança bancária com 47 dígitos. Com `params.type` definido como arrecadação, ela gera um boleto de arrecadação com 48 dígitos.",
+          "- `boleto.isValid` aceita o resultado."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf",
+        "https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf",
+        "https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban"
+      ],
+      "params": [{ "name": "params", "type": "GenerateBoletoParams", "optional": true }],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "boleto.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "getInfo": {
+      "summary": { "en": "Extracts information from a boleto.", "pt-BR": "Extrai informações de um boleto." },
+      "description": {
+        "en": [
+          "Extracts the amount, due date and bank code from a boleto. Returns null when the value is not a valid boleto.",
+          "",
+          "- The amount is in cents. The bank code is the 3-digit COMPE code.",
+          "- The due date is null when the boleto carries no fator de vencimento (a factor below 1000).",
+          "- The fator de vencimento cycle reset on 2025-02-22, so a factor maps to two dates 9000 days apart. `options.referenceDate` resolves the cycle as of that date instead of today.",
+          "- A boleto de arrecadação has no bank code and no due date. It also reports its type, segment, the amount in reais and whether that amount is effective."
+        ],
+        "pt-BR": [
+          "Interpreta um boleto e retorna o valor, a data de vencimento e o código do banco. Retorna null quando a entrada não é um boleto válido.",
+          "",
+          "- O valor está em centavos. O código do banco é o código COMPE de 3 dígitos.",
+          "- A data de vencimento é null quando o boleto não traz fator de vencimento (um fator abaixo de 1000).",
+          "- O ciclo do fator de vencimento reiniciou em 2025-02-22, então um fator corresponde a duas datas com 9000 dias de diferença. `options.referenceDate` resolve o ciclo com base nessa data, em vez de hoje.",
+          "- Um boleto de arrecadação não tem código do banco nem data de vencimento. Ele também informa o tipo, o segmento, o valor em reais e se esse valor é efetivo."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf",
+        "https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf",
+        "https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban"
+      ],
+      "flatName": "getBoletoInfo",
+      "params": [
+        { "name": "value", "type": "string" },
+        { "name": "options", "type": "GetBoletoInfoOptions", "optional": true }
+      ],
+      "returns": "BoletoInfo?",
+      "tests": [
+        { "args": [""], "returns": null, "note": "JavaScript's own test: should return null when boleto is empty string" },
+        { "args": ["00190000090114971860168524522114775860000102656"], "returns": null, "note": "JavaScript's own test: should return null when boleto is invalid" },
+        { "args": ["846100000005246100291102005460339004695895061080"], "returns": { "amount": 2461, "expirationDate": null, "bankCode": "", "type": "arrecadacao", "segment": 4, "value": 24.61, "hasEffectiveValue": true }, "note": "JavaScript's own test: arrecadação (FEBRABAN Layout Padrão de Arrecadação §11 Formulário Padrão fixture: R$ 24,61, segment 4) should parse the linha digitável" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Checks whether a boleto number is valid.",
+        "pt-BR": "Verifica se um número de boleto é válido."
+      },
+      "description": {
+        "en": [
+          "Validates a boleto: the 47-digit cobrança bancária linha digitável, or a boleto de arrecadação as its 48-digit linha digitável or 44-digit barcode.",
+          "",
+          "- The function verifies every check digit of the chosen layout (per Carta-Circular BCB 2.926/2000 and the FEBRABAN arrecadação layout).",
+          "- The function does not check the código de moeda (position 4 of the cobrança bancária barcode)."
+        ],
+        "pt-BR": [
+          "Valida um boleto: a linha digitável de cobrança bancária com 47 dígitos, ou um boleto de arrecadação na forma de linha digitável com 48 dígitos ou de código de barras com 44 dígitos.",
+          "",
+          "- A função verifica todos os dígitos verificadores do leiaute escolhido (conforme a Carta-Circular BCB 2.926/2000 e o leiaute de arrecadação da FEBRABAN).",
+          "- A função não verifica o código de moeda (posição 4 do código de barras de cobrança bancária)."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf",
+        "https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf",
+        "https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["60757135008571297205909229083648919190488862573"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["60757135008571297205909229083648919190488862574"], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["00000000000000000000000000000000000000000000000"], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["52410567606343146479903680440595729289409535291"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["52410567606343146479903680440595729289409535292"], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["74348924801607065591119728853342723148482264669"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["74348924801607065591119728853342723148482264660"], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["60757.13500 85712.972059 09229.083648 9 19190488862573"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["52410.56760 63431.464799 03680.440595 7 29289409535291"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["74348.92480 16070.655911 19728.853342 7 23148482264669"], "returns": true, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 4 libs (go, javascript, ruby, rust)" },
+        { "args": ["123456789"], "returns": false, "note": "JavaScript's own test: should return false" },
+        { "args": ["00190000020114971860168524522114675860000102656"], "returns": false, "note": "JavaScript's own test: should return false when check digit mod10 is invalid" },
+        { "args": ["00190000090114971860168524522114975860000102656"], "returns": false, "note": "JavaScript's own test: should return false check digit mod11 is invalid" },
+        { "args": ["00190000090114971860168524522114675860000102656999"], "returns": false, "note": "JavaScript's own test: should return false" },
+        { "args": ["00190000090114971860168524522114675860000102656"], "returns": true, "note": "JavaScript's own test: should return true when is a boleto valid without mask" },
+        { "args": ["0019000009 01149.718601 68524.522114 6 75860000102656"], "returns": true, "note": "JavaScript's own test: should return true when is a boleto valid with mask" },
+        {
+          "args": ["00170000010114971860168524522114275860000102656"],
+          "returns": true,
+          "note": "JavaScript's own test: should return true when the código de moeda is not 9 (same fixture as the boleto valid without mask, with the moeda in barcode position 4 changed to 7 and both the campo 1 and the DV geral recalculated): Carta-Circular BCB nº 2.926/2000 fixes that position at 9, and the leniency kept from 2.3.0 accepts any other digit"
+        },
+        { "args": ["836200000005667800481000180975657313001589636081"], "returns": true, "note": "JavaScript's own test: arrecadação should return true for the mcrvaz/boleto-brasileiro-validator modulus 10 linha digitável fixture" },
+        { "args": ["846300000003299902962024004101360008002006441147"], "returns": true, "note": "JavaScript's own test: arrecadação should return true for the mrmgomes/boleto-utils modulus 10 linha digitável fixture" },
+        { "args": ["858900004609524601791605607593050865831483000010"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it is a valid modulo 11 linha digitável" },
+        { "args": ["848900000002404201622015806051904292586034111220"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it is a valid modulo 11 linha digitável" },
+        { "args": ["858000000070438403281922630720192528304729600523"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it is a valid modulo 11 linha digitável" },
+        { "args": ["838600000050096000190009000801782309000343062712"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it is a valid modulo 11 linha digitável" },
+        { "args": ["858200000007572503282030560708202107539591904460"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it is a valid modulo 11 linha digitável" },
+        { "args": ["85890000460524601791606075930508683148300001"], "returns": true, "note": "JavaScript's own test: arrecadação should return true for the barcode form of the FEBRABAN §11 modulus 10 example" },
+        { "args": ["84610000000-5 24610029110-2 00546033900-4 69589506108-0"], "returns": true, "note": "JavaScript's own test: arrecadação should return true when it has a mask" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a boleto and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um boleto e retorna só os dígitos."
+      },
+      "description": {
+        "en": ["Removes boleto formatting and keeps only digits, capped at 47 digits (48 for a boleto de arrecadação)."],
+        "pt-BR": [
+          "Remove a formatação do boleto e mantém apenas os dígitos, limitados a 47 (48 para um boleto de arrecadação)."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/pre/normativos/c_circ/2000/pdf/c_circ_2926_v1_O.pdf",
+        "https://cmsarquivos.febraban.org.br/Arquivos/documentos/PDF/Layout%20-%20C%C3%B3digo%20de%20Barras%20-%20Vers%C3%A3o%208%20-%2011_05_2026.pdf",
+        "https://portal.febraban.org.br/pagina/3425/33/pt-br/layout-febraban"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["10491.44338 55119.000002 00000.000141 3 25230000093423"], "returns": "10491443385511900000200000000141325230000093423" },
+        { "name": "arrecadacao-masked", "args": ["84610000000-5 24610029110-2 00546033900-4 69589506108-0"], "returns": "846100000005246100291102005460339004695895061080" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["10491.44A338 55119.000002? ABC00000.000?141 3 25230000093423"], "returns": "10491443385511900000200000000141325230000093423", "note": "JavaScript's own test: should remove non numeric characters" },
+        { "args": ["10491443385511900000200000000141325230000093423123"], "returns": "10491443385511900000200000000141325230000093423", "note": "JavaScript's own test: should ignore digits after the boleto length" },
+        { "args": ["846100000005246100291102005460339004695895061080123"], "returns": "846100000005246100291102005460339004695895061080", "note": "JavaScript's own test: arrecadação should ignore digits after the arrecadação length" }
+      ]
+    }
+  }
+}

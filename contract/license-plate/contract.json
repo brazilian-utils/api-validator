@@ -1,0 +1,276 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "licensePlate",
+  "title": { "en": "License plate", "pt-BR": "Placa de veículo" },
+  "summary": {
+    "en": "Brazilian vehicle license plates, in the Mercosul (LLLNLNN) and pre-Mercosul (LLLNNNN) patterns.",
+    "pt-BR": "Placas de identificação veicular, nos padrões Mercosul (LLLNLNN) e pré-Mercosul (LLLNNNN)."
+  },
+  "category": "vehicles",
+  "order": 1,
+  "related": ["renavam"],
+  "functions": {
+    "convertToMercosul": {
+      "summary": {
+        "en": "Converts an old-format Brazilian license plate (\"LLLNNNN\") to the Mercosul format (\"LLLNLNN\").",
+        "pt-BR": "Converte uma placa no formato antigo (\"LLLNNNN\") para o padrão Mercosul (\"LLLNLNN\")."
+      },
+      "description": {
+        "en": [
+          "Converts an old-format plate (`LLLNNNN`) to the Mercosul format (`LLLNLNN`). The 5th character, a digit, becomes a letter, with `0` to `9` mapping to `A` to `J`. The result is upper-cased.",
+          "",
+          "The conversion follows the official table. Every other character stays as it is.",
+          "",
+          "- Pending decision (findings §1b): the reference (JS) also accepts the hyphen mask (`ABC-1234`). Other libraries reject it.",
+          "- Pending decision (findings §2 #5): for a plate that is already Mercosul or is not a valid old-format plate, the reference (JS) returns an empty string. Most libraries return null."
+        ],
+        "pt-BR": [
+          "Converte uma placa no formato antigo (`LLLNNNN`) para o padrão Mercosul (`LLLNLNN`). O 5º caractere, um dígito, vira uma letra, de `0` a `9` para `A` a `J`. O resultado fica em maiúsculas.",
+          "",
+          "A conversão segue a tabela oficial. Todos os outros caracteres ficam como estão.",
+          "",
+          "- Decisão pendente (findings §1b): a referência (JS) também aceita a máscara com hífen (`ABC-1234`). As outras bibliotecas a rejeitam.",
+          "- Decisão pendente (findings §2 #5): para uma placa que já é Mercosul ou que não é uma placa válida no formato antigo, a referência (JS) retorna uma string vazia. A maioria das bibliotecas retorna null."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
+      ],
+      "flatName": "convertLicensePlateToMercosul",
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "name": "old-format", "args": ["ABC1234"], "returns": "ABC1C34" },
+        { "name": "digit-0-to-A", "args": ["ABC0000"], "returns": "ABC0A00" },
+        { "name": "digit-9-to-J", "args": ["ABC9999"], "returns": "ABC9J99" },
+        { "name": "lowercase", "args": ["abc1234"], "returns": "ABC1C34" },
+        { "name": "hyphen-mask", "args": ["ABC-1234"], "returns": "ABC1C34" },
+        { "name": "already-mercosul", "args": ["ABC1D23"], "returns": "", "note": "no conversion possible; the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
+        { "name": "invalid", "args": ["invalid"], "returns": "", "note": "the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
+        { "name": "empty", "args": [""], "returns": "", "note": "the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
+        { "args": ["ABC12D3"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is the withdrawn LLLNNLN sequence" },
+        { "args": ["ABC1234EXTRA"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is an old format plate followed by extra characters" },
+        { "args": ["ABC12345"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is an old format plate followed by extra characters" },
+        { "args": ["ABC123"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is too short" },
+        { "args": ["ABC1111"], "returns": "ABC1B11", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC2222"], "returns": "ABC2C22", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC3333"], "returns": "ABC3D33", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC4444"], "returns": "ABC4E44", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC5555"], "returns": "ABC5F55", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC6666"], "returns": "ABC6G66", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC7777"], "returns": "ABC7H77", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC8888"], "returns": "ABC8I88", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" }
+      ]
+    },
+    "format": {
+      "summary": { "en": "Formats a Brazilian license plate.", "pt-BR": "Formata uma placa de veículo." },
+      "description": {
+        "en": [
+          "Formats a license plate in upper case. Old-format plates (`LLLNNNN`) get a hyphen (`ABC-1234`). Mercosul plates (`LLLNLNN`) have no separator.",
+          "",
+          "- Returns an empty string when the value cannot start a valid plate."
+        ],
+        "pt-BR": [
+          "Formata uma placa em maiúsculas. Placas no formato antigo (`LLLNNNN`) ganham um hífen (`ABC-1234`). Placas Mercosul (`LLLNLNN`) não têm separador.",
+          "",
+          "- Retorna uma string vazia quando o valor não pode ser o início de uma placa válida."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["WDG1S21"], "returns": "WDG1S21", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["WDG1S22"], "returns": "WDG1S22", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["wdg1s21"], "returns": "WDG1S21", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["GJG8U81"], "returns": "GJG8U81", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["GJG8U82"], "returns": "GJG8U82", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["gjg8u81"], "returns": "GJG8U81", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["KDS4W15"], "returns": "KDS4W15", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["kds4w15"], "returns": "KDS4W15", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test" },
+        { "args": ["a"], "returns": "A", "note": "JavaScript's own test" },
+        { "args": ["ab"], "returns": "AB", "note": "JavaScript's own test" },
+        { "args": ["abc"], "returns": "ABC", "note": "JavaScript's own test" },
+        { "args": ["abc1"], "returns": "ABC-1", "note": "JavaScript's own test" },
+        { "args": ["abc12"], "returns": "ABC-12", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc123"], "returns": "ABC-123", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc1234"], "returns": "ABC-1234", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc1d"], "returns": "ABC1D", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc1d2"], "returns": "ABC1D2", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc1d23"], "returns": "ABC1D23", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc-1234"], "returns": "ABC-1234", "note": "JavaScript's own test: should remove non alphanumeric characters" },
+        { "args": ["abc1-d23"], "returns": "ABC1D23", "note": "JavaScript's own test: should remove non alphanumeric characters" },
+        { "args": ["abc1da2"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["abc12d"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["abc12d3"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["1"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" },
+        { "args": ["1ab4"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" },
+        { "args": ["ab14"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" }
+      ]
+    },
+    "generate": {
+      "summary": {
+        "en": "Generates a valid random Brazilian license plate.",
+        "pt-BR": "Gera uma placa de veículo aleatória e válida."
+      },
+      "description": {
+        "en": [
+          "Generates a valid random license plate, unformatted.",
+          "",
+          "- `format` is `LLLNLNN` (Mercosul, the default) or `LLLNNNN` (old format). Any other value falls back to the default."
+        ],
+        "pt-BR": [
+          "Gera uma placa aleatória e válida, sem máscara.",
+          "",
+          "- `format` é `LLLNLNN` (Mercosul, o padrão) ou `LLLNNNN` (formato antigo). Qualquer outro valor usa o padrão."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "format", "type": "string", "optional": true }],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "licensePlate.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "getFormat": {
+      "summary": {
+        "en": "Identifies the format of a Brazilian license plate.",
+        "pt-BR": "Identifica o formato de uma placa de veículo."
+      },
+      "description": {
+        "en": [
+          "Detects the format of a license plate: `LLLNNNN` for the old format, `LLLNLNN` for Mercosul.",
+          "",
+          "- The function removes separators first and ignores case.",
+          "- Returns null when the value is not 7 letters and digits in one of the two formats.",
+          "- Pending decision (findings §1): Erlang returns named formats instead of the patterns."
+        ],
+        "pt-BR": [
+          "Detecta o formato de uma placa: `LLLNNNN` para o formato antigo, `LLLNLNN` para Mercosul.",
+          "",
+          "- A função remove os separadores primeiro e ignora maiúsculas e minúsculas.",
+          "- Retorna null quando o valor não tem 7 letras e dígitos em um dos dois formatos.",
+          "- Decisão pendente (findings §1): Erlang retorna formatos com nome em vez dos padrões."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string?",
+      "tests": [
+        { "args": ["WDG1S21"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["WDG1S22"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["wdg1s21"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["GJG8U81"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["GJG8U82"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["gjg8u81"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["KDS4W15"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["KDS4W16"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["kds4w15"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["ABC1234"], "returns": "LLLNNNN", "note": "JavaScript's own test: should identify supported formats" },
+        { "args": ["ABC1D23"], "returns": "LLLNLNN", "note": "JavaScript's own test: should identify supported formats" },
+        { "args": ["ABC12D3"], "returns": null, "note": "JavaScript's own test: should return null for the withdrawn motorcycle sequence" },
+        { "args": ["ABC1234EXTRA"], "returns": null, "note": "JavaScript's own test: should return null when the value has extra characters beyond the license plate length" },
+        { "args": ["invalid"], "returns": null, "note": "JavaScript's own test: should return null when the value does not match any supported format" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Checks whether a Brazilian license plate is valid.",
+        "pt-BR": "Verifica se uma placa de veículo é válida."
+      },
+      "description": {
+        "en": [
+          "Validates a license plate in the old format (`ABC1234`) or the Mercosul format (`ABC1D23`), in any case, with or without a hyphen or space.",
+          "",
+          "- Any other sequence of letters and digits, or extra characters, makes it invalid."
+        ],
+        "pt-BR": [
+          "Valida uma placa no formato antigo (`ABC1234`) ou no padrão Mercosul (`ABC1D23`), em maiúsculas ou minúsculas, com ou sem hífen ou espaço.",
+          "",
+          "- Qualquer outra sequência de letras e dígitos, ou caracteres a mais, torna a placa inválida."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf",
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022anexos.pdf"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["WDG1S21"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["WDG1S22"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["wdg1s21"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["GJG8U81"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["GJG8U82"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["gjg8u81"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["KDS4W15"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["KDS4W16"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["kds4w15"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": [""], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["abc12345"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["5abc1234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["abcd1234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["abcd234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["ABC1234EXTRA"], "returns": false, "note": "JavaScript's own test: should return false when it has extra characters beyond the license plate length" },
+        { "args": ["ABC12D3"], "returns": false, "note": "JavaScript's own test: should return false when it uses the withdrawn motorcycle sequence" },
+        { "args": ["abc12d3"], "returns": false, "note": "JavaScript's own test: should return false when it uses the withdrawn motorcycle sequence" },
+        { "args": ["abc1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["ABC1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["abc-1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["ABC-1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["abc1d23"], "returns": true, "note": "JavaScript's own test: should return true when mercosul license plate format is valid" },
+        { "args": ["ABC1D23"], "returns": true, "note": "JavaScript's own test: should return true when mercosul license plate format is valid" },
+        { "args": ["ABC 1234"], "returns": true, "note": "JavaScript's own test: should return true when it has a whitespace mask" },
+        { "args": ["  abc1234 "], "returns": true, "note": "JavaScript's own test: should return true when it has a whitespace mask" },
+        { "args": ["ABC-1D23"], "returns": true, "note": "JavaScript's own test: should return true when the mercosul format has a hyphen mask" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a license plate and returns only the letters and digits, in upper case.",
+        "pt-BR": "Remove os caracteres de formatação de uma placa e retorna só as letras e os dígitos, em maiúsculas."
+      },
+      "description": {
+        "en": ["Removes separators from a license plate, upper-cases it and caps it at 7 characters."],
+        "pt-BR": ["Remove os separadores de uma placa, converte para maiúsculas e limita a 7 caracteres."]
+      },
+      "references": [
+        "https://www.gov.br/transportes/pt-br/assuntos/transito/conteudo-contran/resolucoes/resolucao9692022.pdf"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "name": "old-format-masked", "args": ["abc-1234"], "returns": "ABC1234" },
+        { "name": "mercosul-lowercase", "args": ["abc1d23"], "returns": "ABC1D23" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["abc123456"], "returns": "ABC1234", "note": "reference truncates to 7 characters; asserted by the reference (JS) unit tests" },
+        { "args": ["WDG1S21"], "returns": "WDG1S21", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["WDG1S22"], "returns": "WDG1S22", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["GJG8U81"], "returns": "GJG8U81", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["GJG8U82"], "returns": "GJG8U82", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["KDS4W15"], "returns": "KDS4W15", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["abc1d23xyz"], "returns": "ABC1D23", "note": "JavaScript's own test: should ignore characters after the license plate length" }
+      ]
+    }
+  }
+}

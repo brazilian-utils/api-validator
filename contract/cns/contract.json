@@ -1,0 +1,135 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cns",
+  "title": { "en": "CNS (SUS card)", "pt-BR": "CNS (Cartão SUS)" },
+  "summary": {
+    "en": "Cartão Nacional de Saúde, the SUS identifier of a user, health professional or health facility.",
+    "pt-BR": "Cartão Nacional de Saúde, o identificador do SUS para usuários, profissionais e estabelecimentos de saúde."
+  },
+  "category": "documents",
+  "order": 6,
+  "related": ["cpf"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a CNS number into the common display groups of 3-4-4-4 digits separated by spaces.",
+        "pt-BR": "Formata um número do CNS nos grupos usuais de exibição de 3-4-4-4 dígitos separados por espaços."
+      },
+      "description": {
+        "en": [
+          "Formats a CNS number into groups of 3-4-4-4 digits separated by spaces.",
+          "",
+          "- `options.pad` left-pads with zeros to 15 digits first."
+        ],
+        "pt-BR": [
+          "Formata um número do CNS em grupos de 3-4-4-4 dígitos separados por espaços.",
+          "",
+          "- `options.pad` primeiro completa com zeros à esquerda até 15 dígitos."
+        ]
+      },
+      "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCnsOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["123456789010001"], "returns": "123 4567 8901 0001" },
+        { "name": "already-formatted", "args": ["898 0000 0004 3208"], "returns": "898 0000 0004 3208" },
+        { "name": "partial", "args": ["1234"], "returns": "123 4" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["12"], "returns": "12", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["123"], "returns": "123", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["898000000043208"], "returns": "898 0000 0004 3208", "note": "JavaScript's own test: should round trip 898 0000 0004 3208, the only concrete CNS the ANVISA page prints" },
+        { "args": [123456789010001], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should format a number CNS with the space mask" },
+        { "args": ["", { "pad": true }], "returns": "000 0000 0000 0000", "note": "JavaScript's own test: should pad the value with leading zeros when pad is true" },
+        { "args": ["89010001", { "pad": true }], "returns": "000 0000 8901 0001", "note": "JavaScript's own test: should pad the value with leading zeros when pad is true" },
+        { "args": ["123456789010001999"], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should not add digits after the CNS length (15)" },
+        { "args": ["123.456.789-01/0001"], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should remove all non numeric characters" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Validates a CNS number, the unique identifier of a SUS (Sistema Único de Saúde) user, health professional or health facility.",
+        "pt-BR": "Valida um número do CNS, o identificador único de um usuário, profissional de saúde ou estabelecimento de saúde do SUS (Sistema Único de Saúde)."
+      },
+      "description": {
+        "en": [
+          "Validates a CNS number: 15 digits.",
+          "",
+          "- Definitive cards start with 1 or 2, provisional ones with 7, 8 or 9. Each kind has its own modulus 11 rule.",
+          "- Rejects a number that starts with 5, following ANVISA.",
+          "- Accepts the bare digits or the printed 3-4-4-4 groups split by whitespace, `.`, `-` or `/`. Rejects anything else."
+        ],
+        "pt-BR": [
+          "Valida um número do CNS: 15 dígitos.",
+          "",
+          "- Cartões definitivos começam com 1 ou 2, e os provisórios com 7, 8 ou 9. Cada tipo tem sua própria regra de módulo 11.",
+          "- Rejeita um número que começa com 5, conforme a ANVISA.",
+          "- Aceita os dígitos puros ou os grupos impressos 3-4-4-4 separados por espaço em branco, `.`, `-` ou `/`. Rejeita qualquer outra coisa."
+        ]
+      },
+      "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["123456789010000"], "returns": true },
+        { "name": "masked", "args": ["123 4567 8901 0000"], "returns": true },
+        { "name": "provisional", "args": ["898000000043208"], "returns": true },
+        { "name": "starts-with-7", "args": ["700000000000005"], "returns": true },
+        { "name": "wrong-check-digit", "args": ["123456789010001"], "returns": false },
+        { "name": "invalid-first-digit", "args": ["312345678901234"], "returns": false },
+        { "name": "too-short", "args": ["12345678901"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["012345678901234"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1, 2, 7, 8 or 9" },
+        { "args": ["612345678901234"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1, 2, 7, 8 or 9" },
+        { "args": ["123456789010010"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card carries the 001 suffix without needing the +2 adjustment" },
+        { "args": ["100000000060000"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card whose raw check digit is 10 (base 10000000006) keeps the 000 suffix" },
+        { "args": ["100000000060008"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card whose raw check digit is 10 (base 10000000006) keeps the 000 suffix" },
+        { "args": ["700000000000001"], "returns": false, "note": "JavaScript's own test: should return false when a provisional card's weighted sum is not a multiple of 11" },
+        { "args": ["70000000000008"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 15 digits, even though a provisional-style weighted sum over the given digits would be a multiple of 11" },
+        { "args": ["012345678900006"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1 or 2, even though a 1 or 2 appears later and the rest forms a valid definitive checksum" },
+        { "args": ["070000000000001"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 7, 8 or 9, even though one of them appears later and the rest forms a valid provisional checksum" },
+        { "args": ["abc123456789010000"], "returns": false, "note": "JavaScript's own test: should return false when letters are wrapped around the digits of a valid card" },
+        { "args": ["123456789010000abc"], "returns": false, "note": "JavaScript's own test: should return false when letters are wrapped around the digits of a valid card" },
+        { "args": ["1a2b3c456789010000"], "returns": false, "note": "JavaScript's own test: should return false when letters are mixed in between the digits of a valid card" },
+        { "args": ["1234 5678 9010 000"], "returns": false, "note": "JavaScript's own test: should return false when the 15 digits are grouped outside the printed 3-4-4-4 mask" },
+        { "args": ["200000000010009"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS starting with 2 (base 20000000001, weighted sum 35, digit 9)" },
+        { "args": [123456789010000], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS as a number" },
+        { "args": ["123.4567.8901.0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS with a dotted mask" },
+        { "args": ["123-4567-8901-0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123/4567/8901/0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123.4567-8901/0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123 - 4567 8901 0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": [" 123456789010000 "], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS with leading and trailing whitespace" },
+        { "args": ["100000000060018"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS whose raw check digit is 10 (base 10000000006, weighted sum 45): sum raised to 47, digit 8, suffix 001" },
+        { "args": ["800000000000001"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS starting with 8" },
+        { "args": ["898 0000 0004 3208"], "returns": true, "note": "JavaScript's own test: should return true for 898 0000 0004 3208, the only concrete CNS the ANVISA page prints (weighted sum 396)" },
+        { "args": ["900000000000008"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS starting with 9" },
+        { "args": ["712345678901236"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS whose base 11 digits would NOT be a valid definitive checksum" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a CNS number and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um número do CNS e retorna só os dígitos."
+      },
+      "description": {
+        "en": ["Removes CNS formatting and keeps only digits, capped at 15 digits."],
+        "pt-BR": ["Remove a formatação do CNS e mantém apenas os dígitos, com no máximo 15 dígitos."]
+      },
+      "references": ["https://rni-docs.anvisa.gov.br/docs/regras_gerais/validacoes/validacaoCNS/"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["123 4567 8901 0000"], "returns": "123456789010000" },
+        { "name": "unmasked", "args": ["123456789010000"], "returns": "123456789010000" },
+        { "name": "strips-non-digits", "args": ["123.?ABC4567 8901-0000abc"], "returns": "123456789010000" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["123456789010000999"], "returns": "123456789010000", "note": "reference truncates to the 15 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [123456789010000], "returns": "123456789010000", "note": "JavaScript's own test: should read a number as the string of its digits" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# build output
+out/
+.next/
+.source/
+next-env.d.ts
+
+# usage files fetched from the library repos (regenerated on every build)
+.cache/
+
+# written by `docs site-data` from the last run (status, badges, the JSON suite)
+.generated/
+public/badges/
+public/cases/
+public/cases.schema.json
+
+# environment
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+public/lib-assets/
+

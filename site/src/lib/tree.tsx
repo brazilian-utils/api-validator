@@ -1,0 +1,99 @@
+// The sidebar: five sections, picked from the switcher at its top (Fumadocs root folders).
+import type * as PageTree from 'fumadocs-core/page-tree';
+import { BookOpen, Boxes, Compass, GitPullRequest, Info } from 'lucide-react';
+import { CATEGORIES, loadGuides, loadLibs, loadSpecs } from './data';
+import { type Locale, pick, prefixOf } from './i18n';
+import { LangIcon } from '@/components/lang-icon';
+import { folderPages } from './source';
+
+const L = (locale: Locale, en: string, pt: string) => (locale === 'en' ? en : pt);
+
+export function pageTree(locale: Locale): PageTree.Root {
+  const p = prefixOf(locale);
+  const specs = loadSpecs();
+  const page = (name: React.ReactNode, url: string, icon?: React.ReactNode): PageTree.Item => ({
+    type: 'page',
+    name,
+    // Fumadocs matches pages by URL without the trailing slash; links still get it (trailingSlash).
+    url: `${p}${url}`.replace(/\/$/, '') || '/',
+    icon,
+  });
+
+  const utilities: PageTree.Folder = {
+    $id: `${locale}:utilities`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'Utilities', 'Utilitários'),
+    description: L(locale, 'Validate, format, parse and generate', 'Validar, formatar, interpretar e gerar'),
+    icon: <BookOpen />,
+    children: [
+      page(L(locale, 'Getting started', 'Primeiros passos'), '/getting-started/'),
+      ...CATEGORIES.map((c: any) => ({
+        $id: `${locale}:cat:${c.id}`,
+        type: 'folder' as const,
+        name: pick(c.label, locale),
+        defaultOpen: false,
+        children: specs.filter((s: any) => s.category === c.id).map((s: any) => page(pick(s.title, locale), `/utils/${s.id}/`)),
+      })).filter((f) => f.children.length),
+    ],
+  };
+
+  const libraries: PageTree.Folder = {
+    $id: `${locale}:libraries`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'Libraries', 'Bibliotecas'),
+    description: L(locale, 'One contract, a library per language', 'Um contrato, uma biblioteca por linguagem'),
+    icon: <Boxes />,
+    children: [
+      page(L(locale, 'Parity matrix', 'Matriz de paridade'), '/reference/parity/'),
+      { type: 'separator', name: L(locale, 'Libraries', 'Bibliotecas') },
+      // "Go" alone reads as a verb in a list of links: a hidden word names the library.
+      ...loadLibs().map((lib: any) =>
+        page(
+          <>
+            {lib.label}
+            <span className="sr-only">{L(locale, ' library', ', biblioteca')}</span>
+          </>,
+          `/libs/${lib.id}/`,
+          <LangIcon lib={lib.id} />,
+        ),
+      ),
+    ],
+  };
+
+  const guides = loadGuides();
+  const guideFolder: PageTree.Folder = {
+    $id: `${locale}:guideFolder`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'Guides', 'Guias'),
+    description: L(locale, 'Forms and components, with live demos', 'Formulários e componentes, com exemplos interativos'),
+    icon: <Compass />,
+    children: guides.map((g: any) => page(pick(g.title, locale), `/guides/${g.lib}/${g.slug}/`)),
+  };
+
+  const contributing: PageTree.Folder = {
+    $id: `${locale}:contributing`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'Contributing', 'Como contribuir'),
+    description: L(locale, 'Each library, the contract, usage files, new programming languages', 'Cada biblioteca, o contrato, arquivos de uso, novas linguagens de programação'),
+    icon: <GitPullRequest />,
+    // The .mdx files of content/docs/contributing/, in the order of its meta.json.
+    children: folderPages(locale, 'contributing').map((p) => page(p.title, `/contributing/${p.slug}/`)),
+  };
+
+  const about: PageTree.Folder = {
+    $id: `${locale}:about`,
+    type: 'folder',
+    root: true,
+    name: L(locale, 'About', 'Sobre'),
+    description: L(locale, 'History, team, community and privacy', 'História, time, comunidade e privacidade'),
+    icon: <Info />,
+    // The .mdx files of content/docs/about/, in the order of its meta.json.
+    children: folderPages(locale, 'about').map((p) => page(p.title, `/about/${p.slug}/`)),
+  };
+
+  return { $id: `${locale}:root`, name: 'Brazilian Utils', children: [utilities, libraries, ...(guides.length ? [guideFolder] : []), contributing, about] };
+}

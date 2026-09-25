@@ -1,0 +1,26 @@
+# Copy to .github/workflows/api-contract.yml in brazilian-utils/python.
+# Checks this lib against the shared contract (API + shared tests). Fails only on regressions
+# and on public API that is not in the contract; the job summary lists what is still missing.
+name: API contract
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# The Action only reads the repository and writes the job summary.
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install .
+      - uses: brazilian-utils/docs@main
+        with:
+          library: brazilian-utils-python

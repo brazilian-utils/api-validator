@@ -1,0 +1,12 @@
+<!-- Usage examples for the brazilian-utils docs site: one `## <operation>` section per contract function.
+     Sections were scaffolded by `docs usage --scaffold` from the shared cases this lib passes; edit them freely. -->
+
+## isValid
+
+```go
+import "github.com/brazilian-utils/go/email"
+
+email.IsValid("abc")  // false
+email.IsValid("")     // false
+email.IsValid("   ")  // false
+```

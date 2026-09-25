@@ -1,0 +1,25 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-rust",
+  "language": "rust",
+  "repo": "https://github.com/brazilian-utils/rust",
+  "entry": "src/lib.rs",
+  "ignore": [
+    "*.validate",
+    "*.hashdigit",
+    "*.compute_checksum",
+    "*.checksum",
+    "*.calculate_checksum",
+    "voter_id.calculate_vd*",
+    "*remove*symbols*"
+  ],
+  "site": {
+    "label": "Rust",
+    "order": 5,
+    "package": "brazilian_utils",
+    "install": "cargo add brazilian_utils",
+    "registry": "https://crates.io/crates/brazilian_utils",
+    "contributing": "https://github.com/brazilian-utils/rust/blob/main/CONTRIBUTING.md",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
+}

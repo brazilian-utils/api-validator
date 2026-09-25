@@ -1,0 +1,238 @@
+diff --git a/spec/api_contract_spec.rb b/spec/api_contract_spec.rb
+new file mode 100644
+index 0000000..cb93a85
+--- /dev/null
++++ b/spec/api_contract_spec.rb
+@@ -0,0 +1,232 @@
++# Conformance harness for the shared brazilian-utils API contract.
++#
++# Runs every case of the vendored suite in api-contract/ (see api-contract/README.md) against
++# this lib. The suite is never edited here; this file only says which lib method implements
++# which contract function (REGISTRY) and how results are compared (ApiContract.equal?).
++#
++#   bundle exec rspec spec/api_contract_spec.rb
++#   API_CONTRACT_NETWORK=1       also run functions marked `network: true`
++#   API_CONTRACT_NO_SKIP=1   ignore api-contract/skip.json (to see what fails today)
++require_relative 'spec_helper'
++require 'bigdecimal'
++require 'date'
++require 'json'
++require 'set'
++
++module ApiContract
++  include BrazilianUtils
++
++  # Contract function id -> lambda taking the case's JSON args (an Array) and returning the
++  # lib's result. Adding a function to the lib = implementing it + one line here.
++  REGISTRY = {
++    # boleto
++    'boleto.isValid' => ->(a) { BoletoUtils.valid?(*a) },
++
++    # cep
++    'cep.format' => ->(a) { CEPUtils.format_cep(*a) },
++    'cep.generate' => ->(a) { CEPUtils.generate(*a) },
++    'cep.getAddressInfo' => ->(a) { CEPUtils.get_address_from_cep(*a) },
++    'cep.isValid' => ->(a) { CEPUtils.valid?(*a) },
++
++    # cnh
++    'cnh.isValid' => ->(a) { CNHUtils.valid?(*a) },
++
++    # cnpj
++    'cnpj.format' => ->(a) { CNPJUtils.format_cnpj(*a) },
++    'cnpj.generate' => ->(a) { CNPJUtils.generate(*a) },
++    'cnpj.isValid' => ->(a) { CNPJUtils.valid?(*a) },
++
++    # cpf
++    'cpf.format' => ->(a) { CPFUtils.format_cpf(*a) },
++    'cpf.generate' => ->(a) { CPFUtils.generate(*a) },
++    'cpf.isValid' => ->(a) { CPFUtils.valid?(*a) },
++
++    # currency
++    'currency.convertToWords' => ->(a) { CurrencyUtils.convert_real_to_text(*a) },
++    'currency.format' => ->(a) { CurrencyUtils.format_currency(*a) },
++
++    # date
++    'date.convertToWords' => ->(a) { DateUtils.convert_date_to_text(*a) },
++
++    # email
++    'email.isValid' => ->(a) { EmailUtils.valid?(*a) },
++
++    # legalNature
++    'legalNature.getDescription' => ->(a) { LegalNatureUtils.get_description(*a) },
++    'legalNature.isValid' => ->(a) { LegalNatureUtils.valid?(*a) },
++    'legalNature.list' => ->(a) { LegalNatureUtils.list_all(*a) },
++
++    # legalProcess
++    'legalProcess.format' => ->(a) { LegalProcessUtils.format_legal_process(*a) },
++    'legalProcess.isValid' => ->(a) { LegalProcessUtils.valid?(*a) },
++
++    # licensePlate
++    'licensePlate.convertToMercosul' => ->(a) { LicensePlateUtils.convert_to_mercosul(*a) },
++    'licensePlate.format' => ->(a) { LicensePlateUtils.format(*a) },
++    'licensePlate.generate' => ->(a) { LicensePlateUtils.generate(*a) },
++    'licensePlate.getFormat' => ->(a) { LicensePlateUtils.get_format(*a) },
++    'licensePlate.isValid' => ->(a) { LicensePlateUtils.valid?(*a) },
++
++    # phone
++    'phone.format' => ->(a) { PhoneUtils.format(*a) },
++    'phone.generate' => ->(a) { PhoneUtils.generate(*a) },
++    'phone.removeInternationalDialingCode' => ->(a) { PhoneUtils.remove_international_dialing_code(*a) },
++
++    # pis
++    'pis.format' => ->(a) { PISUtils.format(*a) },
++    'pis.generate' => ->(a) { PISUtils.generate(*a) },
++    'pis.isValid' => ->(a) { PISUtils.valid?(*a) },
++
++    # renavam
++    'renavam.isValid' => ->(a) { RENAVAMUtils.valid?(*a) },
++
++    # voterId
++    'voterId.format' => ->(a) { VoterIdUtils.format(*a) },
++    'voterId.generate' => ->(a) { VoterIdUtils.generate(*a) },
++    'voterId.isValid' => ->(a) { VoterIdUtils.valid_voter_id?(*a) }
++  }.freeze
++
++  # api-contract/ at the repository root, found from this file (not the cwd).
++  def self.dir
++    @dir ||= begin
++      d = __dir__
++      d = File.dirname(d) until File.file?(File.join(d, 'api-contract', 'cases', 'index.json')) || d == File.dirname(d)
++      path = File.join(d, 'api-contract')
++      raise "api-contract/ not found above #{__dir__}" unless File.directory?(path)
++
++      path
++    end
++  end
++
++  def self.read(*parts)
++    JSON.parse(File.read(File.join(dir, *parts), encoding: 'UTF-8'))
++  end
++
++  def self.functions
++    Dir[File.join(dir, 'cases', '*.json')].sort
++      .reject { |f| %w[index.json equality.json].include?(File.basename(f)) }
++      .flat_map { |f| read('cases', File.basename(f))['functions'] }
++  end
++
++  def self.skips
++    return {} if ENV['API_CONTRACT_NO_SKIP'] == '1'
++
++    path = File.join(dir, 'skip.json')
++    File.file?(path) ? read('skip.json') : {}
++  end
++
++  # The result in JSON form: dates as ISO-8601, symbols as strings, objects as hashes.
++  def self.json_form(value)
++    case value
++    when nil, true, false, Integer, Float, String then value
++    when Symbol then value.to_s
++    when BigDecimal, Rational then value.to_f
++    when Array, Set then value.map { |x| json_form(x) }
++    when Hash then value.to_h { |k, v| [k.to_s, json_form(v)] }
++    when Struct then json_form(value.to_h)
++    when Date, Time then value.iso8601
++    else value.respond_to?(:to_h) ? json_form(value.to_h) : value.to_s
++    end
++  end
++
++  def self.flat_key(key)
++    key.to_s.downcase.gsub(/[^a-z0-9]/, '')
++  end
++
++  # Comparison rules of api-contract/cases/index.json -> "comparison".
++  def self.equal?(expected, actual)
++    case expected
++    when nil then actual.nil?
++    when true, false, String then expected == actual
++    when Numeric
++      actual.is_a?(Numeric) && (expected - actual).abs <= 1e-9 * [1, expected.abs].max
++    when Array
++      actual.is_a?(Array) && actual.size == expected.size &&
++        expected.each_index.all? { |i| equal?(expected[i], actual[i]) }
++    when Hash
++      return false unless actual.is_a?(Hash)
++
++      e = expected.transform_keys { |k| flat_key(k) }
++      a = actual.transform_keys { |k| flat_key(k) }
++      (e.keys | a.keys).all? { |k| equal?(e[k], a[k]) }
++    else false
++    end
++  end
++
++  # Runs one case; returns nil when it passes, or the failure message.
++  def self.check(function_id, kase)
++    expect = kase['expect']
++    (kase['repeat'] || 1).times do
++      begin
++        result = json_form(REGISTRY.fetch(function_id).call(kase['args']))
++      rescue StandardError => e
++        return nil if expect.key?('throws')
++
++        return "raised #{e.class}: #{e.message}"
++      end
++      message =
++        if expect.key?('throws')
++          "expected an error, got #{result.inspect}"
++        elsif expect.key?('returns')
++          "expected #{expect['returns'].inspect}, got #{result.inspect}" unless equal?(expect['returns'], result)
++        elsif expect.key?('matches')
++          "expected /#{expect['matches']}/, got #{result.inspect}" unless result.is_a?(String) && Regexp.new(expect['matches']).match?(result)
++        elsif expect.key?('satisfies')
++          verdict = begin
++            REGISTRY.fetch(expect['satisfies']).call([result])
++          rescue StandardError => e
++            "error: #{e.class}: #{e.message}"
++          end
++          "#{result.inspect} does not satisfy #{expect['satisfies']} (got #{verdict.inspect})" unless verdict == true
++        else
++          "unknown expectation #{expect.keys.inspect}"
++        end
++      return message if message
++    end
++    nil
++  end
++
++  # Why a case is skipped, or nil to run it.
++  def self.skip_reason(function, kase, skips)
++    return 'network (set API_CONTRACT_NETWORK=1)' if function['network'] && ENV['API_CONTRACT_NETWORK'] != '1'
++    return skips[kase['id']] if skips.key?(kase['id'])
++
++    target = kase['expect']['satisfies']
++    "#{target} is not implemented" if target && !REGISTRY.key?(target)
++  end
++end
++
++RSpec.describe 'API contract' do
++  functions = ApiContract.functions
++  skips = ApiContract.skips
++
++  describe 'harness' do
++    it 'registers only contract functions' do
++      unknown = ApiContract::REGISTRY.keys - functions.map { |f| f['id'] }
++      expect(unknown).to be_empty, "registry ids not in the suite: #{unknown.join(', ')}"
++    end
++
++    ApiContract.read('cases', 'equality.json').each do |pair|
++      it "compares like every lib: #{pair['why']}" do
++        expect(ApiContract.equal?(pair['expected'], pair['actual'])).to eq(pair['equal'])
++      end
++    end
++  end
++
++  functions.each do |function|
++    describe function['id'] do
++      unless ApiContract::REGISTRY.key?(function['id'])
++        it("#{function['id']} (#{function['cases'].size} cases)", skip: 'not implemented') {}
++        next
++      end
++
++      function['cases'].each do |kase|
++        reason = ApiContract.skip_reason(function, kase, skips)
++        it(kase['id'], skip: reason) do
++          message = ApiContract.check(function['id'], kase)
++          expect(message).to be_nil, message
++        end
++      end
++    end
++  end
++end

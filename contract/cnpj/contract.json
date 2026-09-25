@@ -1,0 +1,289 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cnpj",
+  "title": { "en": "CNPJ", "pt-BR": "CNPJ" },
+  "summary": {
+    "en": "Cadastro Nacional da Pessoa Jurídica, the 14-character Brazilian company registration number. Alphanumeric since July 2026, with two numeric mod-11 check digits.",
+    "pt-BR": "Cadastro Nacional da Pessoa Jurídica, o número de 14 caracteres que identifica empresas e entidades. Alfanumérico desde julho de 2026, com dois dígitos verificadores numéricos por módulo 11."
+  },
+  "category": "companies",
+  "order": 1,
+  "related": ["cpf", "ie", "legalNature"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a CNPJ value with the given options.",
+        "pt-BR": "Formata um CNPJ com as opções informadas."
+      },
+      "description": {
+        "en": [
+          "Formats a CNPJ as `00.000.000/0000-00`.",
+          "",
+          "- `options.pad` first left-pads the value with zeros to 14 characters.",
+          "- `options.version`: `1` (default) keeps digits only. `2` (alphanumeric CNPJ) keeps letters (upper-cased) and digits.",
+          "- `options.obfuscate` hides the first 2 digits and the 2 check digits with `*`, after padding.",
+          "- Pending decision (findings §2 #2, #3): the reference (JS) formats only the characters an incomplete value has and returns an empty string for empty or invalid input. Other libraries return null."
+        ],
+        "pt-BR": [
+          "Formata um CNPJ como `00.000.000/0000-00`.",
+          "",
+          "- `options.pad` primeiro completa o valor com zeros à esquerda até 14 caracteres.",
+          "- `options.version`: `1` (padrão) mantém somente dígitos. `2` (CNPJ alfanumérico) mantém letras (em maiúsculas) e dígitos.",
+          "- `options.obfuscate` oculta os 2 primeiros dígitos e os 2 dígitos verificadores com `*`, depois do preenchimento.",
+          "- Decisão pendente (findings §2 #2, #3): a referência (JS) formata só os caracteres que um valor incompleto tem e retorna uma string vazia para entrada vazia ou inválida. Outras bibliotecas retornam null."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
+        "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
+        "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico"
+      ],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCnpjOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["10799163989271"], "returns": "10.799.163/9892-71", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["64977017647333"], "returns": "64.977.017/6473-33", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["62932200808587"], "returns": "62.932.200/8085-87", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["4"], "returns": "4", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["46"], "returns": "46", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["468"], "returns": "46.8", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["4684"], "returns": "46.84", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["46843"], "returns": "46.843", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["468434"], "returns": "46.843.4", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["4684348"], "returns": "46.843.48", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["46843485"], "returns": "46.843.485", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["468434850"], "returns": "46.843.485/0", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["4684348500"], "returns": "46.843.485/00", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["46843485000"], "returns": "46.843.485/000", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["468434850001"], "returns": "46.843.485/0001", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["4684348500018"], "returns": "46.843.485/0001-8", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": ["46843485000186"], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should format cnpj with mask" },
+        { "args": [4], "returns": "4", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [46], "returns": "46", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [468], "returns": "46.8", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [4684], "returns": "46.84", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [46843], "returns": "46.843", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [468434], "returns": "46.843.4", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [4684348], "returns": "46.843.48", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [46843485], "returns": "46.843.485", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [468434850], "returns": "46.843.485/0", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [4684348500], "returns": "46.843.485/00", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [46843485000], "returns": "46.843.485/000", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [468434850001], "returns": "46.843.485/0001", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [4684348500018], "returns": "46.843.485/0001-8", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": [46843485000186], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should format number cnpj with mask" },
+        { "args": ["", { "pad": true }], "returns": "00.000.000/0000-00", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["4", { "pad": true }], "returns": "00.000.000/0000-04", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["46", { "pad": true }], "returns": "00.000.000/0000-46", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["468", { "pad": true }], "returns": "00.000.000/0004-68", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["4684", { "pad": true }], "returns": "00.000.000/0046-84", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["46843", { "pad": true }], "returns": "00.000.000/0468-43", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["468434", { "pad": true }], "returns": "00.000.000/4684-34", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["4684348", { "pad": true }], "returns": "00.000.004/6843-48", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["46843485", { "pad": true }], "returns": "00.000.046/8434-85", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["468434850", { "pad": true }], "returns": "00.000.468/4348-50", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["4684348500", { "pad": true }], "returns": "00.004.684/3485-00", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["46843485000", { "pad": true }], "returns": "00.046.843/4850-00", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["468434850001", { "pad": true }], "returns": "00.468.434/8500-01", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["4684348500018", { "pad": true }], "returns": "04.684.348/5000-18", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": ["46843485000186", { "pad": true }], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should format cnpj with mask filling zeroes" },
+        { "args": [4, { "pad": true }], "returns": "00.000.000/0000-04", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [46, { "pad": true }], "returns": "00.000.000/0000-46", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [468, { "pad": true }], "returns": "00.000.000/0004-68", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [4684, { "pad": true }], "returns": "00.000.000/0046-84", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [46843, { "pad": true }], "returns": "00.000.000/0468-43", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [468434, { "pad": true }], "returns": "00.000.000/4684-34", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [4684348, { "pad": true }], "returns": "00.000.004/6843-48", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [46843485, { "pad": true }], "returns": "00.000.046/8434-85", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [468434850, { "pad": true }], "returns": "00.000.468/4348-50", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [4684348500, { "pad": true }], "returns": "00.004.684/3485-00", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [46843485000, { "pad": true }], "returns": "00.046.843/4850-00", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [468434850001, { "pad": true }], "returns": "00.468.434/8500-01", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [4684348500018, { "pad": true }], "returns": "04.684.348/5000-18", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": [46843485000186, { "pad": true }], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should format number cnpj with mask filling zeroes" },
+        { "args": ["468434850001860000000000"], "returns": "46.843.485/0001-86", "note": "JavaScript's own test" },
+        { "args": ["46.?ABC843.485/0001-86abc"], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should remove all non numeric characters" },
+        { "args": ["", { "version": 2 }], "returns": "", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q", { "version": 2 }], "returns": "Q", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0", { "version": 2 }], "returns": "Q0", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0S", { "version": 2 }], "returns": "Q0.S", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SL", { "version": 2 }], "returns": "Q0.SL", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLF", { "version": 2 }], "returns": "Q0.SLF", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFM", { "version": 2 }], "returns": "Q0.SLF.M", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMB", { "version": 2 }], "returns": "Q0.SLF.MB", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD", { "version": 2 }], "returns": "Q0.SLF.MBD", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD7", { "version": 2 }], "returns": "Q0.SLF.MBD/7", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD7V", { "version": 2 }], "returns": "Q0.SLF.MBD/7V", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD7VX", { "version": 2 }], "returns": "Q0.SLF.MBD/7VX", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD7VX4", { "version": 2 }], "returns": "Q0.SLF.MBD/7VX4", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["Q0SLFMBD7VX43", { "version": 2 }], "returns": "Q0.SLF.MBD/7VX4-3", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["q0SLFMBD7VX439", { "version": 2 }], "returns": "Q0.SLF.MBD/7VX4-39", "note": "JavaScript's own test: should format cnpj alphanumeric with mask for version 2" },
+        { "args": ["46.?ABC843.485/0001-86abc", { "version": 2 }], "returns": "46.ABC.843/4850-00", "note": "JavaScript's own test: should remove non-alphanumeric characters for version 2" },
+        { "args": ["12ABC34501DE35", { "version": 2 }], "returns": "12.ABC.345/01DE-35", "note": "JavaScript's own test: should allow all alphabet letters for version 2 (including E, O, T, U)" },
+        { "args": ["12.ABC.345/01DE-35", { "version": 2 }], "returns": "12.ABC.345/01DE-35", "note": "JavaScript's own test: should allow all alphabet letters for version 2 (including E, O, T, U)" },
+        { "args": ["12OUT345000199", { "version": 2 }], "returns": "12.OUT.345/0001-99", "note": "JavaScript's own test: should allow all alphabet letters for version 2 (including E, O, T, U)" },
+        { "args": ["46843485000186", { "obfuscate": true }], "returns": "**.843.485/0001-**", "note": "JavaScript's own test: should hide the first 2 digits and the 2 check digits when obfuscate is true" },
+        { "args": [46843485000186, { "obfuscate": true }], "returns": "**.843.485/0001-**", "note": "JavaScript's own test: should hide the first 2 digits and the 2 check digits when obfuscate is true" },
+        { "args": ["4", { "pad": true, "obfuscate": true }], "returns": "**.000.000/0000-**", "note": "JavaScript's own test: should pad before obfuscating" },
+        { "args": ["q0SLFMBD7VX439", { "version": 2, "obfuscate": true }], "returns": "**.SLF.MBD/7VX4-**", "note": "JavaScript's own test: should apply the same positions to the alphanumeric CNPJ (version 2)" },
+        { "args": ["46843485000186", { "obfuscate": false }], "returns": "46.843.485/0001-86", "note": "JavaScript's own test: should behave exactly as without the option when obfuscate is false or absent" },
+        { "args": ["q0SLFMBD7VX439", { "version": 2, "obfuscate": false }], "returns": "Q0.SLF.MBD/7VX4-39", "note": "JavaScript's own test: should behave exactly as without the option when obfuscate is false or absent" }
+      ]
+    },
+    "generate": {
+      "summary": { "en": "Generates a valid random CNPJ.", "pt-BR": "Gera um CNPJ aleatório e válido." },
+      "description": {
+        "en": [
+          "Generates a valid random CNPJ, unformatted.",
+          "",
+          "- `versionOrParams` picks the version: `1` (default, numeric) or `2` (alphanumeric). It can also set the branch (número de ordem), an integer from 1 to 9999. The branch is random by default, and an invalid branch is ignored.",
+          "- The branch block stays numeric in both versions."
+        ],
+        "pt-BR": [
+          "Gera um CNPJ aleatório e válido, sem formatação.",
+          "",
+          "- `versionOrParams` escolhe a versão: `1` (padrão, numérico) ou `2` (alfanumérico). Também pode definir a filial (número de ordem), um inteiro de 1 a 9999. A filial é aleatória por padrão, e uma filial inválida é ignorada.",
+          "- O bloco da filial continua numérico nas duas versões."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
+        "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
+        "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico"
+      ],
+      "level": "core",
+      "params": [{ "name": "versionOrParams", "type": "1 | 2 | GenerateCnpjParams", "optional": true }],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "cnpj.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Validates a CNPJ, numeric (version 1) or alphanumeric (version 2).",
+        "pt-BR": "Valida um CNPJ, numérico (versão 1) ou alfanumérico (versão 2)."
+      },
+      "description": {
+        "en": [
+          "Validates a CNPJ: 12 base characters and 2 modulus 11 check digits.",
+          "",
+          "- `options.version`: `1` (default) accepts numeric CNPJs only. `2` also accepts the alphanumeric CNPJ, case-insensitively. Any other value is read as `1`.",
+          "- A numeric CNPJ whose digits are all the same is rejected. The alphanumeric format has no reserved list.",
+          "- Pending decision (findings §2 #1): the reference (JS) ignores the formatting characters (`.`, `-`, `/`) and whitespace around and between groups. Other libraries accept digits only."
+        ],
+        "pt-BR": [
+          "Valida um CNPJ: 12 caracteres de base e 2 dígitos verificadores por módulo 11.",
+          "",
+          "- `options.version`: `1` (padrão) aceita somente CNPJs numéricos. `2` também aceita o CNPJ alfanumérico, sem diferenciar maiúsculas de minúsculas. Qualquer outro valor é lido como `1`.",
+          "- Um CNPJ numérico com todos os dígitos iguais é rejeitado. O formato alfanumérico não tem lista de valores reservados.",
+          "- Decisão pendente (findings §2 #1): a referência (JS) ignora os caracteres de formatação (`.`, `-`, `/`) e os espaços em branco em volta dos grupos e entre eles. Outras bibliotecas aceitam somente dígitos."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
+        "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
+        "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico"
+      ],
+      "level": "core",
+      "params": [
+        { "name": "cnpj", "type": "string" },
+        { "name": "options", "type": "IsValidCnpjOptions", "optional": true }
+      ],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["10799163989271"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["10799163989272"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000000000"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["64977017647333"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["64977017647334"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["62932200808587"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["62932200808588"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["11111111111111"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["22222222222222"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["33333333333333"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["44444444444444"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["55555555555555"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["66666666666666"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["77777777777777"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["88888888888888"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["99999999999999"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["12312312312"], "returns": false, "note": "JavaScript's own test: should return false" },
+        { "args": ["ababcabcabcdab"], "returns": false, "note": "JavaScript's own test: should return false when contains only letters or special characters" },
+        { "args": ["6ad0.t391.9asd47/0ad001-00"], "returns": false, "note": "JavaScript's own test: should return false when is a CNPJ invalid test numbers with letters" },
+        { "args": ["11257245286531"], "returns": false, "note": "JavaScript's own test: should return false when is a CNPJ invalid" },
+        { "args": ["12.ABC.345/01DE-99"], "returns": false, "note": "JavaScript's own test: should return false when an alphanumeric CNPJ has an invalid check digit" },
+        { "args": ["Q0SLFMBD7VX400", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when an alphanumeric CNPJ has an invalid check digit" },
+        { "args": ["Q0SLFMBD7VX439"], "returns": false, "note": "JavaScript's own test: should return false when it has letters but no version option is given (defaults to numeric-only)" },
+        { "args": ["00000000000000", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when it is a reserved number under version 2, even though its raw checksum happens to be valid" },
+        { "args": ["AB.1C2.D3E/4F5G-3"], "returns": false, "note": "JavaScript's own test: should return false when an alphanumeric CNPJ is too short" },
+        { "args": ["AB.1C2.D3E/4F5G-356"], "returns": false, "note": "JavaScript's own test: should return false when an alphanumeric CNPJ is too long" },
+        { "args": ["!13723705000189"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage before the digits, since the numeric format is anchored at the start" },
+        { "args": ["13723705000189!"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage after the digits, since the numeric format is anchored at the end" },
+        { "args": ["!1Z000000000039", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when there is garbage before an otherwise valid alphanumeric CNPJ, since the alphanumeric format is anchored at the start" },
+        { "args": ["1Z000000000039!", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when there is garbage after an otherwise valid alphanumeric CNPJ, since the alphanumeric format is anchored at the end" },
+        { "args": ["13723705000189"], "returns": true, "note": "JavaScript's own test: should return true when is a CNPJ valid without mask" },
+        { "args": ["60.391.947/0001-00"], "returns": true, "note": "JavaScript's own test: should return true when is a CNPJ valid with mask" },
+        { "args": ["11 222 333 0001 81"], "returns": true, "note": "JavaScript's own test: should return true when is a CNPJ valid with a whitespace mask" },
+        { "args": [" 13723705000189 "], "returns": true, "note": "JavaScript's own test: should return true when it has real leading and trailing whitespace (not just an internal mask)" },
+        { "args": ["1Z 000 000 0000 39", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when an alphanumeric CNPJ uses a whitespace separator at every group boundary" },
+        { "args": ["q0slfmbd7vx439", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when is a lowercase alphanumeric CNPJ" },
+        { "args": ["1z000000000039", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when the lowercase letter is exactly the boundary z, which must still be uppercased and counted" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the CNPJ formatting characters and returns the digits, or the letters and digits in upper case (version 2).",
+        "pt-BR": "Remove os caracteres de formatação do CNPJ e retorna os dígitos, ou as letras e os dígitos em maiúsculas (versão 2)."
+      },
+      "description": {
+        "en": [
+          "Removes CNPJ formatting and returns the normalized value, capped at 14 characters.",
+          "",
+          "- `options.version`: `1` (default) keeps digits only. `2` keeps letters and digits, upper-cased."
+        ],
+        "pt-BR": [
+          "Remove a formatação do CNPJ e retorna o valor normalizado, limitado a 14 caracteres.",
+          "",
+          "- `options.version`: `1` (padrão) mantém somente dígitos. `2` mantém letras e dígitos, em maiúsculas."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cnpj",
+        "https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/documentos-tecnicos/cnpj/manual-dv-cnpj.pdf",
+        "https://www.gov.br/receitafederal/pt-br/acesso-a-informacao/acoes-e-programas/programas-e-atividades/cnpj-alfanumerico"
+      ],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "ParseCnpjOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["46.843.485/0001-86"], "returns": "46843485000186" },
+        { "name": "unmasked", "args": ["46843485000186"], "returns": "46843485000186" },
+        { "name": "strips-non-digits", "args": ["46.?ABC843.485/0001-86abc"], "returns": "46843485000186" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["46843485000186123"], "returns": "46843485000186", "note": "reference truncates to the 14 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": ["10799163989271"], "returns": "10799163989271", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["10799163989272"], "returns": "10799163989272", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["00000000000000"], "returns": "00000000000000", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["64977017647333"], "returns": "64977017647333", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["64977017647334"], "returns": "64977017647334", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["62932200808587"], "returns": "62932200808587", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["62932200808588"], "returns": "62932200808588", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["10.799.163/9892-71"], "returns": "10799163989271", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["64.977.017/6473-33"], "returns": "64977017647333", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["62.932.200/8085-87"], "returns": "62932200808587", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["Q0.SLF.MBD/7VX4-39", { "version": 2 }], "returns": "Q0SLFMBD7VX439", "note": "JavaScript's own test: should keep alphanumeric characters for version 2" },
+        { "args": ["Q0.SLF.MBD/7VX4-39ABC", { "version": 2 }], "returns": "Q0SLFMBD7VX439", "note": "JavaScript's own test: should ignore characters after the CNPJ length for version 2" }
+      ]
+    }
+  }
+}

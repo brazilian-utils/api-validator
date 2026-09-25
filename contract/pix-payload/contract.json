@@ -1,0 +1,276 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "pixPayload",
+  "title": { "en": "Pix payload (BR Code)", "pt-BR": "Pix copia e cola (BR Code)" },
+  "summary": {
+    "en": "The Pix BR Code payload behind a Pix QR Code and \"Pix copia e cola\".",
+    "pt-BR": "O payload BR Code por trás do QR Code Pix e do Pix copia e cola."
+  },
+  "category": "finance",
+  "order": 4,
+  "related": ["pixKey"],
+  "functions": {
+    "generate": {
+      "summary": {
+        "en": "Generates the payload of a Pix BR Code, the string behind a Pix QR Code and behind \"Pix copia e cola\".",
+        "pt-BR": "Gera o payload de um BR Code Pix, a string por trás de um QR Code Pix e do Pix copia e cola."
+      },
+      "description": {
+        "en": [
+          "Generates a Pix BR Code payload. Give exactly one of a key (static) or a PSP URL (dynamic), otherwise the function returns null.",
+          "",
+          "- `params` carries the key or URL, the merchant name and city, and optionally the amount, the txid and a description.",
+          "- The function normalizes a key as `pixKey.getInfo` does. A URL makes the payload dynamic (Point of Initiation `12`) and cannot carry an amount or txid. The URL is host and path without scheme, at most 77 characters.",
+          "- The amount has two decimal places. The function rejects a value with more, or one that rounds to 0.00. The txid is 1 to 25 alphanumerics (default `***`).",
+          "- Merchant name, city and description lose their accents. The function truncates them to 25, 15 and what the template has left."
+        ],
+        "pt-BR": [
+          "Gera o payload de um BR Code Pix. Informe exatamente um entre uma chave (estático) ou uma URL do PSP (dinâmico). Caso contrário, a função retorna null.",
+          "",
+          "- `params` traz a chave ou a URL, o nome e a cidade do recebedor e, opcionalmente, o valor, o txid e uma descrição.",
+          "- A função normaliza a chave como `pixKey.getInfo` faz. Uma URL torna o payload dinâmico (Point of Initiation `12`) e não pode trazer valor nem txid. A URL é host e caminho sem esquema, com no máximo 77 caracteres.",
+          "- O valor tem duas casas decimais. A função rejeita um valor com mais casas ou que arredonde para 0.00. O txid tem de 1 a 25 caracteres alfanuméricos (padrão `***`).",
+          "- Nome do recebedor, cidade e descrição perdem os acentos. A função os trunca em 25, 15 e o espaço que resta no template."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/spb_docs/ManualBRCode.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf",
+        "https://github.com/bacen/pix-api",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/API-DICT.html"
+      ],
+      "params": [{ "name": "params", "type": "GeneratePixPayloadParams" }],
+      "returns": "string?",
+      "tests": [
+        { "args": [{ "key": "11257245286", "merchantName": "Fulano", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when the key is invalid" },
+        { "args": [{ "merchantName": "Fulano", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when neither key nor url is given" },
+        { "args": [{ "key": "71c7d9be-4b85-4e43-9f1c-1f3b8b4e9a2d", "url": "pix.example.com/qr/v2/1234", "merchantName": "Fulano", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when both key and url are given" },
+        { "args": [{ "url": "", "merchantName": "Fulano", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when url is an empty string" },
+        { "args": [{ "key": "fulano@example.com", "merchantName": "Fulano", "merchantCity": "Brasilia", "amount": 0.001 }], "returns": null, "note": "JavaScript's own test: should return null when the amount rounds to 0.00" },
+        { "args": [{ "url": "pix.example.com/qr/v2/1234", "merchantName": "Fulano", "merchantCity": "Brasilia", "amount": 10 }], "returns": null, "note": "JavaScript's own test: should return null when a dynamic payload (url) also carries an amount or a txid" },
+        { "args": [{ "url": "pix.example.com/qr/v2/1234", "merchantName": "Fulano", "merchantCity": "Brasilia", "txid": "ABC123" }], "returns": null, "note": "JavaScript's own test: should return null when a dynamic payload (url) also carries an amount or a txid" },
+        { "args": [{ "key": "71c7d9be-4b85-4e43-9f1c-1f3b8b4e9a2d", "merchantName": "   ", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when the merchant name is missing or empty after folding" },
+        { "args": [{ "key": "71c7d9be-4b85-4e43-9f1c-1f3b8b4e9a2d", "merchantName": "💸", "merchantCity": "Brasilia" }], "returns": null, "note": "JavaScript's own test: should return null when the merchant name is missing or empty after folding" },
+        { "args": [{ "key": "71c7d9be-4b85-4e43-9f1c-1f3b8b4e9a2d", "merchantName": "Fulano", "merchantCity": " " }], "returns": null, "note": "JavaScript's own test: should return null when the merchant city is missing or empty after folding" },
+        { "args": [{ "key": "123e4567-e12b-12d1-a456-426655440000", "merchantName": "Fulano de Tal", "merchantCity": "BRASILIA" }], "returns": "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041D3D", "note": "JavaScript's own test: should generate a valid payload matching the static example of the Bacen manual" }
+      ]
+    },
+    "getInfo": {
+      "summary": {
+        "en": "Splits a Pix BR Code payload, the string behind a Pix QR Code and behind \"Pix copia e cola\", into its fields.",
+        "pt-BR": "Decompõe o payload de um BR Code Pix, a string por trás de um QR Code Pix e do Pix copia e cola."
+      },
+      "description": {
+        "en": [
+          "Parses a Pix BR Code payload into its fields. Returns null for anything `pixPayload.isValid` rejects, never a partial result.",
+          "",
+          "- Fields: merchant name and city, point of initiation (dynamic when there is a PSP location or object `01` is `12`, static otherwise) and either the key (static) or the URL (dynamic).",
+          "- Amount, txid, description and the withdrawal facilitator of a Pix Saque are present only when the payload carries them. The `***` txid marker means no txid.",
+          "- With a PSP location, the function ignores amount and txid, as the manual requires."
+        ],
+        "pt-BR": [
+          "Decompõe o payload de um BR Code Pix em seus campos. Retorna null para tudo que `pixPayload.isValid` rejeita, nunca um resultado parcial.",
+          "",
+          "- Campos: nome e cidade do recebedor, point of initiation (dinâmico quando há uma location do PSP ou o objeto `01` é `12`, estático nos outros casos) e a chave (estático) ou a URL (dinâmico).",
+          "- Valor, txid, descrição e o facilitador de saque de um Pix Saque só aparecem quando o payload os traz. O marcador de txid `***` significa sem txid.",
+          "- Com uma location do PSP, a função ignora o valor e o txid, como o manual exige."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/spb_docs/ManualBRCode.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf",
+        "https://github.com/bacen/pix-api",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/API-DICT.html"
+      ],
+      "flatName": "getPixPayloadInfo",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "PixPayloadInfo?",
+      "tests": [
+        { "name": "bacen-static-example", "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041D3D"], "returns": { "key": "123e4567-e12b-12d1-a456-426655440000", "merchantName": "Fulano de Tal", "merchantCity": "BRASILIA", "pointOfInitiation": "static" } },
+        {
+          "name": "with-amount-and-txid",
+          "args": [
+            "00020126580014br.gov.bcb.pix0136bee05743-4291-4f3c-9259-595df1307ba1520400005303986540510.005802BR5914Alexandre Lima6019Presidente Prudente62180514Um-Id-Qualquer6304D475"
+          ],
+          "returns": {
+            "key": "bee05743-4291-4f3c-9259-595df1307ba1",
+            "merchantName": "Alexandre Lima",
+            "merchantCity": "Presidente Prudente",
+            "amount": 10,
+            "txid": "Um-Id-Qualquer",
+            "pointOfInitiation": "static"
+          }
+        },
+        { "name": "wrong-crc", "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041D3E"], "returns": null },
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["   "], "returns": null, "note": "JavaScript's own test: should return null when it is an empty or blank string" },
+        { "args": ["pix copia e cola"], "returns": null, "note": "JavaScript's own test: should return null when it is free text" },
+        { "args": ["00020101021226500014br.gov.bcb.pix0107a@b.com2517pix.example.com/x5204000053039865802BR5901A6001B62070503***63049A4B"], "returns": null, "note": "JavaScript's own test: should return null when the merchant account information carries both a key and a url" },
+        { "args": ["00020101021226470014br.gov.bcb.pix2525https://pix.example.com/x5204000053039865802BR5901A6001B62070503***6304F843"], "returns": null, "note": "JavaScript's own test: should return null when the url is not a PSP location (scheme, whitespace, host without a dot)" },
+        { "args": ["00020101021226390014br.gov.bcb.pix2517pix example.com/x5204000053039865802BR5901A6001B62070503***6304C8E4"], "returns": null, "note": "JavaScript's own test: should return null when the url is not a PSP location (scheme, whitespace, host without a dot)" },
+        { "args": ["00020101021226330014br.gov.bcb.pix2511localhost/x5204000053039865802BR5901A6001B62070503***630494D9"], "returns": null, "note": "JavaScript's own test: should return null when the url is not a PSP location (scheme, whitespace, host without a dot)" },
+        {
+          "args": [
+            "00020101021226480014br.gov.bcb.pix2526pix.example.com/qr/v2/123452040000530398654041.005802BR5901A6001B62100506ABC1236304C7F9"
+          ],
+          "returns": {
+            "url": "pix.example.com/qr/v2/1234",
+            "merchantName": "A",
+            "merchantCity": "B",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a static payload should ignore the transaction amount and the txid of a dynamic payload, which belong to the PSP location"
+        },
+        {
+          "args": [
+            "00020101021226330014br.gov.bcb.pix0111123456789095204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63043CAC"
+          ],
+          "returns": {
+            "key": "12345678909",
+            "merchantName": "Fulano de Tal",
+            "merchantCity": "BRASILIA",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a static payload marked single use by the point of initiation method 12, which the manual allows on any BR Code"
+        },
+        {
+          "args": [
+            "00020104141234567890123426580014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-42665544000027300012BR.COM.OUTRO011001234567895204000053039865406123.455802BR5917NOME DO RECEBEDOR6008BRASILIA61087007490062190515RP12345678-201980390012BR.COM.OUTRO01190123.ABCD.3456.WXYZ6304AD38"
+          ],
+          "returns": {
+            "key": "123e4567-e12b-12d1-a456-426655440000",
+            "merchantName": "NOME DO RECEBEDOR",
+            "merchantCity": "BRASILIA",
+            "amount": 123.45,
+            "txid": "RP12345678-2019",
+            "pointOfInitiation": "static"
+          },
+          "note": "JavaScript's own test: should parse a static payload picking the Pix arrangement out of the multi-arrangement payload from the 'Manual do BR Code' §2.2"
+        },
+        {
+          "args": [
+            "00020101021226700014br.gov.bcb.pix2548pix.example.com/8b3da2f39a4140d1a91abd93113bd4415204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***630464E4"
+          ],
+          "returns": {
+            "url": "pix.example.com/8b3da2f39a4140d1a91abd93113bd441",
+            "merchantName": "Fulano de Tal",
+            "merchantCity": "BRASILIA",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a dynamic payload from the dynamic QR Code example in the Bacen 'Manual de Padrões para Iniciação do Pix'"
+        },
+        {
+          "args": [
+            "00020101021226700014br.gov.bcb.pix2548pix.example.com/8b3da2f39a4140d1a91abd93113bd4415204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80740014br.gov.bcb.pix2552pix.example.com/rec/2353c790eefb11eaadc10242ac1200026304FB42"
+          ],
+          "returns": {
+            "url": "pix.example.com/8b3da2f39a4140d1a91abd93113bd441",
+            "merchantName": "Fulano de Tal",
+            "merchantCity": "BRASILIA",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a dynamic payload picking the Pix arrangement out of the composite QR Code example in the Bacen manual"
+        },
+        {
+          "args": [
+            "00020126480014br.gov.bcb.pix2526pix.example.com/qr/v2/12345204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041420"
+          ],
+          "returns": {
+            "url": "pix.example.com/qr/v2/1234",
+            "merchantName": "Fulano de Tal",
+            "merchantCity": "BRASILIA",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a dynamic payload when it carries no point of initiation method at all, which the manual marks optional"
+        },
+        {
+          "args": [
+            "00020101021126480014br.gov.bcb.pix2526pix.example.com/qr/v2/12345204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***6304F299"
+          ],
+          "returns": {
+            "url": "pix.example.com/qr/v2/1234",
+            "merchantName": "Fulano de Tal",
+            "merchantCity": "BRASILIA",
+            "pointOfInitiation": "dynamic"
+          },
+          "note": "JavaScript's own test: should parse a dynamic payload when the point of initiation method is 11, since the PSP location is what makes it dynamic"
+        }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Validates a Pix BR Code payload, the string behind a Pix QR Code and behind \"Pix copia e cola\".",
+        "pt-BR": "Valida o payload de um BR Code Pix, a string por trás de um QR Code Pix e do Pix copia e cola."
+      },
+      "description": {
+        "en": [
+          "Validates a Pix BR Code payload. The function does not check the key itself (use `pixKey.isValid`).",
+          "",
+          "- Checks the TLV structure, the CRC-16 and the mandatory objects (format indicator, category code, currency, country, merchant name and city).",
+          "- One Merchant Account Information template (IDs 26 to 51) must carry the `br.gov.bcb.pix` GUI with a key (static) or a PSP URL (dynamic), never both.",
+          "- Objects `01` and `62` are optional. When `01` is present, it must be `11` or `12`. An amount (`54`) must be greater than zero, except in a Pix Saque.",
+          "- The function ignores unreserved templates (IDs 80 to 99)."
+        ],
+        "pt-BR": [
+          "Valida o payload de um BR Code Pix. A função não verifica a chave em si (use `pixKey.isValid`).",
+          "",
+          "- Verifica a estrutura TLV, o CRC-16 e os objetos obrigatórios (indicador de formato, código de categoria, moeda, país, nome e cidade do recebedor).",
+          "- Um template Merchant Account Information (IDs 26 a 51) deve trazer o GUI `br.gov.bcb.pix` com uma chave (estático) ou uma URL do PSP (dinâmico), nunca as duas.",
+          "- Os objetos `01` e `62` são opcionais. Quando presente, `01` deve ser `11` ou `12`. Um valor (`54`) deve ser maior que zero, exceto em um Pix Saque.",
+          "- A função ignora templates não reservados (IDs 80 a 99)."
+        ]
+      },
+      "references": [
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/spb_docs/ManualBRCode.pdf",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/Regulamento_Pix/II_ManualdePadroesparaIniciacaodoPix.pdf",
+        "https://github.com/bacen/pix-api",
+        "https://www.bcb.gov.br/content/estabilidadefinanceira/pix/API-DICT.html"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "name": "bacen-static-example", "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041D3D"], "returns": true },
+        { "name": "with-amount-and-txid", "args": ["00020126580014br.gov.bcb.pix0136bee05743-4291-4f3c-9259-595df1307ba1520400005303986540510.005802BR5914Alexandre Lima6019Presidente Prudente62180514Um-Id-Qualquer6304D475"], "returns": true },
+        { "name": "wrong-crc", "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041D3E"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["00020101021226700014br.gov.bcb.pix2548pix.example.com/8b3da2f39a4140d1a91abd93113bd4415204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***630464E4"], "returns": true, "note": "JavaScript's own test: should return true for the dynamic QR Code example in the Bacen 'Manual de Padrões para Iniciação do Pix'" },
+        {
+          "args": [
+            "00020101021226700014br.gov.bcb.pix2548pix.example.com/8b3da2f39a4140d1a91abd93113bd4415204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***80740014br.gov.bcb.pix2552pix.example.com/rec/2353c790eefb11eaadc10242ac1200026304FB42"
+          ],
+          "returns": true,
+          "note": "JavaScript's own test: should return true for the composite QR Code example in the Bacen 'Manual de Padrões para Iniciação do Pix'"
+        },
+        {
+          "args": [
+            "00020104141234567890123426580014BR.GOV.BCB.PIX0136123e4567-e12b-12d1-a456-42665544000027300012BR.COM.OUTRO011001234567895204000053039865406123.455802BR5917NOME DO RECEBEDOR6008BRASILIA61087007490062190515RP12345678-201980390012BR.COM.OUTRO01190123.ABCD.3456.WXYZ6304AD38"
+          ],
+          "returns": true,
+          "note": "JavaScript's own test: should return true for the multi-arrangement payload from the 'Manual do BR Code' §2.2"
+        },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA6304740C"], "returns": true, "note": "JavaScript's own test: should return true when the additional data template is absent" },
+        { "args": ["00020101021226330014br.gov.bcb.pix0111123456789095204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63043CAC"], "returns": true, "note": "JavaScript's own test: should return true when a key payload marks itself single use with the point of initiation method 12" },
+        { "args": ["00020101021126480014br.gov.bcb.pix2526pix.example.com/qr/v2/12345204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***6304F299"], "returns": true, "note": "JavaScript's own test: should return true when a url payload carries the point of initiation method 11, which the manual leaves optional" },
+        { "args": ["00020126480014br.gov.bcb.pix2526pix.example.com/qr/v2/12345204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63041420"], "returns": true, "note": "JavaScript's own test: should return true when a url payload carries no point of initiation method at all" },
+        { "args": ["00020126700014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-42665544000003081234567852040000530398654040.005802BR5913Fulano de Tal6008BRASILIA62070503***63043A07"], "returns": true, "note": "JavaScript's own test: should return true for a Pix Saque BR Code, whose fss (26-03) goes with a transaction amount of zero" },
+        { "args": ["   "], "returns": false, "note": "JavaScript's own test: should return false when it is an empty or blank string" },
+        { "args": ["00020126990014br.gov.bcb.pix6304BEFF"], "returns": false, "note": "JavaScript's own test: should return false when the TLV structure is malformed" },
+        { "args": ["000X016304EAB2"], "returns": false, "note": "JavaScript's own test: should return false when the TLV structure is malformed" },
+        { "args": ["00020226580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***6304BAA3"], "returns": false, "note": "JavaScript's own test: should return false when the payload format indicator is not 01" },
+        { "args": ["00020101021326580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63047DC6"], "returns": false, "note": "JavaScript's own test: should return false when the point of initiation method is neither 11 nor 12" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-42665544000052040000530398654040.005802BR5913Fulano de Tal6008BRASILIA62070503***63042451"], "returns": false, "note": "JavaScript's own test: should return false when a key payload states a transaction amount of zero without the fss of a Pix Saque" },
+        { "args": ["00020126690014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400000307123456752040000530398654040.005802BR5913Fulano de Tal6008BRASILIA62070503***630450C2"], "returns": false, "note": "JavaScript's own test: should return false when the fss of a Pix Saque is not the 8 digits of an ISPB" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053038405802BR5913Fulano de Tal6008BRASILIA62070503***63040C88"], "returns": false, "note": "JavaScript's own test: should return false when the currency is not 986" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802AR5913Fulano de Tal6008BRASILIA62070503***6304F417"], "returns": false, "note": "JavaScript's own test: should return false when the country code is not BR" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-42665544000053039865802BR5913Fulano de Tal6008BRASILIA62070503***630405E3"], "returns": false, "note": "JavaScript's own test: should return false when the merchant category code is missing" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR6008BRASILIA62070503***630452B8"], "returns": false, "note": "JavaScript's own test: should return false when the merchant name is missing" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal62070503***63047718"], "returns": false, "note": "JavaScript's own test: should return false when the merchant city is missing" },
+        { "args": ["00020126560012br.com.outro0136123e4567-e12b-12d1-a456-4266554400005204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***63045803"], "returns": false, "note": "JavaScript's own test: should return false when the GUI is not br.gov.bcb.pix" },
+        { "args": ["00020126180014br.gov.bcb.pix5204000053039865802BR5913Fulano de Tal6008BRASILIA62070503***6304A335"], "returns": false, "note": "JavaScript's own test: should return false when the merchant account information holds neither a key nor a URL" },
+        { "args": ["00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-42665544000052040000530398654061R3.455802BR5913Fulano de Tal6008BRASILIA62070503***63049FEF"], "returns": false, "note": "JavaScript's own test: should return false when the amount is not a number" },
+        { "args": ["10491443385511900000200000000141325230000093423"], "returns": false, "note": "JavaScript's own test: should return false when it is a boleto or free text" },
+        { "args": ["pix copia e cola"], "returns": false, "note": "JavaScript's own test: should return false when it is a boleto or free text" }
+      ]
+    }
+  }
+}

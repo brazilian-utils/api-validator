@@ -1,0 +1,61 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-javascript",
+  "language": "typescript",
+  "notes": "Reference implementation.",
+  "repo": "https://github.com/brazilian-utils/javascript",
+  "entry": "src/index.ts",
+  "ignore": ["toStandardSchema"],
+  "site": {
+    "label": "JavaScript",
+    "order": 1,
+    "package": "@brazilian-utils/brazilian-utils",
+    "install": "npm install @brazilian-utils/brazilian-utils",
+    "installs": [
+      { "label": "npm", "lang": "sh", "code": "npm install @brazilian-utils/brazilian-utils" },
+      { "label": "yarn", "lang": "sh", "code": "yarn add @brazilian-utils/brazilian-utils" },
+      { "label": "pnpm", "lang": "sh", "code": "pnpm add @brazilian-utils/brazilian-utils" },
+      { "label": "Bun", "lang": "sh", "code": "bun add @brazilian-utils/brazilian-utils" },
+      {
+        "label": "Deno",
+        "lang": "sh",
+        "code": "deno add jsr:@brazilian-utils/brazilian-utils",
+        "note": {
+          "en": "From JSR, with the same subpaths as the npm package.",
+          "pt-BR": "Pelo JSR, com os mesmos subcaminhos do pacote npm."
+        }
+      },
+      {
+        "label": "CDN",
+        "lang": "html",
+        "code": "<script src=\"https://unpkg.com/@brazilian-utils/brazilian-utils/dist/brazilian-utils.umd.cjs\"></script>",
+        "note": { "en": "Exposes the global `BrazilianUtils`.", "pt-BR": "Expõe o global `BrazilianUtils`." }
+      }
+    ],
+    "runtimes": [
+      { "name": "Node.js", "supported": "^20.19.0 || >=22.12.0", "tested": "20, 22, 24, 26" },
+      {
+        "name": "Bun",
+        "supported": { "en": "latest", "pt-BR": "a mais recente" },
+        "tested": { "en": "latest", "pt-BR": "a mais recente" }
+      },
+      { "name": "Deno", "supported": "2.x", "tested": "2.x" },
+      {
+        "name": { "en": "Browsers", "pt-BR": "Navegadores" },
+        "supported": { "en": "evergreen", "pt-BR": "versões atuais" },
+        "tested": "Chrome, Firefox, Edge, Safari"
+      }
+    ],
+    "registry": "https://www.npmjs.com/package/@brazilian-utils/brazilian-utils",
+    "contributing": "https://github.com/brazilian-utils/javascript/blob/main/CONTRIBUTING.md",
+    "usage": {
+      "ref": "main",
+      "path": "docs/usage",
+      "reference": { "en": "docs/utilities.md", "pt-BR": "docs/pt-br/utilities.md" },
+      "guides": { "en": "docs/guides", "pt-BR": "docs/pt-br/guides" },
+      "root": "docs",
+      "assets": ["docs/snippets"],
+      "prepare": ["node", "scripts/examples.ts"]
+    }
+  }
+}

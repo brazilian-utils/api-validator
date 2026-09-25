@@ -1,0 +1,112 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "bank",
+  "title": { "en": "Banks", "pt-BR": "Bancos" },
+  "summary": {
+    "en": "Brazilian banks from the Banco Central do Brasil STR participants list, looked up by COMPE code or ISPB.",
+    "pt-BR": "Bancos brasileiros da lista de participantes do STR do Banco Central, por código COMPE ou ISPB."
+  },
+  "category": "finance",
+  "order": 5,
+  "related": ["bankAccount", "boleto"],
+  "functions": {
+    "getByCode": {
+      "summary": {
+        "en": "Looks up a Brazilian bank by its compensation code (COMPE).",
+        "pt-BR": "Consulta um banco brasileiro pelo código de compensação (COMPE)."
+      },
+      "description": {
+        "en": [
+          "Looks up a bank by its 3-digit COMPE code in the Banco Central do Brasil STR participants list.",
+          "",
+          "- `code` may be a string or a number (a number is read as the zero-padded 3-digit code).",
+          "- The result carries the COMPE `code` (3 digits), the `ispb` (8 digits) and the `name`.",
+          "- Returns null when no bank has that code."
+        ],
+        "pt-BR": [
+          "Consulta um banco pelo código COMPE de 3 dígitos na lista de participantes do STR do Banco Central do Brasil.",
+          "",
+          "- `code` pode ser uma string ou um número (um número é lido como o código de 3 dígitos completado com zeros à esquerda).",
+          "- O resultado traz o `code` COMPE (3 dígitos), o `ispb` (8 dígitos) e o `name`.",
+          "- Retorna null quando nenhum banco tem esse código."
+        ]
+      },
+      "references": ["https://www.bcb.gov.br/content/estabilidadefinanceira/str1/ParticipantesSTR.csv"],
+      "flatName": "getBankByCode",
+      "params": [{ "name": "code", "type": "string | number" }],
+      "returns": "Bank?",
+      "tests": [
+        { "args": ["001"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." } },
+        { "name": "unpadded", "args": ["1"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." } },
+        { "name": "number", "args": [1], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." } },
+        { "args": ["341"], "returns": { "code": "341", "ispb": "60701190", "name": "ITAÚ UNIBANCO S.A." } },
+        { "name": "nonexistent", "args": ["999"], "returns": null },
+        { "args": ["abc"], "returns": null },
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-1], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": [0.01], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": ["0-01"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the code has a mask" },
+        { "args": ["00001"], "returns": null, "note": "JavaScript's own test: should return null when the code is longer than 3 digits" }
+      ]
+    },
+    "getByIspb": {
+      "summary": {
+        "en": "Looks up a Brazilian bank by its ISPB (Identificador do Sistema de Pagamentos Brasileiro).",
+        "pt-BR": "Consulta um banco brasileiro pelo ISPB (Identificador do Sistema de Pagamentos Brasileiro)."
+      },
+      "description": {
+        "en": [
+          "Looks up a bank by its 8-digit ISPB (Identificador do Sistema de Pagamentos Brasileiro).",
+          "",
+          "- `value` may be a string or a number, with or without leading zeros.",
+          "- The dataset only has institutions that also have a COMPE code. Any other ISPB returns null."
+        ],
+        "pt-BR": [
+          "Consulta um banco pelo ISPB (Identificador do Sistema de Pagamentos Brasileiro) de 8 dígitos.",
+          "",
+          "- `value` pode ser uma string ou um número, com ou sem zeros à esquerda.",
+          "- O conjunto de dados só tem instituições que também têm código COMPE. Qualquer outro ISPB retorna null."
+        ]
+      },
+      "references": ["https://www.bcb.gov.br/content/estabilidadefinanceira/str1/ParticipantesSTR.csv"],
+      "flatName": "getBankByIspb",
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "Bank?",
+      "tests": [
+        { "args": ["00000000"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." } },
+        { "args": ["60701190"], "returns": { "code": "341", "ispb": "60701190", "name": "ITAÚ UNIBANCO S.A." } },
+        { "name": "nonexistent", "args": ["99999999"], "returns": null },
+        { "args": ["abc"], "returns": null },
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-208], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": [2.08], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": ["0"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb is a string without leading zeros" },
+        { "args": [0], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb is a number" },
+        { "args": ["0000-0000"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb has a mask" },
+        { "args": ["0000000000"], "returns": null, "note": "JavaScript's own test: should return null when the ispb is longer than 8 digits" }
+      ]
+    },
+    "list": {
+      "summary": {
+        "en": "Returns every Brazilian bank with a compensation code (COMPE) from the STR (Sistema de Transferência de Reservas) participants list that Banco Central do Brasil publishes.",
+        "pt-BR": "Retorna todos os bancos brasileiros com código de compensação (COMPE) da lista de participantes do STR (Sistema de Transferência de Reservas) publicada pelo Banco Central do Brasil."
+      },
+      "description": {
+        "en": [
+          "Returns every bank with a COMPE code from the Banco Central do Brasil STR participants list.",
+          "",
+          "- Each entry carries the COMPE `code` (3 digits), the `ispb` (8 digits) and the `name`."
+        ],
+        "pt-BR": [
+          "Retorna todos os bancos com código COMPE da lista de participantes do STR do Banco Central do Brasil.",
+          "",
+          "- Cada item traz o `code` COMPE (3 dígitos), o `ispb` (8 dígitos) e o `name`."
+        ]
+      },
+      "references": ["https://www.bcb.gov.br/content/estabilidadefinanceira/str1/ParticipantesSTR.csv"],
+      "flatName": "getBanks",
+      "params": [],
+      "returns": "Bank[]"
+    }
+  }
+}

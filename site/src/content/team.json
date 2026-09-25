@@ -1,0 +1,34 @@
+{
+  "$comment": "The people on the About > Team page, in order. login is the GitHub account (avatar and link). role is one line under the name; cumbucadev marks the people who come from Cumbuca Dev.",
+  "people": [
+    {
+      "name": "Hyan Mandian",
+      "login": "hyanmandian",
+      "role": { "en": "Creator", "pt-BR": "Criador" }
+    },
+    {
+      "name": "Camila Maia",
+      "login": "camilamaia",
+      "role": { "en": "Contributor", "pt-BR": "Contribuidora" },
+      "cumbucadev": true
+    },
+    {
+      "name": "Maria Antônia Maia",
+      "login": "antoniamaia",
+      "role": { "en": "Contributor", "pt-BR": "Contribuidora" },
+      "cumbucadev": true
+    },
+    {
+      "name": "Nilton Pimentel",
+      "login": "niltonpimentel02",
+      "role": { "en": "Contributor", "pt-BR": "Contribuidor" },
+      "cumbucadev": true
+    },
+    {
+      "name": "Leonel Sanches da Silva",
+      "login": "leonelsanchesdasilva",
+      "role": { "en": "Contributor", "pt-BR": "Contribuidor" },
+      "cumbucadev": true
+    }
+  ]
+}

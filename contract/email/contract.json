@@ -1,0 +1,58 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "email",
+  "title": { "en": "Email", "pt-BR": "E-mail" },
+  "summary": { "en": "Email address validation.", "pt-BR": "Validação de endereços de e-mail." },
+  "category": "telecom",
+  "order": 3,
+  "functions": {
+    "isValid": {
+      "summary": {
+        "en": "Checks whether an email address is valid.",
+        "pt-BR": "Verifica se um endereço de e-mail é válido."
+      },
+      "description": {
+        "en": [
+          "Validates an email address: a practical subset of the WHATWG HTML \"valid e-mail address\".",
+          "",
+          "- Local part: letters, digits and `_'+-.`, with no leading or trailing dot and no two dots in a row.",
+          "- Domain: at least one dot, labels of up to 63 characters, the final label 2 to 63 letters.",
+          "- Quoted local parts and address literals are rejected."
+        ],
+        "pt-BR": [
+          "Valida um endereço de e-mail: um subconjunto prático do \"valid e-mail address\" do WHATWG HTML.",
+          "",
+          "- Parte local: letras, dígitos e `_'+-.`, sem ponto no início ou no fim e sem dois pontos seguidos.",
+          "- Domínio: pelo menos um ponto, rótulos de até 63 caracteres, o último rótulo com 2 a 63 letras.",
+          "- Partes locais entre aspas e literais de endereço são rejeitados."
+        ]
+      },
+      "references": [
+        "https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address",
+        "https://www.rfc-editor.org/rfc/rfc5322"
+      ],
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["invalid.email"], "returns": false, "note": "JavaScript's own test: should return false when it is missing @" },
+        { "args": ["user@"], "returns": false, "note": "JavaScript's own test: should return false when it is missing domain" },
+        { "args": ["@domain.com"], "returns": false, "note": "JavaScript's own test: should return false when it is missing user" },
+        { "args": ["!!!user@example.com"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage before an otherwise valid email" },
+        { "args": ["user@example.com!!!"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage after an otherwise valid email" },
+        { "args": ["ab..c@example.com"], "returns": false, "note": "JavaScript's own test: should return false when the local part has consecutive dots that are not at the very start" },
+        { "args": ["user@example-.com"], "returns": false, "note": "JavaScript's own test: should return false when a domain label ends with a hyphen" },
+        { "args": ["user@-example.com"], "returns": false, "note": "JavaScript's own test: should return false when a domain label starts with a hyphen" },
+        { "args": ["user@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["user__@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["user__user@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["test@subdomain.example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email with subdomain" },
+        { "args": ["user@ex-ample.com"], "returns": true, "note": "JavaScript's own test: should return true when a domain label carries an inner hyphen" },
+        { "args": ["user+tag@example.co.uk"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email with special characters" }
+      ]
+    }
+  }
+}

@@ -8,6 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["src/repos/**", "src/specs/**", "output/**"]
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["test/fixtures/**", ".repos/**", "output/**"]
 }

@@ -1,0 +1,171 @@
+import assert from "node:assert/strict";
+import path from "node:path";
+import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
+import type { LibConfig, NativeSymbol } from "../src/core/model.js";
+import { which } from "../src/core/shell.js";
+import fs from "node:fs";
+import os from "node:os";
+import { getAdapter } from "../src/languages/registry.js";
+
+const FIXTURES = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
+
+async function extract(language: string, entry: string, options: Record<string, unknown> = {}) {
+  const lib: LibConfig = { name: language, language, entry, bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options, source: "" };
+  const { symbols, warnings } = await getAdapter(language).extract({ lib, root: path.join(FIXTURES, language), workDir: path.join(FIXTURES, "..", "..", ".cache", "test") });
+  assert.deepEqual(warnings, []);
+  return new Map(symbols.map((s) => [s.name, s]));
+}
+
+const names = (m: Map<string, NativeSymbol>) => [...m.keys()].sort();
+const params = (s: NativeSymbol | undefined) => s?.params.map((p) => `${p.rest ? "..." : ""}${p.name}${p.optional ? "?" : ""}${p.keyword ? "(kw)" : ""}${p.type ? `: ${p.type}` : ""}`);
+
+describe("python extractor (ast)", async () => {
+  const s = await extract("python", "pkg");
+  it("finds module functions and facade re-exports, skips private modules/functions", () => {
+    assert.deepEqual(names(s), ["cep.format", "cpf.format_cpf", "cpf.generate", "cpf.is_valid", "format_cep", "format_cpf", "is_valid_cpf", "legacy.validate", "star.impl.shout", "star.impl.whisper", "star.shout"]);
+  });
+  it("expands `from x import *`, honouring __all__", () => assert.equal(s.get("star.shout")?.aliasOf, "star.impl.shout"));
+  it("links re-exports to their target and keeps the signature", () => {
+    assert.equal(s.get("is_valid_cpf")?.aliasOf, "cpf.is_valid");
+    assert.equal(s.get("format_cep")?.aliasOf, "cep.format"); // relative import
+    assert.deepEqual(params(s.get("is_valid_cpf")), ["cpf: str"]);
+  });
+  it("reads defaults, *args, keyword-only params and annotations", () => {
+    assert.deepEqual(params(s.get("cpf.format_cpf")), ["cpf: str", "pad?(kw): bool"]);
+    assert.deepEqual(params(s.get("cpf.generate")), ["count?: int", "...more?: str"]);
+    assert.equal(s.get("cpf.format_cpf")?.returns, "Optional[str]");
+  });
+  it("detects PEP 702 @deprecated", () => assert.equal(s.get("legacy.validate")?.deprecated, true));
+});
+
+describe("rust extractor (rustdoc JSON)", { skip: !which("cargo") && "cargo not installed" }, async () => {
+  const s = await extract("rust", "src/lib.rs");
+  it("follows mod declarations and keeps only externally reachable fns", () => {
+    assert.deepEqual(names(s), ["cpf.format_cpf", "cpf.is_valid", "cpf.nested.deep", "cpf.validate", "format_cpf", "is_valid_cpf", "renamed", "root_fn"]);
+  });
+  it("resolves braced, renamed and private-module re-exports", () => {
+    assert.equal(s.get("is_valid_cpf")?.aliasOf, "cpf.is_valid");
+    assert.equal(s.get("renamed")?.aliasOf, "private_mod.reexported");
+  });
+  it("parses generics, lifetimes and where clauses", () => {
+    assert.deepEqual(params(s.get("root_fn")), ["value: &'a str", "count: Option<u8>"]);
+    assert.equal(s.get("root_fn")?.returns, "Result<Vec<String>, String>");
+  });
+  it("reads #[deprecated]", () => assert.equal(s.get("cpf.validate")?.deprecated, true));
+  it("emits rustdoc types as structured nodes", () => {
+    assert.deepEqual(s.get("cpf.format_cpf")?.returnsNode, { kind: "name", name: "Option", args: [{ kind: "name", name: "String" }] });
+    assert.deepEqual(s.get("cpf.is_valid")?.params[0].typeNode, { kind: "ref", op: "&", of: { kind: "name", name: "str" } });
+  });
+});
+
+describe("erlang extractor (compiled modules via beam_lib)", { skip: !which("erlc") && "erlang not installed" }, async () => {
+  const s = await extract("erlang", "src");
+  const all = [...s.values()];
+  it("uses the multi-line export list, one symbol per arity", async () => {
+    const r = await getAdapter("erlang").extract({
+      lib: { name: "e", language: "erlang", entry: "src", bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" },
+      root: path.join(FIXTURES, "erlang"),
+      workDir: "/tmp"
+    });
+    assert.deepEqual(r.symbols.map((x) => `${x.name}/${x.params.length}`).sort(), ["demo.codes/0", "demo.format/1", "demo.generate/0", "demo.generate/1", "demo.is_valid/1", "demo.swapped/2", "demo.valid/1"]);
+    assert.equal(r.symbols.find((x) => x.name === "demo.generate" && x.params.length === 1)?.deprecated, true);
+    assert.ok(all.length > 0);
+  });
+  it("marks a pure delegation to a remote call with the same arguments as an alias", () => {
+    assert.equal(s.get("demo.valid")?.aliasOf, "demo.is_valid");
+    assert.equal(s.get("demo.swapped")?.aliasOf, undefined);
+    assert.equal(s.get("demo.format")?.aliasOf, undefined);
+  });
+  it("takes types from -spec and names from clause heads / annotations", () => {
+    assert.deepEqual(params(s.get("demo.format")), ["cpf: binary()"]);
+    assert.equal(s.get("demo.format")?.returns, "{ok, cpf()} | {error, invalid}");
+    const ret = s.get("demo.format")?.returnsNode;
+    assert.equal(ret?.kind, "union");
+    assert.deepEqual(ret?.kind === "union" && ret.of[0], { kind: "tuple", of: [{ kind: "name", name: "ok" }, { kind: "name", name: "cpf", call: true }] });
+  });
+});
+
+describe(".NET extractor: compiled assembly (reflection)", { skip: !which("dotnet") && "dotnet not installed" }, async () => {
+  const s = await extract("dotnet", "Lib");
+  it("public module functions only (private and values excluded, nested modules kept)", () => {
+    assert.deepEqual(names(s), ["Cpf.Codes", "Cpf.Format", "Cpf.Generate", "Cpf.IsValid", "Cpf.Validate", "Nested.Inner"]);
+  });
+  it("gets the types F# infers, unit and tupled params, and line numbers from the PDB", () => {
+    assert.deepEqual(params(s.get("Cpf.IsValid")), ["cpf: string"]); // unannotated in source
+    assert.equal(s.get("Cpf.IsValid")?.returns, "bool");
+    assert.equal(s.get("Cpf.Codes")?.returns, "int list");
+    assert.deepEqual(params(s.get("Cpf.Generate")), []);
+    assert.deepEqual(params(s.get("Nested.Inner")), ["a: int", "b: int"]);
+    assert.equal(s.get("Cpf.Validate")?.deprecated, true);
+    // PDB sequence point: first executable line of the function (declared on line 8).
+    assert.deepEqual([s.get("Cpf.IsValid")?.location?.file, s.get("Cpf.IsValid")?.location?.line], ["Lib/Cpf.fs", 9]);
+  });
+});
+
+describe(".NET extractor: C# assembly (reflection + nullability)", { skip: !which("dotnet") && "dotnet not installed" }, async () => {
+  const lib: LibConfig = { name: "cs", language: "dotnet", entry: "Lib", bindings: {}, ignore: [], waivers: {}, knownFailures: {}, options: {}, source: "" };
+  const { symbols } = await getAdapter("dotnet").extract({ lib, root: path.join(FIXTURES, "dotnet-cs"), workDir: fs.mkdtempSync(path.join(os.tmpdir(), "cs-")) });
+  const s = new Map(symbols.map((x) => [x.name, x]));
+  it("public static methods, nullable reference types, defaults, params arrays, [Obsolete]", () => {
+    assert.deepEqual(names(s), ["Cnpj.Format", "Cnpj.Generate", "Cnpj.IsValid", "Cnpj.Validate"]);
+    assert.equal(s.get("Cnpj.Format")?.returns, "string?");
+    assert.deepEqual(s.get("Cnpj.Format")?.returnsNode, { kind: "union", of: [{ kind: "name", name: "string" }, { kind: "name", name: "null" }] });
+    assert.deepEqual(params(s.get("Cnpj.Format")), ["cnpj: string", "pad?: bool"]);
+    assert.equal(s.get("Cnpj.Generate")?.params[0].rest, true);
+    assert.equal(s.get("Cnpj.Validate")?.deprecated, true);
+  });
+});
+
+describe("typescript extractor (type checker)", async () => {
+  const s = await extract("typescript", "src/index.ts");
+  it("follows re-exports, skips types/classes/constants", () => {
+    assert.deepEqual(names(s), ["formatCpf", "generateCpf", "isValidCPF", "isValidCpf"]);
+  });
+  it("expands aliases of literal unions structurally and infers missing return types", () => {
+    const state = s.get("generateCpf")!.params[0];
+    assert.equal(state.type, "StateCode"); // as written
+    assert.deepEqual(state.typeNode, { kind: "union", of: [{ kind: "lit", value: "SP" }, { kind: "lit", value: "RJ" }] });
+    assert.deepEqual(s.get("generateCpf")?.returnsNode, { kind: "name", name: "string" }); // inferred
+  });
+  it("marks @deprecated aliases", () => {
+    assert.equal(s.get("isValidCPF")?.deprecated, true);
+    assert.equal(s.get("isValidCPF")?.aliasOf, "isValidCpf");
+  });
+});
+
+describe("go extractor (go/parser)", { skip: !which("go") && "go not installed" }, async () => {
+  const s = await extract("go", ".");
+  it("exported top-level funcs only (no methods, tests, internal/)", () => {
+    assert.deepEqual(names(s), ["cpf.Format", "cpf.IsValid", "cpf.Join", "cpf.Lookup", "cpf.Validate"]);
+  });
+  it("records results, variadics and Deprecated: docs", () => {
+    assert.equal(s.get("cpf.Format")?.returns, "(string, error)");
+    assert.deepEqual(params(s.get("cpf.Join")), ["sep: string", "...parts?: string"]);
+    assert.equal(s.get("cpf.Validate")?.deprecated, true);
+    assert.equal(s.get("cpf.Format")?.meta?.importPath, "example.com/fixture/cpf");
+  });
+  it("emits go/types as structured nodes", () => {
+    assert.deepEqual(s.get("cpf.Format")?.returnsNode, { kind: "tuple", of: [{ kind: "name", name: "string" }, { kind: "name", name: "error" }] });
+    assert.deepEqual(s.get("cpf.Lookup")?.returnsNode, { kind: "tuple", of: [{ kind: "ref", op: "*", of: { kind: "name", name: "string" } }, { kind: "name", name: "bool" }] });
+    assert.equal(s.get("cpf.Join")?.params[1].typeNode?.kind, "name"); // ...string: each argument is a string
+  });
+});
+
+describe("ruby extractor (reflection)", { skip: !which("ruby") && "ruby not installed" }, async () => {
+  const s = await extract("ruby", "lib", { namespace: "Demo" });
+  it("public singleton methods incl. class << self; private_class_method and exception classes excluded", () => {
+    assert.deepEqual(names(s), ["CPFUtils.format_cpf", "CPFUtils.generate", "CPFUtils.is_valid", "CPFUtils.valid?", "CPFUtils.validate"]);
+  });
+  it("marks alias_method aliases with aliasOf", () => {
+    assert.equal(s.get("CPFUtils.is_valid")?.aliasOf, "CPFUtils.valid?");
+    assert.equal(s.get("CPFUtils.valid?")?.aliasOf, undefined);
+    assert.equal(s.get("CPFUtils.validate")?.aliasOf, undefined);
+  });
+  it("reads YARD types and keyword params", () => {
+    assert.deepEqual(params(s.get("CPFUtils.format_cpf")), ["cpf: String", "pad?(kw)"]);
+    assert.equal(s.get("CPFUtils.format_cpf")?.returns, "String | nil");
+    assert.equal(s.get("CPFUtils.validate")?.deprecated, true);
+    assert.deepEqual(s.get("CPFUtils.format_cpf")?.returnsNode, { kind: "union", of: [{ kind: "name", name: "String" }, { kind: "name", name: "nil" }] });
+  });
+});

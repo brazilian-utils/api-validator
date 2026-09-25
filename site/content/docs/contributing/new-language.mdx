@@ -1,0 +1,40 @@
+---
+title: Fill a gap in a library
+description: Implement a utility in a library that does not have it yet, or start a library in a new language.
+---
+
+The [parity matrix](/reference/parity/) shows every gap. The page of each library, for example [Python](/libs/python/), lists what that library is missing. Each gap is a separate contribution. The rule and the test cases already exist. Usually, the library repository already has an issue titled `Implement <function>` with the reference code and the test cases.
+
+## Add a utility to a library
+
+<Steps>
+
+1. **Read the utility page.** The spec and the test cases define the full behavior. The tabs of the other libraries show their code.
+
+2. **Implement the function.** Follow the library's [contributing guide](/contributing/libraries/). Use the names that the language expects, for example `isValidCpf`, `is_valid_cpf` or `cpf.IsValid`. The contract does not set the names. The validator finds a function by its name, or by a binding in `libs/<lib>.json`.
+
+3. **Register the function in the harness of the library.** The harness reads the copy of `api-contract/cases/*.json` in the library. It runs every case of every function it knows, with the library's own test command.
+
+4. **Add the usage example** to `docs/usage/<util>.md`. The [usage files](/contributing/usage-files/) page describes the format. `docs usage --scaffold` writes the example from the cases that the library passes.
+
+5. **Release.** The next run of the docs pipeline closes the issue. The next build of this site shows the new tab and the new status.
+
+</Steps>
+
+## Start a library in a new language
+
+<Steps>
+
+1. Ask the organization for a repository at `brazilian-utils/<language>`.
+
+2. In docs, add a language adapter and `libs/brazilian-utils-<language>.json`. The adapter reads the API and runs the tests. The JSON file has a `site` block with the label, the icon, the install command and the registry link. [docs/adding-a-language.md](https://github.com/brazilian-utils/docs/blob/main/docs/adding-a-language.md) shows each step.
+
+3. Start with the core functions. `docs issues --backfill core --lib <language> --apply` opens one issue for each missing core function.
+
+4. Add the harness to the library, as [docs/harness.md](https://github.com/brazilian-utils/docs/blob/main/docs/harness.md) shows. Publish `docs/usage/` from the first release.
+
+</Steps>
+
+<Callout type="idea">
+Do not document behavior that differs from the other libraries. If an implementation does not match the contract, fix the failing case, or propose a change to the contract.
+</Callout>

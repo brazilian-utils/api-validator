@@ -1,0 +1,519 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "phone",
+  "title": { "en": "Phone", "pt-BR": "Telefone" },
+  "summary": {
+    "en": "Brazilian phone numbers: mobile, landline and service numbers.",
+    "pt-BR": "Números de telefone brasileiros: celular, fixo e números de serviço."
+  },
+  "category": "telecom",
+  "order": 1,
+  "related": ["areaCode"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a Brazilian phone number with one of several masks.",
+        "pt-BR": "Formata um número de telefone brasileiro com uma de várias máscaras."
+      },
+      "description": {
+        "en": [
+          "Formats a phone number according to Brazilian patterns.",
+          "",
+          "- Masks (`options`): subscriber number only (`98765-4321`), DDD plus number (`(11) 90000-0000`), E.164 (`+5511987654321`), international (`+55 11 98765-4321`), service numbers (`0800 123 4567`, `4004-1234`) and an automatic choice among them. The DDD plus number mask has 11 digits for a mobile and 10 for a landline.",
+          "- E.164 and international first drop a country code in the input, as `phone.parse` does.",
+          "- Pending decision (findings §2 #4): the reference (JS) defaults to the subscriber-number mask, which truncates a DDD-prefixed number. The other libraries default to `(11)99402-9275`."
+        ],
+        "pt-BR": [
+          "Formata um número de telefone de acordo com os padrões brasileiros.",
+          "",
+          "- Máscaras (`options`): só o número do assinante (`98765-4321`), DDD mais número (`(11) 90000-0000`), E.164 (`+5511987654321`), internacional (`+55 11 98765-4321`), números de serviço (`0800 123 4567`, `4004-1234`) e uma escolha automática entre elas. A máscara de DDD mais número tem 11 dígitos para celular e 10 para fixo.",
+          "- E.164 e internacional primeiro removem um código de país da entrada, como `phone.parse` faz.",
+          "- Decisão pendente (findings §2 #4): a referência (JS) usa por padrão a máscara do número do assinante, que corta um número com DDD. As outras bibliotecas usam por padrão `(11)99402-9275`."
+        ]
+      },
+      "references": [
+        "https://www.itu.int/rec/T-REC-E.164",
+        "https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"
+      ],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatPhoneOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "name": "subscriber-number", "args": ["988887777"], "returns": "98888-7777", "note": "default mask is the 9-digit subscriber number (no DDD); asserted by the reference (JS) unit tests" },
+        { "name": "partial", "args": ["98888777"], "returns": "98888-777" },
+        { "name": "empty", "args": [""], "returns": "", "note": "several libs return null/None for input they cannot format; the reference returns an empty string" },
+        { "name": "ddd-under-default-mask", "args": ["1130000000"], "returns": "11300-0000", "note": "CONTENTIOUS: the reference's default mask ('sn') ignores the DDD and keeps only the first 9 digits (documented and asserted by its tests); other libs format DDD + number, e.g. '(11)3000-0000'" },
+        { "args": ["005540041234", { "mask": "e164" }], "returns": "4004-1234", "note": "JavaScript's own test: should format a service number written with an explicit country code" },
+        { "args": ["+55 0800 123 4567", { "mask": "auto" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should format a service number written with an explicit country code" },
+        { "args": ["+55 190", { "mask": "service" }], "returns": "190", "note": "JavaScript's own test: should format a service number written with an explicit country code" },
+        { "args": ["55 4004-1234", { "mask": "e164" }], "returns": "+555540041234", "note": "JavaScript's own test: should format a service number written with an explicit country code" },
+        { "args": ["5508001234567", { "mask": "auto" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should format a service number written with a bare country code" },
+        { "args": ["5508001234567", { "mask": "e164" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should format a service number written with a bare country code" },
+        { "args": ["5508001234567", { "mask": "international" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should format a service number written with a bare country code" },
+        { "args": ["5508001234567", { "mask": "service" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should format a service number written with a bare country code" },
+        { "args": ["55 0300 123 4567", { "mask": "auto" }], "returns": "0300 123 4567", "note": "JavaScript's own test: should format a service number written with a bare country code" },
+        { "args": ["9"], "returns": "9", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["98"], "returns": "98", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["988"], "returns": "988", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["9888"], "returns": "9888", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["98888"], "returns": "98888", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["988887"], "returns": "98888-7", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["9888877"], "returns": "98888-77", "note": "JavaScript's own test: should sn format phone" },
+        { "args": ["", { "mask": "nanp" }], "returns": "", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["1", { "mask": "nanp" }], "returns": "(1", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["11", { "mask": "nanp" }], "returns": "(11", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["119", { "mask": "nanp" }], "returns": "(11) 9", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["1198", { "mask": "nanp" }], "returns": "(11) 98", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["11988", { "mask": "nanp" }], "returns": "(11) 988", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["119888", { "mask": "nanp" }], "returns": "(11) 9888", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["1198888", { "mask": "nanp" }], "returns": "(11) 98888", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["11988887", { "mask": "nanp" }], "returns": "(11) 98888-7", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["119888877", { "mask": "nanp" }], "returns": "(11) 98888-77", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["1198888777", { "mask": "nanp" }], "returns": "(11) 9888-8777", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["11988887777", { "mask": "nanp" }], "returns": "(11) 98888-7777", "note": "JavaScript's own test: should nanp format phone" },
+        { "args": ["1130000000", { "mask": "nanp" }], "returns": "(11) 3000-0000", "note": "JavaScript's own test: should group a complete 10 digit landline as (00) 0000-0000" },
+        { "args": ["1130000000", { "mask": "auto" }], "returns": "(11) 3000-0000", "note": "JavaScript's own test: should group a complete 10 digit landline as (00) 0000-0000" },
+        { "args": ["(11) 3000-0000", { "mask": "nanp" }], "returns": "(11) 3000-0000", "note": "JavaScript's own test: should group a complete 10 digit landline as (00) 0000-0000" },
+        { "args": ["1130000000", { "mask": "sn" }], "returns": "11300-0000", "note": "JavaScript's own test: should keep the 9 digit sn grouping for a 10 digit value, which only nanp reads as a landline" },
+        { "args": ["", { "mask": "auto" }], "returns": "", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["1", { "mask": "auto" }], "returns": "1", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["11", { "mask": "auto" }], "returns": "11", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["119", { "mask": "auto" }], "returns": "119", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["1198", { "mask": "auto" }], "returns": "1198", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["11988", { "mask": "auto" }], "returns": "11988", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["119888", { "mask": "auto" }], "returns": "11988-8", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["1198888", { "mask": "auto" }], "returns": "11988-88", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["11988887", { "mask": "auto" }], "returns": "11988-887", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["119888877", { "mask": "auto" }], "returns": "11988-8877", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["1198888777", { "mask": "auto" }], "returns": "(11) 9888-8777", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["11988887777", { "mask": "auto" }], "returns": "(11) 98888-7777", "note": "JavaScript's own test: should auto format phone" },
+        { "args": ["", { "mask": "e164" }], "returns": "", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["11988887777", { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["(11) 98888-7777", { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["1130000000", { "mask": "e164" }], "returns": "+551130000000", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["+55 11 98888-7777", { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["005511988887777", { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["5511988887777", { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["0800 123 4567", { "mask": "e164" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["+55 0800 123 4567", { "mask": "e164" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["+55 0800 123 4567", { "mask": "international" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["55988887777", { "mask": "e164" }], "returns": "+5555988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": [11988887777, { "mask": "e164" }], "returns": "+5511988887777", "note": "JavaScript's own test: should e164 format phone" },
+        { "args": ["", { "mask": "international" }], "returns": "", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["11988887777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["(11) 98888-7777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["1130000000", { "mask": "international" }], "returns": "+55 11 3000-0000", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["+55 (11) 98888-7777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["005511988887777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["55988887777", { "mask": "international" }], "returns": "+55 55 98888-7777", "note": "JavaScript's own test: should international format phone" },
+        { "args": ["", { "mask": "service" }], "returns": "", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["08001234567", { "mask": "service" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["0800 123 4567", { "mask": "service" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["03001234567", { "mask": "service" }], "returns": "0300 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["03031234567", { "mask": "service" }], "returns": "0303 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["05001234567", { "mask": "service" }], "returns": "0500 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["09001234567", { "mask": "service" }], "returns": "0900 123 4567", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["40041234", { "mask": "service" }], "returns": "4004-1234", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["30031234", { "mask": "service" }], "returns": "3003-1234", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["190", { "mask": "service" }], "returns": "190", "note": "JavaScript's own test: should service format phone" },
+        { "args": ["55555", { "mask": "service" }], "returns": "55555", "note": "JavaScript's own test: should not apply the abbreviated mask to a number that matches neither the non-geographic nor the abbreviated roots" },
+        { "args": ["12345678", { "mask": "service" }], "returns": "12345678", "note": "JavaScript's own test: should not apply the abbreviated mask to a number that matches neither the non-geographic nor the abbreviated roots" },
+        { "args": ["0", { "mask": "service" }], "returns": "0", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["0800", { "mask": "service" }], "returns": "0800", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["08001", { "mask": "service" }], "returns": "0800 1", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["0800123", { "mask": "service" }], "returns": "0800 123", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["08001234", { "mask": "service" }], "returns": "0800 123 4", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["4004", { "mask": "service" }], "returns": "4004", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["40041", { "mask": "service" }], "returns": "4004-1", "note": "JavaScript's own test: should service format phone while it is being typed" },
+        { "args": ["+55 11 98888-7777", { "mask": "auto" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should detect a country code under the auto mask" },
+        { "args": ["+5511988887777", { "mask": "auto" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should detect a country code under the auto mask" },
+        { "args": ["005511988887777", { "mask": "auto" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should detect a country code under the auto mask" },
+        { "args": ["+55 11 3000-0000", { "mask": "auto" }], "returns": "+55 11 3000-0000", "note": "JavaScript's own test: should detect a country code under the auto mask" },
+        { "args": ["08001234567", { "mask": "auto" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should detect a service number under the auto mask" },
+        { "args": ["03001234567", { "mask": "auto" }], "returns": "0300 123 4567", "note": "JavaScript's own test: should detect a service number under the auto mask" },
+        { "args": ["40041234", { "mask": "auto" }], "returns": "4004-1234", "note": "JavaScript's own test: should detect a service number under the auto mask" },
+        { "args": ["30031234", { "mask": "auto" }], "returns": "3003-1234", "note": "JavaScript's own test: should detect a service number under the auto mask" },
+        { "args": ["55988887777", { "mask": "auto" }], "returns": "(55) 98888-7777", "note": "JavaScript's own test: should keep reading the DDD from a bare 55 area code under the auto mask" },
+        { "args": ["+55 11 98888-7777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should format international and service numbers when asked explicitly" },
+        { "args": ["+5511988887777", { "mask": "international" }], "returns": "+55 11 98888-7777", "note": "JavaScript's own test: should format international and service numbers when asked explicitly" },
+        { "args": ["+55 11 3000-0000", { "mask": "international" }], "returns": "+55 11 3000-0000", "note": "JavaScript's own test: should format international and service numbers when asked explicitly" },
+        { "args": ["08001234567", { "mask": "e164" }], "returns": "0800 123 4567", "note": "JavaScript's own test: should keep international masks on service numbers" },
+        { "args": ["40041234", { "mask": "international" }], "returns": "4004-1234", "note": "JavaScript's own test: should keep international masks on service numbers" }
+      ]
+    },
+    "generate": {
+      "summary": {
+        "en": "Generates a random, structurally valid Brazilian phone number (DDD + subscriber number).",
+        "pt-BR": "Gera um número de telefone aleatório e estruturalmente válido (DDD + número do assinante)."
+      },
+      "description": {
+        "en": [
+          "Generates a random Brazilian phone number, unformatted.",
+          "",
+          "Use `phone.format` to format it.",
+          "",
+          "- `type`: mobile (DDD + 9 digits starting with 9), landline (DDD + 8 digits starting with 2 to 6) or service (no DDD). When `type` is omitted, the function picks a mobile or a landline at random."
+        ],
+        "pt-BR": [
+          "Gera um número de telefone aleatório, sem máscara.",
+          "",
+          "Use `phone.format` para formatá-lo.",
+          "",
+          "- `type`: celular (DDD + 9 dígitos começando com 9), fixo (DDD + 8 dígitos começando com 2 a 6) ou serviço (sem DDD). Sem `type`, a função escolhe um celular ou um fixo ao acaso."
+        ]
+      },
+      "references": ["https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"],
+      "level": "core",
+      "params": [{ "name": "type", "type": "string", "optional": true }],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "phone.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Checks whether a Brazilian phone number is valid.",
+        "pt-BR": "Verifica se um número de telefone brasileiro é válido."
+      },
+      "description": {
+        "en": [
+          "Validates a Brazilian phone number, mobile or landline by default.",
+          "",
+          "- The function accepts a country code (`+55`, `0055` or a bare `55`) and removes it first, as in `phone.parse`.",
+          "- `options` can widen or narrow the accepted kinds (mobile, landline, service) and pick the mobile numbering rule of `phone.isValidMobile`."
+        ],
+        "pt-BR": [
+          "Valida um número de telefone brasileiro, celular ou fixo por padrão.",
+          "",
+          "- A função aceita um código de país (`+55`, `0055` ou só `55`) e o remove primeiro, como em `phone.parse`.",
+          "- `options` pode ampliar ou restringir os tipos aceitos (celular, fixo, serviço) e escolher a regra de numeração de celular de `phone.isValidMobile`."
+        ]
+      },
+      "references": ["https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"],
+      "level": "core",
+      "params": [
+        { "name": "value", "type": "string" },
+        { "name": "options", "type": "IsValidPhoneOptions", "optional": true }
+      ],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["48976579784"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["48976579785"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["00000000000"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["3147981464"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["3147981465"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["0000000000"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["38942432195"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["38942432196"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["48976-5797"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["31479-8146"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["38942-4321"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": [""], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["+55 0800 123 4567", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: service numbers written with a country code should accept an explicit country code before a service number" },
+        { "args": ["0055 4004-1234", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: service numbers written with a country code should accept an explicit country code before a service number" },
+        { "args": ["5508001234567", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: service numbers written with a country code should accept a bare 55 before a service number, as parsePhone reads it" },
+        { "args": ["55 0300 123 4567", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: service numbers written with a country code should accept a bare 55 before a service number, as parsePhone reads it" },
+        { "args": ["5508001234567"], "returns": false, "note": "JavaScript's own test: service numbers written with a country code should accept a bare 55 before a service number, as parsePhone reads it" },
+        { "args": ["+55 0800 123 4567"], "returns": false, "note": "JavaScript's own test: service numbers written with a country code should accept a bare 55 before a service number, as parsePhone reads it" },
+        { "args": ["123"], "returns": false, "note": "JavaScript's own test: should return false when length is invalid" },
+        { "args": ["00999999999"], "returns": false, "note": "JavaScript's own test: should return false when DDD is invalid" },
+        { "args": ["08001234567"], "returns": false, "note": "JavaScript's own test: should return false when it is a service phone and accept is left to its default" },
+        { "args": ["40041234"], "returns": false, "note": "JavaScript's own test: should return false when it is a service phone and accept is left to its default" },
+        { "args": ["(11) 98765-4321", { "accept": [] }], "returns": false, "note": "JavaScript's own test: should return false when accept is empty" },
+        { "args": ["1130000000", { "accept": [] }], "returns": false, "note": "JavaScript's own test: should return false when accept is empty" },
+        { "args": ["08001234567", { "accept": [] }], "returns": false, "note": "JavaScript's own test: should return false when accept is empty" },
+        { "args": ["11612345678", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 rejects the mobile number" },
+        { "args": ["11700123456", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 rejects the mobile number" },
+        { "args": ["11987654321", { "accept": ["landline"] }], "returns": false, "note": "JavaScript's own test: should return false when the kind is not accepted" },
+        { "args": ["1130000000", { "accept": ["mobile"] }], "returns": false, "note": "JavaScript's own test: should return false when the kind is not accepted" },
+        { "args": ["11987654321", { "accept": ["service"] }], "returns": false, "note": "JavaScript's own test: should return false when the kind is not accepted" },
+        { "args": ["08001234567", { "accept": ["mobile", "landline"] }], "returns": false, "note": "JavaScript's own test: should return false when the kind is not accepted" },
+        { "args": ["(11) 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 2" },
+        { "args": ["11987654321", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 2" },
+        { "args": ["11712345678", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 2" },
+        { "args": ["11812345678", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 2" },
+        { "args": ["(11) 3000-0000"], "returns": true, "note": "JavaScript's own test: should return true when is a valid landline phone" },
+        { "args": ["1130000000"], "returns": true, "note": "JavaScript's own test: should return true when is a valid landline phone" },
+        { "args": ["11712345678", { "version": 1 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 1" },
+        { "args": ["+5511987654321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 11 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 (11) 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["0055 11 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["5511987654321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 (11) 3000-0000"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 11 98765-4321", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["11987654321", { "accept": ["mobile"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["1130000000", { "accept": ["landline"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["08001234567", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["40041234", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["190", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["0800 123 4567", { "accept": ["service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["11987654321", { "accept": ["mobile", "landline", "service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" },
+        { "args": ["08001234567", { "accept": ["mobile", "landline", "service"] }], "returns": true, "note": "JavaScript's own test: should return true when the kind is accepted" }
+      ]
+    },
+    "isValidLandline": {
+      "summary": {
+        "en": "Checks whether a phone number is a valid Brazilian landline number.",
+        "pt-BR": "Verifica se um número de telefone é um fixo brasileiro válido."
+      },
+      "description": {
+        "en": [
+          "Validates a landline number: DDD plus 8 digits.",
+          "",
+          "- The function accepts a country code (`+55`, `0055` or a bare `55`) and removes it first, as in `phone.parse`."
+        ],
+        "pt-BR": [
+          "Valida um número fixo: DDD mais 8 dígitos.",
+          "",
+          "- A função aceita um código de país (`+55`, `0055` ou só `55`) e o remove primeiro, como em `phone.parse`."
+        ]
+      },
+      "references": ["https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["(11) 3000-0000"], "returns": true },
+        { "args": ["1130000000"], "returns": true },
+        { "name": "country-code", "args": ["+55 11 3000-0000"], "returns": true },
+        { "name": "mobile", "args": ["11987654321"], "returns": false },
+        { "name": "9-digits", "args": ["113000000"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["+55 11 98765-4321"], "returns": false, "note": "JavaScript's own test: should return false when the country code leaves an invalid number" },
+        { "args": ["0030000000"], "returns": false, "note": "JavaScript's own test: should return false when the DDD is not a valid area code" },
+        { "args": ["+551130000000"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 (11) 3000-0000"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["0055 11 3000-0000"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["551130000000"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["5530000000"], "returns": true, "note": "JavaScript's own test: should return true when the area code is 55" },
+        { "args": ["+55 55 3000-0000"], "returns": true, "note": "JavaScript's own test: should return true when the area code is 55" },
+        { "args": ["1162654321"], "returns": true, "note": "JavaScript's own test: should accept landlines whose first digit is 6 (Anatel Res. 749/2022, art. 11)" },
+        { "args": ["(11) 6265-4321"], "returns": true, "note": "JavaScript's own test: should accept landlines whose first digit is 6 (Anatel Res. 749/2022, art. 11)" },
+        { "args": ["1172654321"], "returns": false, "note": "JavaScript's own test: should accept landlines whose first digit is 6 (Anatel Res. 749/2022, art. 11)" }
+      ]
+    },
+    "isValidMobile": {
+      "summary": {
+        "en": "Checks whether a phone number is a valid Brazilian mobile number.",
+        "pt-BR": "Verifica se um número de telefone é um celular brasileiro válido."
+      },
+      "description": {
+        "en": [
+          "Validates a mobile number: DDD plus 9 digits.",
+          "",
+          "- The function accepts a country code (`+55`, `0055` or a bare `55`) and removes it first, as in `phone.parse`.",
+          "- `options` picks the numbering rule. Version 1 (default) accepts a first subscriber digit of 6, 7, 8 or 9. Version 2 follows Resolução Anatel nº 749/2022: it accepts only 7, 8 or 9 and rejects the 700 (satellite) series."
+        ],
+        "pt-BR": [
+          "Valida um número de celular: DDD mais 9 dígitos.",
+          "",
+          "- A função aceita um código de país (`+55`, `0055` ou só `55`) e o remove primeiro, como em `phone.parse`.",
+          "- `options` escolhe a regra de numeração. A versão 1 (padrão) aceita 6, 7, 8 ou 9 como primeiro dígito do assinante. A versão 2 segue a Resolução Anatel nº 749/2022: aceita só 7, 8 ou 9 e rejeita a série 700 (satélite)."
+        ]
+      },
+      "references": ["https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"],
+      "params": [
+        { "name": "value", "type": "string" },
+        { "name": "options", "type": "IsValidMobilePhoneOptions", "optional": true }
+      ],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["(11) 98765-4321"], "returns": true },
+        { "name": "country-code", "args": ["+55 11 98765-4321"], "returns": true },
+        { "args": ["5511987654321"], "returns": true },
+        { "name": "landline", "args": ["1130000000"], "returns": false },
+        { "name": "10-digits", "args": ["1198765432"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["+55 11 3000-0000"], "returns": false, "note": "JavaScript's own test: should return false when the country code leaves an invalid number" },
+        { "args": ["+1 415 555 2671"], "returns": false, "note": "JavaScript's own test: should return false when the country code leaves an invalid number" },
+        { "args": ["11612345678", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 is requested but the first number digit is the version-1-only 6" },
+        { "args": ["11700123456", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 is requested and the number is in the 700 satellite series" },
+        { "args": ["(11) 70012-3456", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 is requested and the number is in the 700 satellite series" },
+        { "args": ["+55 11 70012-3456", { "version": 2 }], "returns": false, "note": "JavaScript's own test: should return false when version 2 is requested and the number is in the 700 satellite series" },
+        { "args": ["11987654321", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 2" },
+        { "args": ["11712345678", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when version 2 is requested and the first number digit is 7 or 8" },
+        { "args": ["11812345678", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when version 2 is requested and the first number digit is 7 or 8" },
+        { "args": ["11701234567", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when version 2 is requested and the number only starts like the 700 series" },
+        { "args": ["11770012345", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when version 2 is requested and the number only starts like the 700 series" },
+        { "args": ["11712345678", { "version": 1 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 1" },
+        { "args": ["11612345678", { "version": 1 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 1" },
+        { "args": ["11700123456", { "version": 1 }], "returns": true, "note": "JavaScript's own test: should return true when is a valid mobile phone version 1" },
+        { "args": ["+5511987654321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 (11) 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["0055 11 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["+55 11 98765-4321", { "version": 2 }], "returns": true, "note": "JavaScript's own test: should return true when it carries the country code" },
+        { "args": ["55987654321"], "returns": true, "note": "JavaScript's own test: should return true when the area code is 55" },
+        { "args": ["+55 55 98765-4321"], "returns": true, "note": "JavaScript's own test: should return true when the area code is 55" }
+      ]
+    },
+    "isValidService": {
+      "summary": {
+        "en": "Checks whether a phone number is a valid Brazilian service number.",
+        "pt-BR": "Verifica se um número de telefone é um número de serviço brasileiro válido."
+      },
+      "description": {
+        "en": [
+          "Validates a Brazilian service number, dialed without a DDD. The function checks only the structure.",
+          "",
+          "- Códigos Não Geográficos `0300`, `0303`, `0500`, `0800` and `0900` followed by 7 digits.",
+          "- The abbreviated `300X`/`400X` numbers (8 digits). Other carrier prefixes are rejected.",
+          "- The 3-digit public utility codes designated by Anatel (such as `190` and `192`). `112` and `911` are rejected."
+        ],
+        "pt-BR": [
+          "Valida um número de serviço brasileiro, discado sem DDD. A função verifica só a estrutura.",
+          "",
+          "- Códigos Não Geográficos `0300`, `0303`, `0500`, `0800` e `0900` seguidos de 7 dígitos.",
+          "- Os números abreviados `300X`/`400X` (8 dígitos). Outros prefixos de operadora são rejeitados.",
+          "- Os códigos de utilidade pública de 3 dígitos designados pela Anatel (por exemplo `190`, `192`). `112` e `911` são rejeitados."
+        ]
+      },
+      "references": [
+        "https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749",
+        "https://informacoes.anatel.gov.br/legislacao/atos-de-numeracao/2004/1648-ato-43151",
+        "https://informacoes.anatel.gov.br/legislacao/resolucoes/1998/336-resolucao-86"
+      ],
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["08001234567"], "returns": true },
+        { "name": "masked", "args": ["0800 123 4567"], "returns": true },
+        { "name": "abbreviated", "args": ["40041234"], "returns": true },
+        { "name": "mobile", "args": ["11987654321"], "returns": false },
+        { "name": "too-short", "args": ["0800123456"], "returns": false },
+        { "name": "not-a-brazilian-short-code", "args": ["911"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["1130000000"], "returns": false, "note": "JavaScript's own test: should return false when it is a geographic number" },
+        { "args": ["01001234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["02001234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["04001234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["06001234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["07001234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["08101234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["08011234567"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic prefix is unknown" },
+        { "args": ["080012345678"], "returns": false, "note": "JavaScript's own test: should return false when the non-geographic length is wrong" },
+        { "args": ["40201234"], "returns": false, "note": "JavaScript's own test: should return false when the abbreviated root is unknown" },
+        { "args": ["31031234"], "returns": false, "note": "JavaScript's own test: should return false when the abbreviated root is unknown" },
+        { "args": ["50041234"], "returns": false, "note": "JavaScript's own test: should return false when the abbreviated root is unknown" },
+        { "args": ["4004123"], "returns": false, "note": "JavaScript's own test: should return false when the abbreviated length is wrong" },
+        { "args": ["400412345"], "returns": false, "note": "JavaScript's own test: should return false when the abbreviated length is wrong" },
+        { "args": ["101"], "returns": false, "note": "JavaScript's own test: should return false when the utility code was never designated" },
+        { "args": ["110"], "returns": false, "note": "JavaScript's own test: should return false when the utility code was never designated" },
+        { "args": ["189"], "returns": false, "note": "JavaScript's own test: should return false when the utility code was never designated" },
+        { "args": ["200"], "returns": false, "note": "JavaScript's own test: should return false when the utility code was never designated" },
+        { "args": ["999"], "returns": false, "note": "JavaScript's own test: should return false when the utility code was never designated" },
+        { "args": ["112"], "returns": false, "note": "JavaScript's own test: should return false for the handset emergency aliases 112 and 911, which Anatel designates in neither the Anexo of Ato nº 43.151/2004 nor Ato nº 12.712/2024 (and 911 falls outside the 1N₂N₁ range Resolução nº 749/2022 art. 13 destines to public utility services)" },
+        { "args": ["03001234567"], "returns": true, "note": "JavaScript's own test: should return true for every non-geographic prefix" },
+        { "args": ["03031234567"], "returns": true, "note": "JavaScript's own test: should return true for every non-geographic prefix" },
+        { "args": ["05001234567"], "returns": true, "note": "JavaScript's own test: should return true for every non-geographic prefix" },
+        { "args": ["09001234567"], "returns": true, "note": "JavaScript's own test: should return true for every non-geographic prefix" },
+        { "args": ["0800-123-4567"], "returns": true, "note": "JavaScript's own test: should return true for a formatted non-geographic number" },
+        { "args": ["0300 123 4567"], "returns": true, "note": "JavaScript's own test: should return true for a formatted non-geographic number" },
+        { "args": ["30001234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["30031234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["30091234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["40001234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["40021234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["40091234"], "returns": true, "note": "JavaScript's own test: should return true for every abbreviated root" },
+        { "args": ["4004-1234"], "returns": true, "note": "JavaScript's own test: should return true for a formatted abbreviated number" },
+        { "args": ["3003 1234"], "returns": true, "note": "JavaScript's own test: should return true for a formatted abbreviated number" },
+        { "args": ["100"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["102"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["136"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["141"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["156"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["180"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["181"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["188"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["190"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["191"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["192"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["193"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" },
+        { "args": ["199"], "returns": true, "note": "JavaScript's own test: should return true for the public utility codes" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a phone number and returns only the digits, up to 11.",
+        "pt-BR": "Remove os caracteres de formatação de um telefone e retorna só os dígitos, até 11."
+      },
+      "description": {
+        "en": [
+          "Removes phone formatting and keeps only digits, capped at 11 digits.",
+          "",
+          "- The function strips a country code (`+55`, `0055` or a bare `55`) only when 10 or 11 digits are left. This way, area code 55 is not mistaken for a country code."
+        ],
+        "pt-BR": [
+          "Remove a formatação do telefone e mantém só os dígitos, limitados a 11.",
+          "",
+          "- A função remove um código de país (`+55`, `0055` ou só `55`) apenas quando restam 10 ou 11 dígitos. Assim, o DDD 55 não é confundido com o código de país."
+        ]
+      },
+      "references": [
+        "https://www.itu.int/rec/T-REC-E.164",
+        "https://informacoes.anatel.gov.br/legislacao/resolucoes/2022/1641-resolucao-749"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked-mobile", "args": ["(11) 98888-7777"], "returns": "11988887777" },
+        { "name": "no-ddd", "args": ["98888-7777"], "returns": "988887777" },
+        { "name": "country-code", "args": ["+55 11 98888-7777"], "returns": "11988887777" },
+        { "name": "0055", "args": ["005511988887777"], "returns": "11988887777" },
+        { "name": "bare-55-landline", "args": ["551130000000"], "returns": "1130000000" },
+        { "name": "ddd-55", "args": ["55988887777"], "returns": "55988887777", "note": "11 digits: 55 is read as the DDD, not a country code; asserted by the reference (JS) unit tests" },
+        { "name": "service", "args": ["0800 123 4567"], "returns": "08001234567" },
+        { "name": "caps-length", "args": ["11988887777123"], "returns": "11988887777" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["48976579784"], "returns": "48976579784", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976579785"], "returns": "48976579785", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981464"], "returns": "3147981464", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981465"], "returns": "3147981465", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["0000000000"], "returns": "0000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432195"], "returns": "38942432195", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432196"], "returns": "38942432196", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976-5797"], "returns": "489765797", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["31479-8146"], "returns": "314798146", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942-4321"], "returns": "389424321", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["   "], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["+55 (11) 98888-7777"], "returns": "11988887777", "note": "JavaScript's own test: should remove non numeric characters" },
+        { "args": ["+5511988887777"], "returns": "11988887777", "note": "JavaScript's own test: should remove the country code from every international notation" },
+        { "args": ["5511988887777"], "returns": "11988887777", "note": "JavaScript's own test: should remove the country code from every international notation" },
+        { "args": ["+55 (11) 3000-0000"], "returns": "1130000000", "note": "JavaScript's own test: should remove the country code from every international notation" },
+        { "args": ["(55) 3000-0000"], "returns": "5530000000", "note": "JavaScript's own test: should keep a leading 55 that is an area code" },
+        { "args": ["+55 (55) 98888-7777"], "returns": "55988887777", "note": "JavaScript's own test: should keep a leading 55 that is an area code" },
+        { "args": ["55123"], "returns": "55123", "note": "JavaScript's own test: should keep the digits when the country code leaves an implausible number" },
+        { "args": ["4004-1234"], "returns": "40041234", "note": "JavaScript's own test: should keep service numbers untouched" },
+        { "args": ["190"], "returns": "190", "note": "JavaScript's own test: should keep service numbers untouched" },
+        { "args": [11988887777], "returns": "11988887777", "note": "JavaScript's own test: should accept numbers" }
+      ]
+    },
+    "removeInternationalDialingCode": {
+      "summary": { "en": "Removes a leading `+55` or `55`.", "pt-BR": "Remove um `+55` ou `55` do início." },
+      "level": "core",
+      "params": [{ "name": "value", "type": "string" }],
+      "returns": "string",
+      "tests": [
+        { "args": ["48976579784"], "returns": "48976579784", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976579785"], "returns": "48976579785", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": "00000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981464"], "returns": "3147981464", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["3147981465"], "returns": "3147981465", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["0000000000"], "returns": "0000000000", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432195"], "returns": "38942432195", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942432196"], "returns": "38942432196", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["48976-5797"], "returns": "48976-5797", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["31479-8146"], "returns": "31479-8146", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["38942-4321"], "returns": "38942-4321", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["   "], "returns": "   ", "note": "consensus of 4 libs (go, python, ruby, rust)" },
+        { "args": ["abc"], "returns": "abc", "note": "consensus of 4 libs (go, python, ruby, rust)" }
+      ]
+    }
+  }
+}

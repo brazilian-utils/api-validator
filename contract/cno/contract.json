@@ -1,0 +1,117 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "cno",
+  "title": { "en": "CNO", "pt-BR": "CNO" },
+  "summary": {
+    "en": "Cadastro Nacional de Obras, the registration of construction works with the Receita Federal (replaced the CEI for them, same numbering).",
+    "pt-BR": "Cadastro Nacional de Obras, o cadastro de obras de construção civil na Receita Federal (substituiu o CEI para elas, com a mesma numeração)."
+  },
+  "category": "companies",
+  "order": 7,
+  "related": ["cei", "caepf"],
+  "functions": {
+    "format": {
+      "summary": {
+        "en": "Formats a CNO number with the official mask.",
+        "pt-BR": "Formata um número CNO com a máscara oficial."
+      },
+      "description": {
+        "en": [
+          "Formats a CNO with the mask `00.000.00000/00` (the CEI numbering).",
+          "",
+          "- Same rules as `cei.format`. `options.pad` first left-pads with zeros to 12 digits."
+        ],
+        "pt-BR": [
+          "Formata um CNO com a máscara `00.000.00000/00` (a numeração do CEI).",
+          "",
+          "- Mesmas regras de `cei.format`. `options.pad` primeiro completa com zeros à esquerda até 12 dígitos."
+        ]
+      },
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
+      "params": [
+        { "name": "value", "type": "string | number" },
+        { "name": "options", "type": "FormatCnoOptions", "optional": true }
+      ],
+      "returns": "string",
+      "tests": [
+        { "args": ["111130137368"], "returns": "11.113.01373/68" },
+        { "name": "already-formatted", "args": ["11.084.01680/62"], "returns": "11.084.01680/62" },
+        { "name": "partial", "args": ["11113"], "returns": "11.113" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [401800097960], "returns": "40.180.00979/60", "note": "JavaScript's own test: should format a number input" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["11"], "returns": "11", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["111"], "returns": "11.1", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["1111"], "returns": "11.11", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["111130"], "returns": "11.113.0", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["1111301373680000"], "returns": "11.113.01373/68", "note": "JavaScript's own test: should truncate values longer than 12 digits" },
+        { "args": ["979", { "pad": true }], "returns": "00.000.00009/79", "note": "JavaScript's own test: should pad the value with leading zeros when options.pad is true" }
+      ]
+    },
+    "isValid": {
+      "summary": {
+        "en": "Validates a CNO number, the registration of a construction work with the Receita Federal.",
+        "pt-BR": "Valida um número CNO, o registro de uma obra de construção civil na Receita Federal."
+      },
+      "description": {
+        "en": [
+          "Validates a CNO. The CNO replaced the CEI for construction works and kept its numbering.",
+          "",
+          "- Same rules as `cei.isValid`."
+        ],
+        "pt-BR": [
+          "Valida um CNO. O CNO substituiu o CEI para obras de construção civil e manteve a numeração dele.",
+          "",
+          "- Mesmas regras de `cei.isValid`."
+        ]
+      },
+      "references": [
+        "https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno",
+        "https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno"
+      ],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["110840168062"], "returns": true },
+        { "name": "masked", "args": ["11.084.01680/62"], "returns": true },
+        { "args": ["401800097960"], "returns": true },
+        { "name": "wrong-check-digit", "args": ["110840168063"], "returns": false },
+        { "name": "zeros", "args": ["000000000000"], "returns": false },
+        { "name": "too-short", "args": ["1234567890"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["1234567890123"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 12 digits" },
+        { "args": ["11#084#01680#62"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits but an unsupported separator" },
+        { "args": ["110.840.16806/2"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits grouped outside the 2-3-5-2 mask" },
+        { "args": ["401800097961"], "returns": false, "note": "JavaScript's own test: should return false when a check digit of 0 is replaced by another digit (401800097960 of the Receita Federal CNO dataset)" },
+        { "args": ["111130137368"], "returns": true, "note": "JavaScript's own test: should return true for 111130137368, an obra in Campo do Meio/MG of the Receita Federal CNO open dataset" },
+        { "args": ["112772388267"], "returns": true, "note": "JavaScript's own test: should return true for 112772388267 and 113381018769 of the Receita Federal CNO open dataset" },
+        { "args": ["113381018769"], "returns": true, "note": "JavaScript's own test: should return true for 112772388267 and 113381018769 of the Receita Federal CNO open dataset" },
+        { "args": [401800097960], "returns": true, "note": "JavaScript's own test: should return true for 401800097960, whose check digit is 0 (Receita Federal CNO open dataset, Frutal/MG)" },
+        { "args": ["512070915160"], "returns": true, "note": "JavaScript's own test: should return true for 512070915160, whose check digit is 0 (Receita Federal CNO open dataset, Capitólio/MG)" },
+        { "args": ["11.583.00249/85"], "returns": true, "note": "JavaScript's own test: should return true for a legacy CEI number kept by the CNO (11.583.00249/85, yiibr/yii2-br-validator)" },
+        { "args": [" 11 084 01680 62 "], "returns": true, "note": "JavaScript's own test: should return true for a whitespace mask and surrounding whitespace" }
+      ]
+    },
+    "parse": {
+      "summary": {
+        "en": "Removes the formatting characters of a CNO and returns only the digits.",
+        "pt-BR": "Remove os caracteres de formatação de um CNO e retorna só os dígitos."
+      },
+      "description": {
+        "en": ["Removes CNO formatting and keeps only digits, capped at 12 digits."],
+        "pt-BR": ["Remove a formatação do CNO e mantém somente os dígitos, limitados a 12 dígitos."]
+      },
+      "references": ["https://www.gov.br/receitafederal/pt-br/assuntos/orientacao-tributaria/cadastros/cno"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "string",
+      "tests": [
+        { "name": "masked", "args": ["11.113.01373/68"], "returns": "111130137368" },
+        { "name": "unmasked", "args": ["111130137368"], "returns": "111130137368" },
+        { "name": "strips-non-digits", "args": ["11.?ABC113.01373/68abc"], "returns": "111130137368" },
+        { "name": "empty", "args": [""], "returns": "" },
+        { "name": "caps-length", "args": ["111130137368999"], "returns": "111130137368", "note": "reference truncates to the 12 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [111130137368], "returns": "111130137368", "note": "JavaScript's own test: should read a number as the string of its digits" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,257 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@source '../node_modules/fumadocs-ui/dist/**/*.js';
+
+/* Flexoki (stephango.com/flexoki): warm paper, ink, cyan accent; ok/fail/warn mark state, the
+   brand yellow marks check digits. Text
+   colors meet WCAG 2.1 AA on their backgrounds in both themes; the edge of a field (border-strong)
+   meets the 3:1 of a control's boundary. */
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --color-fd-background: #fffcf0;
+  --color-fd-foreground: #100f0f;
+  --color-fd-card: #f2f0e5;
+  --color-fd-card-foreground: #100f0f;
+  --color-fd-popover: #fffcf0;
+  --color-fd-popover-foreground: #100f0f;
+  --color-fd-muted: #f2f0e5;
+  --color-fd-muted-foreground: #5c5b57;
+  --color-fd-secondary: #e6e4d9;
+  --color-fd-secondary-foreground: #100f0f;
+  --color-fd-accent: #e6e4d9;
+  --color-fd-accent-foreground: #100f0f;
+  --color-fd-border: #dad8ce;
+  --color-fd-border-strong: #878580;
+  --color-fd-primary: #1c6c66;
+  --color-fd-primary-foreground: #fffcf0;
+  --color-fd-ring: #24837b;
+  --color-header: #f2f0e5;
+  --color-brand-yellow: #ffdf00;
+  --color-ok: #3d6a07;
+  --color-fail: #af3029;
+  --color-warn: #8c5a00;
+}
+
+/* Motion, after Emil Kowalski's rules (animations.dev): only transform and opacity move; a strong
+   ease-out on anything entering, so it lands at once; nothing on the interface takes over 300ms;
+   a thing seen tens of times a day (hover, a tab) moves fast and little. Fumadocs' own
+   animations are retuned through its tokens: the search dialog, opened from the keyboard many
+   times a day, only fades; a popover scales in from its trigger in 150ms; the phone's sidebar
+   drawer slides on the iOS curve. */
+@theme {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-fade-in: fd-fade-in 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-fade-out: fd-fade-out 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-dialog-in: fd-fade-in 120ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-dialog-out: fd-fade-out 100ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-popover-in: fd-popover-in 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-popover-out: fd-popover-out 100ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-sidebar-in: fd-sidebar-in 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fd-sidebar-out: fd-sidebar-out 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fd-collapsible-down: fd-collapsible-down 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-collapsible-up: fd-collapsible-up 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-accordion-down: fd-accordion-down 200ms cubic-bezier(0.23, 1, 0.32, 1);
+  --animate-fd-accordion-up: fd-accordion-up 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* With reduced motion, things still fade (a change that is not announced at all is easy to miss),
+   but nothing slides or scales. Site code drops its own transforms with motion-reduce:. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --animate-fd-popover-in: fd-fade-in 100ms ease;
+    --animate-fd-popover-out: fd-fade-out 100ms ease;
+    --animate-fd-sidebar-in: fd-fade-in 150ms ease;
+    --animate-fd-sidebar-out: fd-fade-out 150ms ease;
+    --animate-fd-collapsible-down: none;
+    --animate-fd-collapsible-up: none;
+    --animate-fd-accordion-down: none;
+    --animate-fd-accordion-up: none;
+  }
+}
+
+.dark {
+  --color-fd-background: #100f0f;
+  --color-fd-foreground: #cecdc3;
+  --color-fd-card: #1c1b1a;
+  --color-fd-card-foreground: #cecdc3;
+  --color-fd-popover: #1c1b1a;
+  --color-fd-popover-foreground: #cecdc3;
+  --color-fd-muted: #1c1b1a;
+  --color-fd-muted-foreground: #9f9d96;
+  --color-fd-secondary: #282726;
+  --color-fd-secondary-foreground: #cecdc3;
+  --color-fd-accent: #282726;
+  --color-fd-accent-foreground: #cecdc3;
+  --color-fd-border: #343331;
+  --color-fd-border-strong: #6f6d68;
+  --color-fd-primary: #3aa99f;
+  --color-fd-primary-foreground: #100f0f;
+  --color-fd-ring: #3aa99f;
+  --color-header: #1c1b1a;
+  --color-ok: #879a39;
+  --color-fail: #e8705f;
+  --color-warn: #d0a215;
+}
+
+.dark #nd-sidebar {
+  --color-fd-muted: #1c1b1a;
+  --color-fd-secondary: #282726;
+}
+
+/* The check digits of a document number: the brand yellow, ink text on it in both themes. When
+   the number fails, its check digits are struck in the fail color instead. */
+mark.check {
+  background: var(--color-brand-yellow);
+  color: #1d1f3d;
+  border-radius: 0.2em;
+  padding: 0 0.08em;
+}
+mark.check-wrong {
+  background: transparent;
+  color: var(--color-fail);
+  text-decoration: line-through 2px;
+}
+
+/* The page keeps the scrollbar's room whether it scrolls or not, so a short page and a long one lay
+   out the same. The strip that room leaves beside the header takes the header's tone. */
+html {
+  scrollbar-gutter: stable;
+  background: linear-gradient(var(--color-header) 0 0) top / 100% 3.5rem no-repeat var(--color-fd-background);
+}
+
+/* One column for the whole site: the home page's sections and the documentation (sidebar, page
+   and table of contents) share its width and its edges, so nothing moves from one to the other. */
+:root {
+  --site-width: 80rem;
+}
+#nd-notebook-layout {
+  --fd-layout-width: var(--site-width);
+}
+
+/* The header (site-header.client.tsx) stands apart from the page: its own paper tone, a rule under it. */
+.site-header {
+  background: var(--color-header);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+
+/* Code blocks: on the page's paper, where every syntax color meets AA, and one surface with no
+   drop shadow (a border already draws the edge). The copy button keeps Fumadocs' see-through
+   blurred backing: an opaque one would hide the middle of a long line on a phone. */
+figure.shiki {
+  background-color: var(--color-fd-background);
+  box-shadow: none;
+}
+/* Where there is a mouse, the copy button shows on hover or keyboard focus, so it never sits on
+   the code while it is being read; on touch screens it stays. */
+@media (hover: hover) {
+  figure.shiki > div:has(> button[aria-label]) {
+    opacity: 0;
+    transition: opacity 0.15s var(--ease-out);
+  }
+  figure.shiki:is(:hover, :focus-within) > div:has(> button[aria-label]) {
+    opacity: 1;
+  }
+}
+
+/* Text for screen readers only, kept in the flow (no absolute box): inside a sticky table head or
+   the sticky header, an absolute box would sit outside the layout's clip. */
+@utility sr-only-static {
+  display: inline-block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/* The parts of the page the browser draws, in the palette (selection, caret, scrollbars, links). */
+::selection {
+  background: color-mix(in oklab, var(--color-fd-primary) 22%, transparent);
+}
+:root {
+  caret-color: var(--color-fd-primary);
+  scrollbar-color: var(--color-fd-border) transparent;
+  accent-color: var(--color-fd-primary);
+  font-variant-numeric: tabular-nums;
+}
+a {
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+/* Keyboard focus, on controls only: a container focused by script (a popover, a dialog, the page's
+   main, all tabindex -1) draws nothing, the control inside it does. */
+:focus-visible:not([tabindex='-1']) {
+  outline: 2px solid var(--color-fd-ring);
+  outline-offset: 2px;
+}
+
+/* Running text keeps a readable measure (the page description included); tables, code, links
+   drawn as cards (the pager) and flex rows (legends, chips) keep the full column. */
+#nd-page :is(p, ul, ol, blockquote):not(table *, nav *, [role='tablist'] *, a *, .flex, .not-prose) {
+  max-width: 52ch;
+}
+
+/* Full-width bands of the home page: the header's paper tone, a rule between bands. */
+.band {
+  background: var(--color-header);
+  border-bottom: 1px solid var(--color-fd-border);
+}
+.band-top {
+  border-top: 1px solid var(--color-fd-border);
+}
+
+/* Code in a table cell wraps between words; on a phone it may break anywhere, so the table fits
+   instead of pushing sideways. (Breaking anywhere on a wide screen lets the table squeeze a
+   column down to one character.) */
+#nd-page .prose td code {
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+@media (max-width: 640px) {
+  #nd-page .prose td code {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* A table cell that stays in view while its table scrolls (the parity matrix's utility column):
+   the page's paper under it and the row rule painted into that paper (a 1px band at the bottom),
+   so it reads as part of the row, not as a card pinned to the edge; the row's hover tint too. */
+.pinned {
+  --pinned-paper: var(--color-fd-background);
+  background:
+    linear-gradient(var(--color-fd-border), var(--color-fd-border)) bottom / 100% 1px no-repeat,
+    var(--pinned-paper);
+}
+tr:hover > .pinned {
+  --pinned-paper: color-mix(in srgb, var(--color-fd-accent) 40%, var(--color-fd-background));
+}
+
+/* Headings as on the home page: the title clearly above its sections, both set tight. */
+#nd-page h1 {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+#nd-page .prose :is(h2, h3) {
+  letter-spacing: -0.02em;
+}
+
+/* The phone's "On this page" bar names the section; a progress ring beside it says nothing more. */
+[data-toc-popover-trigger] svg[role='progressbar'] {
+  display: none;
+}
+
+/* The wordmark's green and yellow are the flag's: on dark paper they read well, on light paper the
+   yellow nearly disappears. In the light theme the logo gets a thin dark outline, the same ink as
+   the dog's own outline, so its colors stay the brand's. */
+html:not(.dark) .site-logo {
+  filter: drop-shadow(0 0 0.5px #2a211b) drop-shadow(0 0 0.5px #2a211b) drop-shadow(0 0 0.5px #2a211b);
+}

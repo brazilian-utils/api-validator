@@ -1,0 +1,66 @@
+# Pull request checks for the docs site: dependencies audited, both languages present, lint and
+# types, the site builds (usage and guides cloned from the libraries, the status of the last
+# published run), then accessibility and design checks. The full pipeline (conformance.yml)
+# builds and publishes it with the results of its own run.
+name: site / check
+
+on:
+  pull_request:
+    paths:
+      - 'contract/**'
+      - 'libs/**'
+      - 'site/**'
+      - '.github/workflows/site-check.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: site
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # check-i18n compares last-commit dates of each language pair
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - name: No known vulnerabilities, at any severity
+        run: npm audit --audit-level=low
+      - name: Every domain, page and interface string has both languages
+        run: npm run check:i18n -- --strict
+      - name: Lint (Next.js, React hooks, jsx-a11y) with no warnings
+        run: npm run lint -- --max-warnings 0
+      - name: Site builds (usage and guides from the libraries, status of the last published run)
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # After the build: it writes next-env.d.ts and the route types the check reads.
+      - name: Types
+        run: npm run typecheck
+      # axe-core, WCAG 2.1 A and AA plus best practices, every page type: light and dark theme on a
+      # desktop, light theme on a phone.
+      # The two tools are installed for this step only; they are not dependencies of the site.
+      - name: Accessibility
+        run: |
+          npm i --no-save --ignore-scripts playwright@1.55.1 axe-core@4.10.3
+          npx playwright install --with-deps chromium
+          npm run a11y
+      # Impeccable's detector (impeccable.style): no generated-interface patterns (nested cards,
+      # side-stripe callouts, hero metrics…) and no design-quality problems (line length, cramped
+      # padding, overflow), on every page type, desktop and phone. Uses the runner's Chrome.
+      - name: Design
+        run: npm run design

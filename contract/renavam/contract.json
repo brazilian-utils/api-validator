@@ -1,0 +1,87 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "renavam",
+  "title": { "en": "RENAVAM", "pt-BR": "RENAVAM" },
+  "summary": {
+    "en": "Registro Nacional de Veículos Automotores, the Brazilian vehicle registry number.",
+    "pt-BR": "O número do Registro Nacional de Veículos Automotores."
+  },
+  "category": "vehicles",
+  "order": 2,
+  "related": ["licensePlate", "vin"],
+  "functions": {
+    "generate": {
+      "summary": {
+        "en": "Generates a valid random RENAVAM number.",
+        "pt-BR": "Gera um número RENAVAM aleatório e válido."
+      },
+      "description": {
+        "en": ["Generates a valid random RENAVAM in the 11-digit form: 10 base digits plus the check digit."],
+        "pt-BR": [
+          "Gera um RENAVAM aleatório e válido no formato de 11 dígitos: 10 dígitos base mais o dígito verificador."
+        ]
+      },
+      "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm"],
+      "params": [],
+      "returns": "string",
+      "tests": [
+        { "name": "generated-is-valid", "args": [], "satisfies": "renavam.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+      ]
+    },
+    "isValid": {
+      "summary": { "en": "Checks whether a RENAVAM is valid.", "pt-BR": "Verifica se um RENAVAM é válido." },
+      "description": {
+        "en": [
+          "Validates a RENAVAM: the old format (9 digits, left-padded to 11) or the new format (11 digits), with a modulus 11 check digit.",
+          "",
+          "- The function ignores spaces, dots and hyphens. Any other character, in particular a letter, makes the value invalid.",
+          "- A value whose digits are all the same is rejected."
+        ],
+        "pt-BR": [
+          "Valida um RENAVAM: o formato antigo (9 dígitos, completado com zeros à esquerda até 11) ou o novo (11 dígitos), com dígito verificador por módulo 11.",
+          "",
+          "- A função ignora espaços, pontos e hífens. Qualquer outro caractere, em especial uma letra, torna o valor inválido.",
+          "- Um valor com todos os dígitos iguais é rejeitado."
+        ]
+      },
+      "references": ["https://www.planalto.gov.br/ccivil_03/leis/l9503compilado.htm"],
+      "level": "core",
+      "params": [{ "name": "renavam", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["72028649661"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["72028649662"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00000000000"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["88380465616"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["88380465617"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["03894104700"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["03894104701"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00639884962"], "returns": true, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["006398849620"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["0639884962"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["12345678"], "returns": false, "note": "JavaScript's own test: should return false when it has less than 9 digits" },
+        { "args": ["123456789012"], "returns": false, "note": "JavaScript's own test: should return false when it has more than 11 digits" },
+        { "args": ["abcdefghij"], "returns": false, "note": "JavaScript's own test: should return false when it contains only letters or special characters" },
+        { "args": ["639884963"], "returns": false, "note": "JavaScript's own test: should return false when it is a RENAVAM with invalid checksum (639884963 has its last digit changed from the valid 639884962)" },
+        { "args": ["12345678901"], "returns": false, "note": "JavaScript's own test: should return false when it is a RENAVAM with invalid checksum (639884963 has its last digit changed from the valid 639884962)" },
+        { "args": ["12345678901abc"], "returns": false, "note": "JavaScript's own test: should return false when it has mixed characters that sanitize to an invalid RENAVAM (invalid checksum)" },
+        { "args": ["639884963xyz"], "returns": false, "note": "JavaScript's own test: should return false when it has mixed characters that sanitize to an invalid RENAVAM (invalid checksum)" },
+        { "args": ["639884962abc"], "returns": false, "note": "JavaScript's own test: should return false when letters are attached to an otherwise valid RENAVAM" },
+        { "args": ["ab00639884962"], "returns": false, "note": "JavaScript's own test: should return false when letters are attached to an otherwise valid RENAVAM" },
+        { "args": ["0063988/4962"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses a character other than whitespace, a dot or a hyphen" },
+        { "args": ["000000000"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["1234567890"], "returns": false, "note": "JavaScript's own test: should return false when is a RENAVAM with invalid length: 8 digits (too short), 10 digits (invalid), or 12 digits (too long)" },
+        { "args": ["639884962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with 9 digits (old format)" },
+        { "args": [639884962], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid as number" },
+        { "args": ["0063988.4962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": ["00639884-962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": [" 00639884962 "], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": ["12345678900"], "returns": true, "note": "JavaScript's own test: should return true when the multiplier cycle wraps from 9 back to 2 on non-zero digits" },
+        { "args": ["00000000060"], "returns": true, "note": "JavaScript's own test: should return true when the checksum remainder is exactly 1 (expected digit 0, not 10)" }
+      ]
+    }
+  }
+}

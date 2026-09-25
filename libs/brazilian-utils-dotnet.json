@@ -1,0 +1,16 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-dotnet",
+  "language": "dotnet",
+  "repo": "https://github.com/brazilian-utils/dotnet",
+  "entry": "BrazilianUtils",
+  "ignore": ["Helpers.*", "*remove*symbols*"],
+  "site": {
+    "label": ".NET",
+    "order": 6,
+    "package": "BrazilianUtils",
+    "install": "dotnet add package BrazilianUtils",
+    "registry": "https://www.nuget.org/packages/BrazilianUtils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
+}

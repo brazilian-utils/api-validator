@@ -1,0 +1,39 @@
+---
+title: Guia da comunidade
+description: Onde perguntar, relatar e contribuir, e o que esperar quando fizer isso.
+---
+
+O Brazilian Utils vive no GitHub, na organização [Brazilian Utils](https://github.com/brazilian-utils). Cada biblioteca tem o próprio repositório, e este site e o contrato compartilhado ficam no [docs](https://github.com/brazilian-utils/docs).
+
+## Onde vai cada coisa
+
+| Você quer | Vá para |
+| --- | --- |
+| Perguntar como fazer algo | As **Discussions** do repositório da biblioteca |
+| Relatar um bug numa biblioteca | As **Issues** do repositório da biblioteca, com a entrada, o que saiu e o que você esperava |
+| Propor um utilitário novo ou mudar uma regra | Uma issue no [docs](https://github.com/brazilian-utils/docs/issues). Uma mudança no contrato chega a todas as bibliotecas. |
+| Corrigir um erro neste site | O link para editar a página no GitHub, no fim de cada página, ou uma issue no repositório docs |
+| Relatar um problema de segurança | Em particular: o `SECURITY.md` da biblioteca, ou support@brazilian-utils.com.br. Nunca numa issue pública. |
+
+## Contribua com código
+
+1. Procure primeiro uma issue aberta. As issues com o rótulo `api-contract` são geradas a partir do contrato: cada uma diz qual função falta ou qual caso compartilhado falha, com o código de outra biblioteca como referência.
+2. Avise na issue que você vai pegá-la, para duas pessoas não fazerem o mesmo trabalho.
+3. Siga o `CONTRIBUTING.md` do repositório: cada linguagem tem as próprias ferramentas, estilo e testes.
+4. Mantenha o pull request com uma mudança só. Pull requests pequenos são revisados antes.
+
+Mudar o que uma função faz começa no contrato, não numa biblioteca. [Mude o contrato](/pt-br/contributing/specs/) explica como.
+
+## O que esperar
+
+- Todo mundo aqui é voluntário. Uma resposta pode levar alguns dias.
+- A revisão é sobre o código. Quem revisa pode pedir mudanças. Isso faz parte do trabalho, não é um julgamento sobre você.
+- Uma issue pode ser fechada por estar fora do escopo. O motivo sempre fica escrito nela.
+- Todo espaço segue o [Código de Conduta](/pt-br/about/code-of-conduct/).
+
+## Escreva uma boa issue
+
+- Um problema por issue.
+- A biblioteca e a versão dela, e a versão da linguagem.
+- A menor entrada que mostra o problema, e a saída que você esperava.
+- Um número de documento num exemplo tem que ser fictício. Use a função "gerar" de qualquer biblioteca, ou um número dos casos de teste.

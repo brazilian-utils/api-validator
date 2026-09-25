@@ -1,0 +1,42 @@
+---
+title: Perguntas frequentes
+description: De onde veio o Brazilian Utils, por que o logo é um caramelo e o que esperar das bibliotecas.
+---
+
+## O que é o Brazilian Utils?
+
+Um conjunto de bibliotecas para os dados que todo sistema brasileiro trata: CPF, CNPJ, CEP, placas, telefones, boletos e outros. Elas validam, formatam, interpretam e geram esses dados. Existe uma biblioteca por linguagem de programação: <LibNames />. Todas seguem um [contrato compartilhado](/pt-br/contributing/specs/): um CPF válido numa linguagem é válido em todas.
+
+## Como começou?
+
+Em 2018, o [Hyan Mandian](https://github.com/hyanmandian) usava uma biblioteca de validação de CPF e só queria rodar os testes dela. Não deu: a biblioteca não rodava no Node.js. Ele consertou, mandou um pull request e esperou. Quase um mês depois, sem resposta, escreveu a própria biblioteca. No começo ela fazia uma coisa só: validar CPF. Mas logo apareceram CNPJ, CEP, boleto, e com eles apareceu mais gente para ajudar.
+
+Com o tempo, ficou claro que ninguém tinha juntado esses utilitários num lugar só, e muito menos em várias linguagens. Foi daí que nasceu a organização [Brazilian Utils](https://github.com/brazilian-utils): uma biblioteca por linguagem, todas com a mesma ideia.
+
+Em 2023, a biblioteca Python ganhou vida nova na [Cumbuca Dev](https://github.com/cumbucadev), uma comunidade que ensina programação fazendo código aberto. Eles arrumaram a documentação, deram oficinas e levaram a biblioteca para conferências de Python. Em dezembro de 2024, abriram [a issue #461](https://github.com/brazilian-utils/python/issues/461) se oferecendo para cuidar da biblioteca Python. Em 2025, a conversa virou parceria, e hoje a Cumbuca Dev faz parte do time.
+
+## Por que o logo é um cachorro caramelo?
+
+O caramelo é o vira-lata brasileiro: um cachorro sem raça definida, de pelo cor de caramelo, que está nas ruas, nas lojas e nas casas do país inteiro. Virou um símbolo nacional não oficial. Quando o Banco Central anunciou a nota de R$ 200, em 2020, muita gente pediu o caramelo nela.
+
+Um projeto que cuida dos detalhes do dia a dia do Brasil ficou com o cachorro mais brasileiro que existe. [Mais sobre o caramelo (em inglês)](https://en.wikipedia.org/wiki/Caramelo_(dog)).
+
+## As bibliotecas são gratuitas?
+
+Sim. Toda biblioteca é código aberto sob a licença MIT, uso comercial incluído.
+
+## Todas as bibliotecas fazem a mesma coisa?
+
+Esse é o objetivo. O contrato lista cada função e os casos de teste dela, e cada biblioteca roda esses casos na própria suíte de testes. As bibliotecas estão em fases diferentes, então ainda faltam funções em algumas linguagens. A [matriz de paridade](/pt-br/reference/parity/) mostra o que cada biblioteca tem hoje, e a página de cada utilitário mostra isso por função.
+
+## Minha linguagem não está na lista
+
+Uma biblioteca nova pode começar pequena: poucas funções, com os testes compartilhados rodando desde o primeiro dia. [Comece uma biblioteca numa linguagem nova](/pt-br/contributing/new-language/#comece-uma-biblioteca-numa-linguagem-nova) explica os passos.
+
+## As bibliotecas enviam meus dados para algum lugar?
+
+Não. Elas rodam dentro do seu programa. As únicas exceções são as duas consultas de CEP, `cep.getAddressInfo` (o endereço de um CEP) e `cep.getInfoByAddress` (os CEPs de um logradouro), que consultam serviços públicos de CEP pela internet. A página de [privacidade](/pt-br/about/privacy/) trata deste site.
+
+## Onde relato um bug ou tiro uma dúvida?
+
+No repositório da biblioteca: nas issues para bugs, nas discussions para dúvidas. O [guia da comunidade](/pt-br/about/community-guide/) diz onde vai cada coisa. Relate um problema de segurança em particular, como o `SECURITY.md` da biblioteca explica, ou por e-mail para support@brazilian-utils.com.br.

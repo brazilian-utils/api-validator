@@ -1,0 +1,18 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-erlang",
+  "language": "erlang",
+  "repo": "https://github.com/brazilian-utils/erlang",
+  "entry": "src",
+  "options": { "app": "brutils" },
+  "ignore": ["*remove*symbols*"],
+  "site": {
+    "label": "Erlang",
+    "order": 7,
+    "package": "brutils",
+    "install": "{deps, [brutils]}.  % rebar.config",
+    "installLang": "erlang",
+    "registry": "https://hex.pm/packages/brutils",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
+}

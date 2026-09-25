@@ -1,0 +1,16 @@
+{
+  "$schema": "../schema/lib.schema.json",
+  "name": "brazilian-utils-go",
+  "language": "go",
+  "repo": "https://github.com/brazilian-utils/go",
+  "entry": ".",
+  "ignore": ["helpers.*", "*remove*symbols*"],
+  "site": {
+    "label": "Go",
+    "order": 3,
+    "package": "github.com/brazilian-utils/go",
+    "install": "go get github.com/brazilian-utils/go",
+    "registry": "https://pkg.go.dev/github.com/brazilian-utils/go",
+    "usage": { "ref": "latest-release", "path": "docs/usage" }
+  }
+}

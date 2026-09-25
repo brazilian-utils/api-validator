@@ -1,0 +1,145 @@
+---
+title: Como o pipeline funciona
+description: O que roda num pull request, num merge, toda noite e numa release. O que cada execução escreve, os segredos que ela usa e o que fazer quando ela falha.
+---
+
+As bibliotecas do [Brazilian Utils](https://github.com/brazilian-utils) seguem um contrato só, no [docs](https://github.com/brazilian-utils/docs). Três workflows desse repositório mantêm o contrato, as bibliotecas e este site em sincronia:
+
+| Workflow | Arquivo | O que faz |
+| --- | --- | --- |
+| CI | `.github/workflows/ci.yml` | verifica o próprio validador |
+| site / check | `.github/workflows/site-check.yml` | verifica este site nos pull requests |
+| Conformance | `.github/workflows/conformance.yml` | verifica cada biblioteca contra o contrato, cuida das issues e dos PRs da suíte nos repositórios das bibliotecas, e monta e publica este site |
+
+A Vercel também monta uma cópia de revisão do site. Ela está descrita mais abaixo.
+
+## O que roda num pull request
+
+O **CI** roda em todo pull request. Ele roda o actionlint nos workflows e nos templates das bibliotecas. Depois roda o typecheck, o lint e os testes unitários. As ferramentas de cada linguagem estão instaladas, então os testes de cada adaptador de linguagem também rodam.
+
+O **site / check** roda quando o pull request muda `contract/`, `libs/` ou `site/`. Ele faz estas verificações:
+
+- o `npm audit` não acha nenhuma vulnerabilidade conhecida
+- toda página e toda string tem os dois idiomas (`check:i18n --strict`)
+- o lint passa sem avisos
+- o site compila
+- o typecheck passa
+- as verificações de acessibilidade (axe) e de design passam em todo tipo de página
+
+Esse build não roda o validador. Ele pega a situação de cada biblioteca do último site publicado.
+
+O **Conformance** roda quando o pull request muda o contrato, as configurações das bibliotecas, `baselines/`, `schema/`, `src/` ou os arquivos de pacote. Ele clona cada biblioteca no branch padrão e roda `check --tests`. Ele falha numa regressão em relação a `baselines/`. Depois roda `diff`, que falha numa divergência nova entre as bibliotecas. O resumo do job mostra o changelog do contrato e as issues que o merge abriria. A execução também monta o site com os próprios resultados. Ela não escreve nada fora da execução.
+
+Um push novo no mesmo pull request cancela a execução em andamento. Esses jobs rodam o código das bibliotecas, então o token deles só lê. Eles nunca recebem o `LIBS_TOKEN`.
+
+## O que roda num merge em main
+
+Um merge em main inicia o workflow Conformance quando muda os mesmos caminhos acima, ou `site/`. O workflow tem três jobs.
+
+<Steps>
+
+1. O **conformance** faz tudo o que a execução do pull request faz. Ele também exporta a suíte de cada biblioteca: os casos JSON em `api-contract/` e o `skip.json` da biblioteca. Ele só exporta para as bibliotecas que já têm `api-contract/`. Ele clona cada uma, exporta a suíte e salva a diferença como um patch. Depois monta o site com os resultados desta execução.
+
+2. O **lib-repos** só roda quando o `LIBS_TOKEN` existe. Ele começa de um checkout limpo e não roda código de biblioteca. Ele abre uma issue `Implement <função>` em cada biblioteca que não tem uma função que o merge adicionou. Ele abre uma issue `Fix <função>` em cada biblioteca que falha num caso que o merge adicionou ou mudou. Ele atualiza cada issue `api-contract` aberta e fecha as que estão resolvidas. Por último, envia cada patch da suíte para um branch `api-contract/cases` na biblioteca e abre um PR, se nenhum estiver aberto.
+
+3. O **publish** publica o site no GitHub Pages. Ele só roda quando o site está completo e `PUBLISH_SITE` é `true`.
+
+</Steps>
+
+Uma execução de merge nunca é cancelada, e nenhuma execução posterior toma o lugar dela. Ela é a única execução que abre as issues daquele merge.
+
+Uma verificação que falha não impede as issues nem o site. Uma regressão ou uma divergência nova faz a execução falhar, mas os jobs seguintes rodam mesmo assim.
+
+O site está completo quando cada biblioteca recebeu um relatório e o site compilou. Se uma biblioteca quebrou, ou o build falhou, o último site continua no ar. Uma biblioteca sem relatório não ganha issues novas nessa execução.
+
+Se alguém cancela uma execução, os jobs que ainda não começaram não começam. Uma execução cancelada não publica.
+
+## A execução noturna
+
+O workflow Conformance roda todo dia às 09:00 UTC. Ele faz o mesmo que uma execução de merge, contra o branch padrão mais recente de cada biblioteca. Ele não abre issues, porque nenhum merge o iniciou. Ele atualiza as issues abertas e fecha as que estão resolvidas. Ele atualiza os PRs da suíte e publica o site de novo.
+
+## Quando uma biblioteca faz uma release
+
+Uma biblioteca pode avisar o repositório docs de uma release. O workflow de release dela envia um evento `repository_dispatch` do tipo `lib-released`. A página [arquivos de uso](/pt-br/contributing/usage-files/#atualize-o-site-a-cada-release) tem o passo para copiar. Esse evento inicia a mesma execução da noturna. O site então mostra na hora os arquivos de uso da release nova.
+
+As execuções noturnas e as de release dividem um grupo de concorrência. Elas rodam uma de cada vez. Uma execução nova que espera toma o lugar de uma execução mais antiga que espera.
+
+## Como rodar à mão
+
+Vá em Actions, depois Conformance, depois Run workflow, e escolha main. A execução tem duas entradas:
+
+| Entrada | O que faz |
+| --- | --- |
+| `since` | uma referência git. A execução abre as issues de toda mudança no contrato desde essa referência. |
+| `backfill` | `core` ou `all`. A execução também abre issues para tudo o que já falta ou já falha. |
+
+Use `since` quando a execução de um merge falhou antes do passo das issues. Aponte para o commit logo antes do merge.
+
+Uma execução manual tem o próprio grupo de concorrência. Uma execução noturna ou de release que começa depois não toma o lugar dela, então ela mantém as entradas.
+
+<Callout type="info">
+O primeiro merge que traz o contrato para main não abre issues, de propósito. Antes desse merge não havia contrato para comparar, então toda função contaria como nova. Abra essas issues com uma execução de `backfill`.
+</Callout>
+
+## Em cada biblioteca
+
+Cada biblioteca copia `templates/lib-ci/<linguagem>.yml` para `.github/workflows/api-contract.yml`. Esse workflow roda nos pushes em main ou master e em todo pull request.
+
+Ele roda a Action do docs, que verifica a biblioteca contra o contrato. A verificação só falha numa regressão ou numa API pública que não está no contrato. O resumo do job lista o que ainda falta.
+
+Depois a Action roda `export-cases --check`. Quando `api-contract/` está atrás do contrato, a Action avisa. Com `cases: check`, ela falha. Para resolver, faça o merge do PR `api-contract/cases` que o bot abriu.
+
+O harness da biblioteca roda os casos de `api-contract/` no próprio comando de teste da biblioteca.
+
+## Deploys de revisão
+
+A Vercel monta uma cópia do site para cada push que muda `site/`, `contract/`, `libs/`, `schema/` ou `vercel.json`. O link aparece no pull request. Uma cópia de revisão fica na raiz do próprio domínio. A Vercel não roda o validador, então a cópia pega a situação de cada biblioteca do site publicado.
+
+Nenhum buscador indexa uma cópia de revisão:
+
+- toda resposta tem o header `X-Robots-Tag: noindex, nofollow, noarchive`
+- toda página tem uma meta tag `robots` com `noindex`
+- o `robots.txt` não lista sitemap
+- os links canônicos apontam para `SITE_URL`
+
+O site oficial é o do GitHub Pages. É o único que os buscadores indexam.
+
+## Publicação
+
+O job publish publica no GitHub Pages. Ele tem o próprio grupo de concorrência, `github-pages`. Roda um deploy de cada vez. Uma execução que termina tarde não coloca um site mais antigo por cima de um mais novo.
+
+`SITE_URL` é o endereço público do site, com o caminho. O caminho vira o base path do site. As issues apontam para ele, e os badges nos READMEs das bibliotecas também. Sem a variável, o workflow usa `https://<owner>.github.io/<repo>`, a partir do nome do repositório.
+
+## Segredos e variáveis
+
+| Nome | Tipo | Onde | O que faz |
+| --- | --- | --- | --- |
+| `LIBS_TOKEN` | segredo | docs | Um token fine-grained ou um GitHub App, com escrita em Issues, Contents e Pull requests nos repositórios das bibliotecas. Nunca dê a ele a permissão Workflows. Ele liga as issues e os PRs da suíte. |
+| `PUBLISH_SITE` | variável | docs | `true` liga os deploys no GitHub Pages a partir de main. A fonte do Pages precisa ser GitHub Actions. |
+| `SITE_URL` | variável | docs | O endereço público do site, com o caminho. Defina para um domínio próprio. |
+| `DOCS_DISPATCH_TOKEN` | segredo | cada biblioteca | Um token que pode enviar `repository_dispatch` para o repositório docs (Contents: write). Sem ele, uma release chega ao site na próxima execução noturna. |
+
+A Vercel não precisa de variável. Estas são opcionais lá:
+
+| Nome | O que faz |
+| --- | --- |
+| `SITE_URL` | o endereço para onde os links canônicos apontam |
+| `SITE_DATA_URL` | de onde o build lê a situação (padrão: `SITE_URL`) |
+| `GITHUB_TOKEN` | aumenta o limite da API do GitHub quando o build lê as bibliotecas |
+| `SITE_DATA=skip` | monta sem a situação |
+| `SITE_INDEXABLE=true` | tira a meta tag `noindex`, para o dia em que a Vercel servir o site oficial. O header no `vercel.json` também precisa sair. |
+
+## O que pode dar errado
+
+| Sintoma | Causa | O que fazer |
+| --- | --- | --- |
+| Aviso: `LIBS_TOKEN is not set` | falta o segredo | Adicione o `LIBS_TOKEN`. Até lá, não há issues nem PRs da suíte. |
+| Aviso: `vars.PUBLISH_SITE is not 'true'` | falta a variável | Defina `PUBLISH_SITE` como `true`. O site foi montado mas não foi publicado. |
+| Alerta: `the site did not build` | o build do site falhou | Leia o log do passo de build e corrija. O último site continua no ar. |
+| Alerta: `N of M libs have a report` | uma biblioteca quebrou, por exemplo o branch padrão dela não compila | Leia o log do passo de verificação. O último site continua no ar até cada biblioteca receber um relatório. |
+| Um merge não abriu issues | a execução falhou antes do passo das issues | Rode o workflow à mão com `since` apontando para o commit antes do merge. |
+| Alerta: `<commit> is not in the repository` | um force-push apagou o commit antes do merge | Rode o workflow à mão com `since` apontando para um commit antes do merge. |
+| Duas issues abertas para a mesma função | duas execuções abriram a issue ao mesmo tempo | Nada. A próxima execução fecha a mais nova e mantém a mais antiga. |
+| Uma issue `Fix` continua aberta depois da correção | os testes daquela biblioteca não rodaram | Nada. A issue fecha numa execução em que os testes rodam e passam. |
+| Erro: `the patch touches files outside api-contract/` | a exportação mudou outros arquivos | Nada é enviado. Leia o log da exportação daquela biblioteca. |
+| O CI da biblioteca avisa que `api-contract/` está atrás | o PR da suíte não teve merge | Faça o merge do PR `api-contract/cases`. |

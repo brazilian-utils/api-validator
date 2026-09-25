@@ -1,0 +1,42 @@
+---
+title: Frequently asked questions
+description: Where Brazilian Utils came from, why the logo is a caramelo dog, and what to expect from the libraries.
+---
+
+## What is Brazilian Utils?
+
+A set of libraries for the data every Brazilian system handles: CPF, CNPJ, CEP, license plates, phone numbers, boletos and more. They validate, format, parse and generate that data. There is one library per programming language: <LibNames />. All of them follow one [shared contract](/contributing/specs/), so a CPF that is valid in one language is valid in all of them.
+
+## How did it start?
+
+In 2018, [Hyan Mandian](https://github.com/hyanmandian) was using a CPF validation library and only wanted to run its tests. He could not: the library did not run on Node.js. He fixed it, sent a pull request and waited. Almost a month later, still with no answer, he wrote his own library. At first it did one thing: validate CPFs. But CNPJ, CEP and boletos soon followed, and so did people willing to help.
+
+Over time it became clear that nobody had brought these utilities together in one place, let alone in several programming languages. That is where the [Brazilian Utils](https://github.com/brazilian-utils) organization came from: one library per language, all with the same idea.
+
+In 2023 the Python library found new life at [Cumbuca Dev](https://github.com/cumbucadev), a community that teaches programming by building open source. They tidied up the documentation, ran workshops and took the library to Python conferences. In December 2024 they opened [issue #461](https://github.com/brazilian-utils/python/issues/461) offering to look after the Python library. In 2025 that conversation became a partnership, and today Cumbuca Dev is part of the team.
+
+## Why is the logo a caramelo dog?
+
+The caramelo is the Brazilian street dog: a mixed-breed dog with a caramel coat, found on streets, in shops and in homes all over the country. It became an unofficial national symbol. When the Central Bank announced a R$ 200 note in 2020, many people asked for the caramelo to be on it.
+
+A project that handles the everyday details of Brazil took the most Brazilian dog there is. [Read more about the caramelo](https://en.wikipedia.org/wiki/Caramelo_(dog)).
+
+## Are the libraries free to use?
+
+Yes. Every library is open source under the MIT license, commercial use included.
+
+## Do all libraries do the same thing?
+
+They aim to. The contract lists every function and its test cases, and each library runs those cases in its own test suite. Libraries are at different stages, so some functions are still missing in some languages. The [parity matrix](/reference/parity/) shows what each library has today, and each utility page shows it per function.
+
+## My language is not on the list
+
+A new library can start small: a few functions, with the shared tests running from day one. [Start a library in a new language](/contributing/new-language/#start-a-library-in-a-new-language) explains the steps.
+
+## Do the libraries send my data anywhere?
+
+No. They run inside your program. The only exceptions are the two CEP lookups, `cep.getAddressInfo` (the address of a CEP) and `cep.getInfoByAddress` (the CEPs of a street), which query public CEP services over the internet. The [privacy](/about/privacy/) page covers this site.
+
+## Where do I report a bug or ask a question?
+
+In the repository of the library: its issues for bugs, its discussions for questions. The [community guide](/about/community-guide/) lists where each thing goes. Report a security problem in private, as the library's `SECURITY.md` says, or by email to support@brazilian-utils.com.br.

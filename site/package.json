@@ -1,0 +1,65 @@
+{
+  "name": "@brazilian-utils/docs",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Brazilian Utils documentation: the shared contract and how to use it in every language (Next.js + Fumadocs, static export).",
+  "scripts": {
+    "prepare:content": "node --env-file-if-exists=.env scripts/fetch-site-data.mjs && node --env-file-if-exists=.env scripts/fetch-libs.mjs",
+    "site-data": "cd .. && node --import ./node_modules/tsx/dist/esm/index.mjs src/cli.ts site-data",
+    "dev": "npm run prepare:content && next dev",
+    "build": "npm run prepare:content && next build",
+    "preview": "node scripts/serve.mjs",
+    "fetch:libs": "node --env-file-if-exists=.env scripts/fetch-libs.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "audit": "npm audit --audit-level=low",
+    "a11y": "node scripts/a11y.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "design": "node scripts/design-check.mjs"
+  },
+  "dependencies": {
+    "@brazilian-utils/brazilian-utils": "2.4.0",
+    "@radix-ui/react-popover": "1.1.23",
+    "fumadocs-core": "16.15.13",
+    "fumadocs-mdx": "15.4.3",
+    "fumadocs-ui": "16.15.13",
+    "geist": "1.7.2",
+    "hast-util-to-html": "9.0.5",
+    "hast-util-to-jsx-runtime": "2.3.6",
+    "lucide-react": "1.47.0",
+    "next": "16.3.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remark-gfm": "4.0.1",
+    "remark-parse": "11.0.0",
+    "remark-rehype": "11.1.2",
+    "shiki": "4.4.3",
+    "simple-icons": "16.32.0",
+    "unified": "11.0.5"
+  },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10.9.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/mdx": "2.0.14",
+    "@types/node": "26.6.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.3.6",
+    "impeccable": "4.1.0",
+    "postcss": "8.5.28",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3"
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 115",
+    "safari >= 16.4",
+    "ios_saf >= 16.4"
+  ]
+}

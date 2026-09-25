@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/contract.schema.json",
+  "domain": "creditCard",
+  "title": { "en": "Payment card", "pt-BR": "Cartão de pagamento" },
+  "summary": {
+    "en": "Payment card numbers (credit or debit), Luhn check only.",
+    "pt-BR": "Números de cartão de crédito ou débito, só pelo algoritmo de Luhn."
+  },
+  "category": "finance",
+  "order": 8,
+  "functions": {
+    "isValid": {
+      "summary": {
+        "en": "Validates a payment card number (credit or debit) with the Luhn algorithm.",
+        "pt-BR": "Valida um número de cartão de pagamento (crédito ou débito) com o algoritmo de Luhn."
+      },
+      "description": {
+        "en": [
+          "Validates a payment card number (credit or debit): 12 to 19 digits and a Luhn check digit.",
+          "",
+          "- The function does not detect the brand, look up the issuer range, or check the expiry or the CVV.",
+          "- The function rejects a number whose digits are all the same, even though it passes Luhn.",
+          "- Accepts a string or a number, with whitespace, `.`, `-` and `/` anywhere between the digits. Letters make it invalid. Pass a number above the largest exactly representable integer as a string."
+        ],
+        "pt-BR": [
+          "Valida um número de cartão de pagamento (crédito ou débito): de 12 a 19 dígitos e um dígito verificador de Luhn.",
+          "",
+          "- A função não detecta a bandeira, não consulta a faixa do emissor e não verifica a validade nem o CVV.",
+          "- A função rejeita um número com todos os dígitos iguais, mesmo que ele passe no Luhn.",
+          "- Aceita uma string ou um número, com espaço em branco, `.`, `-` e `/` em qualquer ponto entre os dígitos. Letras tornam o número inválido. Passe como string um número acima do maior inteiro representável com exatidão."
+        ]
+      },
+      "references": ["https://www.iso.org/standard/70484.html"],
+      "params": [{ "name": "value", "type": "string | number" }],
+      "returns": "boolean",
+      "tests": [
+        { "args": ["4111111111111111"], "returns": true },
+        { "args": ["5555555555554444"], "returns": true },
+        { "name": "15-digits", "args": ["378282246310005"], "returns": true },
+        { "name": "masked", "args": ["4111 1111 1111 1111"], "returns": true },
+        { "name": "luhn-fail", "args": ["4111111111111112"], "returns": false },
+        { "name": "zeros", "args": ["0000000000000000"], "returns": false },
+        { "name": "too-short", "args": ["60110000000"], "returns": false },
+        { "name": "letters", "args": ["abcdabcdabcd"], "returns": false },
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["6011111111111117"], "returns": true, "note": "JavaScript's own test: should return true for the Discover test number 6011111111111117" },
+        { "args": [4111111111111111], "returns": true, "note": "JavaScript's own test: should return true for a number input" },
+        { "args": ["4111-1111-1111-1111"], "returns": true, "note": "JavaScript's own test: should return true for a value with a hyphenated mask" },
+        { "args": ["4111.1111.1111.1111"], "returns": true, "note": "JavaScript's own test: should return true for a value masked with the other interchangeable separators" },
+        { "args": ["4111/1111/1111/1111"], "returns": true, "note": "JavaScript's own test: should return true for a value masked with the other interchangeable separators" },
+        { "args": ["4111.1111/1111-1111"], "returns": true, "note": "JavaScript's own test: should return true for a value masked with the other interchangeable separators" },
+        { "args": ["3782-822463-10005"], "returns": true, "note": "JavaScript's own test: should return true for a separator between any two digits, since the grouping changes with the brand" },
+        { "args": ["4.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1"], "returns": true, "note": "JavaScript's own test: should return true for a separator between any two digits, since the grouping changes with the brand" },
+        { "args": ["4111 - 1111 - 1111 - 1111"], "returns": true, "note": "JavaScript's own test: should return true for a value whose digit groups are separated by a run of mask characters" },
+        { "args": ["4111  1111  1111  1111"], "returns": true, "note": "JavaScript's own test: should return true for a value whose digit groups are separated by a run of mask characters" },
+        { "args": ["  4111 1111 1111 1111  "], "returns": true, "note": "JavaScript's own test: should return true for a value surrounded by whitespace" },
+        { "args": ["601100000004"], "returns": true, "note": "JavaScript's own test: should return true for the shortest accepted length (12 digits)" },
+        { "args": ["1234567890123456785"], "returns": true, "note": "JavaScript's own test: should return true for the longest accepted length (19 digits)" },
+        { "args": ["000000000000"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same, even though the Luhn check passes" },
+        { "args": ["8888888888888888"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same, even though the Luhn check passes" },
+        { "args": ["0000000000000000000"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same, even though the Luhn check passes" },
+        { "args": ["0000 0000 0000 0000"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same behind a mask, even though the Luhn check passes" },
+        { "args": ["12345678901234567850"], "returns": false, "note": "JavaScript's own test: should return false when it has more than 19 digits (20 digits)" },
+        { "args": ["12345678901234567852"], "returns": false, "note": "JavaScript's own test: should return false when it has more than 19 digits and would pass the Luhn check on its own" },
+        { "args": ["00000000000000000000"], "returns": false, "note": "JavaScript's own test: should return false when it has more than 19 digits and would still pass the Luhn check on its own" },
+        { "args": ["0"], "returns": false, "note": "JavaScript's own test: should return false when it has fewer than 12 digits and would still pass the Luhn check on its own" },
+        { "args": [-4111111111111111], "returns": false, "note": "JavaScript's own test: should return false when it is a negative number" },
+        { "args": [411111111111111.1], "returns": false, "note": "JavaScript's own test: should return false when it is a number that is not an integer" },
+        { "args": ["abc4111111111111111"], "returns": false, "note": "JavaScript's own test: should return false when letters are attached before the digits" },
+        { "args": ["4111a1111b1111c1111"], "returns": false, "note": "JavaScript's own test: should return false when letters are embedded between the digit groups" },
+        { "args": ["(41)11-1111 1111 1111"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses characters outside the interchangeable set" },
+        { "args": ["4111,1111,1111,1111"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses characters outside the interchangeable set" },
+        { "args": ["4111_1111_1111_1111"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses characters outside the interchangeable set" },
+        { "args": ["-4111111111111111"], "returns": false, "note": "JavaScript's own test: should return false when a mask character is not between two digits" },
+        { "args": ["4111111111111111."], "returns": false, "note": "JavaScript's own test: should return false when a mask character is not between two digits" }
+      ]
+    }
+  }
+}

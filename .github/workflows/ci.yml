@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch replaces the run in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Typecheck, unit tests, contract lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Toolchains used by the extractor/runner integration tests (tests skip languages that are absent).
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup toolchain install nightly --profile minimal
+      - run: npm ci
+      - name: Lint workflows and templates (actionlint)
+        run: |
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
+          ./actionlint .github/workflows/*.yml templates/lib-ci/*.yml
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
