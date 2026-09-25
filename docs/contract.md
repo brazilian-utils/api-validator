@@ -111,14 +111,8 @@ these ids, so give hand-written cases a `name`. Values are JSON. `null` stands f
 `None`/`nil`/`undefined`/`Option::None`/`{error, _}`. The comparison of object keys ignores
 case and separators (`zipCode` == `zip_code`), and an absent key equals `null`.
 
-Mined cases have a `note` that says where they come from: `docs diff --propose --unanimous
---apply` names the libraries that agreed, `docs mine-tests -l javascript --apply` names the
-library's own test (its describe and test names). `mine-tests` reads a library's `*.test.ts`
-files with ts-morph and takes every `expect(fn(literals)).toBe(literal)` (also `toEqual`,
-`toStrictEqual`, `toBeNull`, `toThrow`) on a function bound to the contract, with a loop over a
-literal array unrolled. It leaves alone what the contract cannot hold: computed inputs or
-outputs, inputs of a type the parameters do not admit (`@ts-expect-error` robustness tests),
-negated matchers, a forced `Math.random` or clock, and inputs the contract already has.
+Mined cases (`docs diff --propose --unanimous --apply`) have a `note` that says which
+libraries agreed.
 
 ## Library config (`libs/<name>.json`)
 

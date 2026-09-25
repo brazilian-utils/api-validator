@@ -8,7 +8,6 @@ import { baselineFrom, diffBaseline } from "../src/core/baseline.js";
 import { valuesEqual } from "../src/core/conformance.js";
 import { ContractError, loadContract } from "../src/core/contract.js";
 import { checkParam, checkReturn, format, parseCType, T } from "../src/core/ctype.js";
-import { mineJsTests } from "../src/core/mine-tests.js";
 import { SymbolIndex, proposeBindings, resolve, score, suggestFunctions, suggestSymbols } from "../src/core/match.js";
 import type { ApiSurface, LibConfig, NativeSymbol, RunnerCall, TypeNode } from "../src/core/model.js";
 import { lookupKey, snake, words } from "../src/core/naming.js";
@@ -410,59 +409,5 @@ describe("value comparison", () => {
     assert.ok(valuesEqual([1, 2.0000000001], [1, 2]));
     assert.ok(!valuesEqual({ a: 1 }, { a: 2 }));
     assert.ok(!valuesEqual(null, ""));
-  });
-});
-
-describe("mine-tests", () => {
-  it("takes literal input/output assertions on bound functions, and leaves the rest alone", () => {
-    const contract = loadContract(
-      tmpContract({
-        "cpf/contract.json": {
-          domain: "cpf",
-          functions: {
-            isValid: { params: [{ name: "cpf", type: "string" }], returns: "boolean", tests: [{ args: ["12345678909"], returns: true }] },
-            format: { params: [{ name: "cpf", type: "string" }, { name: "options", type: "object", optional: true }], returns: "string", fallible: false },
-            generate: { params: [{ name: "state", type: "string", optional: true }], returns: "string" }
-          }
-        }
-      })
-    );
-    const checkout = fs.mkdtempSync(path.join(os.tmpdir(), "js-"));
-    fs.mkdirSync(path.join(checkout, "src", "cpf"), { recursive: true });
-    fs.writeFileSync(
-      path.join(checkout, "src", "cpf", "cpf.test.ts"),
-      `const REPEATED = ["00000000000", "11111111111"];
-describe("isValidCpf", () => {
-  it("rejects repeated digits", () => { for (const cpf of REPEATED) expect(isValidCpf(cpf)).toBe(false); });
-  it("accepts a valid one", () => { expect(isValidCpf("12345678909")).toBe(true); expect(isValidCpf("111.444.777-35")).toBe(true); });
-  it("ignores garbage", () => { expect(isValidCpf(makeCpf())).toBe(true); expect(isValidCpf(123)).toBe(false); expect(isValidCpf("x")).not.toBe(true); });
-});
-describe("formatCpf", () => {
-  it("formats", () => { expect(formatCpf("12345678909", { pad: true })).toBe("123.456.789-09"); expect(formatCpf("1", "2", "3")).toBe("1"); expect(formatCpf("")).toThrow(); });
-});
-describe("generateCpf", () => {
-  it("forces random", () => { const r = Math.random; Math.random = () => 0.5; expect(generateCpf("SP")).toBe("55555555555"); Math.random = r; });
-  it("errors", () => { expect(generateCpf("ZZ")).toThrow(); });
-});
-`
-    );
-    const fn = (id: string, symbol: string) => ({ id, symbol }) as never;
-    const report = { functions: [fn("cpf.isValid", "isValidCpf"), fn("cpf.format", "formatCpf"), fn("cpf.generate", "generateCpf")] } as never;
-    const mined = mineJsTests(checkout, report, contract);
-    const byId = Object.fromEntries(mined.map((m) => [m.fn.id, m]));
-    assert.deepEqual(
-      byId["cpf.isValid"].cases.map((c) => [c.args, c.returns]),
-      [
-        [["00000000000"], false],
-        [["11111111111"], false],
-        [["111.444.777-35"], true]
-      ]
-    );
-    assert.equal(byId["cpf.isValid"].cases[0].note, "JavaScript's own test: rejects repeated digits");
-    assert.deepEqual(byId["cpf.isValid"].skipped, { "already a case": 1, "computed input": 1, "input the contract's types do not admit": 1, "negated matcher": 1 });
-    assert.deepEqual(byId["cpf.format"].cases, [{ args: ["12345678909", { pad: true }], returns: "123.456.789-09", note: "JavaScript's own test: formats" }]);
-    assert.deepEqual(byId["cpf.format"].skipped, { "wrong number of arguments for the contract": 1, "throws, but the contract says the function does not": 1 });
-    assert.deepEqual(byId["cpf.generate"].cases, [{ args: ["ZZ"], throws: true, note: "JavaScript's own test: errors" }]);
-    assert.deepEqual(byId["cpf.generate"].skipped, { "forced randomness or time": 1 });
   });
 });
