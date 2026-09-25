@@ -62,11 +62,14 @@ button {
 }
 button:hover { background: var(--color-fd-accent); color: var(--color-fd-accent-foreground); }
 button:focus-visible { outline: 2px solid var(--color-fd-ring); outline-offset: 2px; }
+/* On a phone, one column: the rows stack. The controls are addressed wherever they sit, not as
+   children of the form: an Angular field is an element of its own (display: contents), so its
+   label, input and message are the form's grandchildren. */
 @media (max-width: 480px) {
   body, form { grid-template-columns: minmax(0, 1fr) !important; }
-  body > *, form > * { grid-column: 1 !important; justify-self: stretch !important; }
-  label { justify-self: start !important; margin-top: 4px; }
-  button { justify-self: start !important; }
+  body > *, form > *, body :is(label, input, select, textarea, p, output, button) { grid-column: 1 !important; justify-self: stretch !important; }
+  body label { justify-self: start !important; margin-top: 4px; }
+  body button { justify-self: start !important; }
 }
 `;
 
