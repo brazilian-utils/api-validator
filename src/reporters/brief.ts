@@ -1,6 +1,6 @@
 /**
  * Porting brief: everything needed to implement (or fix) one contract function in one lib,
- * self-contained so a person or a coding agent can work from it alone:
+ * self-contained so whoever ports it can work from it alone:
  * the idiomatic name, the signature, the shared test vectors (the acceptance criteria),
  * the reference implementation's source and links to every other implementation.
  */
