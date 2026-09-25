@@ -1,14 +1,17 @@
 {
   "boleto.isValid": [
+    "dotnet | go,javascript,ruby,rust",
     "dotnet,go,ruby,rust | javascript"
   ],
   "cep.format": [
     "dotnet | erlang,python,ruby,rust | go | javascript",
-    "dotnet,go,javascript | erlang,python,ruby,rust"
+    "dotnet,go,javascript | erlang,python,ruby,rust",
+    "dotnet,javascript | erlang,python,ruby,rust | go"
   ],
   "cep.isValid": [
     "dotnet | erlang,go,javascript,python,ruby,rust",
-    "dotnet,javascript | erlang,go,python,ruby,rust"
+    "dotnet,javascript | erlang,go,python,ruby,rust",
+    "erlang,python,ruby | javascript"
   ],
   "cnh.isValid": [
     "dotnet,erlang,go,python,ruby,rust | javascript",
@@ -17,39 +20,62 @@
   "cnpj.format": [
     "dotnet | erlang,python,ruby,rust | go | javascript",
     "dotnet | erlang,python,ruby,rust | go,javascript",
-    "dotnet,go,javascript | erlang,python,ruby,rust"
+    "dotnet,erlang,python | go | javascript | ruby,rust",
+    "dotnet,go,javascript | erlang,python,ruby,rust",
+    "dotnet,javascript | erlang,python,ruby,rust | go",
+    "erlang | javascript | python,ruby"
   ],
   "cnpj.isValid": [
+    "dotnet | erlang,go,javascript,python,ruby,rust",
     "dotnet,erlang,javascript,python,ruby,rust | go",
+    "dotnet,erlang,python | go,javascript,ruby,rust",
+    "dotnet,go | erlang,javascript,python,ruby,rust",
     "dotnet,go,javascript | erlang,python,ruby,rust"
   ],
   "cpf.format": [
     "dotnet | erlang,python,ruby,rust | go,javascript",
-    "dotnet,go,javascript | erlang,python,ruby,rust"
+    "dotnet,go,javascript | erlang,python,ruby,rust",
+    "erlang | javascript | python,ruby"
   ],
   "cpf.isValid": [
     "dotnet,go | erlang,javascript,python,ruby,rust",
     "dotnet,go,javascript | erlang,python,ruby,rust"
   ],
   "currency.convertToWords": [
+    "dotnet | go | javascript | python,ruby | rust",
+    "dotnet | go | javascript,rust | python,ruby",
+    "dotnet,go | javascript | python | ruby | rust",
     "dotnet,go,python | javascript | ruby | rust",
     "dotnet,go,python | javascript,rust | ruby",
     "dotnet,go,python,ruby | javascript | rust",
-    "dotnet,go,python,ruby | javascript,rust"
+    "dotnet,go,python,ruby | javascript,rust",
+    "dotnet,python,ruby | go | javascript | rust"
   ],
   "currency.format": [
     "dotnet,go,python,ruby,rust | javascript",
+    "dotnet,go,python,rust | javascript | ruby",
     "javascript | python,ruby"
   ],
   "date.convertToWords": [
     "go | javascript | python,ruby,rust",
     "go,javascript | python,ruby,rust",
-    "go,python,ruby,rust | javascript"
+    "go,javascript | python,rust | ruby",
+    "go,python,ruby,rust | javascript",
+    "go,python,rust | javascript | ruby",
+    "go,ruby,rust | javascript | python"
+  ],
+  "email.isValid": [
+    "go,python | javascript,ruby,rust",
+    "go,python,rust | javascript,ruby"
   ],
   "legalNature.getDescription": [
-    "go | python,ruby,rust"
+    "go | python,ruby | rust",
+    "go | python,ruby,rust",
+    "go,python,ruby | rust"
   ],
   "legalNature.isValid": [
+    "go,javascript,python,ruby | rust",
+    "go,python,ruby | javascript,rust",
     "go,python,ruby,rust | javascript"
   ],
   "legalNature.list": [
@@ -61,24 +87,30 @@
   ],
   "legalProcess.isValid": [
     "dotnet,go,javascript,ruby,rust | python",
-    "dotnet,go,python,ruby,rust | javascript"
+    "dotnet,go,python,ruby,rust | javascript",
+    "dotnet,go,ruby,rust | javascript,python"
   ],
   "licensePlate.convertToMercosul": [
+    "dotnet | erlang,go,javascript | python | ruby | rust",
+    "dotnet,erlang,python,ruby,rust | go | javascript",
     "dotnet,erlang,python,ruby,rust | go,javascript",
     "dotnet,erlang,python,rust | go | javascript,ruby"
   ],
   "licensePlate.format": [
     "dotnet,erlang,python,ruby,rust | go | javascript",
     "dotnet,erlang,python,ruby,rust | go,javascript",
-    "dotnet,erlang,python,rust | go | javascript,ruby"
+    "dotnet,erlang,python,rust | go | javascript,ruby",
+    "dotnet,python,ruby,rust | erlang,go,javascript"
   ],
   "licensePlate.getFormat": [
     "dotnet,erlang,javascript,python,ruby,rust | go",
+    "dotnet,erlang,python,ruby,rust | go | javascript",
     "dotnet,erlang,python,rust | go | javascript,ruby",
     "dotnet,go,javascript,python,ruby,rust | erlang"
   ],
   "licensePlate.isValid": [
-    "erlang,python | javascript,ruby"
+    "erlang,python | javascript,ruby",
+    "erlang,python,ruby | javascript"
   ],
   "passport.format": [
     "erlang,python | javascript"
@@ -88,29 +120,43 @@
   ],
   "phone.format": [
     "erlang,go,python,ruby,rust | javascript",
+    "erlang,python,ruby | go | javascript | rust",
+    "erlang,python,ruby | go,rust | javascript",
     "erlang,python,ruby,rust | go | javascript",
     "erlang,python,ruby,rust | go,javascript"
   ],
   "phone.isValid": [
     "dotnet,erlang | javascript",
-    "dotnet,javascript | erlang"
+    "dotnet,javascript | erlang",
+    "erlang | javascript"
   ],
   "phone.removeInternationalDialingCode": [
     "erlang,python | go | ruby,rust",
+    "erlang,python | go,ruby,rust",
     "erlang,python | go,rust | ruby"
   ],
   "pis.format": [
     "dotnet,erlang,python,ruby,rust | go | javascript",
-    "dotnet,erlang,python,ruby,rust | go,javascript"
+    "dotnet,erlang,python,ruby,rust | go,javascript",
+    "erlang | javascript | python,ruby"
   ],
   "pis.isValid": [
     "dotnet,erlang,go,python,ruby,rust | javascript"
   ],
+  "renavam.isValid": [
+    "dotnet,erlang,go,python,ruby,rust | javascript",
+    "erlang,python,ruby | javascript"
+  ],
+  "state.getCodeByName": [
+    "javascript | python"
+  ],
   "voterId.format": [
     "dotnet,erlang,python,ruby,rust | go | javascript",
-    "dotnet,erlang,python,ruby,rust | go,javascript"
+    "dotnet,erlang,python,ruby,rust | go,javascript",
+    "dotnet,javascript,ruby | erlang | go,python,rust"
   ],
   "voterId.isValid": [
+    "dotnet,erlang,javascript,python,ruby,rust | go",
     "dotnet,erlang,python,ruby,rust | go,javascript"
   ]
 }
