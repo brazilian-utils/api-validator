@@ -71,6 +71,10 @@ Não renomeie uma função. Um nome novo quebra todas as bibliotecas. Para mudar
 O texto explica a regra. Os casos de teste decidem o comportamento, e as bibliotecas rodam os casos de teste. Se o texto diz que entrada formatada é inválida, um caso de teste precisa esperar `false` para entrada formatada.
 </Callout>
 
+## Casos dos testes da própria biblioteca
+
+Uma biblioteca que já testa uma função tem casos que o contrato pode receber: `npm run docs mine-tests -- -l javascript` lê os arquivos de teste da biblioteca JavaScript e pega toda asserção da forma `expect(fn(literais)).toBe(literal)` sobre uma função que o contrato conhece. Ele escreve os casos em `contract/_proposals/` para revisão, e com `--apply` acrescenta ao contrato, cada um com uma `note` que diz de qual teste veio. Ele deixa de lado o que o contrato não comporta: entradas ou saídas calculadas, entradas de um tipo que a assinatura não admite, um valor aleatório forçado e entradas que o contrato já tem. Depois rode `npm run check -- --tests` em todas as bibliotecas: um caso que só a biblioteca de origem passa é uma divergência para resolver antes do merge.
+
 ## Mude um comportamento
 
 Mudar um valor esperado muda todas as bibliotecas. No pull request, dê a fonte oficial da mudança e as bibliotecas que ela afeta. Depois do merge, cada biblioteca que falha nos casos alterados recebe uma issue com o título `Fix <função>`.

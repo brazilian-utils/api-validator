@@ -37,7 +37,15 @@
         { "args": ["2062"], "returns": "206-2" },
         { "name": "already-formatted", "args": ["206-2"], "returns": "206-2" },
         { "name": "partial", "args": ["206"], "returns": "206" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["2"], "returns": "2", "note": "JavaScript's own test: should format legal nature values" },
+        { "args": ["20"], "returns": "20", "note": "JavaScript's own test: should format legal nature values" },
+        { "args": [2062], "returns": "206-2", "note": "JavaScript's own test: should format a number and read only the digits of a masked value, like formatCpf" },
+        { "args": ["abc2062"], "returns": "206-2", "note": "JavaScript's own test: should format a number and read only the digits of a masked value, like formatCpf" },
+        { "args": ["62", { "pad": true }], "returns": "006-2", "note": "JavaScript's own test: should left pad with zeros to 4 digits when pad is true" },
+        { "args": [62, { "pad": true }], "returns": "006-2", "note": "JavaScript's own test: should left pad with zeros to 4 digits when pad is true" },
+        { "args": ["2062", { "pad": true }], "returns": "206-2", "note": "JavaScript's own test: should left pad with zeros to 4 digits when pad is true" },
+        { "args": ["62", { "pad": false }], "returns": "62", "note": "JavaScript's own test: should left pad with zeros to 4 digits when pad is true" }
       ]
     },
     "generate": {
@@ -94,7 +102,12 @@
         { "name": "legacy-code", "args": ["2208"], "returns": { "code": "2208", "description": "Entidade Binacional Itaipu", "category": { "code": "2", "description": "Entidades Empresariais" }, "legacy": true, "currentCode": "2275" } },
         { "args": ["0000"], "returns": null },
         { "name": "too-short", "args": ["206"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["2062a"], "returns": null, "note": "JavaScript's own test: should reject a code with letters attached, like isValidLegalNature does" },
+        { "args": ["a2062"], "returns": null, "note": "JavaScript's own test: should reject a code with letters attached, like isValidLegalNature does" },
+        { "args": [2062], "returns": { "code": "2062", "description": "Sociedade Empresária Limitada", "category": { "code": "2", "description": "Entidades Empresariais" }, "legacy": false }, "note": "JavaScript's own test: should return the legal nature entry for a known code as a number" },
+        { "args": [206.2], "returns": { "code": "2062", "description": "Sociedade Empresária Limitada", "category": { "code": "2", "description": "Entidades Empresariais" }, "legacy": false }, "note": "JavaScript's own test: should strip the mask of a number just like the mask of a string" },
+        { "args": ["2076"], "returns": { "code": "2076", "description": "Sociedade Empresária em Nome Coletivo", "category": { "code": "2", "description": "Entidades Empresariais" }, "legacy": true, "currentCode": "2070" }, "note": "JavaScript's own test: should tag a retired code as legacy, with the code it corresponds to today" }
       ]
     },
     "getDescription": {
@@ -148,7 +161,32 @@
         { "args": ["224-0"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["2062"], "returns": true, "note": "JavaScript's own test: should validate legal nature codes" },
+        { "args": ["206-2"], "returns": true, "note": "JavaScript's own test: should validate legal nature codes" },
+        { "args": ["9999"], "returns": false, "note": "JavaScript's own test: should validate legal nature codes" },
+        { "args": ["5010"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["1244"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["1252"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["2348"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["2356"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["3301"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["4090"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["4111"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["4120"], "returns": true, "note": "JavaScript's own test: should validate codes introduced by the 2021 CONCLA table" },
+        { "args": ["5002"], "returns": true, "note": "JavaScript's own test: should keep validating codes extinguished by CONCLA" },
+        { "args": ["3123"], "returns": true, "note": "JavaScript's own test: should keep validating codes extinguished by CONCLA" },
+        { "args": ["2076"], "returns": true, "note": "JavaScript's own test: should keep validating codes extinguished by CONCLA" },
+        { "args": ["206"], "returns": false, "note": "JavaScript's own test: should reject codes with a length different from 4" },
+        { "args": ["20620"], "returns": false, "note": "JavaScript's own test: should reject codes with a length different from 4" },
+        { "args": ["2062a"], "returns": false, "note": "JavaScript's own test: should reject any character other than digits and the mask" },
+        { "args": ["a2062"], "returns": false, "note": "JavaScript's own test: should reject any character other than digits and the mask" },
+        { "args": ["20/62"], "returns": false, "note": "JavaScript's own test: should reject any character other than digits and the mask" },
+        { "args": [" 206-2 "], "returns": true, "note": "JavaScript's own test: should reject any character other than digits and the mask" },
+        { "args": ["206.2"], "returns": true, "note": "JavaScript's own test: should reject any character other than digits and the mask" },
+        { "args": ["constructor"], "returns": false, "note": "JavaScript's own test: should return false for names inherited from Object.prototype" },
+        { "args": ["toString"], "returns": false, "note": "JavaScript's own test: should return false for names inherited from Object.prototype" },
+        { "args": ["__proto__"], "returns": false, "note": "JavaScript's own test: should return false for names inherited from Object.prototype" }
       ]
     },
     "list": {
@@ -424,7 +462,55 @@
         { "args": ["0"], "returns": [] },
         { "args": ["9"], "returns": [] },
         { "name": "full-code-is-not-a-category", "args": ["2062"], "returns": [] },
-        { "name": "empty", "args": [""], "returns": [] }
+        { "name": "empty", "args": [""], "returns": [] },
+        {
+          "args": [4],
+          "returns": [
+            {
+              "code": "4014",
+              "description": "Empresa Individual Imobiliária",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            },
+            {
+              "code": "4022",
+              "description": "Segurado Especial",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            },
+            {
+              "code": "4081",
+              "description": "Contribuinte individual",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            },
+            {
+              "code": "4090",
+              "description": "Candidato a Cargo Político Eletivo",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            },
+            {
+              "code": "4111",
+              "description": "Leiloeiro",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            },
+            {
+              "code": "4120",
+              "description": "Produtor Rural (Pessoa Física)",
+              "category": { "code": "4", "description": "Pessoas Físicas" },
+              "legacy": false
+            }
+          ],
+          "note": "JavaScript's own test: should accept the category code as a number"
+        },
+        { "args": ["6"], "returns": [], "note": "JavaScript's own test: should return an empty array for a category outside 1 to 5" },
+        { "args": [9], "returns": [], "note": "JavaScript's own test: should return an empty array for a category outside 1 to 5" },
+        { "args": ["20"], "returns": [], "note": "JavaScript's own test: should return an empty array for a prefix that is not a category on its own" },
+        { "args": [20], "returns": [], "note": "JavaScript's own test: should return an empty array for a prefix that is not a category on its own" },
+        { "args": [" 2"], "returns": [], "note": "JavaScript's own test: should return an empty array for an empty or padded category code" },
+        { "args": ["02"], "returns": [], "note": "JavaScript's own test: should return an empty array for an empty or padded category code" }
       ]
     },
     "parse": {

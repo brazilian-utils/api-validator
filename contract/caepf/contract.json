@@ -37,7 +37,16 @@
         { "args": ["29311861000184"], "returns": "293.118.610/001-84" },
         { "name": "already-formatted", "args": ["293.118.610/001-84"], "returns": "293.118.610/001-84" },
         { "name": "partial", "args": ["2931"], "returns": "293.1" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [41142260000101], "returns": "411.422.600/001-01", "note": "JavaScript's own test: should format a number input" },
+        { "args": ["2"], "returns": "2", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["29"], "returns": "29", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["293"], "returns": "293", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["29311"], "returns": "293.11", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["293118"], "returns": "293.118", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["293118610001840000"], "returns": "293.118.610/001-84", "note": "JavaScript's own test: should truncate values longer than 14 digits" },
+        { "args": ["184", { "pad": true }], "returns": "000.000.000/001-84", "note": "JavaScript's own test: should pad the value with leading zeros when options.pad is true" },
+        { "args": ["184"], "returns": "184", "note": "JavaScript's own test: should not pad the value when options.pad is not given" }
       ]
     },
     "isValid": {
@@ -69,7 +78,23 @@
         { "name": "zeros", "args": ["00000000000000"], "returns": false },
         { "name": "too-short", "args": ["1234567890"], "returns": false },
         { "name": "letters", "args": ["abc.118.610/001-84"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["293118610001840"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 14 digits" },
+        { "args": ["293.118.610/001-84a"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration is followed or preceded by a letter" },
+        { "args": ["a293.118.610/001-84"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration is followed or preceded by a letter" },
+        { "args": ["293#118#610#001#84"], "returns": false, "note": "JavaScript's own test: should return false when it has 14 digits but an unsupported separator" },
+        { "args": ["11111111111111"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["00000000000012"], "returns": false, "note": "JavaScript's own test: should return false when the 12 digit base is a repeated digit, as isValidCei and isValidCno reject it" },
+        { "args": ["000.000.000/000-12"], "returns": false, "note": "JavaScript's own test: should return false when the 12 digit base is a repeated digit, as isValidCei and isValidCno reject it" },
+        { "args": ["11111111111192"], "returns": false, "note": "JavaScript's own test: should return false when the 12 digit base is a repeated digit, as isValidCei and isValidCno reject it" },
+        { "args": ["29311861000100"], "returns": false, "note": "JavaScript's own test: should return false when the check digits are zeroed (293.118.610/001-00, Casilhero/brazilian-validators CaepfTest)" },
+        { "args": ["293.118.610/001-00"], "returns": false, "note": "JavaScript's own test: should return false when the check digits are zeroed (293.118.610/001-00, Casilhero/brazilian-validators CaepfTest)" },
+        { "args": ["29311861000172"], "returns": false, "note": "JavaScript's own test: should return false when the shift of 12 is not applied (29311861000172 instead of 29311861000184)" },
+        { "args": ["411.422.600/001-01"], "returns": true, "note": "JavaScript's own test: should return true for 411.422.600/001-01 (VitorLuizC/brazilian-values isCAEPF doc example)" },
+        { "args": ["82620035200115"], "returns": true, "note": "JavaScript's own test: should return true for 826.200.352/001-15, whose first modulus 11 remainder is 10" },
+        { "args": ["70180196300102"], "returns": true, "note": "JavaScript's own test: should return true for 701.801.963/001-02, whose second modulus 11 remainder is 10" },
+        { "args": [29311861000184], "returns": true, "note": "JavaScript's own test: should return true for a number input" },
+        { "args": [" 293 118 610 001 84 "], "returns": true, "note": "JavaScript's own test: should return true for a whitespace mask and surrounding whitespace" }
       ]
     },
     "parse": {
@@ -89,7 +114,8 @@
         { "name": "unmasked", "args": ["29311861000184"], "returns": "29311861000184" },
         { "name": "strips-non-digits", "args": ["293.?ABC118.610/001-84abc"], "returns": "29311861000184" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["29311861000184999"], "returns": "29311861000184", "note": "reference truncates to the 14 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["29311861000184999"], "returns": "29311861000184", "note": "reference truncates to the 14 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [29311861000184], "returns": "29311861000184", "note": "JavaScript's own test: should read a number as the string of its digits" }
       ]
     }
   }

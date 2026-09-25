@@ -80,7 +80,34 @@
         { "name": "not-a-leap-year", "args": ["29/02/2023"], "returns": "", "note": "invalid dates: the reference returns an empty string (asserted by its tests); some libs return null/None" },
         { "name": "day-out-of-range", "args": ["31/04/2024"], "returns": "" },
         { "name": "garbage", "args": ["not a date"], "returns": "" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["15/13/2024"], "returns": "", "note": "JavaScript's own test: should reject an out of range month" },
+        { "args": ["15/00/2024"], "returns": "", "note": "JavaScript's own test: should reject an out of range month" },
+        { "args": ["00/01/2024"], "returns": "", "note": "JavaScript's own test: should reject an out of range day" },
+        { "args": ["32/01/2024"], "returns": "", "note": "JavaScript's own test: should reject an out of range day" },
+        { "args": ["02/03/2024"], "returns": "dois de março de dois mil e vinte e quatro", "note": "JavaScript's own test: letter case should always keep the result lowercase" },
+        { "args": ["02/03/2024", { "weekday": true }], "returns": "sábado, dois de março de dois mil e vinte e quatro", "note": "JavaScript's own test: letter case should always keep the result lowercase" },
+        { "args": ["02/03/2024", { "style": "month" }], "returns": "2 de março de 2024", "note": "JavaScript's own test: style option should write only the month name and leave day/year as digits for 'month'" },
+        { "args": ["01/01/2024", { "style": "full" }], "returns": "primeiro de janeiro de dois mil e vinte e quatro", "note": "JavaScript's own test: style option should write day 1 as 'primeiro' in 'full' style and as '1º' in 'month' style" },
+        { "args": ["01/01/2024", { "style": "month" }], "returns": "1º de janeiro de 2024", "note": "JavaScript's own test: style option should write day 1 as 'primeiro' in 'full' style and as '1º' in 'month' style" },
+        { "args": ["01/01/2024", { "weekday": true, "style": "month" }], "returns": "segunda-feira, 1º de janeiro de 2024", "note": "JavaScript's own test: weekday option should combine with 'month' style" },
+        { "args": ["2024/01/01"], "returns": "", "note": "JavaScript's own test: invalid input should return '' for a malformed string" },
+        { "args": ["01-01-2024"], "returns": "", "note": "JavaScript's own test: invalid input should return '' for a malformed string" },
+        { "args": ["01/01/2024xyz"], "returns": "", "note": "JavaScript's own test: invalid input should reject a 'dd/mm/yyyy' match that is not anchored to the whole string" },
+        { "args": ["xyz01/01/2024"], "returns": "", "note": "JavaScript's own test: invalid input should reject a 'dd/mm/yyyy' match that is not anchored to the whole string" },
+        { "args": ["2024-01-02xyz"], "returns": "", "note": "JavaScript's own test: invalid input should reject an ISO 'yyyy-mm-dd' match that is not anchored to the whole string" },
+        { "args": ["xyz2024-01-02"], "returns": "", "note": "JavaScript's own test: invalid input should reject an ISO 'yyyy-mm-dd' match that is not anchored to the whole string" },
+        { "args": ["01/01/0000"], "returns": "", "note": "JavaScript's own test: years outside the calendar should return '' for year zero, which has no year to write out" },
+        { "args": ["0000-01-01"], "returns": "", "note": "JavaScript's own test: years outside the calendar should return '' for year zero, which has no year to write out" },
+        { "args": ["01/01/0001"], "returns": "primeiro de janeiro de um", "note": "JavaScript's own test: years outside the calendar should accept year 1, the earliest year with a year to write out" },
+        { "args": ["29/02/1600"], "returns": "vinte e nove de fevereiro de mil e seiscentos", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should accept February 29th on a year divisible by 400" },
+        { "args": ["29/02/1900"], "returns": "", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should reject February 29th on a century that is not divisible by 400" },
+        { "args": ["29/02/2100"], "returns": "", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should reject February 29th on a century that is not divisible by 400" },
+        { "args": ["29/02/1800"], "returns": "", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should reject February 29th on a century that is not divisible by 400" },
+        { "args": ["29/02/0004"], "returns": "vinte e nove de fevereiro de quatro", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should accept February 29th on a year of the first century divisible by 4" },
+        { "args": ["29/02/0096"], "returns": "vinte e nove de fevereiro de noventa e seis", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should accept February 29th on a year of the first century divisible by 4" },
+        { "args": ["29/02/0003"], "returns": "", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should reject February 29th on a year of the first century not divisible by 4" },
+        { "args": ["29/02/0100"], "returns": "", "note": "JavaScript's own test: leap years of the proleptic Gregorian calendar should reject February 29th on a year of the first century not divisible by 4" }
       ]
     },
     "differenceInBusinessDays": {
@@ -264,7 +291,10 @@
       "flatName": "isHoliday",
       "level": "core",
       "params": [{ "name": "options", "type": "IsHolidayParams", "optional": true }],
-      "returns": "boolean"
+      "returns": "boolean",
+      "tests": [
+        { "args": [], "returns": false, "note": "JavaScript's own test: should return false when called without arguments" }
+      ]
     },
     "subBusinessDays": {
       "summary": {

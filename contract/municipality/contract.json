@@ -43,7 +43,10 @@
         { "args": ["0000000"], "returns": null },
         { "name": "too-short", "args": ["123"], "returns": null },
         { "name": "too-long", "args": ["12345678"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-3550308], "returns": null, "note": "JavaScript's own test: should return null for a negative number, instead of dropping its sign" },
+        { "args": [355030.8], "returns": null, "note": "JavaScript's own test: should return null for a fractional number, instead of dropping its decimal point" },
+        { "args": [3550308.5], "returns": null, "note": "JavaScript's own test: should return null for a fractional number, instead of dropping its decimal point" }
       ]
     },
     "list": {

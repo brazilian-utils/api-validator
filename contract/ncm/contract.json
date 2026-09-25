@@ -33,7 +33,30 @@
         { "args": ["84713012"], "returns": "8471.30.12" },
         { "name": "already-formatted", "args": ["8471.30.12"], "returns": "8471.30.12" },
         { "name": "partial", "args": ["84713"], "returns": "8471.3" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [84713012], "returns": "8471.30.12", "note": "JavaScript's own test: should format an NCM code given as a number" },
+        { "args": ["8"], "returns": "8", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["84"], "returns": "84", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["847"], "returns": "847", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["8471"], "returns": "8471", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["847130"], "returns": "8471.30", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["8471301"], "returns": "8471.30.1", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": [8471], "returns": "8471", "note": "JavaScript's own test: should mask a partial number progressively by default" },
+        { "args": [847130], "returns": "8471.30", "note": "JavaScript's own test: should mask a partial number progressively by default" },
+        { "args": ["00000000"], "returns": "0000.00.00", "note": "JavaScript's own test: should not validate whether the code exists in the official table" },
+        { "args": ["847130120000"], "returns": "8471.30.12", "note": "JavaScript's own test: should not add digits after the NCM length" },
+        { "args": ["", { "pad": true }], "returns": "0000.00.00", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full NCM length" },
+        { "args": ["1", { "pad": true }], "returns": "0000.00.01", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full NCM length" },
+        { "args": ["8471", { "pad": true }], "returns": "0000.84.71", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full NCM length" },
+        { "args": ["847130", { "pad": true }], "returns": "0084.71.30", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full NCM length" },
+        { "args": ["84713012", { "pad": true }], "returns": "8471.30.12", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full NCM length" },
+        { "args": [8471, { "pad": true }], "returns": "0000.84.71", "note": "JavaScript's own test: pad option should left pad a number the same way as its digits" },
+        { "args": [84713012, { "pad": true }], "returns": "8471.30.12", "note": "JavaScript's own test: pad option should left pad a number the same way as its digits" },
+        { "args": ["8471", { "pad": false }], "returns": "8471", "note": "JavaScript's own test: pad option should mask progressively for an explicit false" },
+        { "args": ["abc8471"], "returns": "8471", "note": "JavaScript's own test: should read only the digits of a value with other characters, like formatCpf" },
+        { "args": ["8471.30-12"], "returns": "8471.30.12", "note": "JavaScript's own test: should read only the digits of a value with other characters, like formatCpf" },
+        { "args": [-84713012], "returns": "8471.30.12", "note": "JavaScript's own test: should read a signed or fractional number as the string of its digits, like formatCpf" },
+        { "args": [8471301.2], "returns": "8471.30.12", "note": "JavaScript's own test: should read a signed or fractional number as the string of its digits, like formatCpf" }
       ]
     },
     "isValid": {
@@ -63,7 +86,19 @@
         { "name": "nonexistent", "args": ["12345678"], "returns": false },
         { "name": "too-short", "args": ["2203000"], "returns": false },
         { "name": "letters", "args": ["abcdefgh"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": [22030000], "returns": true, "note": "JavaScript's own test: should validate an NCM code given as a number" },
+        { "args": ["0101.21.00"], "returns": true, "note": "JavaScript's own test: should validate a leading zero NCM code (cavalos reprodutores de raça pura)" },
+        { "args": [1012100], "returns": true, "note": "JavaScript's own test: should pad a value to eight digits, as a number or as a string (1012100 is 01012100)" },
+        { "args": ["1012100"], "returns": true, "note": "JavaScript's own test: should pad a value to eight digits, as a number or as a string (1012100 is 01012100)" },
+        { "args": ["101.21.00"], "returns": false, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": [" 22030000 "], "returns": true, "note": "JavaScript's own test: should validate an NCM code with surrounding whitespace" },
+        { "args": ["220300000"], "returns": false, "note": "JavaScript's own test: should return false for a padded short value no code carries and for a wider value" },
+        { "args": ["        "], "returns": false, "note": "JavaScript's own test: should return false for whitespace only" },
+        { "args": ["abc01012100"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": ["2203..00.00"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": [-22030000], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [2203000.01], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
       ]
     },
     "parse": {
@@ -91,7 +126,9 @@
         { "name": "unmasked", "args": ["84713012"], "returns": "84713012" },
         { "name": "strips-non-digits", "args": ["84?ABC71.30.12abc"], "returns": "84713012" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["84713012999"], "returns": "84713012", "note": "reference truncates to the 8 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["84713012999"], "returns": "84713012", "note": "reference truncates to the 8 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [84713012], "returns": "84713012", "note": "JavaScript's own test: should read a number as the string of its digits" },
+        { "args": ["8471"], "returns": "8471", "note": "JavaScript's own test: should keep a partial code as written, without padding it" }
       ]
     }
   }

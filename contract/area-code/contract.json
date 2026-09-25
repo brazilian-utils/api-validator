@@ -47,7 +47,10 @@
         { "name": "multi-state", "args": [42], "returns": { "areaCode": 42, "stateCode": "PR", "stateName": "Paraná", "regionCode": "S", "regionName": "Sul", "stateCodes": ["PR", "SC"] } },
         { "args": ["00"], "returns": null },
         { "name": "unassigned", "args": ["20"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["68"], "returns": { "areaCode": 68, "stateCode": "AC", "stateName": "Acre", "regionCode": "N", "regionName": "Norte", "stateCodes": ["AC"] }, "note": "JavaScript's own test: should resolve DDD 68 to Acre, Norte" },
+        { "args": [-11], "returns": null, "note": "JavaScript's own test: should return null for a negative number, not read it as the DDD 11" },
+        { "args": [1.1], "returns": null, "note": "JavaScript's own test: should return null for a fractional number, not read it as the DDD 11" }
       ]
     },
     "listByState": {
@@ -85,7 +88,13 @@
         { "args": ["PE"], "returns": [81, 87] },
         { "name": "shared-ddds", "args": ["SC"], "returns": [42, 47, 48, 49] },
         { "args": ["XX"], "returns": [] },
-        { "name": "empty", "args": [""], "returns": [] }
+        { "name": "empty", "args": [""], "returns": [] },
+        { "args": ["Sp"], "returns": [11, 12, 13, 14, 15, 16, 17, 18, 19], "note": "JavaScript's own test: should be case-insensitive" },
+        { "args": ["  SP  "], "returns": [11, 12, 13, 14, 15, 16, 17, 18, 19], "note": "JavaScript's own test: should trim surrounding whitespace" },
+        { "args": ["GO"], "returns": [61, 62, 64], "note": "JavaScript's own test: should list DDD 61 for Goiás, which the Entorno do Distrito Federal shares with the DF" },
+        { "args": ["DF"], "returns": [61], "note": "JavaScript's own test: should list only DDD 61 for the Distrito Federal" },
+        { "args": ["PR"], "returns": [41, 42, 43, 44, 45, 46, 47, 49], "note": "JavaScript's own test: should list the border DDDs 42, 47 and 49 under both of their states" },
+        { "args": ["   "], "returns": [], "note": "JavaScript's own test: should return an empty array when it is a blank string" }
       ]
     }
   }

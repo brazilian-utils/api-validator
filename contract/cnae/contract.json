@@ -38,7 +38,30 @@
         { "args": ["6201501"], "returns": "6201-5/01" },
         { "name": "already-formatted", "args": ["6201-5/01"], "returns": "6201-5/01" },
         { "name": "partial", "args": ["62015"], "returns": "6201-5" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [6201501], "returns": "6201-5/01", "note": "JavaScript's own test: should format a CNAE code given as a number" },
+        { "args": ["0000000"], "returns": "0000-0/00", "note": "JavaScript's own test: should not validate whether the code exists in the official table" },
+        { "args": ["6"], "returns": "6", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["62"], "returns": "62", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["620"], "returns": "620", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["6201"], "returns": "6201", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": ["620150"], "returns": "6201-5/0", "note": "JavaScript's own test: should mask a partial value progressively by default" },
+        { "args": [62], "returns": "62", "note": "JavaScript's own test: should mask a partial number progressively by default" },
+        { "args": [111301], "returns": "1113-0/1", "note": "JavaScript's own test: should mask a partial number progressively by default" },
+        { "args": ["62015010000"], "returns": "6201-5/01", "note": "JavaScript's own test: should not add digits after the CNAE length" },
+        { "args": ["", { "pad": true }], "returns": "0000-0/00", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": ["1", { "pad": true }], "returns": "0000-0/01", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": ["62", { "pad": true }], "returns": "0000-0/62", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": ["501", { "pad": true }], "returns": "0000-5/01", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": ["62015", { "pad": true }], "returns": "0062-0/15", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": ["6201501", { "pad": true }], "returns": "6201-5/01", "note": "JavaScript's own test: pad option should left pad a short code with zeros up to the full CNAE length" },
+        { "args": [62, { "pad": true }], "returns": "0000-0/62", "note": "JavaScript's own test: pad option should left pad a number the same way as its digits" },
+        { "args": [111301, { "pad": true }], "returns": "0111-3/01", "note": "JavaScript's own test: pad option should left pad a number the same way as its digits" },
+        { "args": ["62", { "pad": false }], "returns": "62", "note": "JavaScript's own test: pad option should mask progressively for an explicit false" },
+        { "args": ["abc6201501"], "returns": "6201-5/01", "note": "JavaScript's own test: should read only the digits of a value with other characters, like formatCpf" },
+        { "args": ["62.01-5/01"], "returns": "6201-5/01", "note": "JavaScript's own test: should read only the digits of a value with other characters, like formatCpf" },
+        { "args": [-6201501], "returns": "6201-5/01", "note": "JavaScript's own test: should read a signed or fractional number as the string of its digits, like formatCpf" },
+        { "args": [620150.1], "returns": "6201-5/01", "note": "JavaScript's own test: should read a signed or fractional number as the string of its digits, like formatCpf" }
       ]
     },
     "get": {
@@ -76,7 +99,13 @@
         { "name": "leading-zero", "args": ["0111-3/01"], "returns": { "code": "0111301", "description": "CULTIVO DE ARROZ" } },
         { "args": ["0000000"], "returns": null },
         { "name": "too-short", "args": ["620150"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [6201501], "returns": { "code": "6201501", "description": "DESENVOLVIMENTO DE PROGRAMAS DE COMPUTADOR SOB ENCOMENDA" }, "note": "JavaScript's own test: should return the CNAE entry for a known code as a number" },
+        { "args": ["111-3/01"], "returns": null, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": ["0111abc301"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not written in a documented form" },
+        { "args": ["62-01501"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not written in a documented form" },
+        { "args": [-111301], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" },
+        { "args": [6201.501], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" }
       ]
     },
     "isValid": {
@@ -110,7 +139,22 @@
         { "name": "too-short", "args": ["620150"], "returns": false },
         { "name": "too-long", "args": ["62015011"], "returns": false },
         { "name": "letters", "args": ["abcdefg"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": [6201501], "returns": true, "note": "JavaScript's own test: should validate a CNAE code given as a number" },
+        { "args": [111301], "returns": true, "note": "JavaScript's own test: should pad a value with leading zeros before looking it up, as a number or as a string" },
+        { "args": ["111301"], "returns": true, "note": "JavaScript's own test: should pad a value with leading zeros before looking it up, as a number or as a string" },
+        { "args": ["111-3/01"], "returns": false, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": ["0111-3/01"], "returns": true, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": [" 6201501 "], "returns": true, "note": "JavaScript's own test: should validate a CNAE code with surrounding whitespace" },
+        { "args": ["6201--5//01"], "returns": false, "note": "JavaScript's own test: should reject a group boundary written with more than one separator (6201--5//01)" },
+        { "args": ["       "], "returns": false, "note": "JavaScript's own test: should return false for whitespace only" },
+        { "args": ["6201 5 01"], "returns": true, "note": "JavaScript's own test: should accept the separators the mask uses between the three groups" },
+        { "args": ["6201.5.01"], "returns": true, "note": "JavaScript's own test: should accept the separators the mask uses between the three groups" },
+        { "args": ["0111abc301"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": ["62-01501"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": ["+6201501"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": [-111301], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [6201.501], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
       ]
     },
     "parse": {
@@ -138,7 +182,9 @@
         { "name": "unmasked", "args": ["6201501"], "returns": "6201501" },
         { "name": "strips-non-digits", "args": ["62?ABC01-5/01abc"], "returns": "6201501" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["6201501999"], "returns": "6201501", "note": "reference truncates to the 7 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["6201501999"], "returns": "6201501", "note": "reference truncates to the 7 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [6201501], "returns": "6201501", "note": "JavaScript's own test: should read a number as the string of its digits" },
+        { "args": ["62"], "returns": "62", "note": "JavaScript's own test: should keep a partial code as written, without padding it" }
       ]
     }
   }

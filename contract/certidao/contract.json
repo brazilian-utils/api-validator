@@ -42,7 +42,11 @@
         { "args": ["10453901552013100012021000012321"], "returns": "104539 01 55 2013 1 00012 021 0000123 21" },
         { "name": "remasks", "args": ["104539.01.55.2013.1.00012.021.0000123-21"], "returns": "104539 01 55 2013 1 00012 021 0000123 21" },
         { "name": "partial", "args": ["10453901"], "returns": "104539 01" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["09430001552010100020112000012087"], "returns": "094300 01 55 2010 1 00020 112 0000120 87", "note": "JavaScript's own test: should return the matrícula in the printed mask for 094300 01 55 2010 1 00020 112 0000120-87 (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["1045390155201310001202100001232199"], "returns": "104539 01 55 2013 1 00012 021 0000123 21", "note": "JavaScript's own test: should return a partial mask when the value has more than 32 digits, dropping the excess" },
+        { "args": ["1552010100020112000012087", { "pad": true }], "returns": "000000 01 55 2010 1 00020 112 0000120 87", "note": "JavaScript's own test: should left pad the value when options.pad is true" },
+        { "args": [104539015520], "returns": "104539 01 55 20", "note": "JavaScript's own test: should read a number as the string of its digits, like formatCpf masking it as far as it goes; a full 32 digit matrícula still has to be a string" }
       ]
     },
     "getInfo": {
@@ -77,7 +81,25 @@
         { "args": ["094300 01 55 2010 1 00020 112 0000120-87"], "returns": { "registryCns": "094300", "acervo": "01", "service": "55", "year": 2010, "type": "birth", "typeCode": 1, "book": "00020", "page": "112", "term": "0000120", "checkDigits": "87" } },
         { "name": "wrong-check-digits", "args": ["10453901552013100012021000012322"], "returns": null },
         { "args": ["not-a-matricula"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["10453901552013000012021000012387"], "returns": null, "note": "JavaScript's own test: should return null when the book code is 0, outside the nine books of the Provimento" },
+        { "args": ["09400301542011100110002005191744"], "returns": null, "note": "JavaScript's own test: should return null when the serviço is not the 55 of art. 473, III, even with matching check digits" },
+        {
+          "args": ["82668301552015209245842999011418"],
+          "returns": {
+            "registryCns": "826683",
+            "acervo": "01",
+            "service": "55",
+            "year": 2015,
+            "type": "marriage",
+            "typeCode": 2,
+            "book": "09245",
+            "page": "842",
+            "term": "9990114",
+            "checkDigits": "18"
+          },
+          "note": "JavaScript's own test: should return the parsed matrícula for a matrícula whose first modulus 11 remainder is 10 (826683 01 55 2015 2 09245 842 9990114 18)"
+        }
       ]
     },
     "isValid": {
@@ -119,7 +141,32 @@
         { "args": ["094003 01 55 2011 1 00110 002 0051917 43"], "returns": true },
         { "name": "wrong-check-digits", "args": ["10453901552013100012021000012322"], "returns": false },
         { "name": "too-short", "args": ["104539015520131000120210000123"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["104539015520131000120210000123210"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 32 digits" },
+        { "args": ["104539#01#55#2013#1#00012#021#0000123#21"], "returns": false, "note": "JavaScript's own test: should return false when it has 32 digits but an unsupported separator" },
+        { "args": ["1045.3901.5520.1310.0012.0210.0001.2321"], "returns": false, "note": "JavaScript's own test: should return false when it has 32 digits grouped outside the 6-2-2-4-1-5-3-7-2 mask" },
+        { "args": ["A04539 01 55 2013 1 00012 021 0000123 21"], "returns": false, "note": "JavaScript's own test: should return false when it contains letters" },
+        { "args": ["10453901552013100012021000012320"], "returns": false, "note": "JavaScript's own test: should return false when only the second check digit is wrong (the ghiorzi.org example with 20)" },
+        { "args": ["12345601552023100001001000000199"], "returns": false, "note": "JavaScript's own test: should return false when the check digits are 99 (klawdyo/validation-br certidao.spec.ts invalid case)" },
+        { "args": ["10453901552013000012021000012387"], "returns": false, "note": "JavaScript's own test: should return false when the book code is 0, outside the nine books, even with matching check digits" },
+        { "args": ["09400301542011100110002005191744"], "returns": false, "note": "JavaScript's own test: should return false when the serviço is not the 55 of art. 473, III, even with matching check digits" },
+        { "args": ["094003 01 56 2011 1 00110 002 0051917 42"], "returns": false, "note": "JavaScript's own test: should return false when the serviço is not the 55 of art. 473, III, even with matching check digits" },
+        { "args": ["131128 01 55 2010 1 00014 192 0006001 00"], "returns": true, "note": "JavaScript's own test: should return true for 131128 01 55 2010 1 00014 192 0006001 00 (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["094003 01 55 2010 1 00109 151 0051816 26"], "returns": true, "note": "JavaScript's own test: should return true for 094003 01 55 2010 1 00109 151 0051816 26 (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["094300 01 55 2010 1 00020 112 0000120-87"], "returns": true, "note": "JavaScript's own test: should return true for 094300 01 55 2010 1 00020 112 0000120-87 with a dash before the check digits (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["094946 01 55 2011 1 00241 196 0099147 54"], "returns": true, "note": "JavaScript's own test: should return true for 094946 01 55 2011 1 00241 196 0099147 54 (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["001234 01 55 2026 1 00567 078 0099999 92"], "returns": true, "note": "JavaScript's own test: should return true for 001234 01 55 2026 1 00567 078 0099999 92 (klawdyo/validation-br certidao.spec.ts)" },
+        { "args": ["82668301552015209245842999011418"], "returns": true, "note": "JavaScript's own test: should return true for a matrícula whose first modulus 11 remainder is 10 and is read as 1" },
+        { "args": ["79975401552015772710866666109571"], "returns": true, "note": "JavaScript's own test: should return true for a matrícula whose second modulus 11 remainder is 10 and is read as 1" },
+        { "args": ["104539.01.55.2013.1.00012.021.0000123-21"], "returns": true, "note": "JavaScript's own test: should return true for the dotted mask of the Provimento" },
+        { "args": [" 104539 01 55 2013 1 00012 021 0000123 21 "], "returns": true, "note": "JavaScript's own test: should return true for the ghiorzi.org example with leading and trailing whitespace" },
+        { "args": ["104539 01 55 2013 1 00012 021 0000123 21", { "accept": ["birth"] }], "returns": true, "note": "JavaScript's own test: options.accept should return true when the book type is in the accepted list" },
+        { "args": ["104539 01 55 2013 1 00012 021 0000123 21", { "accept": ["death", "birth"] }], "returns": true, "note": "JavaScript's own test: options.accept should return true when the book type is one of several accepted types" },
+        { "args": ["104539 01 55 2013 1 00012 021 0000123 21", { "accept": ["death"] }], "returns": false, "note": "JavaScript's own test: options.accept should return false when the book type is not in the accepted list" },
+        { "args": ["104539 01 55 2013 1 00012 021 0000123 21", { "accept": [] }], "returns": false, "note": "JavaScript's own test: options.accept should return false when the accepted list is empty" },
+        { "args": ["10453901552013900012021000012398", { "accept": ["interdiction"] }], "returns": true, "note": "JavaScript's own test: options.accept should return true for an interdiction act (book code 9) when accepted" },
+        { "args": ["10453901552013000012021000012387", { "accept": ["birth"] }], "returns": false, "note": "JavaScript's own test: options.accept should return false when the book code is 0, outside the nine books of the Provimento, and accept is given" },
+        { "args": ["123456", { "accept": ["birth"] }], "returns": false, "note": "JavaScript's own test: options.accept should return false when the matrícula itself is invalid, regardless of accept" }
       ]
     },
     "parse": {
@@ -140,7 +187,8 @@
         { "name": "masked", "args": ["104539 01 55 2013 1 00012 021 0000123 21"], "returns": "10453901552013100012021000012321" },
         { "name": "strips-non-digits", "args": ["104539.01.55.2013.1.00012.021.0000123-21abc"], "returns": "10453901552013100012021000012321" },
         { "name": "caps-length", "args": ["10453901552013100012021000012321999"], "returns": "10453901552013100012021000012321", "note": "reference truncates to 32 digits; asserted by the reference (JS) unit tests" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["104539 01"], "returns": "10453901", "note": "JavaScript's own test: should keep a partial matrícula as written" }
       ]
     }
   }

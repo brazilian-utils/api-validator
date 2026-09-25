@@ -37,7 +37,17 @@
         { "name": "too-short", "args": ["10"], "returns": false },
         { "name": "separator", "args": ["1-01"], "returns": false },
         { "name": "letters", "args": ["abc"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": [101], "returns": true, "note": "JavaScript's own test: should return true for a number input" },
+        { "args": [" 101 "], "returns": true, "note": "JavaScript's own test: should return true with surrounding whitespace" },
+        { "args": ["1010"], "returns": false, "note": "JavaScript's own test: should return false for a length different from 3" },
+        { "args": ["abc101"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": ["1--01"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": ["1 01"], "returns": false, "note": "JavaScript's own test: should return false for a code split by a separator, since a CSOSN has no printed grouping" },
+        { "args": ["10.1"], "returns": false, "note": "JavaScript's own test: should return false for a code split by a separator, since a CSOSN has no printed grouping" },
+        { "args": ["1-0-1"], "returns": false, "note": "JavaScript's own test: should return false for a code split by a separator, since a CSOSN has no printed grouping" },
+        { "args": [-101], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [10.1], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
       ]
     }
   }

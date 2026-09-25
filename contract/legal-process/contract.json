@@ -43,7 +43,30 @@
         { "args": ["55079546820269134836"], "returns": "5507954-68.2026.9.13.4836", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["55079546820269134837"], "returns": "5507954-68.2026.9.13.4837", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["47097579520263005802"], "returns": "4709757-95.2026.3.00.5802", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["47097579520263005803"], "returns": "4709757-95.2026.3.00.5803", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["47097579520263005803"], "returns": "4709757-95.2026.3.00.5803", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0"], "returns": "0", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00"], "returns": "00", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000"], "returns": "000", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002"], "returns": "0002", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020"], "returns": "00020", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000208"], "returns": "000208", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002080"], "returns": "0002080", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802"], "returns": "0002080-2", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000208025"], "returns": "0002080-25", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002080252"], "returns": "0002080-25.2", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802520"], "returns": "0002080-25.20", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000208025201"], "returns": "0002080-25.201", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002080252012"], "returns": "0002080-25.2012", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802520125"], "returns": "0002080-25.2012.5", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000208025201251"], "returns": "0002080-25.2012.5.1", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002080252012515"], "returns": "0002080-25.2012.5.15", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802520125150"], "returns": "0002080-25.2012.5.15.0", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["000208025201251500"], "returns": "0002080-25.2012.5.15.00", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["0002080252012515004"], "returns": "0002080-25.2012.5.15.004", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802520125150049"], "returns": "0002080-25.2012.5.15.0049", "note": "JavaScript's own test: should format processo juridico with mask" },
+        { "args": ["00020802520125150049123123"], "returns": "0002080-25.2012.5.15.0049", "note": "JavaScript's own test" },
+        { "args": ["0002080@$25201%!@2515.%0049123123"], "returns": "0002080-25.2012.5.15.0049", "note": "JavaScript's own test: should remove all non numeric characters" }
       ]
     },
     "generate": {
@@ -76,7 +99,13 @@
       "params": [{ "name": "options", "type": "GenerateProcessoJuridicoParams", "optional": true }],
       "returns": "string?",
       "tests": [
-        { "name": "generated-is-valid", "args": [], "satisfies": "legalProcess.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" }
+        { "name": "generated-is-valid", "args": [], "satisfies": "legalProcess.isValid", "repeat": 5, "note": "every generated value must pass the lib's own validator" },
+        { "args": [{ "year": 10000 }], "returns": null, "note": "JavaScript's own test: should return null for years above 9999" },
+        { "args": [{ "year": 99999 }], "returns": null, "note": "JavaScript's own test: should return null for years above 9999" },
+        { "args": [{ "court": 0 }], "returns": null, "note": "JavaScript's own test: should return null for invalid courts" },
+        { "args": [{ "court": 10 }], "returns": null, "note": "JavaScript's own test: should return null for invalid courts" },
+        { "args": [{ "court": 1.5 }], "returns": null, "note": "JavaScript's own test: should return null for invalid courts" },
+        { "args": [{ "court": -1 }], "returns": null, "note": "JavaScript's own test: should return null for invalid courts" }
       ]
     },
     "isValid": {
@@ -111,7 +140,46 @@
         { "args": ["47097579520263005803"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["123"], "returns": false, "note": "JavaScript's own test: should return false" },
+        { "args": ["0002080252012515004999"], "returns": false, "note": "JavaScript's own test: should return false when it sanitizes to more digits than the expected length, even if the check digit still matches" },
+        { "args": ["00020802520125150050"], "returns": false, "note": "JavaScript's own test: should return false when it is a 20 digit value with a mismatched check digit" },
+        { "args": ["-00020802520125150049"], "returns": false, "note": "JavaScript's own test: should return false when a mask character leads or trails an otherwise valid value" },
+        { "args": ["00020802520125150049."], "returns": false, "note": "JavaScript's own test: should return false when a mask character leads or trails an otherwise valid value" },
+        { "args": [".0002080-25.2012.5.15.0049-"], "returns": false, "note": "JavaScript's own test: should return false when a mask character leads or trails an otherwise valid value" },
+        { "args": ["ab00020802520125150049"], "returns": false, "note": "JavaScript's own test: should return false when a letter is attached to the digits" },
+        { "args": ["00020802520125150049ab"], "returns": false, "note": "JavaScript's own test: should return false when a letter is attached to the digits" },
+        { "args": ["0002080/25.2012.5.15.0049"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses a character the CNJ layout does not carry" },
+        { "args": ["000208-0252012.5.15.0049"], "returns": false, "note": "JavaScript's own test: should return false when a mask separator falls outside the CNJ field boundaries" },
+        { "args": ["0000100-69.2008.0.00.0000"], "returns": false, "note": "JavaScript's own test: should return false when the órgão (J) is not one of the nine segments of art. 1º, § 4º" },
+        { "args": ["0000100-41.2008.4.07.0000"], "returns": false, "note": "JavaScript's own test: should return false when the Justiça Federal carries a region beyond the sixth (art. 1º, § 5º, III)" },
+        { "args": ["0000100-23.2008.8.28.0000"], "returns": false, "note": "JavaScript's own test: should return false when the Justiça Estadual carries a tribunal beyond the twenty seventh (art. 1º, § 5º, VII)" },
+        { "args": ["0000100-03.2008.8.00.0000"], "returns": false, "note": "JavaScript's own test: should return false when the Justiça Estadual zeroes the tribunal, which has no superior court of its own" },
+        { "args": ["0000100-89.2008.9.01.0000"], "returns": false, "note": "JavaScript's own test: should return false when the Justiça Militar Estadual names a state without a military court (art. 1º, § 5º, VIII)" },
+        { "args": ["0000100-58.2008.1.01.0000"], "returns": false, "note": "JavaScript's own test: should return false when a superior court carries a tribunal instead of the zeroed field (art. 1º, § 5º, I)" },
+        { "args": ["0000100-14.2008.9.90.0000"], "returns": false, "note": "JavaScript's own test: should return false when a segment without a council carries the council code (art. 1º, § 5º, II)" },
+        { "args": ["00020802520125150049"], "returns": true, "note": "JavaScript's own test: should return true when is a processo juridico valid without mask" },
+        { "args": ["0002080-25.2012.5.15.0049"], "returns": true, "note": "JavaScript's own test: should return true when is a processo juridico valid with the CNJ mask" },
+        { "args": [" 0002080-25.2012.5.15.0049 "], "returns": true, "note": "JavaScript's own test: should return true when a masked processo juridico is surrounded by whitespace" },
+        { "args": ["\n00020802520125150049\t"], "returns": true, "note": "JavaScript's own test: should return true when a masked processo juridico is surrounded by whitespace" },
+        { "args": ["0002080-25.2012.515.0049"], "returns": true, "note": "JavaScript's own test: should return true when is a processo juridico valid with the legacy fused mask" },
+        { "args": ["0000100-85.2008.1.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Supremo Tribunal Federal (art. 1º, § 4º, I)" },
+        { "args": ["0000100-04.2008.2.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Conselho Nacional de Justiça (art. 1º, § 4º, II)" },
+        { "args": ["0000100-20.2008.3.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Superior Tribunal de Justiça (art. 1º, § 4º, III)" },
+        { "args": ["0000100-09.2008.4.01.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Federal and the tribunal a TRF (art. 1º, § 5º, III)" },
+        { "args": ["0000100-35.2008.5.15.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça do Trabalho and the tribunal a TRT (art. 1º, § 5º, IV)" },
+        { "args": ["0000100-18.2008.6.27.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Eleitoral and the tribunal a TRE (art. 1º, § 5º, V)" },
+        { "args": ["0000100-51.2008.7.12.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Militar da União and the tribunal a CJM (art. 1º, § 5º, VI)" },
+        { "args": ["0000100-73.2008.8.01.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Estadual and the tribunal a TJ (art. 1º, § 5º, VII)" },
+        { "args": ["0000100-56.2008.9.13.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Militar Estadual and the tribunal a TJM (art. 1º, § 5º, VIII)" },
+        { "args": ["0000100-34.2008.9.21.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Militar Estadual and the tribunal a TJM (art. 1º, § 5º, VIII)" },
+        { "args": ["0000100-93.2008.9.26.0000"], "returns": true, "note": "JavaScript's own test: should return true when the órgão is the Justiça Militar Estadual and the tribunal a TJM (art. 1º, § 5º, VIII)" },
+        { "args": ["0000100-68.2008.4.06.0000"], "returns": true, "note": "JavaScript's own test: should return true when the Justiça Federal names the TRF da 6ª Região, added by Resolução CNJ nº 477/2022" },
+        { "args": ["0000100-31.2008.4.90.0000"], "returns": true, "note": "JavaScript's own test: should return true when the number originates in the CJF or in the CSJT, whose tribunal is 90 (art. 1º, § 5º, II)" },
+        { "args": ["0000100-47.2008.5.90.0000"], "returns": true, "note": "JavaScript's own test: should return true when the number originates in the CJF or in the CSJT, whose tribunal is 90 (art. 1º, § 5º, II)" },
+        { "args": ["0000100-52.2008.5.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the TST, the TSE or the STM zeroes the tribunal (art. 1º, § 5º, I)" },
+        { "args": ["0000100-68.2008.6.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the TST, the TSE or the STM zeroes the tribunal (art. 1º, § 5º, I)" },
+        { "args": ["0000100-84.2008.7.00.0000"], "returns": true, "note": "JavaScript's own test: should return true when the TST, the TSE or the STM zeroes the tribunal (art. 1º, § 5º, I)" }
       ]
     },
     "parse": {
@@ -141,7 +209,8 @@
         { "args": ["47097579520263005803"], "returns": "47097579520263005803", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["1666923-98.2026.9.26.4931"], "returns": "16669239820269264931", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["5507954-68.2026.9.13.4836"], "returns": "55079546820269134836", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["4709757-95.2026.3.00.5802"], "returns": "47097579520263005802", "note": "consensus of 3 libs (python, ruby, rust)" }
+        { "args": ["4709757-95.2026.3.00.5802"], "returns": "47097579520263005802", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["0002080-25.2012.515.0049"], "returns": "00020802520125150049", "note": "JavaScript's own test: should also accept the legacy fused mask" }
       ]
     }
   }

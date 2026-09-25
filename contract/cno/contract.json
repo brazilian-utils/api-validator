@@ -37,7 +37,15 @@
         { "args": ["111130137368"], "returns": "11.113.01373/68" },
         { "name": "already-formatted", "args": ["11.084.01680/62"], "returns": "11.084.01680/62" },
         { "name": "partial", "args": ["11113"], "returns": "11.113" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [401800097960], "returns": "40.180.00979/60", "note": "JavaScript's own test: should format a number input" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["11"], "returns": "11", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["111"], "returns": "11.1", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["1111"], "returns": "11.11", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["111130"], "returns": "11.113.0", "note": "JavaScript's own test: should format progressively as digits are typed" },
+        { "args": ["1111301373680000"], "returns": "11.113.01373/68", "note": "JavaScript's own test: should truncate values longer than 12 digits" },
+        { "args": ["979", { "pad": true }], "returns": "00.000.00009/79", "note": "JavaScript's own test: should pad the value with leading zeros when options.pad is true" }
       ]
     },
     "isValid": {
@@ -70,7 +78,18 @@
         { "name": "wrong-check-digit", "args": ["110840168063"], "returns": false },
         { "name": "zeros", "args": ["000000000000"], "returns": false },
         { "name": "too-short", "args": ["1234567890"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["1234567890123"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 12 digits" },
+        { "args": ["11#084#01680#62"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits but an unsupported separator" },
+        { "args": ["110.840.16806/2"], "returns": false, "note": "JavaScript's own test: should return false when it has 12 digits grouped outside the 2-3-5-2 mask" },
+        { "args": ["401800097961"], "returns": false, "note": "JavaScript's own test: should return false when a check digit of 0 is replaced by another digit (401800097960 of the Receita Federal CNO dataset)" },
+        { "args": ["111130137368"], "returns": true, "note": "JavaScript's own test: should return true for 111130137368, an obra in Campo do Meio/MG of the Receita Federal CNO open dataset" },
+        { "args": ["112772388267"], "returns": true, "note": "JavaScript's own test: should return true for 112772388267 and 113381018769 of the Receita Federal CNO open dataset" },
+        { "args": ["113381018769"], "returns": true, "note": "JavaScript's own test: should return true for 112772388267 and 113381018769 of the Receita Federal CNO open dataset" },
+        { "args": [401800097960], "returns": true, "note": "JavaScript's own test: should return true for 401800097960, whose check digit is 0 (Receita Federal CNO open dataset, Frutal/MG)" },
+        { "args": ["512070915160"], "returns": true, "note": "JavaScript's own test: should return true for 512070915160, whose check digit is 0 (Receita Federal CNO open dataset, Capitólio/MG)" },
+        { "args": ["11.583.00249/85"], "returns": true, "note": "JavaScript's own test: should return true for a legacy CEI number kept by the CNO (11.583.00249/85, yiibr/yii2-br-validator)" },
+        { "args": [" 11 084 01680 62 "], "returns": true, "note": "JavaScript's own test: should return true for a whitespace mask and surrounding whitespace" }
       ]
     },
     "parse": {
@@ -90,7 +109,8 @@
         { "name": "unmasked", "args": ["111130137368"], "returns": "111130137368" },
         { "name": "strips-non-digits", "args": ["11.?ABC113.01373/68abc"], "returns": "111130137368" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["111130137368999"], "returns": "111130137368", "note": "reference truncates to the 12 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["111130137368999"], "returns": "111130137368", "note": "reference truncates to the 12 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [111130137368], "returns": "111130137368", "note": "JavaScript's own test: should read a number as the string of its digits" }
       ]
     }
   }

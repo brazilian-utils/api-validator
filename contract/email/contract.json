@@ -37,7 +37,21 @@
       "tests": [
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["invalid.email"], "returns": false, "note": "JavaScript's own test: should return false when it is missing @" },
+        { "args": ["user@"], "returns": false, "note": "JavaScript's own test: should return false when it is missing domain" },
+        { "args": ["@domain.com"], "returns": false, "note": "JavaScript's own test: should return false when it is missing user" },
+        { "args": ["!!!user@example.com"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage before an otherwise valid email" },
+        { "args": ["user@example.com!!!"], "returns": false, "note": "JavaScript's own test: should return false when there is garbage after an otherwise valid email" },
+        { "args": ["ab..c@example.com"], "returns": false, "note": "JavaScript's own test: should return false when the local part has consecutive dots that are not at the very start" },
+        { "args": ["user@example-.com"], "returns": false, "note": "JavaScript's own test: should return false when a domain label ends with a hyphen" },
+        { "args": ["user@-example.com"], "returns": false, "note": "JavaScript's own test: should return false when a domain label starts with a hyphen" },
+        { "args": ["user@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["user__@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["user__user@example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email" },
+        { "args": ["test@subdomain.example.com"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email with subdomain" },
+        { "args": ["user@ex-ample.com"], "returns": true, "note": "JavaScript's own test: should return true when a domain label carries an inner hyphen" },
+        { "args": ["user+tag@example.co.uk"], "returns": true, "note": "JavaScript's own test: should return true when is a valid email with special characters" }
       ]
     }
   }

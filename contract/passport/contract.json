@@ -38,7 +38,20 @@
         { "name": "strips-symbols", "args": ["AB-123.456"], "returns": "AB123456" },
         { "name": "partial", "args": ["AB12"], "returns": "AB12" },
         { "name": "empty", "args": [""], "returns": "", "note": "some libs return null/None for input they cannot format; the reference returns an empty string (asserted by its tests)" },
-        { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456", "note": "reference truncates to 8 characters; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456", "note": "reference truncates to 8 characters; asserted by the reference (JS) unit tests" },
+        { "args": ["A"], "returns": "A", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["AB"], "returns": "AB", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["AB1"], "returns": "AB1", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["AB123"], "returns": "AB123", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["AB1234"], "returns": "AB1234", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["AB12345"], "returns": "AB12345", "note": "JavaScript's own test: should return the formatted passport when passport is valid" },
+        { "args": ["a"], "returns": "A", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["ac"], "returns": "AC", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["acd"], "returns": "ACD", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["acd1"], "returns": "ACD1", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["acd12"], "returns": "ACD12", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["acd127"], "returns": "ACD127", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" },
+        { "args": ["acd1273"], "returns": "ACD1273", "note": "JavaScript's own test: should return the formatted passport when passport has lowercase letters" }
       ]
     },
     "generate": {
@@ -122,7 +135,9 @@
         { "name": "spaces", "args": [" AB 123 456 "], "returns": "AB123456" },
         { "name": "hyphens", "args": ["-AB1-23-4-56-"], "returns": "AB123456" },
         { "name": "caps-length", "args": ["AB123456789"], "returns": "AB123456" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": [".AB.1.23.456."], "returns": "AB123456", "note": "JavaScript's own test: should return the string without symbols when there are dots" },
+        { "args": [".A B.1.2-3.45 -. 6."], "returns": "AB123456", "note": "JavaScript's own test: should return the string without symbols when there are multiple symbols" }
       ]
     }
   }

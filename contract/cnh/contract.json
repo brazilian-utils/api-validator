@@ -35,7 +35,16 @@
         { "args": ["00000000119"], "returns": "000000001-19" },
         { "name": "remasks", "args": ["000.000.001-19"], "returns": "000000001-19" },
         { "name": "partial", "args": ["0000000011"], "returns": "000000001-1" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["0"], "returns": "0", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["00"], "returns": "00", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["000"], "returns": "000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["0000"], "returns": "0000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["00000"], "returns": "00000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["000000"], "returns": "000000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["0000000"], "returns": "0000000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["00000000"], "returns": "00000000", "note": "JavaScript's own test: should format CNH values" },
+        { "args": ["000000001"], "returns": "000000001", "note": "JavaScript's own test: should format CNH values" }
       ]
     },
     "generate": {
@@ -91,7 +100,17 @@
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "name": "valid-sample", "args": ["75206264506"], "returns": true, "note": "valid CNH for go, javascript, ruby and rust; python implements the 2022 CNH algorithm and rejects it: confirm which rule the contract follows (docs/findings.md)" }
+        { "name": "valid-sample", "args": ["75206264506"], "returns": true, "note": "valid CNH for go, javascript, ruby and rust; python implements the 2022 CNH algorithm and rejects it: confirm which rule the contract follows (docs/findings.md)" },
+        { "args": ["00000000119"], "returns": true, "note": "JavaScript's own test: should return true for valid CNH" },
+        { "args": ["000000001-19"], "returns": true, "note": "JavaScript's own test: should return true for valid CNH" },
+        { "args": ["00000009309"], "returns": true, "note": "JavaScript's own test: should return true for a CNH that hits the secondVerifier<0 branch" },
+        { "args": ["12345678901"], "returns": false, "note": "JavaScript's own test: should return false for invalid CNH" },
+        { "args": ["11111111111"], "returns": false, "note": "JavaScript's own test: should return false for invalid CNH" },
+        { "args": ["00000000129"], "returns": false, "note": "JavaScript's own test: should return false when the first verifier digit does not match" },
+        { "args": ["0000000011900"], "returns": false, "note": "JavaScript's own test: should return false when it sanitizes to more than 11 digits, even if the first 11 match a valid CNH" },
+        { "args": ["ab00000000119"], "returns": false, "note": "JavaScript's own test: should return false when a letter is attached to the digits" },
+        { "args": ["00000000119ab"], "returns": false, "note": "JavaScript's own test: should return false when a letter is attached to the digits" },
+        { "args": ["000000001/19"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses a character other than whitespace, a dot or a hyphen" }
       ]
     },
     "parse": {

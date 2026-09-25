@@ -43,7 +43,42 @@
         "https://cfo.org.br/"
       ],
       "params": [{ "name": "params", "type": "IsValidRegistroProfissionalParams" }],
-      "returns": "boolean"
+      "returns": "boolean",
+      "tests": [
+        { "args": [{ "value": "", "council": "OAB" }], "returns": false, "note": "JavaScript's own test: should return false when value is an empty string" },
+        { "args": [{ "value": "123456", "council": "OAB" }], "returns": false, "note": "JavaScript's own test: should return false when an OAB number has no UF" },
+        { "args": [{ "value": "1234567/SP", "council": "OAB" }], "returns": false, "note": "JavaScript's own test: should return false when an OAB number has too many digits" },
+        { "args": [{ "value": "123456/ZZ", "council": "OAB" }], "returns": false, "note": "JavaScript's own test: should return false when the UF is not a real Brazilian state code" },
+        { "args": [{ "value": "123456-RJ", "council": "OAB", "stateCode": "SP" }], "returns": false, "note": "JavaScript's own test: should return false when the UF does not match params.stateCode" },
+        { "args": [{ "value": "SP/12345", "council": "CRP" }], "returns": false, "note": "JavaScript's own test: should return false when a CRP number has letters instead of the regional code" },
+        { "args": [{ "value": "SP-123456-3", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number is missing the category letter" },
+        { "args": [{ "value": "SP-123456/O", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number is missing the check digit" },
+        { "args": [{ "value": "SP-12345/O-3", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number of ordem has 5 digits instead of the 6 of the Manual de Registro" },
+        { "args": [{ "value": "SP-123456/X-3", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number carries a letter that is not a tipo de registro" },
+        { "args": [{ "value": "SP-123456/T-3", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number puts \"T\" in the tipo de registro slot, which the Manual de Registro restricts to O and P" },
+        { "args": [{ "value": "SP-123456/S-3", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a CRC number puts \"S\" in the tipo de registro slot" },
+        { "args": [{ "value": "SP-123456/O-3 T-ZZ", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when the destination UF of a transferred CRC number is not a real Brazilian state code" },
+        { "args": [{ "value": "SP-123456/O-3 T", "council": "CRC" }], "returns": false, "note": "JavaScript's own test: should return false when a transferred CRC number carries no destination UF at all" },
+        { "args": [{ "value": "00/12345", "council": "CRP" }], "returns": false, "note": "JavaScript's own test: should return false when a CRP regional code is 00, below the CRP-01 of the CFP system" },
+        { "args": [{ "value": "25/12345", "council": "CRP" }], "returns": false, "note": "JavaScript's own test: should return false when a CRP regional code is 25, above the CRP-24 of the CFP system" },
+        { "args": [{ "value": "99/12345", "council": "CRP" }], "returns": false, "note": "JavaScript's own test: should return false when a CRP regional code is 99, which no Conselho Regional carries" },
+        { "args": [{ "value": "123456/SP", "council": "OAB" }], "returns": true, "note": "JavaScript's own test: should return true for a valid OAB number" },
+        { "args": [{ "value": "123456-SP", "council": "OAB", "stateCode": "SP" }], "returns": true, "note": "JavaScript's own test: should return true for a valid OAB number matching params.stateCode" },
+        { "args": [{ "value": "54321/RJ", "council": "CRM" }], "returns": true, "note": "JavaScript's own test: should return true for a valid CRM number" },
+        { "args": [{ "value": "12345/MG", "council": "CRO" }], "returns": true, "note": "JavaScript's own test: should return true for a valid CRO number" },
+        { "args": [{ "value": "06/12345", "council": "CRP", "stateCode": "SP" }], "returns": true, "note": "JavaScript's own test: should return true for a valid CRP number, ignoring params.stateCode" },
+        { "args": [{ "value": "01/12345", "council": "CRP" }], "returns": true, "note": "JavaScript's own test: should return true for the first regional code of the CFP system, CRP-01" },
+        { "args": [{ "value": "24/12345", "council": "CRP" }], "returns": true, "note": "JavaScript's own test: should return true for the last regional code of the CFP system, CRP-24" },
+        { "args": [{ "value": "2412345", "council": "CRP" }], "returns": true, "note": "JavaScript's own test: should return true for the last regional code of the CFP system, CRP-24" },
+        { "args": [{ "value": "SP-123456/O-3", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for a valid CRC number of a registro originário" },
+        { "args": [{ "value": "DF-000001/P-7", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for DF-000001/P-7, the Manual de Registro's own example of a registro provisório" },
+        { "args": [{ "value": "DF-000002/O-5", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for DF-000002/O-5, the Manual de Registro's own example of a registro originário" },
+        { "args": [{ "value": "SP-123456/O-3 T-MG", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for \"SP-123456/O-3 T-MG\", the Manual de Registro's own example of a registro definitivo transferido" },
+        { "args": [{ "value": "TO-654321/P-8 T-SC", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for \"TO-654321/P-8 T-SC\", the Manual de Registro's own example of a registro provisório transferido" },
+        { "args": [{ "value": "PI-111222/O-5 S-AC", "council": "CRC" }], "returns": true, "note": "JavaScript's own test: should return true for \"PI-111222/O-5 S-AC\", the Manual de Registro's own example of a registro secundário" },
+        { "args": [{ "value": "SP-123456/O-3 T-MG", "council": "CRC", "stateCode": "SP" }], "returns": true, "note": "JavaScript's own test: should return true for a transferred CRC number matching params.stateCode, which is the originating UF" },
+        { "args": [{ "value": "SP-123456/O-3 T-MG", "council": "CRC", "stateCode": "MG" }], "returns": false, "note": "JavaScript's own test: should return true for a transferred CRC number matching params.stateCode, which is the originating UF" }
+      ]
     }
   }
 }

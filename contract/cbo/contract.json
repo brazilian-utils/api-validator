@@ -37,7 +37,19 @@
         { "name": "leading-zero", "args": ["0102-05"], "returns": { "code": "010205", "description": "Oficial da aeronáutica" } },
         { "name": "nonexistent", "args": ["223150"], "returns": null },
         { "args": ["000000"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [212405], "returns": { "code": "212405", "description": "Analista de desenvolvimento de sistemas" }, "note": "JavaScript's own test: should return the occupation for a code given as a number" },
+        { "args": ["102-05"], "returns": null, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": ["142135"], "returns": { "code": "142135", "description": "Oficial de proteção de dados pessoais (dpo)" }, "note": "JavaScript's own test: should resolve a code the official CSV carries and the community mirror did not (142135)" },
+        { "args": ["2124--05"], "returns": null, "note": "JavaScript's own test: should reject a group boundary written with more than one separator (2124--05)" },
+        { "args": ["2124 05"], "returns": { "code": "212405", "description": "Analista de desenvolvimento de sistemas" }, "note": "JavaScript's own test: should reject a group boundary written with more than one separator (2124--05)" },
+        { "args": ["21240"], "returns": null, "note": "JavaScript's own test: should return null for a padded short value no occupation carries and for a wider value" },
+        { "args": ["2124055"], "returns": null, "note": "JavaScript's own test: should return null for a padded short value no occupation carries and for a wider value" },
+        { "args": ["      "], "returns": null, "note": "JavaScript's own test: should return null for whitespace only" },
+        { "args": ["2124abc05"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not written in a documented form" },
+        { "args": ["21-2405"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not written in a documented form" },
+        { "args": [-212405], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" },
+        { "args": [2124.05], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" }
       ]
     },
     "isValid": {
@@ -72,7 +84,25 @@
         { "name": "zeros", "args": ["000000"], "returns": false },
         { "name": "too-short", "args": ["21240"], "returns": false },
         { "name": "letters", "args": ["abcdef"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": [212405], "returns": true, "note": "JavaScript's own test: should validate a CBO code given as a number" },
+        { "args": [10205], "returns": true, "note": "JavaScript's own test: should pad a value with leading zeros before looking it up, as a number or as a string" },
+        { "args": ["10205"], "returns": true, "note": "JavaScript's own test: should pad a value with leading zeros before looking it up, as a number or as a string" },
+        { "args": ["102-05"], "returns": false, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": ["0102-05"], "returns": true, "note": "JavaScript's own test: should not pad a masked value, which already carries its separators" },
+        { "args": [" 212405 "], "returns": true, "note": "JavaScript's own test: should validate a CBO code with surrounding whitespace" },
+        { "args": ["142135"], "returns": true, "note": "JavaScript's own test: should accept a code the official CSV carries and the community mirror did not (142135)" },
+        { "args": ["2124--05"], "returns": false, "note": "JavaScript's own test: should reject a group boundary written with more than one separator (2124--05)" },
+        { "args": ["2124 05"], "returns": true, "note": "JavaScript's own test: should reject a group boundary written with more than one separator (2124--05)" },
+        { "args": ["2124055"], "returns": false, "note": "JavaScript's own test: should return false for a padded short value no occupation carries and for a wider value" },
+        { "args": ["      "], "returns": false, "note": "JavaScript's own test: should return false for whitespace only" },
+        { "args": ["2124.05"], "returns": true, "note": "JavaScript's own test: should accept the separators the mask uses between the two groups" },
+        { "args": ["2124/05"], "returns": true, "note": "JavaScript's own test: should accept the separators the mask uses between the two groups" },
+        { "args": ["2124abc05"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": ["21-2405"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": ["+212405"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not written in a documented form" },
+        { "args": [-212405], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [2124.05], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
       ]
     },
     "parse": {
@@ -100,7 +130,9 @@
         { "name": "unmasked", "args": ["212405"], "returns": "212405" },
         { "name": "strips-non-digits", "args": ["21?ABC24-05abc"], "returns": "212405" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["212405999"], "returns": "212405", "note": "reference truncates to the 6 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["212405999"], "returns": "212405", "note": "reference truncates to the 6 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [212405], "returns": "212405", "note": "JavaScript's own test: should read a number as the string of its digits" },
+        { "args": ["10205"], "returns": "10205", "note": "JavaScript's own test: should keep a partial code as written, without padding it" }
       ]
     }
   }

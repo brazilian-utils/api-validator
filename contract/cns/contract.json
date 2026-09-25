@@ -37,7 +37,16 @@
         { "args": ["123456789010001"], "returns": "123 4567 8901 0001" },
         { "name": "already-formatted", "args": ["898 0000 0004 3208"], "returns": "898 0000 0004 3208" },
         { "name": "partial", "args": ["1234"], "returns": "123 4" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["12"], "returns": "12", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["123"], "returns": "123", "note": "JavaScript's own test: should format a CNS with the 3-4-4-4 space mask" },
+        { "args": ["898000000043208"], "returns": "898 0000 0004 3208", "note": "JavaScript's own test: should round trip 898 0000 0004 3208, the only concrete CNS the ANVISA page prints" },
+        { "args": [123456789010001], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should format a number CNS with the space mask" },
+        { "args": ["", { "pad": true }], "returns": "000 0000 0000 0000", "note": "JavaScript's own test: should pad the value with leading zeros when pad is true" },
+        { "args": ["89010001", { "pad": true }], "returns": "000 0000 8901 0001", "note": "JavaScript's own test: should pad the value with leading zeros when pad is true" },
+        { "args": ["123456789010001999"], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should not add digits after the CNS length (15)" },
+        { "args": ["123.456.789-01/0001"], "returns": "123 4567 8901 0001", "note": "JavaScript's own test: should remove all non numeric characters" }
       ]
     },
     "isValid": {
@@ -72,7 +81,33 @@
         { "name": "wrong-check-digit", "args": ["123456789010001"], "returns": false },
         { "name": "invalid-first-digit", "args": ["312345678901234"], "returns": false },
         { "name": "too-short", "args": ["12345678901"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["012345678901234"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1, 2, 7, 8 or 9" },
+        { "args": ["612345678901234"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1, 2, 7, 8 or 9" },
+        { "args": ["123456789010010"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card carries the 001 suffix without needing the +2 adjustment" },
+        { "args": ["100000000060000"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card whose raw check digit is 10 (base 10000000006) keeps the 000 suffix" },
+        { "args": ["100000000060008"], "returns": false, "note": "JavaScript's own test: should return false when a definitive card whose raw check digit is 10 (base 10000000006) keeps the 000 suffix" },
+        { "args": ["700000000000001"], "returns": false, "note": "JavaScript's own test: should return false when a provisional card's weighted sum is not a multiple of 11" },
+        { "args": ["70000000000008"], "returns": false, "note": "JavaScript's own test: should return false when it does not have 15 digits, even though a provisional-style weighted sum over the given digits would be a multiple of 11" },
+        { "args": ["012345678900006"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 1 or 2, even though a 1 or 2 appears later and the rest forms a valid definitive checksum" },
+        { "args": ["070000000000001"], "returns": false, "note": "JavaScript's own test: should return false when the first digit is not 7, 8 or 9, even though one of them appears later and the rest forms a valid provisional checksum" },
+        { "args": ["abc123456789010000"], "returns": false, "note": "JavaScript's own test: should return false when letters are wrapped around the digits of a valid card" },
+        { "args": ["123456789010000abc"], "returns": false, "note": "JavaScript's own test: should return false when letters are wrapped around the digits of a valid card" },
+        { "args": ["1a2b3c456789010000"], "returns": false, "note": "JavaScript's own test: should return false when letters are mixed in between the digits of a valid card" },
+        { "args": ["1234 5678 9010 000"], "returns": false, "note": "JavaScript's own test: should return false when the 15 digits are grouped outside the printed 3-4-4-4 mask" },
+        { "args": ["200000000010009"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS starting with 2 (base 20000000001, weighted sum 35, digit 9)" },
+        { "args": [123456789010000], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS as a number" },
+        { "args": ["123.4567.8901.0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS with a dotted mask" },
+        { "args": ["123-4567-8901-0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123/4567/8901/0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123.4567-8901/0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": ["123 - 4567 8901 0000"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS split by the other interchangeable separators" },
+        { "args": [" 123456789010000 "], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS with leading and trailing whitespace" },
+        { "args": ["100000000060018"], "returns": true, "note": "JavaScript's own test: should return true for a definitive CNS whose raw check digit is 10 (base 10000000006, weighted sum 45): sum raised to 47, digit 8, suffix 001" },
+        { "args": ["800000000000001"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS starting with 8" },
+        { "args": ["898 0000 0004 3208"], "returns": true, "note": "JavaScript's own test: should return true for 898 0000 0004 3208, the only concrete CNS the ANVISA page prints (weighted sum 396)" },
+        { "args": ["900000000000008"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS starting with 9" },
+        { "args": ["712345678901236"], "returns": true, "note": "JavaScript's own test: should return true for a provisional CNS whose base 11 digits would NOT be a valid definitive checksum" }
       ]
     },
     "parse": {
@@ -92,7 +127,8 @@
         { "name": "unmasked", "args": ["123456789010000"], "returns": "123456789010000" },
         { "name": "strips-non-digits", "args": ["123.?ABC4567 8901-0000abc"], "returns": "123456789010000" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["123456789010000999"], "returns": "123456789010000", "note": "reference truncates to the 15 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["123456789010000999"], "returns": "123456789010000", "note": "reference truncates to the 15 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [123456789010000], "returns": "123456789010000", "note": "JavaScript's own test: should read a number as the string of its digits" }
       ]
     }
   }

@@ -49,7 +49,19 @@
         { "name": "hyphen-mask", "args": ["ABC-1234"], "returns": "ABC1C34" },
         { "name": "already-mercosul", "args": ["ABC1D23"], "returns": "", "note": "no conversion possible; the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
         { "name": "invalid", "args": ["invalid"], "returns": "", "note": "the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
-        { "name": "empty", "args": [""], "returns": "", "note": "the reference returns an empty string (asserted by its tests), several libs return null/None instead" }
+        { "name": "empty", "args": [""], "returns": "", "note": "the reference returns an empty string (asserted by its tests), several libs return null/None instead" },
+        { "args": ["ABC12D3"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is the withdrawn LLLNNLN sequence" },
+        { "args": ["ABC1234EXTRA"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is an old format plate followed by extra characters" },
+        { "args": ["ABC12345"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is an old format plate followed by extra characters" },
+        { "args": ["ABC123"], "returns": "", "note": "JavaScript's own test: should return an empty string when it is too short" },
+        { "args": ["ABC1111"], "returns": "ABC1B11", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC2222"], "returns": "ABC2C22", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC3333"], "returns": "ABC3D33", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC4444"], "returns": "ABC4E44", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC5555"], "returns": "ABC5F55", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC6666"], "returns": "ABC6G66", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC7777"], "returns": "ABC7H77", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" },
+        { "args": ["ABC8888"], "returns": "ABC8I88", "note": "JavaScript's own test: should return the converted plate for a plate ending in each digit, per the official conversion table" }
       ]
     },
     "format": {
@@ -82,7 +94,26 @@
         { "args": ["gjg8u81"], "returns": "GJG8U81", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["KDS4W15"], "returns": "KDS4W15", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["kds4w15"], "returns": "KDS4W15", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["kds4w15"], "returns": "KDS4W15", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test" },
+        { "args": ["a"], "returns": "A", "note": "JavaScript's own test" },
+        { "args": ["ab"], "returns": "AB", "note": "JavaScript's own test" },
+        { "args": ["abc"], "returns": "ABC", "note": "JavaScript's own test" },
+        { "args": ["abc1"], "returns": "ABC-1", "note": "JavaScript's own test" },
+        { "args": ["abc12"], "returns": "ABC-12", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc123"], "returns": "ABC-123", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc1234"], "returns": "ABC-1234", "note": "JavaScript's own test: should format old pattern license plates" },
+        { "args": ["abc1d"], "returns": "ABC1D", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc1d2"], "returns": "ABC1D2", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc1d23"], "returns": "ABC1D23", "note": "JavaScript's own test: should keep mercosul plates normalized" },
+        { "args": ["abc-1234"], "returns": "ABC-1234", "note": "JavaScript's own test: should remove non alphanumeric characters" },
+        { "args": ["abc1-d23"], "returns": "ABC1D23", "note": "JavaScript's own test: should remove non alphanumeric characters" },
+        { "args": ["abc1da2"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["abc12d"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["abc12d3"], "returns": "", "note": "JavaScript's own test: should return an empty string when the tail matches no supported format" },
+        { "args": ["1"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" },
+        { "args": ["1ab4"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" },
+        { "args": ["ab14"], "returns": "", "note": "JavaScript's own test: should return an empty string when a digit appears within the first three characters" }
       ]
     },
     "generate": {
@@ -150,7 +181,12 @@
         { "args": ["gjg8u81"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["KDS4W15"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["KDS4W16"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["kds4w15"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["kds4w15"], "returns": "LLLNLNN", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["ABC1234"], "returns": "LLLNNNN", "note": "JavaScript's own test: should identify supported formats" },
+        { "args": ["ABC1D23"], "returns": "LLLNLNN", "note": "JavaScript's own test: should identify supported formats" },
+        { "args": ["ABC12D3"], "returns": null, "note": "JavaScript's own test: should return null for the withdrawn motorcycle sequence" },
+        { "args": ["ABC1234EXTRA"], "returns": null, "note": "JavaScript's own test: should return null when the value has extra characters beyond the license plate length" },
+        { "args": ["invalid"], "returns": null, "note": "JavaScript's own test: should return null when the value does not match any supported format" }
       ]
     },
     "isValid": {
@@ -189,7 +225,23 @@
         { "args": ["kds4w15"], "returns": true, "note": "consensus of 3 libs (javascript, python, ruby)" },
         { "args": [""], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
         { "args": ["   "], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 3 libs (javascript, python, ruby)" },
+        { "args": ["abc12345"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["5abc1234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["abcd1234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["abcd234"], "returns": false, "note": "JavaScript's own test: should return false when brazilian license plate format is invalid" },
+        { "args": ["ABC1234EXTRA"], "returns": false, "note": "JavaScript's own test: should return false when it has extra characters beyond the license plate length" },
+        { "args": ["ABC12D3"], "returns": false, "note": "JavaScript's own test: should return false when it uses the withdrawn motorcycle sequence" },
+        { "args": ["abc12d3"], "returns": false, "note": "JavaScript's own test: should return false when it uses the withdrawn motorcycle sequence" },
+        { "args": ["abc1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["ABC1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["abc-1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["ABC-1234"], "returns": true, "note": "JavaScript's own test: should return true when brazilian license plate format is valid" },
+        { "args": ["abc1d23"], "returns": true, "note": "JavaScript's own test: should return true when mercosul license plate format is valid" },
+        { "args": ["ABC1D23"], "returns": true, "note": "JavaScript's own test: should return true when mercosul license plate format is valid" },
+        { "args": ["ABC 1234"], "returns": true, "note": "JavaScript's own test: should return true when it has a whitespace mask" },
+        { "args": ["  abc1234 "], "returns": true, "note": "JavaScript's own test: should return true when it has a whitespace mask" },
+        { "args": ["ABC-1D23"], "returns": true, "note": "JavaScript's own test: should return true when the mercosul format has a hyphen mask" }
       ]
     },
     "parse": {
@@ -216,7 +268,8 @@
         { "args": ["GJG8U81"], "returns": "GJG8U81", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["GJG8U82"], "returns": "GJG8U82", "note": "consensus of 3 libs (python, ruby, rust)" },
         { "args": ["KDS4W15"], "returns": "KDS4W15", "note": "consensus of 3 libs (python, ruby, rust)" },
-        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 3 libs (python, ruby, rust)" }
+        { "args": ["KDS4W16"], "returns": "KDS4W16", "note": "consensus of 3 libs (python, ruby, rust)" },
+        { "args": ["abc1d23xyz"], "returns": "ABC1D23", "note": "JavaScript's own test: should ignore characters after the license plate length" }
       ]
     }
   }

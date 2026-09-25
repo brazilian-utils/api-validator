@@ -42,7 +42,11 @@
         { "args": ["341"], "returns": { "code": "341", "ispb": "60701190", "name": "ITAÚ UNIBANCO S.A." } },
         { "name": "nonexistent", "args": ["999"], "returns": null },
         { "args": ["abc"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-1], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": [0.01], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": ["0-01"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the code has a mask" },
+        { "args": ["00001"], "returns": null, "note": "JavaScript's own test: should return null when the code is longer than 3 digits" }
       ]
     },
     "getByIspb": {
@@ -73,7 +77,13 @@
         { "args": ["60701190"], "returns": { "code": "341", "ispb": "60701190", "name": "ITAÚ UNIBANCO S.A." } },
         { "name": "nonexistent", "args": ["99999999"], "returns": null },
         { "args": ["abc"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-208], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": [2.08], "returns": null, "note": "JavaScript's own test: should return null for a negative or fractional number whose digits would otherwise match a bank" },
+        { "args": ["0"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb is a string without leading zeros" },
+        { "args": [0], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb is a number" },
+        { "args": ["0000-0000"], "returns": { "code": "001", "ispb": "00000000", "name": "Banco do Brasil S.A." }, "note": "JavaScript's own test: should return the bank when the ispb has a mask" },
+        { "args": ["0000000000"], "returns": null, "note": "JavaScript's own test: should return null when the ispb is longer than 8 digits" }
       ]
     },
     "list": {

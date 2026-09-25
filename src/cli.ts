@@ -16,6 +16,7 @@ import { answerKey, corpora, differential, diffDivergences, minedValues, partiti
 import { SymbolIndex, proposeBindings, resolve } from "./core/match.js";
 import type { ApiSurface, Contract, LibConfig, LibReport } from "./core/model.js";
 import { globMatch } from "./core/naming.js";
+import { mineJsTests } from "./core/mine-tests.js";
 import { parseCType } from "./core/ctype.js";
 import { BASELINES_DIR, CONTRACT_DIR, LIBS_DIR, OUTPUT_DIR, PACKAGE_ROOT, REPOS_DIR, SCHEMA_DIR, SNAPSHOTS_DIR } from "./core/paths.js";
 import { bestOverload, nativeSig } from "./core/signature.js";
@@ -838,6 +839,56 @@ program
         file,
         formatJson({
           $comment: `Test proposals mined by docs diff (majority answer, ties -> ${reference}). Review each one, move the good ones into contract/${slugOf(domain)}/contract.json under the function's tests, delete this file.`,
+          functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
+        })
+      );
+      console.log(c.cyan(`proposals: ${path.relative(process.cwd(), file)}`));
+    }
+  });
+
+program
+  .command("mine-tests")
+  .description("Mine shared test cases from a JavaScript lib's own test suite: expect(fn(literals)).toBe(literal) on bound functions; proposals in contract/_proposals/, or --apply")
+  .requiredOption("-l, --lib <name>", "lib (JavaScript)")
+  .option("-p, --path <dir>", "lib checkout to use (default: the validator's checkout)")
+  .option("--fn <glob>", "only contract functions matching (e.g. cpf.*)")
+  .option("--apply", "append the cases straight into contract/<domain>/contract.json")
+  .action(async (opts) => {
+    const contract = loadContract(CONTRACT_DIR);
+    const lib = selectLibs(loadLibConfigs(LIBS_DIR), [opts.lib])[0];
+    if (!["javascript", "typescript"].includes(lib.language)) throw new Error(`mine-tests reads a JavaScript test suite; ${lib.name} is ${lib.language}`);
+    const { report } = await analyzeOne(contract, { ...opts, lib: [lib.name] });
+    const checkout = opts.path ?? path.join(REPOS_DIR, lib.name);
+    const mined = mineJsTests(checkout, report, contract).filter((m) => !opts.fn || globMatch(opts.fn, m.fn.id));
+    const proposals = new Map<string, Record<string, Array<Record<string, unknown>>>>();
+    let total = 0;
+    for (const m of mined) {
+      const skipped = Object.entries(m.skipped)
+        .sort(([, a], [, b]) => b - a)
+        .map(([why, n]) => `${n} ${why}`)
+        .join(", ");
+      console.log(`${m.cases.length ? c.green(`+${m.cases.length}`) : c.dim("+0")} ${c.bold(m.fn.id)} ${c.dim(`(${m.symbol}${skipped ? `; skipped: ${skipped}` : ""})`)}`);
+      if (!m.cases.length) continue;
+      total += m.cases.length;
+      const domain = proposals.get(m.fn.domain) ?? {};
+      (domain[m.fn.operation] ??= []).push(...m.cases.map((t) => ({ args: t.args, ...(t.throws ? { throws: true } : { returns: t.returns }), note: t.note })));
+      proposals.set(m.fn.domain, domain);
+    }
+    console.log(`\n${total} cases from ${mined.filter((m) => m.cases.length).length} functions`);
+    if (opts.apply) {
+      for (const [domain, ops] of proposals) {
+        const n = appendTests(contractFile(CONTRACT_DIR, domain), ops);
+        console.log(c.cyan(`${path.relative(PACKAGE_ROOT, contractFile(CONTRACT_DIR, domain))}: +${n} tests`));
+      }
+      formatDir(CONTRACT_DIR, "contract");
+      return;
+    }
+    for (const [domain, ops] of proposals) {
+      const file = path.join(CONTRACT_DIR, "_proposals", `${slugOf(domain)}.json`);
+      writeFile(
+        file,
+        formatJson({
+          $comment: `Test cases mined by docs mine-tests from ${lib.name}'s own test suite. Review each one, move the good ones into contract/${slugOf(domain)}/contract.json under the function's tests, delete this file.`,
           functions: Object.fromEntries(Object.entries(ops).map(([op, tests]) => [op, { tests }]))
         })
       );

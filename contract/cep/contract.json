@@ -43,7 +43,18 @@
         { "args": ["21749676"], "returns": "21749-676", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["21749677"], "returns": "21749-677", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["41790070"], "returns": "41790-070", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["41790071"], "returns": "41790-071", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["41790071"], "returns": "41790-071", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["0"], "returns": "0", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["01"], "returns": "01", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["010"], "returns": "010", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["0100"], "returns": "0100", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["01001"], "returns": "01001", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["010010"], "returns": "01001-0", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["0100100"], "returns": "01001-00", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["01001000"], "returns": "01001-000", "note": "JavaScript's own test: should format CEP with mask" },
+        { "args": ["01001000000000"], "returns": "01001-000", "note": "JavaScript's own test" },
+        { "args": ["a0.10cr01?00#ab0"], "returns": "01001-000", "note": "JavaScript's own test: should remove all non numeric characters" }
       ]
     },
     "generate": {
@@ -173,7 +184,18 @@
         { "args": ["41790071"], "returns": true, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["12345"], "returns": false, "note": "JavaScript's own test: should return false when length is less than 8" },
+        { "args": ["123456789"], "returns": false, "note": "JavaScript's own test: should return false when length is greater than 8" },
+        { "args": ["abc01310100"], "returns": false, "note": "JavaScript's own test: should return false when it contains letters" },
+        { "args": ["0131010a"], "returns": false, "note": "JavaScript's own test: should return false when it contains letters" },
+        { "args": ["01310100"], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid without mask" },
+        { "args": ["01310-100"], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid with mask" },
+        { "args": [20040020], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid as a number" },
+        { "args": [" 01310-100 "], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid with leading/trailing whitespace" },
+        { "args": ["92.500-000"], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid with any punctuation the published version accepted" },
+        { "args": ["013 10 100"], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid with any punctuation the published version accepted" },
+        { "args": ["01310.100"], "returns": true, "note": "JavaScript's own test: should return true when is a CEP valid with any punctuation the published version accepted" }
       ]
     },
     "parse": {

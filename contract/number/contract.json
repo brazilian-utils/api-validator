@@ -47,7 +47,8 @@
         { "args": [1000], "returns": "mil" },
         { "args": [1000000], "returns": "um milhão" },
         { "name": "negative", "args": [-3], "returns": "menos três" },
-        { "name": "truncates-fraction", "args": [12.9], "returns": "doze", "note": "the fractional part is dropped; asserted by the reference (JS) unit tests" }
+        { "name": "truncates-fraction", "args": [12.9], "returns": "doze", "note": "the fractional part is dropped; asserted by the reference (JS) unit tests" },
+        { "args": [-12.9], "returns": "menos doze", "note": "JavaScript's own test: non-integer values should truncate toward zero before converting" }
       ]
     }
   }

@@ -41,7 +41,15 @@
         { "args": ["35170458716523000119550010000000121000123458"], "returns": "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458" },
         { "name": "nfe-prefix", "args": ["NFe35170458716523000119550010000000121000123458"], "returns": "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458" },
         { "name": "partial", "args": ["12345"], "returns": "1234 5" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format partial values as far as they go" },
+        { "args": ["123"], "returns": "123", "note": "JavaScript's own test: should format partial values as far as they go" },
+        { "args": ["1234"], "returns": "1234", "note": "JavaScript's own test: should format partial values as far as they go" },
+        { "args": ["12345", { "pad": true }], "returns": "0000 0000 0000 0000 0000 0000 0000 0000 0000 0001 2345", "note": "JavaScript's own test: should left pad the value when options.pad is true" },
+        { "args": ["35170458716523000119550010000000121000123458", { "pad": true }], "returns": "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458", "note": "JavaScript's own test: should left pad the value keeping a complete access key untouched" },
+        { "args": ["12345", { "pad": false }], "returns": "1234 5", "note": "JavaScript's own test: should left pad the value and nothing else when options.pad is false, undefined or the options object is missing" },
+        { "args": ["12345", {}], "returns": "1234 5", "note": "JavaScript's own test: should left pad the value and nothing else when options.pad is false, undefined or the options object is missing" },
+        { "args": ["3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"], "returns": "3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458", "note": "JavaScript's own test: should remove all non numeric characters, including the NFe prefix" }
       ]
     },
     "getInfo": {
@@ -80,7 +88,69 @@
       "tests": [
         { "args": ["35170458716523000119550010000000121000123458"], "returns": { "stateCode": "SP", "year": 2017, "month": 4, "taxId": "58716523000119", "model": "55", "series": 1, "number": 12, "emissionType": 1, "code": "00012345", "checkDigit": 8 } },
         { "name": "wrong-check-digit", "args": ["35170458716523000119550010000000121000123459"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["35170458716523000119990010000000121000123453"], "returns": null, "note": "JavaScript's own test: should return null when the model is not one of the nine supported (model 99 with a matching check digit)" },
+        { "args": ["35170458716523000119550010000000001000123457"], "returns": null, "note": "JavaScript's own test: should return null when the document number is zero" },
+        { "args": ["35170458716523000119550010000000128000123455"], "returns": null, "note": "JavaScript's own test: should return null when tpEmis is 8, which the NF-e MOC does not assign, even with a matching check digit" },
+        { "args": ["35170458716523000119570010000000122000123453"], "returns": null, "note": "JavaScript's own test: should return null when tpEmis belongs to another model: 2 for a CT-e, 3 for a CT-e OS, 9 for an MDF-e, 3 for a BP-e" },
+        { "args": ["35170458716523000119670010000000123000123454"], "returns": null, "note": "JavaScript's own test: should return null when tpEmis belongs to another model: 2 for a CT-e, 3 for a CT-e OS, 9 for an MDF-e, 3 for a BP-e" },
+        { "args": ["35170458716523000119580010000000129000123454"], "returns": null, "note": "JavaScript's own test: should return null when tpEmis belongs to another model: 2 for a CT-e, 3 for a CT-e OS, 9 for an MDF-e, 3 for a BP-e" },
+        { "args": ["35170458716523000119630010000000123000123450"], "returns": null, "note": "JavaScript's own test: should return null when tpEmis belongs to another model: 2 for a CT-e, 3 for a CT-e OS, 9 for an MDF-e, 3 for a BP-e" },
+        { "args": ["35170458716523000119550010000000121000000003"], "returns": null, "note": "JavaScript's own test: should return null when the cNF of an NF-e is one rule B03-10 of the MOC forbids" },
+        { "args": ["35170458716523000119550010000000121111111113"], "returns": null, "note": "JavaScript's own test: should return null when the cNF of an NF-e is one rule B03-10 of the MOC forbids" },
+        { "args": ["35170458716523000119550010000000121123456781"], "returns": null, "note": "JavaScript's own test: should return null when the cNF of an NF-e is one rule B03-10 of the MOC forbids" },
+        { "args": ["35170458716523000119550010000123451000123458"], "returns": null, "note": "JavaScript's own test: should return null when the cNF of an NF-e equals its nNF, the second half of rule B03-10" },
+        { "args": ["not-a-key"], "returns": null, "note": "JavaScript's own test: should return null when the access key is otherwise invalid" },
+        {
+          "args": ["43160472202112000136550000000010571048440722"],
+          "returns": {
+            "stateCode": "RS",
+            "year": 2016,
+            "month": 4,
+            "taxId": "72202112000136",
+            "model": "55",
+            "series": 0,
+            "number": 1057,
+            "emissionType": 1,
+            "code": "04844072",
+            "checkDigit": 2
+          },
+          "note": "JavaScript's own test: should return the parsed access key for a NF-e access key (RS), the NFePHP sped-cte `$infNFe->chave` example (NF-e referenced by a CT-e)"
+        },
+        {
+          "args": ["35170458716523000119620010000000121000123450"],
+          "returns": {
+            "stateCode": "SP",
+            "year": 2017,
+            "month": 4,
+            "taxId": "58716523000119",
+            "model": "62",
+            "series": 1,
+            "number": 12,
+            "emissionType": 1,
+            "authorizationSite": 0,
+            "code": "0012345",
+            "checkDigit": 0
+          },
+          "note": "JavaScript's own test: should return the parsed access key splitting nSiteAutoriz from the 7 digit cNF of an NFCom, per its Visão Geral §2.1.3"
+        },
+        {
+          "args": ["35170458716523000119660010000000121000123454"],
+          "returns": {
+            "stateCode": "SP",
+            "year": 2017,
+            "month": 4,
+            "taxId": "58716523000119",
+            "model": "66",
+            "series": 1,
+            "number": 12,
+            "emissionType": 1,
+            "authorizationSite": 0,
+            "code": "0012345",
+            "checkDigit": 4
+          },
+          "note": "JavaScript's own test: should return the parsed access key splitting nSiteAutoriz from the 7 digit cNF of an NF3e, per its Visão Geral"
+        }
       ]
     },
     "isValid": {
@@ -125,7 +195,35 @@
         { "name": "nfe-prefix", "args": ["NFe35170458716523000119550010000000121000123458"], "returns": true },
         { "name": "wrong", "args": ["35170458716523000119550010000000001000123457"], "returns": false },
         { "name": "too-short", "args": ["3517045871652300011955001000000012100012345"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["35120859597245000190550000000095831710040056"], "returns": true, "note": "JavaScript's own test: should return true for a real NF-e access key without a mask, the br-validate-dfe-access-key README/tests example (SP)" },
+        { "args": ["43160472202112000136550000000010571048440722"], "returns": true, "note": "JavaScript's own test: should return true for a real NF-e access key without a mask, the NFePHP sped-cte `$infNFe->chave` example (RS, NF-e referenced by a CT-e)" },
+        { "args": ["CTe35170458716523000119570010000000121000123455"], "returns": true, "note": "JavaScript's own test: should return true when it has the XML Id prefix of one of the other covered documents" },
+        { "args": ["MDFe35170458716523000119580010000000121000123459"], "returns": true, "note": "JavaScript's own test: should return true when it has the XML Id prefix of one of the other covered documents" },
+        { "args": ["BPe35170458716523000119630010000000121000123453"], "returns": true, "note": "JavaScript's own test: should return true when it has the XML Id prefix of one of the other covered documents" },
+        { "args": ["NF3e35170458716523000119660010000000121000123454"], "returns": true, "note": "JavaScript's own test: should return true when it has the XML Id prefix of one of the other covered documents" },
+        { "args": ["nfcom35170458716523000119620010000000121000123450"], "returns": true, "note": "JavaScript's own test: should return true when it has the XML Id prefix of one of the other covered documents" },
+        { "args": ["35170458716523000119620010000000121000123450"], "returns": true, "note": "JavaScript's own test: should return true for the four models added beside the NF-e family: NFCom (62), BP-e (63), GTV-e (64) and NF3e (66)" },
+        { "args": ["35170458716523000119630010000000121000123453"], "returns": true, "note": "JavaScript's own test: should return true for the four models added beside the NF-e family: NFCom (62), BP-e (63), GTV-e (64) and NF3e (66)" },
+        { "args": ["35170458716523000119640010000000121000123457"], "returns": true, "note": "JavaScript's own test: should return true for the four models added beside the NF-e family: NFCom (62), BP-e (63), GTV-e (64) and NF3e (66)" },
+        { "args": ["35170458716523000119660010000000121000123454"], "returns": true, "note": "JavaScript's own test: should return true for the four models added beside the NF-e family: NFCom (62), BP-e (63), GTV-e (64) and NF3e (66)" },
+        { "args": ["35170458716523000119570010000000128000123452"], "returns": true, "note": "JavaScript's own test: should return true for a CT-e, a CT-e OS and a GTV-e authorised by the SVC-SP, whose MOC assigns tpEmis 8" },
+        { "args": ["35170458716523000119670010000000128000123455"], "returns": true, "note": "JavaScript's own test: should return true for a CT-e, a CT-e OS and a GTV-e authorised by the SVC-SP, whose MOC assigns tpEmis 8" },
+        { "args": ["35170458716523000119640010000000128000123454"], "returns": true, "note": "JavaScript's own test: should return true for a CT-e, a CT-e OS and a GTV-e authorised by the SVC-SP, whose MOC assigns tpEmis 8" },
+        { "args": ["3517.0458.7165.2300.0119.5500.1000.0000.1210.0012.3458"], "returns": true, "note": "JavaScript's own test: should return true when the printed groups of 4 are split by any of the mask characters" },
+        { "args": ["3517-0458-7165-2300-0119-5500-1000-0000-1210-0012-3458"], "returns": true, "note": "JavaScript's own test: should return true when the printed groups of 4 are split by any of the mask characters" },
+        { "args": ["3517/0458/7165/2300/0119/5500/1000/0000/1210/0012/3458"], "returns": true, "note": "JavaScript's own test: should return true when the printed groups of 4 are split by any of the mask characters" },
+        { "args": ["3517.0458-7165/2300 0119 5500 1000 0000 1210 0012 3458"], "returns": true, "note": "JavaScript's own test: should return true when the mask characters are mixed and a run of them separates two groups" },
+        { "args": ["3517 - 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"], "returns": true, "note": "JavaScript's own test: should return true when the mask characters are mixed and a run of them separates two groups" },
+        { "args": ["NFe 3512 0859 5972 4500 0190 5500 0000 0095 8317 1004 0056"], "returns": true, "note": "JavaScript's own test: should return true when it has the NFe prefix and a whitespace mask combined" },
+        { "args": ["351 70458716523000119550010000000121000123458"], "returns": false, "note": "JavaScript's own test: should return false when a separator falls inside a printed group of 4 digits" },
+        { "args": ["3517 0458 7165 2300 0119 5500 1000 0000 1210 00123 458"], "returns": false, "note": "JavaScript's own test: should return false when a separator falls inside a printed group of 4 digits" },
+        { "args": ["3517#0458#7165#2300#0119#5500#1000#0000#1210#0012#3458"], "returns": false, "note": "JavaScript's own test: should return false when the groups are split by a character outside the mask" },
+        { "args": ["3517,0458,7165,2300,0119,5500,1000,0000,1210,0012,3458"], "returns": false, "note": "JavaScript's own test: should return false when the groups are split by a character outside the mask" },
+        { "args": ["35170358716523000119550010000000301000000300"], "returns": false, "note": "JavaScript's own test: should return false for the NFePHP `Keys::isValid` doc example, whose cNF equals its nNF (rule B03-10)" },
+        { "args": ["35170458716523000119550010000000121000000003"], "returns": false, "note": "JavaScript's own test: should return false when the cNF of an NF-e is one of the codes rule B03-10 lists" },
+        { "args": ["35170458716523000119550010000000121123456781"], "returns": false, "note": "JavaScript's own test: should return false when the cNF of an NF-e is one of the codes rule B03-10 lists" },
+        { "args": ["42100484684182000157550010000000020108042108"], "returns": false, "note": "JavaScript's own test: should return false when tpEmis is not between 1 and 9, using the br-validate-dfe-access-key doc example with a valid check digit but tpEmis '0'" }
       ]
     },
     "parse": {
@@ -152,7 +250,8 @@
         { "name": "masked", "args": ["3517 0458 7165 2300 0119 5500 1000 0000 1210 0012 3458"], "returns": "35170458716523000119550010000000121000123458" },
         { "name": "nfe-prefix", "args": ["NFe35170458716523000119550010000000121000123458"], "returns": "35170458716523000119550010000000121000123458" },
         { "name": "partial", "args": ["3517 0458"], "returns": "35170458" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["3517.0458.7165.2300.0119.5500.1000.0000.1210.0012.3458"], "returns": "35170458716523000119550010000000121000123458", "note": "JavaScript's own test: should remove non numeric characters" }
       ]
     }
   }

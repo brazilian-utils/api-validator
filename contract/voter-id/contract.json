@@ -39,7 +39,28 @@
       "tests": [
         { "args": ["652688902801"], "returns": "6526 8890 28 01", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["051401322801"], "returns": "0514 0132 28 01", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["859962902836"], "returns": "8599 6290 28 36", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["859962902836"], "returns": "8599 6290 28 36", "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": [""], "returns": "", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["1"], "returns": "1", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["12"], "returns": "12", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["123"], "returns": "123", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["1234"], "returns": "1234", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["12345"], "returns": "1234 5", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["123456"], "returns": "1234 56", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["1234567"], "returns": "1234 567", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["12345678"], "returns": "1234 5678", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["123456780"], "returns": "1234 5678 0", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["1234567801"], "returns": "1234 5678 01", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["12345678012"], "returns": "1234 5678 01 2", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["123456780124"], "returns": "1234 5678 01 24", "note": "JavaScript's own test: should format voter ids" },
+        { "args": ["1234567880191"], "returns": "1234 5678 8 01 91", "note": "JavaScript's own test: should use the 13-digit grouping once the sequential number has 9 digits (São Paulo/Minas Gerais)" },
+        { "args": ["1234567880299"], "returns": "1234 5678 8 02 99", "note": "JavaScript's own test: should use the 13-digit grouping once the sequential number has 9 digits (São Paulo/Minas Gerais)" },
+        { "args": ["12345678801912"], "returns": "1234 5678 8 01 91", "note": "JavaScript's own test: should drop the digits past the last slot of the pattern" },
+        { "args": ["123456788019123"], "returns": "1234 5678 8 01 91", "note": "JavaScript's own test: should drop the digits past the last slot of the pattern" },
+        { "args": ["12345678803991"], "returns": "1234 5678 80 39", "note": "JavaScript's own test: should drop the digits past the last slot of the pattern" },
+        { "args": ["1234567880399"], "returns": "1234 5678 80 39", "note": "JavaScript's own test: should keep the 12-digit grouping for a 13-digit value whose UF cannot carry 9 sequential digits" },
+        { "args": ["123456788"], "returns": "1234 5678 8", "note": "JavaScript's own test: should keep using the 12-digit grouping for inputs with 12 digits or fewer" },
+        { "args": ["123456788019"], "returns": "1234 5678 80 19", "note": "JavaScript's own test: should keep using the 12-digit grouping for inputs with 12 digits or fewer" }
       ]
     },
     "generate": {
@@ -102,7 +123,26 @@
         { "args": ["859962902837"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["102385010671"], "returns": true, "note": "JavaScript's own test: should validate a real 12-digit voter id" },
+        { "args": ["1234567880191"], "returns": true, "note": "JavaScript's own test: should validate a real 13-digit voter id (São Paulo, 9-digit sequential)" },
+        { "args": ["1234567880192"], "returns": false, "note": "JavaScript's own test: should ignore the ninth sequential digit when checking a 13-digit voter id, as brutils does" },
+        { "args": ["1234567890396"], "returns": false, "note": "JavaScript's own test: should reject a 13-digit value whose UF cannot carry a 9-digit sequential number" },
+        { "args": ["123456780396"], "returns": true, "note": "JavaScript's own test: should reject a 13-digit value whose UF cannot carry a 9-digit sequential number" },
+        { "args": ["12345678980191"], "returns": false, "note": "JavaScript's own test: should reject a value with more than 13 digits even when the first 8 and the last 4 match" },
+        { "args": ["123456789900"], "returns": false, "note": "JavaScript's own test: should return false when the UF code is outside 01-28" },
+        { "args": ["1234567890345"], "returns": false, "note": "JavaScript's own test: should return false for a 13-digit voter id whose UF is not 01 or 02" },
+        { "args": ["ab102385010671"], "returns": false, "note": "JavaScript's own test: should reject a value with a letter attached to the digits" },
+        { "args": ["102385010671ab"], "returns": false, "note": "JavaScript's own test: should reject a value with a letter attached to the digits" },
+        { "args": ["1023-8501-06-71"], "returns": false, "note": "JavaScript's own test: should reject a mask that is not whitespace or a dot" },
+        { "args": ["1023 8501 06 71"], "returns": true, "note": "JavaScript's own test: should accept the documented whitespace and dot masks" },
+        { "args": ["1023.8501.06.71"], "returns": true, "note": "JavaScript's own test: should accept the documented whitespace and dot masks" },
+        { "args": ["1234 5678 8 01 91"], "returns": true, "note": "JavaScript's own test: should accept the documented whitespace and dot masks" },
+        { "args": ["000010191"], "returns": false, "note": "JavaScript's own test: should reject a value whose length is neither 12 nor 13, even when its checksum would otherwise match" },
+        { "args": ["1234567890370"], "returns": false, "note": "JavaScript's own test: should reject a value whose length is neither 12 nor 13, even when its checksum would otherwise match" },
+        { "args": ["000000002909"], "returns": false, "note": "JavaScript's own test: should reject the UF code boundaries 0 and 29, even when the checksum would otherwise match" },
+        { "args": ["000000010191"], "returns": true, "note": "JavaScript's own test: should accept the UF code boundaries 1 and 28" },
+        { "args": ["000000002801"], "returns": true, "note": "JavaScript's own test: should accept the UF code boundaries 1 and 28" }
       ]
     },
     "parse": {
@@ -127,7 +167,11 @@
         { "name": "masked", "args": ["1234 5678 01 24"], "returns": "123456780124" },
         { "name": "unmasked", "args": ["123456780124"], "returns": "123456780124" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "13-digit-sp-mg", "args": ["1234 5678 8 01 91"], "returns": "1234567880191" }
+        { "name": "13-digit-sp-mg", "args": ["1234 5678 8 01 91"], "returns": "1234567880191" },
+        { "args": ["12345678032499"], "returns": "123456780324", "note": "JavaScript's own test: should ignore digits after the voter id length (non SP/MG)" },
+        { "args": ["1234567880299"], "returns": "1234567880299", "note": "JavaScript's own test: should keep up to 13 digits for Minas Gerais (02) voter ids" },
+        { "args": ["123456788019199"], "returns": "1234567880191", "note": "JavaScript's own test: should ignore digits after the 13-digit voter id length for SP/MG" },
+        { "args": ["12345678905999"], "returns": "123456789059", "note": "JavaScript's own test: should ignore digits after the 12-digit length when the 9th/10th digits are not SP/MG, even with extra digits" }
       ]
     }
   }

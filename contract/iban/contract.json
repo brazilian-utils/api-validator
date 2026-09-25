@@ -41,7 +41,18 @@
         { "args": ["BR1500000000000010932840814P2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2" },
         { "name": "lowercase", "args": ["br1500000000000010932840814p2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2" },
         { "name": "partial", "args": ["BR150"], "returns": "BR15 0" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["B"], "returns": "B", "note": "JavaScript's own test: should format a partial value as far as it goes" },
+        { "args": ["BR"], "returns": "BR", "note": "JavaScript's own test: should format a partial value as far as it goes" },
+        { "args": ["BR1"], "returns": "BR1", "note": "JavaScript's own test: should format a partial value as far as it goes" },
+        { "args": ["BR15"], "returns": "BR15", "note": "JavaScript's own test: should format a partial value as far as it goes" },
+        { "args": ["BR1500000000000010932840814P"], "returns": "BR15 0000 0000 0000 1093 2840 814P", "note": "JavaScript's own test: should format a partial value as far as it goes" },
+        { "args": ["BR1500 000000000010 932840814P2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2", "note": "JavaScript's own test: should regroup a value that is already written in the print format" },
+        { "args": ["  BR15 0000 0000 0000 1093 2840 814P 2  "], "returns": "BR15 0000 0000 0000 1093 2840 814P 2", "note": "JavaScript's own test: should trim the surrounding whitespace" },
+        { "args": ["BR1500000000000010932840814P-2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2", "note": "JavaScript's own test: should read only the letters and digits of a value with other characters, like formatCpf" },
+        { "args": ["BR15 0000-0000.0000/1093 2840 814P 2"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2", "note": "JavaScript's own test: should read only the letters and digits of a value with other characters, like formatCpf" },
+        { "args": ["BR15  0000"], "returns": "BR15 0000", "note": "JavaScript's own test: should read only the letters and digits of a value with other characters, like formatCpf" },
+        { "args": ["BR1500000000000010932840814P2EXTRACHARS"], "returns": "BR15 0000 0000 0000 1093 2840 814P 2", "note": "JavaScript's own test: should cap the result to 29 characters" }
       ]
     },
     "getInfo": {
@@ -76,7 +87,18 @@
         { "args": ["BR3860701190000010000012345C1"], "returns": { "countryCode": "BR", "checkDigits": "38", "bankIspb": "60701190", "branch": "00001", "account": "0000012345", "accountType": "C", "owner": "1" } },
         { "name": "wrong-check", "args": ["BR1500000000000010932840814P3"], "returns": null },
         { "name": "not-brazilian", "args": ["DE89370400440532013000"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["br1500000000000010932840814p2"], "returns": { "countryCode": "BR", "checkDigits": "15", "bankIspb": "00000000", "branch": "00001", "account": "0932840814", "accountType": "P", "owner": "2" }, "note": "JavaScript's own test: should return the parsed iban for a lowercase value" },
+        { "args": ["BR1460746948000020001234567P2"], "returns": { "countryCode": "BR", "checkDigits": "14", "bankIspb": "60746948", "branch": "00002", "account": "0001234567", "accountType": "P", "owner": "2" }, "note": "JavaScript's own test: should return the parsed iban for a valid IBAN with a poupança (P) account type and a non zero branch" },
+        { "args": ["BR5400000000000010932840814D2"], "returns": { "countryCode": "BR", "checkDigits": "54", "bankIspb": "00000000", "branch": "00001", "account": "0932840814", "accountType": "D", "owner": "2" }, "note": "JavaScript's own test: should return the parsed iban for a valid IBAN with an account type letter other than C or P" },
+        { "args": ["BR15000000000000109328408"], "returns": null, "note": "JavaScript's own test: should return null when it is shorter than 29 characters" },
+        { "args": ["BR1500000000000010932840814P2000"], "returns": null, "note": "JavaScript's own test: should return null when it is longer than 29 characters" },
+        { "args": ["BR150000000000001093284081412"], "returns": null, "note": "JavaScript's own test: should return null when the account type is not a letter" },
+        { "args": ["BR6900000000000010932840814P0"], "returns": null, "note": "JavaScript's own test: should return null when the owner indicator is 0, which Circular 3.625 art. 2 § 1 does not assign, even though the check digits match" },
+        { "args": ["BR1500000000000010932840814X2"], "returns": null, "note": "JavaScript's own test: should return null when the account type letter does not match the check digits" },
+        { "args": ["BR1500000000000010932840814P_2"], "returns": null, "note": "JavaScript's own test: should return null when it carries a character outside the print format" },
+        { "args": ["BR15,0000,0000,0000,1093,2840,814P2"], "returns": null, "note": "JavaScript's own test: should return null when it carries a character outside the print format" },
+        { "args": ["BR15 000 00000 0000 1093 2840 814P 2"], "returns": null, "note": "JavaScript's own test: should return null when a separator falls inside a group instead of at its boundary" }
       ]
     },
     "isValid": {
@@ -113,7 +135,33 @@
         { "name": "wrong-check", "args": ["BR1500000000000010932840814P3"], "returns": false },
         { "name": "not-brazilian", "args": ["DE89370400440532013000"], "returns": false },
         { "name": "too-short", "args": ["BR15000000000000109328408"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": ["BR15.0000.0000.0000.1093.2840.814P.2"], "returns": true, "note": "JavaScript's own test: should return true for a value whose ISO 13616 groups are split by any of the mask characters" },
+        { "args": ["BR15-0000-0000-0000-1093-2840-814P-2"], "returns": true, "note": "JavaScript's own test: should return true for a value whose ISO 13616 groups are split by any of the mask characters" },
+        { "args": ["BR15/0000/0000/0000/1093/2840/814P/2"], "returns": true, "note": "JavaScript's own test: should return true for a value whose ISO 13616 groups are split by any of the mask characters" },
+        { "args": ["BR15.0000-0000/0000 1093 2840 814P2"], "returns": true, "note": "JavaScript's own test: should return true for a value whose ISO 13616 groups are split by any of the mask characters" },
+        { "args": ["BR1500000000000010932840814P-2"], "returns": true, "note": "JavaScript's own test: should return true for a value split at one group boundary only" },
+        { "args": ["  BR15 0000 0000 0000 1093 2840 814P 2  "], "returns": true, "note": "JavaScript's own test: should return true for a value with surrounding whitespace" },
+        { "args": ["BR1460746948000020001234567P2"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN with a poupança (P) account type" },
+        { "args": ["BR3860701190000010000012345C1"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN with a corrente (C) account type" },
+        { "args": ["BR5400000000000010932840814D2"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN whose account type is a letter other than C or P" },
+        { "args": ["BR7800000000000010932840814S2"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN whose account type is a letter other than C or P" },
+        { "args": ["BR4500000000000010000012345CA"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN whose owner indicator is the letter A (the LETTER_CODE_A boundary)" },
+        { "args": ["BR4900000000000010000012345CZ"], "returns": true, "note": "JavaScript's own test: should return true for a valid IBAN whose owner indicator is the letter Z (the highest transliterated letter)" },
+        { "args": ["BR1500000000000010932840814P2000"], "returns": false, "note": "JavaScript's own test: should return false when it is longer than 29 characters" },
+        { "args": ["BR150000000000001093284081412"], "returns": false, "note": "JavaScript's own test: should return false when the account type is not a letter" },
+        { "args": ["BR6900000000000010932840814P0"], "returns": false, "note": "JavaScript's own test: should return false when the owner indicator is 0, which Circular 3.625 art. 2 § 1 does not assign, even though the check digits match" },
+        { "args": ["BR1500000000000010932840814X2"], "returns": false, "note": "JavaScript's own test: should return false when the account type letter does not match the check digits" },
+        { "args": ["BR170000000A000010000012345C2"], "returns": false, "note": "JavaScript's own test: should return false when a digit position holds a letter instead, even if the check digits happen to match" },
+        { "args": ["BR1500000000000010932840814P_2"], "returns": false, "note": "JavaScript's own test: should return false when it carries a character outside the print format" },
+        { "args": ["BR15,0000,0000,0000,1093,2840,814P,2"], "returns": false, "note": "JavaScript's own test: should return false when it carries a character outside the print format" },
+        { "args": ["BR1500000000000010932840814P#2"], "returns": false, "note": "JavaScript's own test: should return false when it carries a character outside the print format" },
+        { "args": ["BR15 000 00000 0000 1093 2840 814P 2"], "returns": false, "note": "JavaScript's own test: should return false when a separator falls inside a group instead of at its boundary" },
+        { "args": ["BR1 50000000000001093 2840 814P 2"], "returns": false, "note": "JavaScript's own test: should return false when a separator falls inside a group instead of at its boundary" },
+        { "args": ["BR15 0000 0000 0000 1093 2840 814 P2"], "returns": false, "note": "JavaScript's own test: should return false when a separator falls inside a group instead of at its boundary" },
+        { "args": ["BR15 0000 0000 0000 1093 2840  814P 2"], "returns": false, "note": "JavaScript's own test: should return false when the groups are separated by more than one separator" },
+        { "args": ["BR15 0000 0000 0000 1093 2840 .-814P 2"], "returns": false, "note": "JavaScript's own test: should return false when the groups are separated by more than one separator" },
+        { "args": ["   "], "returns": false, "note": "JavaScript's own test: should return false when it contains only whitespace" }
       ]
     },
     "parse": {
@@ -135,7 +183,8 @@
         { "name": "masked", "args": ["BR15 0000 0000 0000 1093 2840 814P 2"], "returns": "BR1500000000000010932840814P2" },
         { "name": "lowercase-mixed-separators", "args": ["br15-0000.0000/0000 1093 2840 814p-2"], "returns": "BR1500000000000010932840814P2" },
         { "name": "caps-length", "args": ["BR1500000000000010932840814P2EXTRA"], "returns": "BR1500000000000010932840814P2", "note": "reference truncates to 29 characters; asserted by the reference (JS) unit tests" },
-        { "name": "empty", "args": [""], "returns": "" }
+        { "name": "empty", "args": [""], "returns": "" },
+        { "args": ["BR15"], "returns": "BR15", "note": "JavaScript's own test: should keep a partial IBAN as written" }
       ]
     }
   }

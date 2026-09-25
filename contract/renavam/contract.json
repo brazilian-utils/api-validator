@@ -58,7 +58,29 @@
         { "args": ["03894104701"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": [""], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
         { "args": ["   "], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
-        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" }
+        { "args": ["abc"], "returns": false, "note": "consensus of 5 libs (go, javascript, python, ruby, rust)" },
+        { "args": ["00639884962"], "returns": true, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["006398849620"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["0639884962"], "returns": false, "note": "JavaScript's own test: should return false when a valid registration carries an extra digit" },
+        { "args": ["12345678"], "returns": false, "note": "JavaScript's own test: should return false when it has less than 9 digits" },
+        { "args": ["123456789012"], "returns": false, "note": "JavaScript's own test: should return false when it has more than 11 digits" },
+        { "args": ["abcdefghij"], "returns": false, "note": "JavaScript's own test: should return false when it contains only letters or special characters" },
+        { "args": ["639884963"], "returns": false, "note": "JavaScript's own test: should return false when it is a RENAVAM with invalid checksum (639884963 has its last digit changed from the valid 639884962)" },
+        { "args": ["12345678901"], "returns": false, "note": "JavaScript's own test: should return false when it is a RENAVAM with invalid checksum (639884963 has its last digit changed from the valid 639884962)" },
+        { "args": ["12345678901abc"], "returns": false, "note": "JavaScript's own test: should return false when it has mixed characters that sanitize to an invalid RENAVAM (invalid checksum)" },
+        { "args": ["639884963xyz"], "returns": false, "note": "JavaScript's own test: should return false when it has mixed characters that sanitize to an invalid RENAVAM (invalid checksum)" },
+        { "args": ["639884962abc"], "returns": false, "note": "JavaScript's own test: should return false when letters are attached to an otherwise valid RENAVAM" },
+        { "args": ["ab00639884962"], "returns": false, "note": "JavaScript's own test: should return false when letters are attached to an otherwise valid RENAVAM" },
+        { "args": ["0063988/4962"], "returns": false, "note": "JavaScript's own test: should return false when the mask uses a character other than whitespace, a dot or a hyphen" },
+        { "args": ["000000000"], "returns": false, "note": "JavaScript's own test: should return false when every digit is the same" },
+        { "args": ["1234567890"], "returns": false, "note": "JavaScript's own test: should return false when is a RENAVAM with invalid length: 8 digits (too short), 10 digits (invalid), or 12 digits (too long)" },
+        { "args": ["639884962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with 9 digits (old format)" },
+        { "args": [639884962], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid as number" },
+        { "args": ["0063988.4962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": ["00639884-962"], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": [" 00639884962 "], "returns": true, "note": "JavaScript's own test: should return true when is a RENAVAM valid with the usual mask characters" },
+        { "args": ["12345678900"], "returns": true, "note": "JavaScript's own test: should return true when the multiplier cycle wraps from 9 back to 2 on non-zero digits" },
+        { "args": ["00000000060"], "returns": true, "note": "JavaScript's own test: should return true when the checksum remainder is exactly 1 (expected digit 0, not 10)" }
       ]
     }
   }

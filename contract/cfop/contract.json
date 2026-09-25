@@ -39,7 +39,24 @@
         { "name": "masked", "args": ["5.102"], "returns": { "code": "5102", "description": "Venda de mercadoria adquirida ou recebida de terceiros, ou qualquer venda de mercadoria efetuada pelo MEI com exceção das saídas classificadas nos códigos 5.501, 5.502, 5.504 e 5.505" } },
         { "name": "group-heading", "args": ["1100"], "returns": null },
         { "name": "too-short", "args": ["510"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [5102], "returns": { "code": "5102", "description": "Venda de mercadoria adquirida ou recebida de terceiros, ou qualquer venda de mercadoria efetuada pelo MEI com exceção das saídas classificadas nos códigos 5.501, 5.502, 5.504 e 5.505" }, "note": "JavaScript's own test: should return the CFOP entry for a known code as a number" },
+        { "args": ["1255"], "returns": { "code": "1255", "description": "Compra de energia elétrica por estabelecimento prestador de serviço de comunicação" }, "note": "JavaScript's own test: should return one entry per code even when the annex glues the body into the code line (1255 and 1256)" },
+        { "args": ["1256"], "returns": { "code": "1256", "description": "Compra de energia elétrica por estabelecimento de produtor rural" }, "note": "JavaScript's own test: should return one entry per code even when the annex glues the body into the code line (1255 and 1256)" },
+        { "args": ["7504"], "returns": { "code": "7504", "description": "Exportação de mercadoria que foi objeto de formação de lote de exportação" }, "note": "JavaScript's own test: should resolve the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["6360"], "returns": { "code": "6360", "description": "Prestação de serviço de transporte a contribuinte substituto em relação ao serviço de transporte" }, "note": "JavaScript's own test: should resolve the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["2128"], "returns": { "code": "2128", "description": "Compra para utilização na prestação de serviço sujeita ao ISSQN" }, "note": "JavaScript's own test: should resolve the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["1934"], "returns": { "code": "1934", "description": "Entrada simbólica de mercadoria recebida para depósito em depósito fechado ou armazém geral" }, "note": "JavaScript's own test: should resolve the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["0000"], "returns": null, "note": "JavaScript's own test: should return null for an unknown 4 digit code" },
+        { "args": ["5300"], "returns": null, "note": "JavaScript's own test: should return null for a group heading (a code ending in 00)" },
+        { "args": ["1150"], "returns": null, "note": "JavaScript's own test: should return null for a subgroup heading (a code ending in 50)" },
+        { "args": ["5350"], "returns": null, "note": "JavaScript's own test: should return null for a subgroup heading (a code ending in 50)" },
+        { "args": ["1151"], "returns": { "code": "1151", "description": "Transferência para industrialização ou produção rural" }, "note": "JavaScript's own test: should still resolve the operable codes a subgroup heading heads (1151 and 5351)" },
+        { "args": ["5351"], "returns": { "code": "5351", "description": "Prestação de serviço de transporte para execução de serviço da mesma natureza" }, "note": "JavaScript's own test: should still resolve the operable codes a subgroup heading heads (1151 and 5351)" },
+        { "args": ["abc5102"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not a documented form" },
+        { "args": ["5..102"], "returns": null, "note": "JavaScript's own test: should return null for a string that is not a documented form" },
+        { "args": [-5102], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" },
+        { "args": [51.02], "returns": null, "note": "JavaScript's own test: should return null for a number that is not a non-negative safe integer" }
       ]
     },
     "isValid": {
@@ -79,7 +96,25 @@
         { "name": "group-heading", "args": ["1100"], "returns": false },
         { "name": "too-short", "args": ["510"], "returns": false },
         { "name": "letters", "args": ["abcd"], "returns": false },
-        { "name": "empty", "args": [""], "returns": false }
+        { "name": "empty", "args": [""], "returns": false },
+        { "args": [5102], "returns": true, "note": "JavaScript's own test: should return true for a known CFOP code as a number" },
+        { "args": [" 5102 "], "returns": true, "note": "JavaScript's own test: should return true for a code with surrounding whitespace" },
+        { "args": ["6360"], "returns": true, "note": "JavaScript's own test: should accept the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["2128"], "returns": true, "note": "JavaScript's own test: should accept the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["1934"], "returns": true, "note": "JavaScript's own test: should accept the codes the 2022 and 2024 rewrites of the annex added (7504, 6360, 2128 and 1934)" },
+        { "args": ["1131"], "returns": true, "note": "JavaScript's own test: should accept the ato cooperativo and Sistema de Integração e Parceria Rural series (1131 and 1453)" },
+        { "args": ["1453"], "returns": true, "note": "JavaScript's own test: should accept the ato cooperativo and Sistema de Integração e Parceria Rural series (1131 and 1453)" },
+        { "args": ["1255"], "returns": true, "note": "JavaScript's own test: should accept a code whose body the annex glues into the code line (1255)" },
+        { "args": ["5300"], "returns": false, "note": "JavaScript's own test: should return false for a group heading (a code ending in 00)" },
+        { "args": ["1150"], "returns": false, "note": "JavaScript's own test: should return false for a subgroup heading (a code ending in 50)" },
+        { "args": ["5350"], "returns": false, "note": "JavaScript's own test: should return false for a subgroup heading (a code ending in 50)" },
+        { "args": ["1151"], "returns": true, "note": "JavaScript's own test: should still accept the operable codes a subgroup heading heads (1151 and 5351)" },
+        { "args": ["5351"], "returns": true, "note": "JavaScript's own test: should still accept the operable codes a subgroup heading heads (1151 and 5351)" },
+        { "args": ["51020"], "returns": false, "note": "JavaScript's own test: should return false for a code with a length different from 4" },
+        { "args": ["abc5102"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": ["5..102"], "returns": false, "note": "JavaScript's own test: should return false for a string that is not a documented form" },
+        { "args": [-5102], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" },
+        { "args": [51.02], "returns": false, "note": "JavaScript's own test: should return false for a number that is not a non-negative safe integer" }
       ]
     },
     "parse": {
@@ -107,7 +142,8 @@
         { "name": "unmasked", "args": ["5102"], "returns": "5102" },
         { "name": "strips-non-digits", "args": ["5?ABC.102abc"], "returns": "5102" },
         { "name": "empty", "args": [""], "returns": "" },
-        { "name": "caps-length", "args": ["5102999"], "returns": "5102", "note": "reference truncates to the 4 characters of the document; asserted by the reference (JS) unit tests" }
+        { "name": "caps-length", "args": ["5102999"], "returns": "5102", "note": "reference truncates to the 4 characters of the document; asserted by the reference (JS) unit tests" },
+        { "args": [5102], "returns": "5102", "note": "JavaScript's own test: should read a number as the string of its digits" }
       ]
     }
   }

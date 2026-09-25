@@ -68,6 +68,7 @@ language.
 | `site-data [--out site]` | Exports the latest reports for the docs site: `site/.generated/status.json` (status per library and function, failing cases, usage), badges, the JSON suite |
 | `usage [--scaffold] [--materialize] [--path .] [--strict]` | Shows which implemented functions each library documents (its usage files and reference page, else `site/fixtures/usage/<lib>/`). `--scaffold` writes the missing sections from the cases the library passes. `--materialize` writes a reference page out as usage files |
 | `diff [--fn 'cpf.*']` | Runs differential testing across libraries. `--baseline` records the current splits. `--fail-on-new` fails only on new splits. `--propose [--unanimous] [--apply]` turns agreed answers into contract tests |
+| `mine-tests -l <lib> [--fn 'cpf.*'] [--apply]` | Mines a JavaScript library's own test suite for cases the contract can hold (`expect(fn(literals)).toBe(literal)` on bound functions). Proposals in `contract/_proposals/`, or `--apply` appends them to the contract |
 | `changelog [--from ref] [--to ref]` | Writes the contract changes between git refs (new functions, signature changes, new or changed cases) as markdown |
 | `doctor` | Lists the toolchains that every configured library needs, and what is missing |
 | `probe <fn> <args...>` | Calls one function with the same arguments in every library and shows the results side by side |

@@ -44,7 +44,10 @@
         { "name": "distrito-federal", "args": ["53"], "returns": { "code": "DF", "name": "Distrito Federal", "regionCode": "CO", "regionName": "Centro-Oeste", "ibgeCode": 53 } },
         { "args": ["00"], "returns": null },
         { "args": ["99"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": [-35], "returns": null, "note": "JavaScript's own test: should return null for a negative number, not read it as the cUF 35" },
+        { "args": [3.5], "returns": null, "note": "JavaScript's own test: should return null for a fractional number, not read it as the cUF 35" },
+        { "args": ["   "], "returns": null, "note": "JavaScript's own test: should return null for whitespace only" }
       ]
     },
     "getCodeByName": {
@@ -78,7 +81,19 @@
         { "args": ["Rio Grande do Norte"], "returns": "RN" },
         { "args": ["Distrito Federal"], "returns": "DF" },
         { "args": ["Neverland"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["SAO PAULO"], "returns": "SP", "note": "JavaScript's own test: should be case-insensitive" },
+        { "args": ["Rio  de  Janeiro"], "returns": "RJ", "note": "JavaScript's own test: should collapse every run of internal whitespace" },
+        { "args": ["Rio\tde\nJaneiro"], "returns": "RJ", "note": "JavaScript's own test: should collapse every run of internal whitespace" },
+        { "args": ["  sao   paulo  "], "returns": "SP", "note": "JavaScript's own test: should collapse every run of internal whitespace" },
+        { "args": ["  sao PAULO  "], "returns": "SP", "note": "JavaScript's own test: should combine accent removal, casing and trimming together" },
+        { "args": ["ceara"], "returns": "CE", "note": "JavaScript's own test: should resolve a multi-word name with accents, the Ceará example" },
+        { "args": ["rio grande do sul"], "returns": "RS", "note": "JavaScript's own test: should resolve a name containing 'do'/'de' particles, the Rio Grande do Sul example" },
+        { "args": ["Rio Grande do Sul"], "returns": "RS", "note": "JavaScript's own test: should distinguish Rio Grande do Norte from Rio Grande do Sul" },
+        { "args": ["saopaulo"], "returns": null, "note": "JavaScript's own test: should not match a name written without the space the published one carries" },
+        { "args": ["Mato Grosso"], "returns": "MT", "note": "JavaScript's own test: should fold the casing to lower case, which leaves ß as it is instead of expanding it to ss" },
+        { "args": ["Mato Großo"], "returns": null, "note": "JavaScript's own test: should fold the casing to lower case, which leaves ß as it is instead of expanding it to ss" },
+        { "args": ["   "], "returns": null, "note": "JavaScript's own test: should return null for whitespace only" }
       ]
     },
     "getNameByCode": {
@@ -110,7 +125,10 @@
         { "name": "padded", "args": ["  RJ  "], "returns": "Rio de Janeiro" },
         { "args": ["DF"], "returns": "Distrito Federal" },
         { "args": ["ZZ"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["Sp"], "returns": "São Paulo", "note": "JavaScript's own test: should be case-insensitive" },
+        { "args": ["  rj  "], "returns": "Rio de Janeiro", "note": "JavaScript's own test: should combine casing and trimming together" },
+        { "args": ["   "], "returns": null, "note": "JavaScript's own test: should return null for whitespace only" }
       ]
     },
     "getTimezone": {
@@ -144,7 +162,33 @@
         { "name": "lowercase", "args": ["sp"], "returns": "America/Sao_Paulo" },
         { "name": "padded", "args": ["  SP  "], "returns": "America/Sao_Paulo" },
         { "args": ["ZZ"], "returns": null },
-        { "name": "empty", "args": [""], "returns": null }
+        { "name": "empty", "args": [""], "returns": null },
+        { "args": ["PE"], "returns": "America/Recife", "note": "JavaScript's own test: should return America/Recife for PE, not America/Noronha (Fernando de Noronha is a district of PE, not a state)" },
+        { "args": ["AP"], "returns": "America/Belem", "note": "JavaScript's own test: should return America/Belem for AP, per the tzdata BR row 'Pará (east), Amapá'" },
+        { "args": ["PA"], "returns": "America/Belem", "note": "JavaScript's own test: should return America/Belem for PA" },
+        { "args": ["CE"], "returns": "America/Fortaleza", "note": "JavaScript's own test: should return America/Fortaleza for CE, MA, PI, RN and PB, the tzdata BR row 'Brazil (northeast: MA, PI, CE, RN, PB)'" },
+        { "args": ["MA"], "returns": "America/Fortaleza", "note": "JavaScript's own test: should return America/Fortaleza for CE, MA, PI, RN and PB, the tzdata BR row 'Brazil (northeast: MA, PI, CE, RN, PB)'" },
+        { "args": ["PI"], "returns": "America/Fortaleza", "note": "JavaScript's own test: should return America/Fortaleza for CE, MA, PI, RN and PB, the tzdata BR row 'Brazil (northeast: MA, PI, CE, RN, PB)'" },
+        { "args": ["RN"], "returns": "America/Fortaleza", "note": "JavaScript's own test: should return America/Fortaleza for CE, MA, PI, RN and PB, the tzdata BR row 'Brazil (northeast: MA, PI, CE, RN, PB)'" },
+        { "args": ["PB"], "returns": "America/Fortaleza", "note": "JavaScript's own test: should return America/Fortaleza for CE, MA, PI, RN and PB, the tzdata BR row 'Brazil (northeast: MA, PI, CE, RN, PB)'" },
+        { "args": ["DF"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["GO"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["MG"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["ES"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["RJ"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["PR"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["SC"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["RS"], "returns": "America/Sao_Paulo", "note": "JavaScript's own test: should return America/Sao_Paulo for every southeast/south/center-west state sharing that zone" },
+        { "args": ["AL"], "returns": "America/Maceio", "note": "JavaScript's own test: should return America/Maceio for AL and SE" },
+        { "args": ["SE"], "returns": "America/Maceio", "note": "JavaScript's own test: should return America/Maceio for AL and SE" },
+        { "args": ["MT"], "returns": "America/Cuiaba", "note": "JavaScript's own test: should return America/Cuiaba for MT" },
+        { "args": ["MS"], "returns": "America/Campo_Grande", "note": "JavaScript's own test: should return America/Campo_Grande for MS" },
+        { "args": ["RO"], "returns": "America/Porto_Velho", "note": "JavaScript's own test: should return America/Porto_Velho for RO" },
+        { "args": ["RR"], "returns": "America/Boa_Vista", "note": "JavaScript's own test: should return America/Boa_Vista for RR" },
+        { "args": ["TO"], "returns": "America/Araguaina", "note": "JavaScript's own test: should return America/Araguaina for TO" },
+        { "args": ["constructor"], "returns": null, "note": "JavaScript's own test: should return null for names inherited from Object.prototype" },
+        { "args": ["toString"], "returns": null, "note": "JavaScript's own test: should return null for names inherited from Object.prototype" },
+        { "args": ["__proto__"], "returns": null, "note": "JavaScript's own test: should return null for names inherited from Object.prototype" }
       ]
     },
     "list": {

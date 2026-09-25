@@ -71,6 +71,10 @@ Do not rename a function. A new name breaks every library. To change only the ti
 The text explains the rule. The test cases decide the behavior, and the libraries run the test cases. If the text says that formatted input is not valid, a test case must expect `false` for formatted input.
 </Callout>
 
+## Cases from a library's own tests
+
+A library that already tests a function has cases the contract can take: `npm run docs mine-tests -- -l javascript` reads the test files of the JavaScript library and takes every assertion of the form `expect(fn(literals)).toBe(literal)` on a function the contract knows. It writes them to `contract/_proposals/` for review, and with `--apply` it appends them to the contract, each with a `note` that names the test they came from. It leaves alone what the contract cannot hold: computed inputs or outputs, inputs of a type the signature does not admit, a forced random value, and inputs the contract already has. Then run `npm run check -- --tests` on every library: a case that only the source library passes is a divergence to settle before the merge.
+
 ## Change a behavior
 
 A change to an expected value changes every library. In the pull request, give the official source of the change and the libraries that it affects. After the merge, each library that fails the changed cases gets an issue titled `Fix <function>`.
